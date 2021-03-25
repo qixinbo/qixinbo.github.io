@@ -20,12 +20,12 @@
     var CONFIG = {"hostname":"qixinbo.github.io","root":"/","scheme":"Gemini","version":"7.8.0","exturl":false,"sidebar":{"position":"left","display":"post","padding":18,"offset":12,"onmobile":false},"copycode":{"enable":false,"show_result":false,"style":null},"back2top":{"enable":true,"sidebar":false,"scrollpercent":false},"bookmark":{"enable":false,"color":"#222","save":"auto"},"fancybox":false,"mediumzoom":false,"lazyload":false,"pangu":false,"comments":{"style":"tabs","active":null,"storage":true,"lazyload":false,"nav":null},"algolia":{"hits":{"per_page":10},"labels":{"input_placeholder":"Search for Posts","hits_empty":"We didn't find any results for the search: ${query}","hits_stats":"${hits} results found in ${time} ms"}},"localsearch":{"enable":false,"trigger":"auto","top_n_per_article":1,"unescape":false,"preload":false},"motion":{"enable":true,"async":false,"transition":{"post_block":"fadeIn","post_header":"slideDownIn","post_body":"slideDownIn","coll_header":"slideLeftIn","sidebar":"slideUpIn"}}};
   </script>
 
-  <meta name="description" content="引子真实生活中，大多数的偏微分方程都是一组方程，相应地，解也通常是矢量场。跟之前单方程的求解以及解是标量场相比，这种问题只是在组装矩阵和右端项时有些复杂，其他都一样。本例中求解的是弹性问题：$$-\partial_j (c_{ijkl} \partial_k u_l) &#x3D; f_i, \qquad i&#x3D;1 \ldots d$$其中，$c_{ijkl}$是刚度系数，通常与空间坐标相关。弹性方程是Lap">
+  <meta name="description" content="引子 真实生活中，大多数的偏微分方程都是一组方程，相应地，解也通常是矢量场。跟之前单方程的求解以及解是标量场相比，这种问题只是在组装矩阵和右端项时有些复杂，其他都一样。 本例中求解的是弹性问题： $$ -\partial_j (c_{ijkl} \partial_k u_l) &#x3D; f_i, \qquad i&#x3D;1 \ldots d $$ 其中，$c_{ijkl}$是刚度系数，通常与空间坐标相关。 弹">
 <meta property="og:type" content="article">
 <meta property="og:title" content="求解偏微分方程开源有限元软件deal.II学习--Step 8">
 <meta property="og:url" content="http://qixinbo.github.io/2016/09/06/dealii-learn-step8/index.html">
 <meta property="og:site_name" content="亓欣波">
-<meta property="og:description" content="引子真实生活中，大多数的偏微分方程都是一组方程，相应地，解也通常是矢量场。跟之前单方程的求解以及解是标量场相比，这种问题只是在组装矩阵和右端项时有些复杂，其他都一样。本例中求解的是弹性问题：$$-\partial_j (c_{ijkl} \partial_k u_l) &#x3D; f_i, \qquad i&#x3D;1 \ldots d$$其中，$c_{ijkl}$是刚度系数，通常与空间坐标相关。弹性方程是Lap">
+<meta property="og:description" content="引子 真实生活中，大多数的偏微分方程都是一组方程，相应地，解也通常是矢量场。跟之前单方程的求解以及解是标量场相比，这种问题只是在组装矩阵和右端项时有些复杂，其他都一样。 本例中求解的是弹性问题： $$ -\partial_j (c_{ijkl} \partial_k u_l) &#x3D; f_i, \qquad i&#x3D;1 \ldots d $$ 其中，$c_{ijkl}$是刚度系数，通常与空间坐标相关。 弹">
 <meta property="og:locale" content="en_US">
 <meta property="og:image" content="https://ws1.sinaimg.cn/large/0072Lfvtly1fvjk3ow7k0j32eo37k4qq.jpg">
 <meta property="og:image" content="https://ws1.sinaimg.cn/large/0072Lfvtly1fvjk60wib7j32eo37khdu.jpg">
@@ -83,6 +83,7 @@
   </style>
 </noscript>
 
+<link rel="alternate" href="/atom.xml" title="亓欣波" type="application/atom+xml">
 </head>
 
 <body itemscope itemtype="http://schema.org/WebPage">
@@ -122,47 +123,47 @@
   <ul id="menu" class="main-menu menu">
         <li class="menu-item menu-item-home">
 
-    <a href="/" rel="section"><i class="home fa-fw"></i>Home</a>
+    <a href="/" rel="section"><i class="fa fa-home fa-fw"></i>Home</a>
 
   </li>
         <li class="menu-item menu-item-categories">
 
-    <a href="/categories/" rel="section"><i class="th fa-fw"></i>Categories</a>
+    <a href="/categories/" rel="section"><i class="fa fa-th fa-fw"></i>Categories</a>
 
   </li>
         <li class="menu-item menu-item-archives">
 
-    <a href="/archives/" rel="section"><i class="archive fa-fw"></i>Archives</a>
+    <a href="/archives/" rel="section"><i class="fa fa-archive fa-fw"></i>Archives</a>
 
   </li>
         <li class="menu-item menu-item-tags">
 
-    <a href="/tags/" rel="section"><i class="tags fa-fw"></i>Tags</a>
+    <a href="/tags/" rel="section"><i class="fa fa-tags fa-fw"></i>Tags</a>
 
   </li>
         <li class="menu-item menu-item-scholar">
 
-    <a href="/scholar/" rel="section"><i class="bar-chart fa-fw"></i>scholar</a>
+    <a href="/scholar/" rel="section"><i class="fa fa-chart-bar fa-fw"></i>scholar</a>
 
   </li>
         <li class="menu-item menu-item-sources">
 
-    <a href="/sources/" rel="section"><i class="rss fa-fw"></i>sources</a>
+    <a href="/sources/" rel="section"><i class="fa fa-rss fa-fw"></i>sources</a>
 
   </li>
         <li class="menu-item menu-item-gallery">
 
-    <a href="/gallery/" rel="section"><i class="file-image-o fa-fw"></i>gallery</a>
+    <a href="/gallery/" rel="section"><i class="fa fa-file-image fa-fw"></i>gallery</a>
 
   </li>
         <li class="menu-item menu-item-about">
 
-    <a href="/about/" rel="section"><i class="user fa-fw"></i>About</a>
+    <a href="/about/" rel="section"><i class="fa fa-user fa-fw"></i>About</a>
 
   </li>
         <li class="menu-item menu-item-commonweal">
 
-    <a href="/404.html" rel="section"><i class="heartbeat fa-fw"></i>Commonweal 404</a>
+    <a href="/404.html" rel="section"><i class="fa fa-heartbeat fa-fw"></i>Commonweal 404</a>
 
   </li>
   </ul>
@@ -342,6 +343,35 @@
   </div>
 </div>
 
+        
+
+  <div class="followme">
+    <p>Welcome to my other publishing channels</p>
+
+    <div class="social-list">
+
+        <div class="social-item">
+          <a target="_blank" class="social-link" href="https://twitter.com/qixinbo">
+            <span class="icon">
+              <i class="fab fa-twitter"></i>
+            </span>
+
+            <span class="label">Twitter</span>
+          </a>
+        </div>
+
+        <div class="social-item">
+          <a target="_blank" class="social-link" href="/atom.xml">
+            <span class="icon">
+              <i class="fa fa-rss"></i>
+            </span>
+
+            <span class="label">RSS</span>
+          </a>
+        </div>
+    </div>
+  </div>
+
 
       <footer class="post-footer">
           <div class="post-tags">
@@ -466,6 +496,12 @@
       </span>
       <span class="links-of-author-item">
         <a href="mailto:qixinbo@gmail.com" title="E-Mail → mailto:qixinbo@gmail.com" rel="noopener" target="_blank"><i class="envelope fa-fw"></i>E-Mail</a>
+      </span>
+      <span class="links-of-author-item">
+        <a href="https://twitter.com/qixinbo" title="Twitter → https:&#x2F;&#x2F;twitter.com&#x2F;qixinbo" rel="noopener" target="_blank"><i class="fab fa-twitter fa-fw"></i>Twitter</a>
+      </span>
+      <span class="links-of-author-item">
+        <a href="/atom.xml" title="RSS → &#x2F;atom.xml"><i class="fas fa-rss fa-fw"></i>RSS</a>
       </span>
   </div>
 

@@ -20,12 +20,12 @@
     var CONFIG = {"hostname":"qixinbo.github.io","root":"/","scheme":"Gemini","version":"7.8.0","exturl":false,"sidebar":{"position":"left","display":"post","padding":18,"offset":12,"onmobile":false},"copycode":{"enable":false,"show_result":false,"style":null},"back2top":{"enable":true,"sidebar":false,"scrollpercent":false},"bookmark":{"enable":false,"color":"#222","save":"auto"},"fancybox":false,"mediumzoom":false,"lazyload":false,"pangu":false,"comments":{"style":"tabs","active":null,"storage":true,"lazyload":false,"nav":null},"algolia":{"hits":{"per_page":10},"labels":{"input_placeholder":"Search for Posts","hits_empty":"We didn't find any results for the search: ${query}","hits_stats":"${hits} results found in ${time} ms"}},"localsearch":{"enable":false,"trigger":"auto","top_n_per_article":1,"unescape":false,"preload":false},"motion":{"enable":true,"async":false,"transition":{"post_block":"fadeIn","post_header":"slideDownIn","post_body":"slideDownIn","coll_header":"slideLeftIn","sidebar":"slideUpIn"}}};
   </script>
 
-  <meta name="description" content="引子deal.II有一个特性，叫作”维度无关的编程“。前面的例子中，很多类都有一个尖括号括起的数字的后缀。这意味着该类能作用在不同的维度上，而不同维度的计算代码基本相同，这能显著地减少重复代码。这正是C++的模板template的拿手好戏。在Step4中，将显示程序怎样维度无关的编程，具体是将step3中的Laplace问题同时在二维和三维上求解，以及右端项不再是常量、边界值不再为0。 程序解析1">
+  <meta name="description" content="引子 deal.II有一个特性，叫作”维度无关的编程“。前面的例子中，很多类都有一个尖括号括起的数字的后缀。 这意味着该类能作用在不同的维度上，而不同维度的计算代码基本相同，这能显著地减少重复代码。这正是C++的模板template的拿手好戏。 在Step4中，将显示程序怎样维度无关的编程，具体是将step3中的Laplace问题同时在二维和三维上求解，以及右端项不再是常量、边界值不再为0。  程">
 <meta property="og:type" content="article">
 <meta property="og:title" content="求解偏微分方程开源有限元软件deal.II学习--Step 4">
 <meta property="og:url" content="http://qixinbo.github.io/2016/08/27/dealii-learn-step4/index.html">
 <meta property="og:site_name" content="亓欣波">
-<meta property="og:description" content="引子deal.II有一个特性，叫作”维度无关的编程“。前面的例子中，很多类都有一个尖括号括起的数字的后缀。这意味着该类能作用在不同的维度上，而不同维度的计算代码基本相同，这能显著地减少重复代码。这正是C++的模板template的拿手好戏。在Step4中，将显示程序怎样维度无关的编程，具体是将step3中的Laplace问题同时在二维和三维上求解，以及右端项不再是常量、边界值不再为0。 程序解析1">
+<meta property="og:description" content="引子 deal.II有一个特性，叫作”维度无关的编程“。前面的例子中，很多类都有一个尖括号括起的数字的后缀。 这意味着该类能作用在不同的维度上，而不同维度的计算代码基本相同，这能显著地减少重复代码。这正是C++的模板template的拿手好戏。 在Step4中，将显示程序怎样维度无关的编程，具体是将step3中的Laplace问题同时在二维和三维上求解，以及右端项不再是常量、边界值不再为0。  程">
 <meta property="og:locale" content="en_US">
 <meta property="og:image" content="https://ws1.sinaimg.cn/large/0072Lfvtly1fvjkk1jqg9j30qx0k5abx.jpg">
 <meta property="og:image" content="https://ws1.sinaimg.cn/large/0072Lfvtly1fvjkkbrbhcj30qx0k542b.jpg">
@@ -80,6 +80,7 @@
   </style>
 </noscript>
 
+<link rel="alternate" href="/atom.xml" title="亓欣波" type="application/atom+xml">
 </head>
 
 <body itemscope itemtype="http://schema.org/WebPage">
@@ -119,47 +120,47 @@
   <ul id="menu" class="main-menu menu">
         <li class="menu-item menu-item-home">
 
-    <a href="/" rel="section"><i class="home fa-fw"></i>Home</a>
+    <a href="/" rel="section"><i class="fa fa-home fa-fw"></i>Home</a>
 
   </li>
         <li class="menu-item menu-item-categories">
 
-    <a href="/categories/" rel="section"><i class="th fa-fw"></i>Categories</a>
+    <a href="/categories/" rel="section"><i class="fa fa-th fa-fw"></i>Categories</a>
 
   </li>
         <li class="menu-item menu-item-archives">
 
-    <a href="/archives/" rel="section"><i class="archive fa-fw"></i>Archives</a>
+    <a href="/archives/" rel="section"><i class="fa fa-archive fa-fw"></i>Archives</a>
 
   </li>
         <li class="menu-item menu-item-tags">
 
-    <a href="/tags/" rel="section"><i class="tags fa-fw"></i>Tags</a>
+    <a href="/tags/" rel="section"><i class="fa fa-tags fa-fw"></i>Tags</a>
 
   </li>
         <li class="menu-item menu-item-scholar">
 
-    <a href="/scholar/" rel="section"><i class="bar-chart fa-fw"></i>scholar</a>
+    <a href="/scholar/" rel="section"><i class="fa fa-chart-bar fa-fw"></i>scholar</a>
 
   </li>
         <li class="menu-item menu-item-sources">
 
-    <a href="/sources/" rel="section"><i class="rss fa-fw"></i>sources</a>
+    <a href="/sources/" rel="section"><i class="fa fa-rss fa-fw"></i>sources</a>
 
   </li>
         <li class="menu-item menu-item-gallery">
 
-    <a href="/gallery/" rel="section"><i class="file-image-o fa-fw"></i>gallery</a>
+    <a href="/gallery/" rel="section"><i class="fa fa-file-image fa-fw"></i>gallery</a>
 
   </li>
         <li class="menu-item menu-item-about">
 
-    <a href="/about/" rel="section"><i class="user fa-fw"></i>About</a>
+    <a href="/about/" rel="section"><i class="fa fa-user fa-fw"></i>About</a>
 
   </li>
         <li class="menu-item menu-item-commonweal">
 
-    <a href="/404.html" rel="section"><i class="heartbeat fa-fw"></i>Commonweal 404</a>
+    <a href="/404.html" rel="section"><i class="fa fa-heartbeat fa-fw"></i>Commonweal 404</a>
 
   </li>
   </ul>
@@ -313,6 +314,35 @@
   </div>
 </div>
 
+        
+
+  <div class="followme">
+    <p>Welcome to my other publishing channels</p>
+
+    <div class="social-list">
+
+        <div class="social-item">
+          <a target="_blank" class="social-link" href="https://twitter.com/qixinbo">
+            <span class="icon">
+              <i class="fab fa-twitter"></i>
+            </span>
+
+            <span class="label">Twitter</span>
+          </a>
+        </div>
+
+        <div class="social-item">
+          <a target="_blank" class="social-link" href="/atom.xml">
+            <span class="icon">
+              <i class="fa fa-rss"></i>
+            </span>
+
+            <span class="label">RSS</span>
+          </a>
+        </div>
+    </div>
+  </div>
+
 
       <footer class="post-footer">
           <div class="post-tags">
@@ -437,6 +467,12 @@
       </span>
       <span class="links-of-author-item">
         <a href="mailto:qixinbo@gmail.com" title="E-Mail → mailto:qixinbo@gmail.com" rel="noopener" target="_blank"><i class="envelope fa-fw"></i>E-Mail</a>
+      </span>
+      <span class="links-of-author-item">
+        <a href="https://twitter.com/qixinbo" title="Twitter → https:&#x2F;&#x2F;twitter.com&#x2F;qixinbo" rel="noopener" target="_blank"><i class="fab fa-twitter fa-fw"></i>Twitter</a>
+      </span>
+      <span class="links-of-author-item">
+        <a href="/atom.xml" title="RSS → &#x2F;atom.xml"><i class="fas fa-rss fa-fw"></i>RSS</a>
       </span>
   </div>
 

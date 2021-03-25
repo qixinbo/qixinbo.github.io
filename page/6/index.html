@@ -74,6 +74,7 @@
   </style>
 </noscript>
 
+<link rel="alternate" href="/atom.xml" title="亓欣波" type="application/atom+xml">
 </head>
 
 <body itemscope itemtype="http://schema.org/WebPage">
@@ -113,47 +114,47 @@
   <ul id="menu" class="main-menu menu">
         <li class="menu-item menu-item-home">
 
-    <a href="/" rel="section"><i class="home fa-fw"></i>Home</a>
+    <a href="/" rel="section"><i class="fa fa-home fa-fw"></i>Home</a>
 
   </li>
         <li class="menu-item menu-item-categories">
 
-    <a href="/categories/" rel="section"><i class="th fa-fw"></i>Categories</a>
+    <a href="/categories/" rel="section"><i class="fa fa-th fa-fw"></i>Categories</a>
 
   </li>
         <li class="menu-item menu-item-archives">
 
-    <a href="/archives/" rel="section"><i class="archive fa-fw"></i>Archives</a>
+    <a href="/archives/" rel="section"><i class="fa fa-archive fa-fw"></i>Archives</a>
 
   </li>
         <li class="menu-item menu-item-tags">
 
-    <a href="/tags/" rel="section"><i class="tags fa-fw"></i>Tags</a>
+    <a href="/tags/" rel="section"><i class="fa fa-tags fa-fw"></i>Tags</a>
 
   </li>
         <li class="menu-item menu-item-scholar">
 
-    <a href="/scholar/" rel="section"><i class="bar-chart fa-fw"></i>scholar</a>
+    <a href="/scholar/" rel="section"><i class="fa fa-chart-bar fa-fw"></i>scholar</a>
 
   </li>
         <li class="menu-item menu-item-sources">
 
-    <a href="/sources/" rel="section"><i class="rss fa-fw"></i>sources</a>
+    <a href="/sources/" rel="section"><i class="fa fa-rss fa-fw"></i>sources</a>
 
   </li>
         <li class="menu-item menu-item-gallery">
 
-    <a href="/gallery/" rel="section"><i class="file-image-o fa-fw"></i>gallery</a>
+    <a href="/gallery/" rel="section"><i class="fa fa-file-image fa-fw"></i>gallery</a>
 
   </li>
         <li class="menu-item menu-item-about">
 
-    <a href="/about/" rel="section"><i class="user fa-fw"></i>About</a>
+    <a href="/about/" rel="section"><i class="fa fa-user fa-fw"></i>About</a>
 
   </li>
         <li class="menu-item menu-item-commonweal">
 
-    <a href="/404.html" rel="section"><i class="heartbeat fa-fw"></i>Commonweal 404</a>
+    <a href="/404.html" rel="section"><i class="fa fa-heartbeat fa-fw"></i>Commonweal 404</a>
 
   </li>
   </ul>
@@ -251,143 +252,33 @@
     <div class="post-body" itemprop="articleBody">
 
       
-          <h1 id="本章说明"><a href="#本章说明" class="headerlink" title="本章说明"></a>本章说明</h1><p>这里详解Process菜单的功能。</p>
-<h1 id="Process"><a href="#Process" class="headerlink" title="Process"></a>Process</h1><h2 id="Smooth"><a href="#Smooth" class="headerlink" title="Smooth"></a>Smooth</h2><p>对当前图片或选区进行模糊处理。该过滤器将每个像素值设为它的3*3邻居的平均值。</p>
-<h2 id="Sharpen"><a href="#Sharpen" class="headerlink" title="Sharpen"></a>Sharpen</h2><p>对当前图片或选区进行锐化，即增加对比度和强调细节，但有可能对噪点进行了加强。该滤波器使用下面的权重因子：<br>$$<br>\begin{matrix}<br>-1 &amp; -1 &amp; -1 \<br>-1 &amp; 12 &amp; -1 \<br>-1 &amp; -1 &amp; -1<br>\end{matrix}<br>$$</p>
-<h2 id="Find-Edges"><a href="#Find-Edges" class="headerlink" title="Find Edges"></a>Find Edges</h2><p>使用Sobel边缘检测器来高粱像素值强度的剧烈变化。使用下面的两个3*3的卷积核来产生垂直和水平的梯度。最终的图片是计算两个梯度的平方的和的平方根得到：<br>$$<br>\begin{matrix}<br>1 &amp; 2 &amp; 1 \quad \quad &amp; 1 &amp; 0 &amp; -1 \<br>0 &amp; 0 &amp; 0 \quad \quad &amp; 2 &amp; 0 &amp; -2 \<br>-1 &amp; -2 &amp; -1 \quad \quad &amp; 1 &amp; 0 &amp; -1<br>\end{matrix}<br>$$</p>
-<h2 id="Find-Maxima"><a href="#Find-Maxima" class="headerlink" title="Find Maxima"></a>Find Maxima</h2><p>计算当前图片的局部最大值，然后创建一个含最大值等形式的二值图片。对于RGB图片，挑选的是luminance的最大值，luminance是根据Edit-Options-Conversions中的平均或加权平均计算出来的。</p>
-<ul>
-<li>Noise Tolerance：如果最大值没有比周围的数值大这个tolerance，那么该最大值会被忽略。即，设置了一个最大值减去该tolerance的阈值，超过该阈值的区域才被分析。</li>
-<li>Output Type：Single Points：图片是每个最大值所对应的点；Maxima Within Tolerance：每个最大值周围在Tolerance范围之内的所有点；Segmented Particles：假定每个最大值都属于一个颗粒，然后使用一个泛洪算法将图片分割，与之对比的是，Process-Binary-Watershed使用的是欧拉空间距离；Point Selection：在每个最大值点上显示一个多点选区；List：在Results窗口中显示每个最大值点的坐标；Count：显示最大值的数目。</li>
-<li>Exclude Edge Maxima：排除边缘上的最大值点</li>
-<li>Above Lower Threshold：仅适用于阈值处理过的图片，仅寻找在阈值下界以上的最大值，图片的阈值上界被忽略。如果在Output Type中选择Segmented Particles，那么在阈值下界以下的区域处理成背景。</li>
-<li>Light Backgroud：如果图片背景要比要寻找的对象亮，则勾选。</li>
-</ul>
-<p>该命令不适用于stacks，但FindStackMaxima宏可以作用于stack的所有图片。</p>
-<h2 id="Enhance-Contrast"><a href="#Enhance-Contrast" class="headerlink" title="Enhance Contrast"></a>Enhance Contrast</h2><p>通过使用histogram stretching或histogram equalization来增强图片对比。该命令不会改变像素值，只要Normalize、Equalize Histogram等不勾选。</p>
-<ul>
-<li>Saturated Pixels：决定图片中要饱和处理（即转成黑色或白色）的像素的个数。增大这个值会增加对比度。</li>
-<li>Normalize：勾选后，ImageJ将会重新计算像素值使得范围等于该图片类型的最大范围，或者对于浮点图片，范围是0-1.0。比如，对于8-bit图片，该最大范围是0-255，对于16-bit图片，范围是0-65535。对于RGB图，该项不显示。</li>
-<li>Equalize Histogram：勾选后，ImageJ将会使用histogram equalization来加强图片。勾选此项后，上面两项将失效。</li>
-<li>Use stack histogram：勾选后，ImageJ将会使用整体的stack的histogram，而不是单个slice的histogram。</li>
-</ul>
-<h2 id="Noise"><a href="#Noise" class="headerlink" title="Noise"></a>Noise</h2><h3 id="Add-noise"><a href="#Add-noise" class="headerlink" title="Add noise"></a>Add noise</h3><p>对图片增加随机噪声，噪声服从均值为0、标准差为25的高斯分布。</p>
-<h3 id="Add-Specified-Noise"><a href="#Add-Specified-Noise" class="headerlink" title="Add Specified Noise"></a>Add Specified Noise</h3><p>增加一个均值为0、手动输入标准差的高斯噪声。</p>
-<h3 id="Salt-and-Pepper"><a href="#Salt-and-Pepper" class="headerlink" title="Salt and Pepper"></a>Salt and Pepper</h3><p>通过随机替换2.5%的黑色像素和2.5%的白色像素来增加椒盐噪声。该命令仅适用于8-bit图片。</p>
-<h3 id="Despeckle"><a href="#Despeckle" class="headerlink" title="Despeckle"></a>Despeckle</h3><p>这是一种中值滤波器，它将像素值替换为它周围3*3的像素点的均值。中值滤波器对于去掉上面的椒盐噪声很有用。</p>
-<h3 id="Remove-Outliers"><a href="#Remove-Outliers" class="headerlink" title="Remove Outliers"></a>Remove Outliers</h3><p>如果一个像素点离它周围点的均值超过一定数值，该命令就会去除这个像素点。该命令对CCD相机的hot pixels或dead pixels很有用。</p>
-<ul>
-<li>Radius：决定计算均值的范围（单位是像素）。使用Process-Filter-Show Circular Masks来显示半径是如何转变为面积的。</li>
-<li>Threshold：决定阈值（单位是像素）</li>
-<li>Which Outliers：决定比均值更亮还是更暗的像素点去除。</li>
-</ul>
-<h3 id="Remove-NANs"><a href="#Remove-NANs" class="headerlink" title="Remove NANs"></a>Remove NANs</h3><p>该滤波器将32-bit图片中的NaN像素点替换成由Radius定义的圆形kernel区域内部的像素点的平均值。</p>
-<h2 id="Shadows"><a href="#Shadows" class="headerlink" title="Shadows"></a>Shadows</h2><p>创建阴影效果，使得光看起来从不同的方向照来。这些操作实际上是使用了不同的3*3的卷积核。</p>
-<h2 id="Binary"><a href="#Binary" class="headerlink" title="Binary"></a>Binary</h2><p>创建或处理二值图片，图片里仅有两个值，ImageJ处理成0和255，也有软件处理成0和1。这里假设对象是黑色的，背景是白色的，除非Process-Binary-Options中的Black Background被勾选。</p>
-<h3 id="Make-Binary"><a href="#Make-Binary" class="headerlink" title="Make Binary"></a>Make Binary</h3><p>将一张图片转化为黑白二值图片。如果之前使用Image-Adjust-Threshold设置了阈值，就会跳出一个对话框使设置怎样处理阈值以外和以内的像素。如果没有设置阈值，就会分析当前选区或整个图片的直方图，然后自动设置阈值进行二值化。如果是Stack，就会显示Convert to Mask对话框。注意，对于未经过阈值处理的图片和stack，Make Binary和Convert to Mask表现类似。</p>
-<h3 id="Convert-to-Mask"><a href="#Convert-to-Mask" class="headerlink" title="Convert to Mask"></a>Convert to Mask</h3><p>将图片转为黑白二值图片。该mask有一个反转的LUT（即白色是0，黑色是255），除非在Process-Binary-Options中勾选了Black Background。效果跟上面的Make Binary近似。</p>
-<h3 id="Erode"><a href="#Erode" class="headerlink" title="Erode"></a>Erode</h3><p>在二值图片中在图像边缘去除像素，在非阈值化的图片上使用Filters-Minimum来腐蚀灰度图。</p>
-<h3 id="Dilate"><a href="#Dilate" class="headerlink" title="Dilate"></a>Dilate</h3><p>在二值图片中在图像边缘增加像素，在非阈值化的图片上使用Filters-Maximum来膨胀灰度图。</p>
-<h3 id="Open"><a href="#Open" class="headerlink" title="Open"></a>Open</h3><p>开操作，即先腐蚀后膨胀。这将平滑对象及去除独立的像素点。</p>
-<h3 id="Close"><a href="#Close" class="headerlink" title="Close"></a>Close</h3><p>闭操作，即先膨胀后腐蚀。这将平滑对象及填充小洞。</p>
-<h3 id="Outline"><a href="#Outline" class="headerlink" title="Outline"></a>Outline</h3><p>在二值图片中在前景图片中产生一个像素宽的轮廓。</p>
-<h3 id="Fill-Holes"><a href="#Fill-Holes" class="headerlink" title="Fill Holes"></a>Fill Holes</h3><p>填充小洞（4个相连的背景色的元素）。</p>
-<h3 id="Skeletonize"><a href="#Skeletonize" class="headerlink" title="Skeletonize"></a>Skeletonize</h3><p>在二值图片中对对象边缘不断地去除像素点知道形成一个单像素宽的形状。</p>
-<h3 id="Distance-Map"><a href="#Distance-Map" class="headerlink" title="Distance Map"></a>Distance Map</h3><p>从二值图片中产生一个欧氏距离映射EDM。每一个前景像素被设为等于其离最近的背景像素的距离。下面的Ultimate Points、Watershed和Voronoi操作都是基于EDM算法。<br>该命令的输出类型需要在Binary-Options中设定，注意当选择Overwrite或8-bit output时，大于255的距离会被设为255。</p>
-<h3 id="Ultimate-Points"><a href="#Ultimate-Points" class="headerlink" title="Ultimate Points"></a>Ultimate Points</h3><p>产生极限腐蚀点，这种点是上面EDM的最大值。</p>
-<h3 id="Watershed"><a href="#Watershed" class="headerlink" title="Watershed"></a>Watershed</h3><p>泛洪分割可以自动分割两个碰撞的颗粒。它首先计算欧氏距离映射EDM，然后找到极限腐蚀点。接着尽可能膨胀每一个极限腐蚀点，直到达到颗粒的边缘或者达到另一个正在膨胀的极限腐蚀点。泛洪分割对重叠不严重的平滑凸包对象的分割很有用。<br>在Edit-Options-Misc中开启debug模式后，该命令可以创建一个泛洪算法怎样工作的动画。</p>
-<h3 id="Voronoi"><a href="#Voronoi" class="headerlink" title="Voronoi"></a>Voronoi</h3><p>将图片分割成与两个最近邻颗粒的边界有相等距离的一系列的点连成的线。因此，每个颗粒的Voronoi包含了与该颗粒更近的所有点。当颗粒是单个的点时，这个过程称为Voronoi镶嵌或称Dirichlet镶嵌。<br>在输出中，在Voronoi胞内部的值是0，分割线上的点的像素值等于两个最近邻颗粒的距离。</p>
-<h3 id="Options"><a href="#Options" class="headerlink" title="Options"></a>Options</h3><p>指定Binary命令的有关设置：</p>
-<ul>
-<li>Iterations：指定腐蚀、膨胀、开、闭操作的迭代次数，迭代过程可以被Esc打断。</li>
-<li>Count：指定腐蚀或膨胀时在边缘上去除或添加的像素的临近背景像素个数。</li>
-<li>Black Background：指定背景为黑色。</li>
-<li>Pad edges when eroding：勾选后，不会在图片的边缘进行腐蚀，该选项也会影响闭操作。</li>
-<li>EDM output：决定输出类型。</li>
-<li>Do：预览一下上述设置的影响。</li>
-</ul>
-<h2 id="Math"><a href="#Math" class="headerlink" title="Math"></a>Math</h2><p>该菜单对当前图片或选区上的每个像素加减乘除一个常数。</p>
-<h3 id="Add"><a href="#Add" class="headerlink" title="Add"></a>Add</h3><p>相加一个常数。对于8-bit图片，大于255的结果被置为255；对于16-bit图片，大于65535的结果被置为65535。</p>
-<h3 id="Subtract"><a href="#Subtract" class="headerlink" title="Subtract"></a>Subtract</h3><p>减去一个常数。对于8-bit和16-bit图片，小于0的结果被置为0。</p>
-<h3 id="Multiply"><a href="#Multiply" class="headerlink" title="Multiply"></a>Multiply</h3><p>乘以一个常数。对于8-bit图片，大于255的结果被置为255；对于16-bit图片，大于65535的结果被置为65535。</p>
-<h3 id="Divide"><a href="#Divide" class="headerlink" title="Divide"></a>Divide</h3><p>除以一个常数。对于非32-bit的图片，忽略除以0的操作；对于32-bit图片，如果源像素分别是正值、负值或零，那么默认除以0的结果是正无穷、负无穷和NaN。可以Edit-Options-Misc重新定义除以0的结果。</p>
-<h3 id="And"><a href="#And" class="headerlink" title="And"></a>And</h3><p>与一个特定的二进制常数进行逐位与运算</p>
-<h3 id="OR"><a href="#OR" class="headerlink" title="OR"></a>OR</h3><p>与一个特定的二进制常数进行逐位或运算</p>
-<h3 id="XOR"><a href="#XOR" class="headerlink" title="XOR"></a>XOR</h3><p>与一个特定的二进制常数进行逐位异或运算</p>
-<h3 id="Min"><a href="#Min" class="headerlink" title="Min"></a>Min</h3><p>如果像素值小于某特定常数，则该像素值被替换为该常数</p>
-<h3 id="Max"><a href="#Max" class="headerlink" title="Max"></a>Max</h3><p>如果像素值大于某特定常数，则该像素值被替换为该常数</p>
-<h3 id="Gamma"><a href="#Gamma" class="headerlink" title="Gamma"></a>Gamma</h3><p>对每一个像素值施加$f(p)=(p/255)^\gamma *255$，其中$\gamma$在0.1和5.0之间。对于RGB图片，该函数作用于所有的3个通道，对于16-bit图片，图片的最小和最大值将代替255用于缩放。</p>
-<h3 id="Set"><a href="#Set" class="headerlink" title="Set"></a>Set</h3><p>用特定值来填充图片或选区。</p>
-<h3 id="Log"><a href="#Log" class="headerlink" title="Log"></a>Log</h3><p>对于8-bit图片，对图片或选区中的每个像素施加$f(p)=\ln (p)*255/ \ln(255)$；对于RGB图片，该函数作用于三个通道；对于16-bit图片，图片的最小和最大值将代替255；对于float型图片，不进行缩放。如果想计算$\log_{10}$，则对该结果乘以0.4343。</p>
-<h3 id="Exp"><a href="#Exp" class="headerlink" title="Exp"></a>Exp</h3><p>对当前图片或选区进行指数变换</p>
-<h3 id="Square"><a href="#Square" class="headerlink" title="Square"></a>Square</h3><p>对当前图片或选区进行平方变换</p>
-<h3 id="Square-Root"><a href="#Square-Root" class="headerlink" title="Square Root"></a>Square Root</h3><p>对当前图片或选区进行平方根变换</p>
-<h3 id="Reciprocal"><a href="#Reciprocal" class="headerlink" title="Reciprocal"></a>Reciprocal</h3><p>对当前图片或选区进行倒数变换</p>
-<h3 id="NaN-Background"><a href="#NaN-Background" class="headerlink" title="NaN Background"></a>NaN Background</h3><p>将32-bit浮点型图片的非阈值的像素设为NaN。对于浮点型图片，Image-Adjust-Threshold的Apply就是执行的该命令。</p>
-<h3 id="Abs"><a href="#Abs" class="headerlink" title="Abs"></a>Abs</h3><p>产生当前图片或选区的绝对值，仅对32-bit浮点型图片或signed 16-bit图片有效。</p>
-<h3 id="Macro"><a href="#Macro" class="headerlink" title="Macro"></a>Macro</h3><p>可以自定义算术运算。</p>
-<h2 id="FFT"><a href="#FFT" class="headerlink" title="FFT"></a>FFT</h2><p>该菜单支持频域显示、编辑和处理，基于二维快速哈特利变换FHT。三维的FHT可以通过3D Fast Hartley Transform插件来实现。</p>
-<h3 id="FFT-1"><a href="#FFT-1" class="headerlink" title="FFT"></a>FFT</h3><p>进行傅里叶变换，显示功率谱。测量的点的极坐标由Anayze-Measure所记录。如果鼠标在当前频谱窗口上悬停，那么它的位置是通过极坐标显示。</p>
-<h3 id="Inverse-FFT"><a href="#Inverse-FFT" class="headerlink" title="Inverse FFT"></a>Inverse FFT</h3><p>进行逆向傅里叶变换。</p>
-<h3 id="Redisplay-Power-Spectrum"><a href="#Redisplay-Power-Spectrum" class="headerlink" title="Redisplay Power Spectrum"></a>Redisplay Power Spectrum</h3><p>从频谱图片中重新计算功率谱。</p>
-<h3 id="FFT-Options"><a href="#FFT-Options" class="headerlink" title="FFT Options"></a>FFT Options</h3><p>显示快速傅里叶变换的选项。</p>
-<h3 id="Bandpass-Filter"><a href="#Bandpass-Filter" class="headerlink" title="Bandpass Filter"></a>Bandpass Filter</h3><p>去除高频和低频。</p>
-<h3 id="Custom-Filter"><a href="#Custom-Filter" class="headerlink" title="Custom Filter"></a>Custom Filter</h3><p>使用用户自定义的空间域图片作为滤波器。</p>
-<h3 id="FD-Math"><a href="#FD-Math" class="headerlink" title="FD Math"></a>FD Math</h3><p>对两张图片进行convolve或deconvolve。</p>
-<h3 id="Swap-Quadrants"><a href="#Swap-Quadrants" class="headerlink" title="Swap Quadrants"></a>Swap Quadrants</h3><p>交换象限。</p>
-<h2 id="Filters"><a href="#Filters" class="headerlink" title="Filters"></a>Filters</h2><p>该菜单包含五花八门的滤波器。</p>
-<h3 id="Convolve"><a href="#Convolve" class="headerlink" title="Convolve"></a>Convolve</h3><p>使用填入文本区域的kernel进行空间卷积。<br>一个kernel就是一个矩阵，它的中心是源像素，其他的元素是该像素的邻居。通过对像素点乘以相应的kernel中的系数然后相加得到结果。对kernel的尺寸没有限制，但它必须是方形，且必须是奇数宽度。<br>勾选Normalize Kernel可以使得每个系数都除以所有系数的和，从而保持图片的亮度。</p>
-<h3 id="Gaussian-Blur"><a href="#Gaussian-Blur" class="headerlink" title="Gaussian Blur"></a>Gaussian Blur</h3><p>该过滤器使用一个高斯函数进行卷积，从而实现平滑效果。</p>
-<h3 id="Gaussian-Blur-3D"><a href="#Gaussian-Blur-3D" class="headerlink" title="Gaussian Blur 3D"></a>Gaussian Blur 3D</h3><p>计算一个三维高斯低通滤波。</p>
-<h3 id="Median"><a href="#Median" class="headerlink" title="Median"></a>Median</h3><p>将像素替换为周围点的平均像素值，从而实现降噪效果。</p>
-<h3 id="Mean"><a href="#Mean" class="headerlink" title="Mean"></a>Mean</h3><p>怎么感觉跟上面的Median是一个意思呢。。</p>
-<h3 id="Minimum"><a href="#Minimum" class="headerlink" title="Minimum"></a>Minimum</h3><p>将像素替换为周围点的最小值，从而实现灰度腐蚀。</p>
-<h3 id="Maximum"><a href="#Maximum" class="headerlink" title="Maximum"></a>Maximum</h3><p>将像素替换为周围点的最大值，从而实现灰度膨胀。</p>
-<h3 id="Unsharp-Mask"><a href="#Unsharp-Mask" class="headerlink" title="Unsharp Mask"></a>Unsharp Mask</h3><p>通过从原图片中提出一个模糊的版本，从而锐化和加强边缘。</p>
-<h3 id="Variance"><a href="#Variance" class="headerlink" title="Variance"></a>Variance</h3><p>将每个像素替换为邻居的方差，从而高亮边缘。</p>
-<h3 id="Show-Circular-Masks"><a href="#Show-Circular-Masks" class="headerlink" title="Show Circular Masks"></a>Show Circular Masks</h3><p>产生一个包含上面Median、Mean、Minimum、Maximum和Variance滤波器使用的圆形mask产生的事例。</p>
-<h2 id="Batch"><a href="#Batch" class="headerlink" title="Batch"></a>Batch</h2><p>包含批量处理一系列图片的命令。<br>Batch命令是非递归的，即命令是施加在当前Input文件夹的所有图片上，但不作用于它的子文件夹，除非使用BatchProcessFolders宏中定义了目录遗传树。<br>关于批处理有三个重要提醒：</p>
-<ul>
-<li>文件很容易被覆盖，因为批处理器总是静默地覆盖有同样名称的已有文件；</li>
-<li>目标Output文件夹应该有足够的硬盘空间来存储所创建的图片；</li>
-<li>对于非原始格式的图片，批处理操作会被那个读取该文件格式的插件或库所影响。</li>
-</ul>
-<h3 id="Convert"><a href="#Convert" class="headerlink" title="Convert"></a>Convert</h3><p>在指定文件夹中批量转换或调整文件尺寸。</p>
-<ul>
-<li>Input：选择源文件夹</li>
-<li>Output：选择目标文件夹</li>
-<li>Output Format：选择输出图片的格式</li>
-<li>Interpolation：如果Scale Factor不设为1，那么将会使用重采样方法。</li>
-<li>Scale Factor：是否缩放。</li>
-</ul>
-<h3 id="Macro-1"><a href="#Macro-1" class="headerlink" title="Macro"></a>Macro</h3><p>运行指定文件夹中的一个宏，最近使用的宏存储在/ImageJ/macros/batchmacro.ijm文件中，可以在重启时记忆住。</p>
-<ul>
-<li>Input：选择要处理的图片所在的文件夹</li>
-<li>Output：选择目标文件夹。如果为空，源文件不会被存储</li>
-<li>Output format：指定输出格式</li>
-<li>Add Macro Code：下拉菜单中包含了一些宏片段，可以组合起来形成一个宏。其他的代码可以粘贴进下面的编辑器中。之前写的宏可以通过下面的Open导入。</li>
-<li>Test：用Input文件夹中的第一张图片进行测试</li>
-<li>Open：导入之前写的宏</li>
-<li>Save：保存组装好的宏</li>
-</ul>
-<h3 id="Virtual-Stack"><a href="#Virtual-Stack" class="headerlink" title="Virtual Stack"></a>Virtual Stack</h3><p>该命令与上面的macro的界面相同，允许操作virtual stack。</p>
-<h3 id="Image-Calculator"><a href="#Image-Calculator" class="headerlink" title="Image Calculator"></a>Image Calculator</h3><p>对两张图片进行逻辑或算术运算，Image1可以是stack，或者Image1和Image2同时是stacks。如果两者都是stacks，那么都是有相同数目的slice。两张图片不一定有相同的文件类型或尺寸。</p>
-<ul>
-<li>Operation：选择13种操作中的一种</li>
-<li>Create New Window：勾选后，就会创建一个新的图片，如果不勾选，则结果作用在Image1上。</li>
-<li>32-bit Result：勾选后，源图片在操作前会转换为32-bit float型</li>
-</ul>
-<h2 id="Subtract-background"><a href="#Subtract-background" class="headerlink" title="Subtract background"></a>Subtract background</h2><p>去除平滑的连续的背景，基于“rolling ball”算法。想象一个二维灰度图有一个第三维度，其值是每个点的像素值的大小，一个有特定半径的球在这个表面下面滚动，碰到该图的点就是要去除的背景。</p>
-<ul>
-<li>Rolling Ball Radius：抛物线的曲率半径。</li>
-<li>Light Background：允许处理明亮背景、对象深色的情形。</li>
-<li>Separate colors：仅适用于RGB图像，如果未勾选，则操作仅影响亮度，而不对灰度和饱和度进行操作。</li>
-<li>Create background (Don’t subtract)：勾选后，输出不再是扣除了背景的图片，而是背景本身。</li>
-<li>Sliding Paraboloid：勾选后，球被一个有相同曲率的的抛物面所替代。</li>
-<li>Disable Smoothing：为了计算背景，图片会先用一个3*3的最大值滤波器进行滤波，从而去除异常值和噪点的影响。勾选后，使用原始值进行操作。</li>
-</ul>
-<h2 id="Repeat-Command"><a href="#Repeat-Command" class="headerlink" title="Repeat Command"></a>Repeat Command</h2><p>重复之前的命令。忽略Edit-Undo和File-Open这两个命令。</p>
+          本章说明
+这里详解Process菜单的功能。
 
+Process
+Smooth
+对当前图片或选区进行模糊处理。该过滤器将每个像素值设为它的3*3邻居的平均值。
+
+Sharpen
+对当前图片或选区进行锐化，即增加对比度和强调细节，但有可能对噪点进行了加强。该滤波器使用下面的权重因子：
+$$
+\begin{matrix}
+-1 & -1 & -1 \
+-1 & 12 & -1 \
+-1 & -1 & -1
+\end{matrix}
+$$
+
+Find Edges
+使用Sobel边缘检测器来高粱像素值强度的剧烈变化。使用下面的两个3*3的卷积核来产生垂直和水平的梯度。最终的图片是计算两个梯度的平方的和的
+          <!--noindex-->
+            <div class="post-button">
+              <a class="btn" href="/2018/09/08/imagej-ui-menu-process/#more" rel="contents">
+                Read more &raquo;
+              </a>
+            </div>
+          <!--/noindex-->
+        
       
     </div>
 
@@ -474,167 +365,23 @@
     <div class="post-body" itemprop="articleBody">
 
       
-          <h1 id="本章说明"><a href="#本章说明" class="headerlink" title="本章说明"></a>本章说明</h1><p>这里详解Image菜单的功能。</p>
-<h1 id="Image"><a href="#Image" class="headerlink" title="Image"></a>Image</h1><h2 id="Type"><a href="#Type" class="headerlink" title="Type"></a>Type</h2><p>显示当前活动图像的类型（子菜单打钩的即是当前类型）以及将其转化成另一种类型。</p>
-<ul>
-<li>8-bit：转化为8-bit灰度图。ImageJ将16-bit和32-bit的图像通过线性地将”min-max”缩放到”0-255”来转换成8-bit图像，其中min和max可以通过Image-Adjust-Brightness/Contrast来查看。注意，如果Edit-Options-Conversions中的If Scale When Converting 没有勾选，那么就不会缩放。</li>
-<li>16-bit：转为unsigned 16-bit灰度图</li>
-<li>32-bit：转为signed 32-bit浮点型灰度图</li>
-<li>8-bit color：转为8-bit indexed 彩色图。当前图片必须是RGB图。</li>
-<li>RGB Color：转为32-bit RGB图</li>
-<li>RGB Stack：转为一个3-slice(RGB)的stack。</li>
-<li>HSB Stack：转为一个3-slice(HSV)的stack。</li>
-</ul>
-<h2 id="Adjust"><a href="#Adjust" class="headerlink" title="Adjust"></a>Adjust</h2><p>该菜单用来调节亮度/对比度、阈值和尺寸等。</p>
-<h3 id="Brightness-Contrast"><a href="#Brightness-Contrast" class="headerlink" title="Brightness/Contrast"></a>Brightness/Contrast</h3><p>使用该工具来交互地调节图片的亮度和对比度。对于8-bit图片，亮度和对比度是通过修改查询表LUT来改变，所以像素值是不变的。对于16-bit和32-bit图片，是通过改变从像素值到8-bit显示值的映射来改变的，所以像素值也不会改变。对于RGB图，亮度和对比度是通过修改像素值来改变的。</p>
-<ul>
-<li>直方图：显示像素值是怎样映射到8-bit（0-255）范围的。直方图下方的两个数是要显示的最小和最大像素值，这两个值可以在下面调节。如果实际像素值小于最小值，则显示为黑色；如果实际像素值大于最大值，则显示为白色。</li>
-<li>Minium and Maximum sliders：控制要显示的最小和最大像素值。按住Shift可以同时调节一个复合图片的所有通道。</li>
-<li>Brightness slider：通过移动显示范围（即同时增大或减小最小和最大像素值）来增加或降低图片亮度。</li>
-<li>Contrast slider：通过改变显示范围的宽度（即扩大或减小显示范围）来调节图片的对比度。</li>
-<li>Auto：ImageJ将会基于图片直方图的分析来自动优化亮度和对比度。创建一个选区后，整个图片也将会根据该选区的分析来自动优化。优化的方式是使得一小部分的像素值是饱和的，即显示为白色或黑色。每次额外的点击都会增加饱和像素的数目。</li>
-<li>Reset：恢复原来的亮度和对比度设置，将会显示整个范围的像素值。</li>
-<li>Set：允许用户输入最小和最大显示范围。</li>
-<li>Apply：应用当前设置。如果是选区，那么仅仅选区内的像素被修改。这是唯一的修改非RGB图片像素值的方式。</li>
-</ul>
-<h3 id="Window-Level"><a href="#Window-Level" class="headerlink" title="Window/Level"></a>Window/Level</h3><p>该命令和Brightness/Contrast是重复的，它更多地适用于医学图片的处理。</p>
-<h3 id="Color-Balance"><a href="#Color-Balance" class="headerlink" title="Color Balance"></a>Color Balance</h3><p>该命令改变一个标准RGB图片的每个通道的亮度和对比度。使用下拉菜单选择应用于哪个通道。<br>这里面的滑块和按钮的应用跟上面的B/C相同。<br>注意：当在色彩通道之间改变时，如果不点击Apply，那么之前的修改会丢失。</p>
-<h3 id="Threshold"><a href="#Threshold" class="headerlink" title="Threshold"></a>Threshold</h3><p>该命令自动或交互地设置阈值的上界和下界，从而将灰度图片分割成感兴趣的区域和背景。红框内框住的范围即是选择区域。</p>
-<ul>
-<li>Upper slider：调节阈值的下界。按住Shift能够在保持固定宽度阈值窗口的条件下调节下界。</li>
-<li>Lower slider：调节阈值的上界。</li>
-<li>Method：有16种不同的自动阈值算法可供选择。默认算法是改进IsoData算法。</li>
-<li>Display：有三种选择方式：（1）Red：用红色显示阈值以内的数值；（2）B&amp;W：用黑色显示特征，白色作为北京。（3）Over/Under：在阈值下界以下的像素用蓝色显示，阈值范围以内的用灰色显示，阈值上界以上的用绿色显示。</li>
-<li>Dark background：但特征要比背景浅的话，就会被勾选。</li>
-<li>Stack histogram：勾选后，ImageJ将首先计算整个stack的直方图，然后基于此再计算阈值。如果不勾选，则每个slice的阈值会单独计算。</li>
-<li>Auto：使用当前选择的method以及当前图片或选区的的直方图来计算阈值。</li>
-<li>Apply：将阈值范围内的像素设为黑色，其他设为白色。对于32-bit图片，Apply也会运行Process-Math-NaN Background。</li>
-<li>Reset：去掉阈值，然后更新直方图。</li>
-<li>Set：手动输入阈值的上下界。</li>
-</ul>
-<h3 id="Color-Threshold"><a href="#Color-Threshold" class="headerlink" title="Color Threshold"></a>Color Threshold</h3><p>上面的Threshold是对灰度图像进行操作。这里的Color Threshold是对24-bit的RGB图像基于HSB、RGB或YUV等进行阈值设定。</p>
-<ul>
-<li>Pass：勾选后，范围以内的值被选定和显示，否则，范围以外的值被选定和显示。</li>
-<li>Thresholding Method：选择16种不同的自动阈值算法中的某一个</li>
-<li>Threshold Color：选择阈值显示颜色</li>
-<li>Color Space：选择色彩空间，有HSB、RGB、CIE Lab或YUV</li>
-<li>Dark Background：当特征比背景要浅时，就勾选</li>
-<li>Orginal：恢复原先的图片</li>
-<li>Filtered：显示滤波后的图片，最终图片类型是RGB，不是8-bit灰度图</li>
-<li>Select：基于当前设定创建一个ROI选区，选区是根据Process-Binary-Options对话框中的设定定义的。</li>
-<li>Sample：基于用户自定义的ROI中的像素值设定滤波的范围</li>
-<li>Stack：使用当前的设定处理剩下的slices（如果有的话）</li>
-<li>Macro：基于当前设定创建一个宏</li>
-<li>Help：打开内置的help对话框</li>
-</ul>
-<h3 id="Size"><a href="#Size" class="headerlink" title="Size"></a>Size</h3><p>将当前图片或选区缩放到一个特定的以像素为单位的Width和Height。<br>缩放时可以设定是否保持长宽比，以及是否插值。</p>
-<h3 id="Canvas-Size"><a href="#Canvas-Size" class="headerlink" title="Canvas Size"></a>Canvas Size</h3><p>改变画布尺寸，而不缩放真实图片。如果画布尺寸增加了，边界用当前的背景色填充，如果选择了Zero Fill，那么边界用数值为0的像素填充。也可以指定原图片在新画布中的位置。</p>
-<h3 id="Line-Width"><a href="#Line-Width" class="headerlink" title="Line Width"></a>Line Width</h3><p>设置线宽，更简单的方式是双击Line Selection Tools的图标。</p>
-<h2 id="Show-Info"><a href="#Show-Info" class="headerlink" title="Show Info"></a>Show Info</h2><p>显示图片信息</p>
-<h2 id="Properties"><a href="#Properties" class="headerlink" title="Properties"></a>Properties</h2><p>使用该命令显示和设置当前图片或stack的属性。<br>Channels、Slices、Frames的数目都可以更改，只要三者的成绩等于stack中图片的数目。<br>Unit of Length是一个字符串，用来表明下方的Pixel Width、Pixel Height和Voxel Depth的测量单位。这三个维度可以自动转换，如果单位在ImageJ已知的单位之间转换，这些单位有：$nm$、$\mu m$（或写成$um$和$micron$）、$mm$、$cm$、$meter$、$km$和$inch$等。<br>对于时间序列的stack，可以设定Frame Interval，即frame rate的倒数。如果单位是sec，这个设置也会同时设定Animation Options中所用的frame rate。<br>Origin是图片坐标系的参考点，该参考点的x和y坐标永远是像素为单位。<br>如果勾选Global，这里的设置将会施加到当前session打开的所有图像。</p>
-<h2 id="Color"><a href="#Color" class="headerlink" title="Color"></a>Color</h2><p>该菜单是处理彩色图片。</p>
-<h3 id="Split-Channels"><a href="#Split-Channels" class="headerlink" title="Split Channels"></a>Split Channels</h3><p>将一张RGB图分割成三个8-bit的灰度图，分别是红绿蓝的三个通道。如果是复合图片或hyperstacks，该命令将分割这个stack成不同的channels。</p>
-<h3 id="Merge-Channels"><a href="#Merge-Channels" class="headerlink" title="Merge Channels"></a>Merge Channels</h3><p>把2-7张图片合并成RGB图片或多通道的复合图片。<br>如果勾选了Create composite，那么就会创建一个多通道的复合图片，如果不勾选，那么就会创建一个RGB图片。当创建复合图片时，原始的LUT和显示范围都会保留，除非勾选了下面的Ignore source LUTs。创建RGB时总是忽略原始的LUTs。<br>如果勾选了Keep source Images，源图片不会被清除。</p>
-<h3 id="Channels-Tool"><a href="#Channels-Tool" class="headerlink" title="Channels Tool"></a>Channels Tool</h3><p>等同于Image-Hyperstacks-Channels Tool。</p>
-<h3 id="Stack-to-RGB"><a href="#Stack-to-RGB" class="headerlink" title="Stack to RGB"></a>Stack to RGB</h3><p>将一个含2个或3个slices的stack转化成RGB，假定slices是按R、G、B的顺序排列的。stack必须是8-bit或16-bit的灰度图。也可以将一个复合图片转成RGB。</p>
-<h3 id="Make-Composite"><a href="#Make-Composite" class="headerlink" title="Make Composite"></a>Make Composite</h3><p>将RGB图、stack等转成复合图片。</p>
-<h3 id="Show-LUT"><a href="#Show-LUT" class="headerlink" title="Show LUT"></a>Show LUT</h3><p>显示当前图片的LUT。</p>
-<h3 id="Edit-LUT"><a href="#Edit-LUT" class="headerlink" title="Edit LUT"></a>Edit LUT</h3><p>打开ImageJ的LUT编辑器。</p>
-<h3 id="Color-Picker"><a href="#Color-Picker" class="headerlink" title="Color Picker"></a>Color Picker</h3><p>设定前景色和背景色。当前调色板是基于HSB，双击某个颜色可以设置RGB值。</p>
-<h2 id="Stacks"><a href="#Stacks" class="headerlink" title="Stacks"></a>Stacks</h2><p>该菜单包含与Stacks相关的命令。</p>
-<h3 id="Add-Slice"><a href="#Add-Slice" class="headerlink" title="Add Slice"></a>Add Slice</h3><p>在当前slice之后插入一个空白slice，按住Alt则在当前slice之前插入。</p>
-<h3 id="Delete-Slice"><a href="#Delete-Slice" class="headerlink" title="Delete Slice"></a>Delete Slice</h3><p>删除当前slice。</p>
-<h3 id="Next-Slice"><a href="#Next-Slice" class="headerlink" title="Next Slice"></a>Next Slice</h3><p>显示下一个slice</p>
-<h3 id="Previous-Slice"><a href="#Previous-Slice" class="headerlink" title="Previous Slice"></a>Previous Slice</h3><p>显示上一个的slice</p>
-<h3 id="Set-Slice"><a href="#Set-Slice" class="headerlink" title="Set Slice"></a>Set Slice</h3><p>显示一个特定的slice</p>
-<h3 id="Images-to-Stack"><a href="#Images-to-Stack" class="headerlink" title="Images to Stack"></a>Images to Stack</h3><p>从当前在不同窗口显示的图片创建一个新的stack。<br>如果图片尺寸不同，那么可以选择转换的Method。Copy(center)和Copy(top-left)：将最宽的照片的宽度设为stack的宽度，将最高的照片的高度设为stack的高度。较小的图片将会复制到slice的中间center或左上角top-left。边界用数值为0的像素填充。Scale(smallest)和Scale(largest)：Stack将会选择最小或最大的图片的尺寸，其他的图片会被缩放到新的尺寸，如果勾选了Bicubic interpolation，就会使用双三次插件。<br>Title Contains：输入一个字符串，然后ImageJ将会仅仅转换包含该string的图片。</p>
-<h3 id="Stack-to-Images"><a href="#Stack-to-Images" class="headerlink" title="Stack to Images"></a>Stack to Images</h3><p>将当前stack的slices转成分开的图片窗口。</p>
-<h3 id="Make-Montage"><a href="#Make-Montage" class="headerlink" title="Make Montage"></a>Make Montage</h3><p>创建拼贴集。</p>
-<h3 id="Reslice"><a href="#Reslice" class="headerlink" title="Reslice"></a>Reslice</h3><p>通过当前stack或hyperstack的图片体重新切片。</p>
-<ul>
-<li>Output spacing：输出间距，决定了重构的蒸饺的图片的数目，spacing越大，输出的stack的size越小</li>
-<li>Start at：决定图片的边缘，即重构从哪个地方开始</li>
-<li>Flip vertically：勾选后，输出的每个slice都是垂直翻转</li>
-<li>Rotate 90 degree：勾选后，每个slice都旋转90度</li>
-<li>Avoid interpolation：勾选后，不做插值</li>
-</ul>
-<h3 id="Orthogonal-Views"><a href="#Orthogonal-Views" class="headerlink" title="Orthogonal Views"></a>Orthogonal Views</h3><p>提供当前stack的正交视图，即如果原stack是XY视图，则该命令提供YZ和XZ视图。</p>
-<h3 id="Z-Project"><a href="#Z-Project" class="headerlink" title="Z Project"></a>Z Project</h3><p>将stack沿着垂直于图片的轴，即Z轴，进行投影。</p>
-<h3 id="3D-Project"><a href="#3D-Project" class="headerlink" title="3D Project"></a>3D Project</h3><p>可以很自由地对stack进行各个方向的投影。</p>
-<h3 id="Plot-Z-Axis-Profile"><a href="#Plot-Z-Axis-Profile" class="headerlink" title="Plot Z-Axis Profile"></a>Plot Z-Axis Profile</h3><p>将ROI选区的平均灰度值对slice进行作图。该命令需要一个点选区或线选区。</p>
-<h3 id="Label"><a href="#Label" class="headerlink" title="Label"></a>Label</h3><p>对stack添加一系列数字（比如时间戳）和/或标签。数字和标签使用当前前景色绘制。<br>标签的初始X和Y坐标及字体尺寸等基于当前的矩形选区（如果有的话）。</p>
-<ul>
-<li>Format：指定标签的结构。0：普通序列；0000：用前导的0填充数字；00:00：将标签转为minutes:seconds这样的时间戳；00:00:00：将标签转为hours:minutes:seconds这样的时间戳；Text：仅包含下面的Text输入框中的内容；Label：显示slice的标签。</li>
-<li>Starting value and Interval：指定第一个数值和间隔。注意，对于时间戳，必须使用公制时间间隔，比如Interval为3600时将创建1 hour的间隔</li>
-<li>Text：字符串</li>
-<li>Use overlay：勾选后，创建的标签就作为无损的Overlay，之前添加的overlay将会被删除。</li>
-<li>Use text tool font：勾选后，标签将使用Fonts部件中指定的风格</li>
-</ul>
-<h3 id="Tools"><a href="#Tools" class="headerlink" title="Tools"></a>Tools</h3><ul>
-<li>Combine：将两个stack组合，创建一个新的stack</li>
-<li>Concatenate：将多个图片或stack连接起来，类型和尺寸不符的图片将被忽略。</li>
-<li>Reduce：按照指定的Reduction Factor减少stack的尺寸。</li>
-<li>Reverse：与Image-Transfrom-Flip Z命令相同</li>
-<li>Insert：在指定的位置在目标图片上插入一张源图片。目标图片和源图片可以是单一图片或stacks，但必须相同类型，且目标图片一旦被插入后就被永久修改。如果源图片是单一图片，一种更简单的组合两个图片的方法是：通过Edit-Selection-Image to Selection创建图片ROI，然后Image-Overlay-Add Image</li>
-<li>Montage to Stack：将一个拼贴集转为一个stack，这与上面的创建拼贴集是相反操作</li>
-<li>Make Substack：从当前stack中提取一些图片成为新的stack。</li>
-<li>Grouped Z Project：创建Z轴投影的多个结果</li>
-<li>Remove Slice Labels：从stack中去除slice标签</li>
-</ul>
-<h3 id="Animation"><a href="#Animation" class="headerlink" title="Animation"></a>Animation</h3><ul>
-<li>Start Animation：重复按次序显示该stack的slices。</li>
-<li>Stop Animation：停止动画播放</li>
-<li>Animation Options：设置每秒多少帧，即动画速率。</li>
-</ul>
-<h2 id="Hyperstacks"><a href="#Hyperstacks" class="headerlink" title="Hyperstacks"></a>Hyperstacks</h2><p>这个菜单针对于Hyperstacks，即4D或5D的图片。</p>
-<h3 id="New-Hyperstack"><a href="#New-Hyperstack" class="headerlink" title="New Hyperstack"></a>New Hyperstack</h3><p>创建一个新的hyperstack，属性主要有Width(w)、Height(h)、Channels(c)、Slices(z)、Frames(t)。</p>
-<h3 id="Stack-to-Hyperstack"><a href="#Stack-to-Hyperstack" class="headerlink" title="Stack to Hyperstack"></a>Stack to Hyperstack</h3><p>将stack转化为hyperstack。RGB的stack将转为3个通道的hyperstack。Order就是channels、slices和frames的次序。ImageJ的hyperstack总是czt次序，不是czt顺序的stack将被重新排序为czt。</p>
-<h3 id="Hyperstack-to-Stack"><a href="#Hyperstack-to-Stack" class="headerlink" title="Hyperstack to Stack"></a>Hyperstack to Stack</h3><p>将hyperstack转为stack。</p>
-<h3 id="Reduce-Dimensionality"><a href="#Reduce-Dimensionality" class="headerlink" title="Reduce Dimensionality"></a>Reduce Dimensionality</h3><p>该命令通过创建一个新的hyperstack而将原hyperstack降维，比如抽取给定z坐标的所有的channels和时间点，或者抽取在当前channel和时间点的所有的z的slices。<br>不勾选channels将会删除所有的channels、但保留当前channel，不勾选Slices将仅保留当前的slice，不勾选Frames仅保留当前时间点。</p>
-<h3 id="Channels-Tool-1"><a href="#Channels-Tool-1" class="headerlink" title="Channels Tool"></a>Channels Tool</h3><p>打开Channels部件。</p>
-<h2 id="Crop"><a href="#Crop" class="headerlink" title="Crop"></a>Crop</h2><p>基于当前的矩形选区来裁剪图片或stack。</p>
-<h2 id="Duplicate"><a href="#Duplicate" class="headerlink" title="Duplicate"></a>Duplicate</h2><p>创建一个新的窗口，包含当前图片或矩形选区的副本。对于stack和hyperstack，可以指定channels、slices和Frames的复制范围。</p>
-<h2 id="Rename"><a href="#Rename" class="headerlink" title="Rename"></a>Rename</h2><p>重命名当前图片。</p>
-<h2 id="Scale"><a href="#Scale" class="headerlink" title="Scale"></a>Scale</h2><p>通过对话框中的缩放因子来调整当前图片或选区的大小，可以选择两种重采样方法：双线性或双三次插值。<br>为了更好的显示效果，对于图片和文字，使用整数缩放因子，如果该因子小于1，则勾选Average when downsizing。<br>如果勾选了Create New window，则缩放的图片或选区可以复制到一个新的图片；如果缩放一个选区，且不复制到新图片，则勾选Fill with Background Color将提供背景色，而不是填充0。勾选Process entire stack后将缩放整个stack。</p>
-<h2 id="Transform"><a href="#Transform" class="headerlink" title="Transform"></a>Transform</h2><p>该菜单包含常用的几何图形变换的命令。</p>
-<h3 id="Flip-Horizontally"><a href="#Flip-Horizontally" class="headerlink" title="Flip Horizontally"></a>Flip Horizontally</h3><p>水平翻转</p>
-<h3 id="Flip-Vertically"><a href="#Flip-Vertically" class="headerlink" title="Flip Vertically"></a>Flip Vertically</h3><p>垂直翻转</p>
-<h3 id="Flip-Z"><a href="#Flip-Z" class="headerlink" title="Flip Z"></a>Flip Z</h3><p>将stack中的slice的顺序翻转</p>
-<h3 id="Rotate-90-Degrees-Right"><a href="#Rotate-90-Degrees-Right" class="headerlink" title="Rotate 90 Degrees Right"></a>Rotate 90 Degrees Right</h3><p>顺时针90度旋转</p>
-<h3 id="Rotate-90-Degrees-Left"><a href="#Rotate-90-Degrees-Left" class="headerlink" title="Rotate 90 Degrees Left"></a>Rotate 90 Degrees Left</h3><p>逆时针90度旋转</p>
-<h3 id="Rotate"><a href="#Rotate" class="headerlink" title="Rotate"></a>Rotate</h3><p>旋转特定角度。</p>
-<ul>
-<li>Grid Lines：可以用预览模式在图片上加上网格线</li>
-<li>Interpolation：可选择双线性或双三次的重采样方法</li>
-<li>Fill with Background Color：对于8-bit或RGB图片，勾选此项后会填充当前背景色，而不是0</li>
-<li>Enlarge to Fit Result：勾选后，图片将会被避免裁剪</li>
-</ul>
-<h3 id="Translate"><a href="#Translate" class="headerlink" title="Translate"></a>Translate</h3><p>平移特定的像素值。对于stacks，可以平移当前图片或所有图片。勾选Preview可以预览效果。图片边缘的背景将被设为0。</p>
-<h3 id="Bin"><a href="#Bin" class="headerlink" title="Bin"></a>Bin</h3><p>通过指定X、Y、Z方向的收缩因子，来减小图片的尺寸。最终的像素可以通过Average、Median、Maximum或Minimum等方法计算。Undo撤销操作仅对二维图片有效，即对stack无效。<br>Z方向的操作与Image-Stacks-Tools-Grouped Z Project效果相同。然而，有两个主要的不同点：Bin替代了当前图片，Grouped Z Project则创建了一个新的substack；Bin中的Z shrink factor可以填入任意值，而Group size必须能够stack尺寸所整除。</p>
-<h3 id="Image-to-Results"><a href="#Image-to-Results" class="headerlink" title="Image to Results"></a>Image to Results</h3><p>将当前选区打印到Resutls Table中，同时清除之前的结果。如果没有ROI，则处理整个图片。表格中详细显示了XY坐标及其像素值。<br>对于RGB图片，每个像素通过平均或加权平均算法转化为灰度值。</p>
-<h3 id="Results-to-Image"><a href="#Results-to-Image" class="headerlink" title="Results to Image"></a>Results to Image</h3><p>是上面操作的逆操作，将Results Table中的表格数据转化为32-bit图片。</p>
-<h2 id="Zoom"><a href="#Zoom" class="headerlink" title="Zoom"></a>Zoom</h2><p>该菜单控制怎样显示图片。对于下面的In和Out命令，更提倡使用+、-或上下箭头。如果有选区时，使用上下箭头时需要按住Shift或者Ctrl。</p>
-<h3 id="In"><a href="#In" class="headerlink" title="In"></a>In</h3><p>有21种可能的放大级别。放大时，如果箭头在画布中，那么将会围绕箭头放大，如果箭头不在画布中，将会围绕图片的中心扩大。左上角的Zoom Indicator表明了当前显示的是图片的哪一部分。当放大到一定级别后，默认就会显示像素的格点，除非勾选Edit-Options-Appearance中的Interpolate zoomed images。当需要滚动放大的图片时，在拖拽鼠标的同时按住空格键。<br>默认Overlays和选区是按一个像素的宽度来显示，如果想要在较高放大级别下加粗ROI边缘，将Edit-Selection-Properties中的Stroke width设为非零。</p>
-<h3 id="Out"><a href="#Out" class="headerlink" title="Out"></a>Out</h3><p>缩小放大层级。</p>
-<h3 id="Original-Scale"><a href="#Original-Scale" class="headerlink" title="Original Scale"></a>Original Scale</h3><p>显示最初打开时的尺寸。快捷键是双击“放大镜”工具的图标</p>
-<h3 id="View-100"><a href="#View-100" class="headerlink" title="View 100%"></a>View 100%</h3><p>使用100%放大，即1个图片像素等于1个屏幕像素。将Edit-Options-Appearance中的Enable Open Images at 100%勾选后，即可设置图片在打开时就是100%显示。</p>
-<h3 id="To-Selection"><a href="#To-Selection" class="headerlink" title="To Selection"></a>To Selection</h3><p>基于当前的选区进行缩放。如果没有选区的话，就会使得图片缩放到fit to screen级别。</p>
-<h3 id="Set"><a href="#Set" class="headerlink" title="Set"></a>Set</h3><p>手动设定精确值供缩放，也可以同时设定缩放的中心点的坐标。</p>
-<h2 id="Overlay"><a href="#Overlay" class="headerlink" title="Overlay"></a>Overlay</h2><p>该菜单用于设置对图片无损的Overlay。Overlay包含一个或多个选区：箭头、线段、点、各种形状和文本等，也可以包含图片选区，即ImageROI。</p>
-<h3 id="Add-Selection"><a href="#Add-Selection" class="headerlink" title="Add Selection"></a>Add Selection</h3><p>该命令用于将选区立即加入当前的Overlay，快捷键是B。按住Alt+B将会显示一个对话框供设置Stroke Color、Width和Fill color。除了文本选区，Stroke color和width这两个与Fill color是不共存的。<br>如果勾选了New overlay，那么之前添加的Overlay将被删除。<br>如果在Analyze-Set Measurements中勾选了Add to overlay，那么要测量的选区(Analyze-Measure)将会自动添加到Overlay。</p>
-<h3 id="Add-Image"><a href="#Add-Image" class="headerlink" title="Add Image"></a>Add Image</h3><p>通过将一张图片添加到另一张图片的overlay而实现组合图片的效果。要组合的图片可以是任意类型，但不能比主图大。组合时可以设置透明度，初始的XY坐标是基于当前矩形选区。<br>默认情形下，创建的新图片不能随意在画布上移动，即不是一个图片选区ImageROI，它存在TIFF的header中。如果想得到一个图片选区，可以通过Edit-Selection-Image to Selection或者Image-Overlay-To ROI Manager。</p>
-<h3 id="Hide-Overlay"><a href="#Hide-Overlay" class="headerlink" title="Hide Overlay"></a>Hide Overlay</h3><p>隐藏Overlay</p>
-<h3 id="Show-Overlay"><a href="#Show-Overlay" class="headerlink" title="Show Overlay"></a>Show Overlay</h3><p>显示Overlay</p>
-<h3 id="From-ROI-Manager"><a href="#From-ROI-Manager" class="headerlink" title="From ROI Manager"></a>From ROI Manager</h3><p>从ROI管理器中的选区创建一个overlay，注意之前添加的overlay将被删除。</p>
-<h3 id="To-ROI-Manager"><a href="#To-ROI-Manager" class="headerlink" title="To ROI Manager"></a>To ROI Manager</h3><p>把当前Overlay中的选区复制到ROI管理器，这样就可以对其进行编辑。注意，ROI管理器中的之前项目会被删除。</p>
-<h3 id="Remove-Overlay"><a href="#Remove-Overlay" class="headerlink" title="Remove Overlay"></a>Remove Overlay</h3><p>永久清除overlay，使其不可被恢复</p>
-<h3 id="Flatten"><a href="#Flatten" class="headerlink" title="Flatten"></a>Flatten</h3><p>创建一个新的RGB图片，其中的overlay被渲染成图片数据，该RGB图片与原图片的尺寸相同，这跟Plugins-Utilities-Capture Image不同，后者是创建一个“所见即所得”的与当前窗口尺寸相同的图片。</p>
-<h3 id="Labels"><a href="#Labels" class="headerlink" title="Labels"></a>Labels</h3><p>定义怎样对overlay打标签。比如定义颜色、标签字体、标题、背景等。</p>
-<h3 id="Overlay-Options"><a href="#Overlay-Options" class="headerlink" title="Overlay Options"></a>Overlay Options</h3><p>定义默认的overlay的Stroke color、width和Fill Color。将Stroke width设为0，则选区的边缘的宽度就是1个像素，不管放大多少倍。</p>
-<h2 id="LookUp-Table"><a href="#LookUp-Table" class="headerlink" title="LookUp Table"></a>LookUp Table</h2><p>该菜单包含选择哪种色彩查询表用来将灰度图创建成伪彩色图。</p>
-<h3 id="Invert-LUT"><a href="#Invert-LUT" class="headerlink" title="Invert LUT"></a>Invert LUT</h3><p>反转当前的LUT。对于8-bit图片，表中的每一个值v都被255-v所替代。与Edit-Invert不同的是，像素值没有被改变，只是在屏幕上显示的方式改变了。</p>
-<h3 id="Apply-LUT"><a href="#Apply-LUT" class="headerlink" title="Apply LUT"></a>Apply LUT</h3><p>将当前的LUT施加到图片或选区的像素值上。该命令等价于Image-Adjust-Brightness/Contrast的Apply操作。对于阈值处理过的图片，等价于Image-Adjust-Threshold的Apply操作。</p>
+          本章说明
+这里详解Image菜单的功能。
 
+Image
+Type
+显示当前活动图像的类型（子菜单打钩的即是当前类型）以及将其转化成另一种类型。
+
+ * 8-bit：转化为8-bit灰度图。ImageJ将16-bit和32-bit的图像通过线性地将”min-max”缩放到”0-255”来转换成8-bit图像，其中min和max可以通过Image-Adjust-Brightness/Contrast来查看。注意，如果Edit-Options-Conversions中的If Scale When Converting 没有勾选，那么就不会缩放。
+ * 16-bit：转为unsigned 16-bit
+          <!--noindex-->
+            <div class="post-button">
+              <a class="btn" href="/2018/09/06/imagej-ui-menu-image/#more" rel="contents">
+                Read more &raquo;
+              </a>
+            </div>
+          <!--/noindex-->
+        
       
     </div>
 
@@ -721,73 +468,41 @@
     <div class="post-body" itemprop="articleBody">
 
       
-          <h1 id="本章说明"><a href="#本章说明" class="headerlink" title="本章说明"></a>本章说明</h1><p>这里详解Edit菜单的功能。</p>
-<h1 id="Edit"><a href="#Edit" class="headerlink" title="Edit"></a>Edit</h1><h2 id="Undo"><a href="#Undo" class="headerlink" title="Undo"></a>Undo</h2><p>撤销上一步操作。</p>
-<h2 id="Cut"><a href="#Cut" class="headerlink" title="Cut"></a>Cut</h2><p>将当前选区中的内容复制到内部剪贴板，然后用当前背景色填充选区。</p>
-<h2 id="Copy"><a href="#Copy" class="headerlink" title="Copy"></a>Copy</h2><p>将当前选区中的内容复制到内部剪贴板，如果没有选区，则复制整个图片。</p>
-<h2 id="Copy-to-system"><a href="#Copy-to-system" class="headerlink" title="Copy to system"></a>Copy to system</h2><p>将当前选区中的内容复制到系统剪贴板。</p>
-<h2 id="Paste"><a href="#Paste" class="headerlink" title="Paste"></a>Paste</h2><p>将内部剪贴板的内容（如果为空，则是系统剪贴板）粘贴到当前图片。</p>
-<h2 id="Paste-Control"><a href="#Paste-Control" class="headerlink" title="Paste Control"></a>Paste Control</h2><p>粘贴以后，使用该菜单控制图片的粘贴方式。</p>
-<h2 id="Clear"><a href="#Clear" class="headerlink" title="Clear"></a>Clear</h2><p>将选区中的内容清除，换成当前的背景色。Backspace和Del是该操作的快捷键。</p>
-<h2 id="Clear-Outside"><a href="#Clear-Outside" class="headerlink" title="Clear Outside"></a>Clear Outside</h2><p>将当前选区以外的区域清除，换成背景色。</p>
-<h2 id="Fill"><a href="#Fill" class="headerlink" title="Fill"></a>Fill</h2><p>将当前前景色填充进当前选区。</p>
-<h2 id="Draw"><a href="#Draw" class="headerlink" title="Draw"></a>Draw</h2><p>使用当前的前景色和线宽绘制当前选区的轮廓。使用Edit-Options-Colors设定前景色和背景色，使用Edit-Options-Line Width设定线宽。</p>
-<h2 id="Invert"><a href="#Invert" class="headerlink" title="Invert"></a>Invert</h2><p>对当前选区或当前图片进行取反。对于8-bit和RGB图片，Invert总是使用$min=0$和$max=255$。对于16-bit和32-bit的图片，分别使用真实的最小和最大值。</p>
-<h2 id="Selection"><a href="#Selection" class="headerlink" title="Selection"></a>Selection</h2><h3 id="Select-All"><a href="#Select-All" class="headerlink" title="Select All"></a>Select All</h3><p>创建一个与图片相同大小的矩形选区</p>
-<h3 id="Select-None"><a href="#Select-None" class="headerlink" title="Select None"></a>Select None</h3><p>使当前图片的选区失效</p>
-<h3 id="Restore-Selection"><a href="#Restore-Selection" class="headerlink" title="Restore Selection"></a>Restore Selection</h3><p>恢复之前的寻去到它原先的位置。该命令可以用于在不同图片之间传递选区，也可以用于恢复之前不小心删除的ROI。<br>在不同图片之间传递ROI的方式有：</p>
-<ul>
-<li>激活有当前选区的图片，然后激活要传递选区的图片，然后Edit-Selection-Restore Selection</li>
-<li>使用ROI管理器</li>
-<li>使用Analyze-Tools-Synchronize Windows</li>
-</ul>
-<h3 id="Fit-Spline"><a href="#Fit-Spline" class="headerlink" title="Fit Spline"></a>Fit Spline</h3><p>用一个三次样条(cubic spline)曲线拟合一个多边形polygon或多线polyline选区。</p>
-<h3 id="Fit-Circle"><a href="#Fit-Circle" class="headerlink" title="Fit Circle"></a>Fit Circle</h3><p>用一个圆circle拟合一个多点（至少三个点）或区域。不支持复合选区。如果是一个非闭合选区（比如点或线），拟合算法用的是基于Netwon的Pratt拟合；如果是一个闭合选区，该命令就是创建一个与该选区面积相同、重心相同的圆。</p>
-<h3 id="Fit-Ellipse"><a href="#Fit-Ellipse" class="headerlink" title="Fit Ellipse"></a>Fit Ellipse</h3><p>用一个椭圆拟合一个选区，该椭圆与原始选区有相同的面积、取向和重心。</p>
-<h3 id="Interpolate"><a href="#Interpolate" class="headerlink" title="Interpolate"></a>Interpolate</h3><p>把当前选区转化成一个亚像素的ROI。</p>
-<h3 id="Convex-Hull"><a href="#Convex-Hull" class="headerlink" title="Convex Hull"></a>Convex Hull</h3><p>将多边形选区转成它的凸包（凸包可看成紧紧套在选区的各个角点上的橡胶带）。</p>
-<h3 id="Make-Inverse"><a href="#Make-Inverse" class="headerlink" title="Make Inverse"></a>Make Inverse</h3><p>反选选区，将原先选区的“内部”变成了“外部”。</p>
-<h3 id="Create-Mask"><a href="#Create-Mask" class="headerlink" title="Create Mask"></a>Create Mask</h3><p>创建一个新的名为“Mask”的8-bit图片，内部的像素是255，外部是0。默认下该图片的LUT是反的，所以黑色是255，白色是0，除非Process-Binary-Options中的Black Background勾选。</p>
-<h3 id="Create-Selection"><a href="#Create-Selection" class="headerlink" title="Create Selection"></a>Create Selection</h3><p>从一个做过阈值处理的图片或一个二值mask中创建一个选区。</p>
-<h3 id="Properties"><a href="#Properties" class="headerlink" title="Properties"></a>Properties</h3><p>打开一个对话框，使得用户设置画笔颜色Stroke color和画笔宽度，或者设置填充颜色。注意，选区只能被填充或绘制轮廓，不能两者同时设定。<br>也能通过勾选List coordiantes显示选区的XY坐标。<br>注意，该命令仅对当前活动选区有效。而ROI管理器的Properties（在Analyze-Tools-ROI Manager）对多个ROI有效。</p>
-<h3 id="Rotate"><a href="#Rotate" class="headerlink" title="Rotate"></a>Rotate</h3><p>旋转选区</p>
-<h3 id="Enlarge"><a href="#Enlarge" class="headerlink" title="Enlarge"></a>Enlarge</h3><p>通过设定特定数目的像素来扩大或缩小选区。<br>该项设为0可以讲一个复合选区转为一个多边形选区。</p>
-<h3 id="Make-Band"><a href="#Make-Band" class="headerlink" title="Make Band"></a>Make Band</h3><p>基于当前的选区形成一个条带，即可视为在当前选区上长出了一个条带。</p>
-<h3 id="Specify"><a href="#Specify" class="headerlink" title="Specify"></a>Specify</h3><p>打开一个对话框，允许用户定义一个矩形或椭圆形选区。可以定义大小和位置。</p>
-<h3 id="Straighten"><a href="#Straighten" class="headerlink" title="Straighten"></a>Straighten</h3><p>该命令可以把图片中的弯曲的对象变直，比如图片中有条弯曲的河，通过该命令将该河拉直并提取成一张新的图片。该对象必须提前用分段直线工具标示出来。</p>
-<h3 id="To-Bounding-Box"><a href="#To-Bounding-Box" class="headerlink" title="To Bounding Box"></a>To Bounding Box</h3><p>将一个非矩形的寻去转为完全包含它的最小的矩形。</p>
-<h3 id="Line-to-Area"><a href="#Line-to-Area" class="headerlink" title="Line to Area"></a>Line to Area</h3><p>将一个线段选择转为一个选区。</p>
-<h3 id="Area-to-Line"><a href="#Area-to-Line" class="headerlink" title="Area to Line"></a>Area to Line</h3><p>将一个选区转为它的轮廓。</p>
-<h3 id="Image-to-Selection"><a href="#Image-to-Selection" class="headerlink" title="Image to Selection"></a>Image to Selection</h3><p>创建一个图像选区ImageROI。</p>
-<h3 id="Add-to-Manager"><a href="#Add-to-Manager" class="headerlink" title="Add to Manager"></a>Add to Manager</h3><p>将当前选区加入ROI管理器。</p>
-<h2 id="Options"><a href="#Options" class="headerlink" title="Options"></a>Options</h2><p>使用该命令来改变ImageJ的用户偏好设置。</p>
-<h3 id="Line-Width"><a href="#Line-Width" class="headerlink" title="Line Width"></a>Line Width</h3><p>改变线宽，用来改变Line Selections的线宽和Edit-Draw的线宽。</p>
-<h3 id="Input-Output"><a href="#Input-Output" class="headerlink" title="Input/Output"></a>Input/Output</h3><p>改变某些输入和输出的设置，比如JPEG的质量、table的后缀名、Results Table的选项。</p>
-<h3 id="Fonts"><a href="#Fonts" class="headerlink" title="Fonts"></a>Fonts</h3><p>改变字体，改变Text Tool的文本显示和Image-Stacks-Label。</p>
-<h3 id="Plots"><a href="#Plots" class="headerlink" title="Plots"></a>Plots</h3><p>使用该对话框来控制ImageJ所产生的各种Plots的显示形式，如Image-Stacks-Plot Z-axis Profile、Analyze-Plot Profile。<br>比如坐标轴的长度、y轴的范围、是否绘制网格线等。</p>
-<h3 id="Rounded-Rect-Tool"><a href="#Rounded-Rect-Tool" class="headerlink" title="Rounded Rect Tool"></a>Rounded Rect Tool</h3><p>设置圆角矩阵选择工具的属性。</p>
-<h3 id="Arrow-Tool"><a href="#Arrow-Tool" class="headerlink" title="Arrow Tool"></a>Arrow Tool</h3><p>设置箭头工具的属性</p>
-<h3 id="Point-Tool"><a href="#Point-Tool" class="headerlink" title="Point Tool"></a>Point Tool</h3><p>设置点工具的属性</p>
-<h3 id="Wand-Tool"><a href="#Wand-Tool" class="headerlink" title="Wand Tool"></a>Wand Tool</h3><p>设置魔棒工具的属性</p>
-<h3 id="Colors"><a href="#Colors" class="headerlink" title="Colors"></a>Colors</h3><p>设置前景色、背景色和选区工具的颜色。</p>
-<h3 id="Appearance"><a href="#Appearance" class="headerlink" title="Appearance"></a>Appearance</h3><p>控制图片怎样被显示，工具条怎样显示更好，以及设置菜单字体尺寸等。</p>
-<h3 id="Conversions"><a href="#Conversions" class="headerlink" title="Conversions"></a>Conversions</h3><p>控制图片怎样从一种格式转换为另一种格式，比如转换过程中是否缩放，RGB怎样转成灰度等。</p>
-<h3 id="Memory-amp-Threads"><a href="#Memory-amp-Threads" class="headerlink" title="Memory &amp; Threads"></a>Memory &amp; Threads</h3><p>设置ImageJ可用的最大内存，以及当处理stack时线程数目。</p>
-<h3 id="Proxy-Settings"><a href="#Proxy-Settings" class="headerlink" title="Proxy Settings"></a>Proxy Settings</h3><p>修改Java虚拟机的代理。</p>
-<h3 id="Complier"><a href="#Complier" class="headerlink" title="Complier"></a>Complier</h3><p>设置所编译的插件的Java版本。</p>
-<h3 id="DICOM"><a href="#DICOM" class="headerlink" title="DICOM"></a>DICOM</h3><p>设置与DICOM图片相关的参数。</p>
-<h3 id="Misc"><a href="#Misc" class="headerlink" title="Misc"></a>Misc</h3><p>设置其他的一些选项，有：</p>
-<ul>
-<li>Divide by zero value：设置当除以0时怎样处理，默认是infinity无穷大，也可以设置max（最大的正值）和NaN（不是一个数字）。</li>
-<li>Use pointer cursor：如果勾选了，ImageJ将会使用一个箭头指针，而不是默认的交叉十字类型的指针。</li>
-<li>Hide “Process Stack?” dialog：勾选后，ImageJ将不会显示询问是否处理所有的slices，而是直接仅仅处理当前slice。</li>
-<li>Require control/command key for shortcuts：勾选后，按快捷键时需要按下Ctrl。</li>
-<li>Move isolated plugins to Misc. menu：可以有效降低Plugin菜单的大小，防止一直显示到屏幕底部</li>
-<li>Run single instance listener：勾选后，ImageJ将会使用sockets来阻止多个实例开启。</li>
-<li>Debug mode：勾选后，ImageJ将会把调试信息显示在Log窗口中。</li>
-</ul>
-<h3 id="Reset"><a href="#Reset" class="headerlink" title="Reset"></a>Reset</h3><p>将会在ImageJ退出后，删除”IJ_pref.txt”这个文件，然后在ImageJ重启后使用所有参数的默认值。</p>
+          本章说明
+这里详解Edit菜单的功能。
 
+Edit
+Undo
+撤销上一步操作。
+
+Cut
+将当前选区中的内容复制到内部剪贴板，然后用当前背景色填充选区。
+
+Copy
+将当前选区中的内容复制到内部剪贴板，如果没有选区，则复制整个图片。
+
+Copy to system
+将当前选区中的内容复制到系统剪贴板。
+
+Paste
+将内部剪贴板的内容（如果为空，则是系统剪贴板）粘贴到当前图片。
+
+Paste Control
+粘贴以后，使用该菜单控制图片的粘贴方式。
+
+Clear
+将选区中的内容清除，换成当前的背景色。Backspace和Del是该操作的快捷键。
+
+Clear Outside
+将当前选区以外的区
+          <!--noindex-->
+            <div class="post-button">
+              <a class="btn" href="/2018/09/04/imagej-ui-menu-edit/#more" rel="contents">
+                Read more &raquo;
+              </a>
+            </div>
+          <!--/noindex-->
+        
       
     </div>
 
@@ -874,84 +589,28 @@
     <div class="post-body" itemprop="articleBody">
 
       
-          <h1 id="本章说明"><a href="#本章说明" class="headerlink" title="本章说明"></a>本章说明</h1><p>菜单栏列出了ImageJ的所有命令，它包含八个菜单：</p>
-<ul>
-<li>File：基本的文件操作，包括打开、保存、创建新图片，大多数命令看名字就知道什么意思</li>
-<li>Edit：编辑和绘制操作，以及全局设定</li>
-<li>Image：图像显示，包括图像格式的转化、怎样显示等</li>
-<li>Process：图像处理，包括点操作、过滤器和算术运算</li>
-<li>Analyze：图像分析，统计测量、直方图绘制和其他与图像分析有关的操作</li>
-<li>Plugins：创建、编辑和管理插件，列出了用户安装的所有宏、脚本和插件。</li>
-<li>Window：已打开的窗口的选择和管理</li>
-<li>Help：升级，文档资源和版本信息</li>
-</ul>
-<h1 id="File菜单"><a href="#File菜单" class="headerlink" title="File菜单"></a>File菜单</h1><h2 id="New新建"><a href="#New新建" class="headerlink" title="New新建"></a>New新建</h2><p>可以新建的东西有很多：</p>
-<ul>
-<li>Image：可以指定图片的标题、类型、尺寸、初始填充。且如果Slices大于1，则创建了一个stack</li>
-<li>Hyperstack：与Image-Hyperstacks-New Hyperstack相同</li>
-<li>Text Window：创建一个编写宏的文本窗口</li>
-<li>Internal Clipboard：打开ImageJ内部剪贴板中的内容</li>
-<li>System Clipboard：打开系统剪贴板中的内容</li>
-<li>TrakEM2：Fiji中还加入了编写TrakEM2程序</li>
-<li>Script：Fiji中还加入了新建脚本。</li>
-</ul>
-<h2 id="Open打开"><a href="#Open打开" class="headerlink" title="Open打开"></a>Open打开</h2><p>可以打开的东西也有很多：</p>
-<ul>
-<li>常见图片，后缀有TIFF、GIF、JPEG、DICOM、BMP、PGM和FITS格式。也可以通过插件打开额外的后缀的图片</li>
-<li>ImageJ和NIH的图片查询表，后缀是.lut</li>
-<li>以制表符分割的表格，后缀是.xls和.csv</li>
-<li>选区，后缀是.roi和.zip</li>
-<li>文本文件，后缀是.txt、.ijm、.js和.java</li>
-<li>其他</li>
-</ul>
-<h2 id="Open-Next打开下一个"><a href="#Open-Next打开下一个" class="headerlink" title="Open Next打开下一个"></a>Open Next打开下一个</h2><p>关闭当前图片，打开目录中的下一个图片（如果有的话）。按住Alt打开目录中的前一个图片（如果有的话）。</p>
-<h2 id="Open-Samples打开样例"><a href="#Open-Samples打开样例" class="headerlink" title="Open Samples打开样例"></a>Open Samples打开样例</h2><p>打开ImageJ服务器上的样例图片，可以用来测试宏、脚本、插件等。</p>
-<h2 id="Open-Recent打开最近文件"><a href="#Open-Recent打开最近文件" class="headerlink" title="Open Recent打开最近文件"></a>Open Recent打开最近文件</h2><p>子菜单会显示最近15个打开的文件，可以选择其中一个。</p>
-<h2 id="Import导入"><a href="#Import导入" class="headerlink" title="Import导入"></a>Import导入</h2><h3 id="Image-Sequence"><a href="#Image-Sequence" class="headerlink" title="Image Sequence"></a>Image Sequence</h3><p>打开所选文件夹中的一系列图片作为一个stack。图片可能有不同的尺寸，也可以是任意ImageJ所支持的格式。非图片格式的文件会被忽略。</p>
-<ul>
-<li>Number of Images：指定打开多少张图片</li>
-<li>Starting image：如果设置为n，将会从文件夹中的第n张图片开始导入</li>
-<li>Increment：增量步长，即每隔多少张图片导入</li>
-<li>File Name Contains：填入一个字符串，ImageJ将会仅打开含该字符串的文件</li>
-<li>Enter Pattern：可以使用正则表达式做进一步的过滤</li>
-<li>Scaled Images：设置一个小于100的数会减少内存要求，如填入50会使得所需内存减少$25%$。如果勾选Use Vritual Stack后，该选项会被忽略</li>
-<li>Convert to RGB：允许将RGB和灰度同时存在的图片全部转换为RGB。注意，如果该选项不勾选，且第一张图是8-bit，那么后面所有的图都将转为8-bit。勾选这个选项来避免这种问题。</li>
-<li>Sort Names Numerically：勾选后，将会以数值顺序打开文件，即以1、2、..10的顺序，而不是以1、10、2..的顺序。</li>
-<li>Use Virtual Stack：勾选后，图片将会使用Virtual Stack Opener该插件以只读Virtual Stack的形式打开。这使得太大而难以放入内存的图片的读取成为可能。</li>
-</ul>
-<h3 id="Raw"><a href="#Raw" class="headerlink" title="Raw"></a>Raw</h3><p>用于导入ImageJ所不支持的图片文件，需要事先知道关于该特定文件的信息，包括图片大小、与开头数据的偏移量等。</p>
-<h3 id="LUT"><a href="#LUT" class="headerlink" title="LUT"></a>LUT</h3><p>打开一个ImageJ或NIH的图片查询表，或者一个原生的表。原生的表必须是768字节大小，且包含256个红色、256个蓝、256个绿。如果事先没有图片打开，那么一个256*32的图片会创建来显示该表。</p>
-<h3 id="Text-Image"><a href="#Text-Image" class="headerlink" title="Text Image"></a>Text Image</h3><p>打开一个制表符分隔的文本文件作为一个32-bit的真实图片。图片的宽度和高度是通过扫描和计算文件的单词数和行数所确定的。对于不大于255的文本文件，使用Image-Type-8-Bit来转换为8-bit图片。在转换前，在Edit-Options-Conversions中不勾选Scale When Converting，从而避免图片被缩放到0-255范围。</p>
-<h3 id="Text-File"><a href="#Text-File" class="headerlink" title="Text File"></a>Text File</h3><p>打开一个文本文件。也可以通过上面的File-Open或拖拽打开。</p>
-<h3 id="URL"><a href="#URL" class="headerlink" title="URL"></a>URL</h3><p>通过一个URL来下载和显示图片。</p>
-<h3 id="Results"><a href="#Results" class="headerlink" title="Results"></a>Results</h3><p>打开一个ImageJ表格或任意制表符和逗号分隔的文本文件。.csv和.xls文件可直接拖拽打开。</p>
-<h3 id="Stack-From-List"><a href="#Stack-From-List" class="headerlink" title="Stack From List"></a>Stack From List</h3><p>从一个包含一系列图片文件路径的文本文件或URL中打开stack或virtual stack。文件可以放在不同的文件夹中，但必须是相同的尺寸和类型。</p>
-<h3 id="TIFF-Virtual-Stack"><a href="#TIFF-Virtual-Stack" class="headerlink" title="TIFF Virtual Stack"></a>TIFF Virtual Stack</h3><p>打开一个TIFF格式的文件作为Virtual Stack。</p>
-<h3 id="AVI"><a href="#AVI" class="headerlink" title="AVI"></a>AVI</h3><p>使用内置的AVI reader插件打开一个AVI文件，作为stack或virtual stack。动画速度是从图片帧速率获取的。</p>
-<h3 id="XY-Coordinates"><a href="#XY-Coordinates" class="headerlink" title="XY Coordinates"></a>XY Coordinates</h3><p>导入一个两栏的文本文件，比如通过File-Save As-XY Coordinates所存取的选区。选区可在当前图片中显示，如果当前文件太小，则在新的空白图片中显示。活跃选区的坐标可以通过Edit-Selection-Properties中的List coordinates显示。</p>
-<h2 id="Close"><a href="#Close" class="headerlink" title="Close"></a>Close</h2><p>关闭当前活动图片。</p>
-<h2 id="Close-All"><a href="#Close-All" class="headerlink" title="Close All"></a>Close All</h2><p>关闭所有图片。</p>
-<h2 id="Save"><a href="#Save" class="headerlink" title="Save"></a>Save</h2><p>将当前活动图片存成TIFF格式。如果仅存储一个所选区域，创建一个选区，然后使用Image-Duplicate。<br>Save命令与File-Save As-TIFF是相同的。</p>
-<h2 id="Save-As"><a href="#Save-As" class="headerlink" title="Save As"></a>Save As</h2><p>将图片存储为TIFF、GIF、JPEG或原始格式。也能用来存储测量结果、查询表、选区和选区的坐标。</p>
-<h3 id="TIFF"><a href="#TIFF" class="headerlink" title="TIFF"></a>TIFF</h3><p>TIFF是唯一一种（除了“raw”原始格式）支持所有ImageJ的数据格式（8-bit、16-bit、32-bit 浮点型和RGB）以及唯一支持空间和密度标定数据的格式。除此以外，选区和Overlay也存储在TIFF文件的header中。</p>
-<h3 id="GIF"><a href="#GIF" class="headerlink" title="GIF"></a>GIF</h3><p>将当前活动图片存储成GIF格式。在此之前，首先要将RGB图片通过Image-Type-8-bit Color转换一下格式。Stacks将被存成有动画的GIF。使用Image-Stacks-Tools-Animation Options来设定帧率。</p>
-<h3 id="JPEG"><a href="#JPEG" class="headerlink" title="JPEG"></a>JPEG</h3><p>将当前活动图片存储成JPEG格式。通过Edit-Options-Input/Output来设置JPEG的压缩率。<br>当存成JPEG时，Overlay会被永久嵌入图片中。</p>
-<h3 id="Text-Image-1"><a href="#Text-Image-1" class="headerlink" title="Text Image"></a>Text Image</h3><p>将当前活动图片存储成以制表符分隔的文本文件。已标定的和浮点类型的图片是用Analyze-Set Measurements所设定的Decimal places小数位数这样的精度来保存。对于RGB图片，每个像素通过三原色的平均来转成灰度，或者如果Edit-Options-Conversions中的If Weighed RGB to Grayscale Conversion勾选后，通过加权平均来转成灰度。</p>
-<h3 id="Zip"><a href="#Zip" class="headerlink" title="Zip"></a>Zip</h3><p>将当前活动图片或stack存成一个压缩的Zip格式的TIFF。</p>
-<h3 id="Raw-Data"><a href="#Raw-Data" class="headerlink" title="Raw Data"></a>Raw Data</h3><p>将当前活动图片或stack存成没有header的原始像素数据。8-bit图片存成unsigned bytes，unsigned的16-bit图片存成unsigned short，signed 16-bit图片存成signed short，32-bit图片存成float，RGB存成每像素3个字节的数据。</p>
-<h3 id="Image-Sequence-1"><a href="#Image-Sequence-1" class="headerlink" title="Image Sequence"></a>Image Sequence</h3><p>把一个stack或hyperstack存成一个图片序列。</p>
-<h3 id="AVI-1"><a href="#AVI-1" class="headerlink" title="AVI"></a>AVI</h3><p>把一个stack或hyperstack存成AVI文件。</p>
-<h3 id="PNG"><a href="#PNG" class="headerlink" title="PNG"></a>PNG</h3><p>把当前活动图片存成PNG。</p>
-<h3 id="FITS"><a href="#FITS" class="headerlink" title="FITS"></a>FITS</h3><p>把当前活动图片存成FITS。</p>
-<h3 id="LUT-1"><a href="#LUT-1" class="headerlink" title="LUT"></a>LUT</h3><p>把当前活动图片的查询表存成文件。</p>
-<h3 id="Results-1"><a href="#Results-1" class="headerlink" title="Results"></a>Results</h3><p>把“Results”窗口的内容存成制表符分隔或逗号分隔的csv文件。</p>
-<h3 id="Selection"><a href="#Selection" class="headerlink" title="Selection"></a>Selection</h3><p>把当前选区的边界存到文件中，然后稍后可以使用File-Open再导入。</p>
-<h3 id="XY-Coordinates-1"><a href="#XY-Coordinates-1" class="headerlink" title="XY Coordinates"></a>XY Coordinates</h3><p>把当前ROI的XY坐标存入一个两栏、制表符分隔的文本文件。ROI坐标也可以通过Edit-Selection-Properties勾选List coordinates来获得。</p>
-<h2 id="Revert"><a href="#Revert" class="headerlink" title="Revert"></a>Revert</h2><p>Revert实际的操作是：不保存而关闭窗口，重新打开图片。</p>
-<h2 id="Page-Setup"><a href="#Page-Setup" class="headerlink" title="Page Setup"></a>Page Setup</h2><p>控制输出的尺寸及其他选项。</p>
-<h2 id="Print"><a href="#Print" class="headerlink" title="Print"></a>Print</h2><p>打印当前图片。</p>
-<h2 id="Quit"><a href="#Quit" class="headerlink" title="Quit"></a>Quit</h2><p>退出程序。</p>
+          本章说明
+菜单栏列出了ImageJ的所有命令，它包含八个菜单：
 
+ * File：基本的文件操作，包括打开、保存、创建新图片，大多数命令看名字就知道什么意思
+ * Edit：编辑和绘制操作，以及全局设定
+ * Image：图像显示，包括图像格式的转化、怎样显示等
+ * Process：图像处理，包括点操作、过滤器和算术运算
+ * Analyze：图像分析，统计测量、直方图绘制和其他与图像分析有关的操作
+ * Plugins：创建、编辑和管理插件，列出了用户安装的所有宏、脚本和插件。
+ * Window：已打开的窗口的选择和管理
+ * Help：升级，文档资源和版本信息
+
+File菜单
+New新
+          <!--noindex-->
+            <div class="post-button">
+              <a class="btn" href="/2018/09/03/imagej-ui-menu-file/#more" rel="contents">
+                Read more &raquo;
+              </a>
+            </div>
+          <!--/noindex-->
+        
       
     </div>
 
@@ -1038,32 +697,26 @@
     <div class="post-body" itemprop="articleBody">
 
       
-          <h1 id="本章说明"><a href="#本章说明" class="headerlink" title="本章说明"></a>本章说明</h1><p>ImageJ的用户界面非常简单，包含菜单栏、工具栏、状态栏和工具条。<br>下面就对这些栏目进行详析。</p>
-<h1 id="日志窗口"><a href="#日志窗口" class="headerlink" title="日志窗口"></a>日志窗口</h1><p>日志窗口用来显示关于一系列操作的有用信息，可以常用来显示插件和宏所传递的信息。<br>使用Edit-Options-Misc然后，然后勾选Debug mode，就可以显示该窗口。如果该窗口关闭了，那么ImageJ自动退出debug模式。</p>
-<h1 id="状态栏"><a href="#状态栏" class="headerlink" title="状态栏"></a>状态栏</h1><p>当箭头放在图片上时，状态栏上会显示像素强度和坐标。<br>当运行filter后，也会显示事件和处理速率。<br>当点击状态栏时，Java的版本、已用内存、可用内存、已用内存百分比都将显示。除此以外，每次点击状态栏时，都会强迫Java垃圾回收器运行，这将可能帮助收回未使用的内存。可以打开Plugins-Utilties-Monitor Memory来监控内存实时使用量，可以发现，每次点击状态栏后，ImageJ的内存使用量就会下降。<br>当选区后，选区的性能，如位置、宽度等也将在状态栏显示。如果之前在Image-Properties或Analyze-Set Scale中设置了空间比例，那么在状态栏中显示的选区将会使用已标定的单位。此时按下Alt，然后再移动或调整尺寸，就会以像素值来显示。</p>
-<h1 id="工具栏"><a href="#工具栏" class="headerlink" title="工具栏"></a>工具栏</h1><h2 id="区域选择（选区）"><a href="#区域选择（选区）" class="headerlink" title="区域选择（选区）"></a>区域选择（选区）</h2><p>对应工具栏的前四个工具。<br>在每个选区工具上点击右键可以选择同一类但另一种工具。选区的颜色可以通过双击Point Tool来设定。</p>
-<h3 id="矩形选区"><a href="#矩形选区" class="headerlink" title="矩形选区"></a>矩形选区</h3><p>当使用矩形选区时，位置、宽度、高度和长宽比这些信息将会显示在状态栏上。<br>按住Shift，区域限制为正方形；按住Alt，当改变尺寸时使用当前长宽比；按住Ctrl，以当前为中心进行缩放。<br>可以选择圆角矩形进行选区，双击该图标，可以设定它的一些性能。</p>
-<h3 id="椭圆选区"><a href="#椭圆选区" class="headerlink" title="椭圆选区"></a>椭圆选区</h3><p>Oval是可以调节多个角点，Elliptical可以调节四个角点。<br>还有一个是画刷工具，它是使用一个圆形画刷来对选区的边界进行调整，ImageJ会把调整后的ROI处理成复合选区。按住Shift是强制画刷对选区增加像素点，按住Alt是强制画刷对选区减少像素点。</p>
-<h3 id="多边形选区"><a href="#多边形选区" class="headerlink" title="多边形选区"></a>多边形选区</h3><p>绘制多边形选区。<br>按住Shift在多边形选区的某个角点上单击，会增加一个新的角点；<br>按住Alt在多边形选区的某个角点上单击，会删除这个焦点。</p>
-<h3 id="徒手选区"><a href="#徒手选区" class="headerlink" title="徒手选区"></a>徒手选区</h3><p>手绘自由选择。</p>
-<h2 id="线段选择"><a href="#线段选择" class="headerlink" title="线段选择"></a>线段选择</h2><p>分为三种线段选区：<br>（1）直线选区<br>按住Shift，强制直线为水平或垂直；按住ALt，保持线长固定；按住Ctrl，使直线围绕它的中心旋转或缩放。<br>（2）分段选区<br>跟之前的多边形选区类似，但它不是闭合的，Shift和Alt的应用也是类似。<br>（3）徒手线段选区<br>跟之前的徒手选区类似，但这里手绘选择的是线段区域。</p>
-<h2 id="箭头工具"><a href="#箭头工具" class="headerlink" title="箭头工具"></a>箭头工具</h2><p>绘制箭头以后，可以选择两种方式保存：<br>一是无损形式，即将箭头保存成Overlay形式：Image-Overlay-Add Selection<br>二是直接就画在图片上：Edit-Draw<br>它的Shift、Alt和Ctrl的用法跟直线选区相同。</p>
-<h2 id="角度工具"><a href="#角度工具" class="headerlink" title="角度工具"></a>角度工具</h2><p>可以用来测量三个点形成的角度（双击该图标后，可以选择测量三个点形成的优角reflex angle）。<br>可以点击Analyze-Measure将结果保存下来。</p>
-<h2 id="点选择"><a href="#点选择" class="headerlink" title="点选择"></a>点选择</h2><p>使用该工具来选择点，可以用来计数或记录像素的坐标。<br>双击图标可以设置选项。<br>Multi-points Tool就相当于按住Shift的Point Tool。</p>
-<h2 id="魔棒工具"><a href="#魔棒工具" class="headerlink" title="魔棒工具"></a>魔棒工具</h2><p>魔棒工具是追踪具有相同颜色或在某阈值之内的对象来形成一个选区。双击来设定选项。<br>按住Shift来将追踪的区域加入之前的选择中；按住Alt将追踪的区域从之前的选择中删除。</p>
-<h2 id="文本工具"><a href="#文本工具" class="headerlink" title="文本工具"></a>文本工具</h2><p>使用文本工具来将文本添加进图片中。有如下几点需要注意：</p>
-<ul>
-<li>双击该图标或Edit-Options-Fonts设设定字体。</li>
-<li>按住Alt可以输入特殊字符，如Alt+m，可以输入$\mu$，Alt+Shift+A可以输入单位“埃”。</li>
-<li>当使用文本工具时，之前的快捷键就必须要按住Ctrl才能生效，否则的话ImageJ不知道是在打字还是快捷键。</li>
-<li>使用Ctrl+y或者Edit-Selection-Properties来重新调整字体颜色、尺寸等。</li>
-<li>使用Ctrl+B来创建一个无损的Overlay，或者使用Ctrl+D来永久地在图片上添加文本。</li>
-</ul>
-<h2 id="放大镜工具"><a href="#放大镜工具" class="headerlink" title="放大镜工具"></a>放大镜工具</h2><p>使用放大镜对当前视图进行放大，右键则是缩小，双击该图标则回到最初的状态。</p>
-<h2 id="拖动工具"><a href="#拖动工具" class="headerlink" title="拖动工具"></a>拖动工具</h2><p>当图片太大时，拖动就是为了查看图片的不同位置。可以使用空格键来随时临时激活拖动功能。</p>
-<h2 id="取色器"><a href="#取色器" class="headerlink" title="取色器"></a>取色器</h2><p>使用该工具来设置前景色和背景色。双击该图标或Image-Colors-Color picker来调出取色器。<br>Edit-Draw和Edit-Fill使用的是前景色，Edit-Clear和Clear outside和Cut使用的是背景色。</p>
-<h2 id="更多"><a href="#更多" class="headerlink" title="更多"></a>更多</h2><p>在取色器和“More”之间的区域可以自定义，具体的工具需进一步探索。<br>默认显示的是StartupMacros.txt文件中定义的工具。</p>
+          本章说明
+ImageJ的用户界面非常简单，包含菜单栏、工具栏、状态栏和工具条。
+下面就对这些栏目进行详析。
 
+日志窗口
+日志窗口用来显示关于一系列操作的有用信息，可以常用来显示插件和宏所传递的信息。
+使用Edit-Options-Misc然后，然后勾选Debug mode，就可以显示该窗口。如果该窗口关闭了，那么ImageJ自动退出debug模式。
+
+状态栏
+当箭头放在图片上时，状态栏上会显示像素强度和坐标。
+当运行filter后，也会显示事件和处理速率。
+当点击状态栏时，Java的版本、已用内存、可用内存、已用内存百分比都将显示。除此以外，每次点击状态栏时，都会强迫Java垃圾回收器运行，这
+          <!--noindex-->
+            <div class="post-button">
+              <a class="btn" href="/2018/09/03/imagej-ui/#more" rel="contents">
+                Read more &raquo;
+              </a>
+            </div>
+          <!--/noindex-->
+        
       
     </div>
 
@@ -1150,45 +803,20 @@
     <div class="post-body" itemprop="articleBody">
 
       
-          <h1 id="本章说明"><a href="#本章说明" class="headerlink" title="本章说明"></a>本章说明</h1><p>ImageJ的功能可以通过宏、插件和脚本三种形式进行扩展：</p>
-<ul>
-<li>宏：宏是最简单的执行一系列ImageJ命令的方式。ImageJ的宏语言是一种类Java的语言，包含了一系列的控制体、算子和内置函数，可以用来调用内置命令和其他宏。宏的代码存储在以.txt和.ijm为扩展名的文本文件中。</li>
-<li>插件：比宏更强大、更灵活、也更快，但也更难写和调试。ImageJ的大多数的菜单命令其实是插件。插件是用Java语言编写，后缀是.java源文件，然后编译成.class文件。</li>
-<li>脚本：ImageJ使用Mozilla Rhino解释器来运行JavaScripts脚本。类似于插件，脚本也对所有的ImageJ API和Java API有访问权限，但是不需要编译。另一方面，脚本不如宏语言简单，与ImageJ的集成不那么紧密。Fiji也支持其他语言写成的脚本。</li>
-</ul>
-<h1 id="宏"><a href="#宏" class="headerlink" title="宏"></a>宏</h1><p>宏是一个自动执行一系列ImageJ命令的简单程序。创建宏的最简单的方法是录制一系列的命令：Plugins-Macros-Record。<br>宏存成一个.txt或.ijm后缀的文本文件，然后通过Plugins-Macros加载。<br>关于宏编程的教程有：</p>
-<ul>
-<li><a target="_blank" rel="noopener" href="http://imagej.net/docs/macro_reference_guide.pdf">The ImageJ Macro Language</a></li>
-<li><a target="_blank" rel="noopener" href="http://imagej.net/developer/macro/functions.html">The Built-in Macro Functions webpage</a></li>
-<li><a target="_blank" rel="noopener" href="http://imagej.net/Introduction_into_Macro_Programming">Tutorials on the Fiji webpage</a></li>
-<li><a target="_blank" rel="noopener" href="http://imagejdocu.tudor.lu/">How-tos and tutorials on the ImageJ Documentation Portal</a></li>
-</ul>
-<h1 id="脚本"><a href="#脚本" class="headerlink" title="脚本"></a>脚本</h1><p>原生ImageJ脚本是用JavaScript语言写成。<br>资源有：</p>
-<ul>
-<li><a target="_blank" rel="noopener" href="http://imagej.net/developer/javascript.html">The ImageJ web site, with growing documentation</a></li>
-<li><a target="_blank" rel="noopener" href="http://imagej.net/JavaScript_Scripting">Tutorials on the Fiji webpage</a></li>
-<li><a target="_blank" rel="noopener" href="http://imagej.net/macros/js/">Online scripts repository</a></li>
-</ul>
-<p>Fiji则支持其他语言，比如BeanShell、Clojure、Python和Ruby。<br>资源有：</p>
-<ul>
-<li><a target="_blank" rel="noopener" href="https://imagej.net/Jython_Scripting">Jython Scripting</a></li>
-<li><a target="_blank" rel="noopener" href="http://imagej.net/Jython_Scripting_Examples">Jython Scripting Examples</a></li>
-<li><a target="_blank" rel="noopener" href="http://www.ini.uzh.ch/~acardona/fiji-tutorial/">The extensive tutorial on scripting Fiji with Jython by Albert Cardona</a></li>
-<li><a target="_blank" rel="noopener" href="http://fiji.sc/wiki/index.php/Scripting_comparisons">Dedicated tutorials on the Fiji webpage</a></li>
-</ul>
-<h1 id="插件"><a href="#插件" class="headerlink" title="插件"></a>插件</h1><p>插件是用Java写成。<br>资源有：</p>
-<ul>
-<li><a target="_blank" rel="noopener" href="http://imagej.net/developer/index.html">Developer Resources Page on the ImageJ website</a></li>
-<li><a target="_blank" rel="noopener" href="http://fiji.sc/wiki/index.php/Introduction_into_Developing_Plugins">Dedicated tutorials on Fiji’s webpage</a></li>
-<li><a target="_blank" rel="noopener" href="http://imagejdocu.tudor.lu/">Dedicated tutorials on the ImageJ Documentation Portal</a></li>
-<li><a target="_blank" rel="noopener" href="http://imagej.net/IDEs">Dedicated tutorials on the ImageJDev webpage</a></li>
-</ul>
-<h1 id="命令行运行ImageJ"><a href="#命令行运行ImageJ" class="headerlink" title="命令行运行ImageJ"></a>命令行运行ImageJ</h1><p>可以在命令行运行ImageJ，教程有：</p>
-<ul>
-<li><a target="_blank" rel="noopener" href="http://imagejdocu.tudor.lu/doku.php?id=faq:technical:how_do_i_run_imagej_without_a_graphics_environment_headless">Running ImageJ in headless mode</a></li>
-<li><a target="_blank" rel="noopener" href="http://cmci.embl.de/documents/100922imagej_cluster">Using Cluster for Image Processing with IJ</a></li>
-</ul>
+          本章说明
+ImageJ的功能可以通过宏、插件和脚本三种形式进行扩展：
 
+ * 宏：宏是最简单的执行一系列ImageJ命令的方式。ImageJ的宏语言是一种类Java的语言，包含了一系列的控制体、算子和内置函数，可以用来调用内置命令和其他宏。宏的代码存储在以.txt和.ijm为扩展名的文本文件中。
+ * 插件：比宏更强大、更灵活、也更快，但也更难写和调试。ImageJ的大多数的菜单命令其实是插件。插件是用Java语言编写，后缀是.java源文件，然后编译成.class文件。
+ * 脚本：ImageJ使用Mozilla Rhino解释器来运行JavaScripts脚本。类似于插件，脚本也对所有的I
+          <!--noindex-->
+            <div class="post-button">
+              <a class="btn" href="/2018/09/02/imagej-extension/#more" rel="contents">
+                Read more &raquo;
+              </a>
+            </div>
+          <!--/noindex-->
+        
       
     </div>
 
@@ -1275,40 +903,24 @@
     <div class="post-body" itemprop="articleBody">
 
       
-          <h1 id="本章说明"><a href="#本章说明" class="headerlink" title="本章说明"></a>本章说明</h1><p>这一章主要介绍ImageJ的一些基本概念。</p>
-<h1 id="快捷键"><a href="#快捷键" class="headerlink" title="快捷键"></a>快捷键</h1><p>ImageJ的快捷键在菜单中都有提示，且区分大小写，比如大写的A表示”Shift+A”。同时还要注意查看”Edit-Options-Misc-Require control key for shortcuts”是否勾选，如果未勾选，则快捷键不用按ctrl。<br>查看所有的快捷键：Plugins-Shortcuts-List shortcuts<br>ImageJ中所有的操作都是在目前激活的图片上进行的，即最前面的图片。在任意图片上按Enter，都会激活ImageJ的主窗口。<br>查找宏、命令、脚本和插件：小写的l。<br>ImageJ的撤销和重做：</p>
-<ul>
-<li>因为缓存的限制，Edit-Undo仅能撤销最近一次的图像操作，如果Edit-Options-Memory&amp; Threads中的Keep multiple undo buffers勾选后，撤销操作可以应用在多张图片中。</li>
-<li>File-Revert可将图片设置为最近一次保存的状态。</li>
-<li>对于Selections选择，Edit-Selection-Restore Selection可以用来恢复所有错选操作</li>
-<li>ImageJ的redo重做是Process-Repeat Command，即再次执行上一次命令</li>
-</ul>
-<h1 id="图片类型和格式"><a href="#图片类型和格式" class="headerlink" title="图片类型和格式"></a>图片类型和格式</h1><p>图片是一个二维网格，长宽分别是像素的个数，即像素是图片的最小的单元。网格上的数值是像素的强度，它代表了像素的这个属性的强弱，比如一个灰度图片，强度越大，图片越白。另一方面，像素的强度用多少位二进制数来表示，就是图片的色彩深度，叫做bit，它代表了像素被编码的精度。比如一个2-bit的图片，它只能表示4种强度，即00(黑)、01(灰)、10(灰)、11(白)，而一个8-bit的图片，则可以表示256种灰度值。再比如一张RGB图，它能分别表示红蓝绿三个通道的256种值，因此它是24-bit的。RGB图也可以是32-bit的，即再加上一个表示透明度的8-bit通道。</p>
-<p>如果不使用第三方插件，ImageJ可以打开如下格式：TIFF、GIF、JPEG、PNG、DICOM、BMP、PGM和FITS。</p>
-<h1 id="Stacks"><a href="#Stacks" class="headerlink" title="Stacks"></a>Stacks</h1><p>ImageJ可以在单一窗口中显示多个时间或空间相关的图片。这些图片集称为“Stacks”，这些图片称为”Slices”。在Stacks中，原先的二维的像素变成了一个体素Voxel，即在三维空间中的网格上的强度值。<br>在一个stack中的所有的slices都必须有相同的尺寸的色彩深度。<br>一个文件夹中的图片可以通过拖拽进入ImageJ窗口或者File-Import-Image Sequence来形成一个Stack。<br>创建一个新的Stack：File-New-Image，将Slices这一项设为大于1的数即可。<br>Image-Stacks中包含了常用的对stack进行的操作。大多数ImageJ的过滤器是对Stack中的所有Slices进行操作。</p>
-<h1 id="彩色图片"><a href="#彩色图片" class="headerlink" title="彩色图片"></a>彩色图片</h1><p>ImageJ主要用以下三种方式来处理彩色图片：</p>
-<h2 id="伪彩色图片"><a href="#伪彩色图片" class="headerlink" title="伪彩色图片"></a>伪彩色图片</h2><p>伪彩色图片实际是一张单通道的灰度图片，然后通过一个查找表lookup table (LUT)来为它分配颜色。</p>
-<h2 id="真彩色图片"><a href="#真彩色图片" class="headerlink" title="真彩色图片"></a>真彩色图片</h2><p>真彩色图片有色彩空间的概念，常用的是RGB空间，以及HSB、YUV等。HSB就是色度、饱和度和亮度，这种颜色空间在处理颜色信息时特别有用。<br>色彩空间的转换在Image-Type中。<br>色彩空间中的色彩分割在:Image-Adjust-Color Threshhold。</p>
-<h2 id="组合图片"><a href="#组合图片" class="headerlink" title="组合图片"></a>组合图片</h2><p>这种图片将各个通道都分开，所以可以对单个通道进行操作。Image-Color-Channel Tool</p>
-<h1 id="选区"><a href="#选区" class="headerlink" title="选区"></a>选区</h1><p>选区Selections，也就是画出ROI (Regions of Interest)。尽管ImageJ可以同时显示多个ROIs，但一次只能激活一个ROI。<br>区域选择时，选择好的ROI可以进行以下操作：</p>
-<ul>
-<li>测量：Analyze-Measure</li>
-<li>绘制：Edit-Draw</li>
-<li>填充：Edit-Fill</li>
-<li>滤波：Process-Filters再选择子菜单</li>
-</ul>
-<p>选区时初始颜色是ImageJ默认九种颜色中的一个，一旦创建后，就可以使用Edit-Selection-Property来设定。</p>
-<h1 id="Overlay"><a href="#Overlay" class="headerlink" title="Overlay"></a>Overlay</h1><p>Overlay是最好的对图片做注释的方式，因为它不会改变像素值。<br>Overlay可以看成是一个不可见的ROI管理器。<br>可以把多个ROIs放进一个Overlay中，这样就可以来回调用多个ROI，方法是Image-Overlay-Add Selection。<br>也可以把Overlay转成ROI管理器：Image-Overlay-To ROI Manager。</p>
-<h1 id="三维图片"><a href="#三维图片" class="headerlink" title="三维图片"></a>三维图片</h1><p>原生的ImageJ对三维ROI支持不是很好，但有很多插件可以辅助：</p>
-<ul>
-<li>3D Filters</li>
-<li>3D Object Counter</li>
-<li>3D Viewer</li>
-<li>Simple Neurite Tracer</li>
-<li>TrakEM2</li>
-</ul>
-<h1 id="设置和默认值"><a href="#设置和默认值" class="headerlink" title="设置和默认值"></a>设置和默认值</h1><p>ImageJ的配置文件是IJ_prefs.txt。</p>
+          本章说明
+这一章主要介绍ImageJ的一些基本概念。
 
+快捷键
+ImageJ的快捷键在菜单中都有提示，且区分大小写，比如大写的A表示”Shift+A”。同时还要注意查看”Edit-Options-Misc-Require control key for shortcuts”是否勾选，如果未勾选，则快捷键不用按ctrl。
+查看所有的快捷键：Plugins-Shortcuts-List shortcuts
+ImageJ中所有的操作都是在目前激活的图片上进行的，即最前面的图片。在任意图片上按Enter，都会激活ImageJ的主窗口。
+查找宏、命令、脚本和插件：小写的l。
+ImageJ的撤销和重做：
+
+          <!--noindex-->
+            <div class="post-button">
+              <a class="btn" href="/2018/09/01/imagej-basic-concepts/#more" rel="contents">
+                Read more &raquo;
+              </a>
+            </div>
+          <!--/noindex-->
+        
       
     </div>
 
@@ -1395,29 +1007,22 @@
     <div class="post-body" itemprop="articleBody">
 
       
-          <h1 id="开篇说明"><a href="#开篇说明" class="headerlink" title="开篇说明"></a>开篇说明</h1><p>ImageJ是一个优秀的开源图像处理工具，本系列是对ImageJ的官方<a target="_blank" rel="noopener" href="https://imagej.nih.gov/ij/docs/guide/user-guide.pdf">User Guide</a>的学习。</p>
-<h1 id="简介"><a href="#简介" class="headerlink" title="简介"></a>简介</h1><p>ImageJ是一个基于Java平台的图像处理和分析工具（它的发行版Fiji也提供了其他语言，如Python，的开发接口，Fiji与ImageJ的关系，就跟Ubuntu和Linux的关系一样，即Fiji是ImageJ和它的很多插件的集合发行版），由美国国立卫生研究院NIH所创立和开发。因为它基于Java平台，所以通吃各大平台，如Windows、Mac OS和Linux，只要有Java运行环境即可安装和运行。<br>ImageJ的功能有：</p>
-<ul>
-<li>显示、编辑、分析、处理、保存和打印8位、16位和32位（这些是色彩深度，简单解释见<a target="_blank" rel="noopener" href="https://blog.csdn.net/panshun888/article/details/78278104">这里</a>）</li>
-<li>支持多线程，所以可以并行读取图片文件</li>
-<li>支持像素操作，如创建图片直方图等，支持标准的图片处理功能，如对比度调节、锐化、平滑、边缘检测和中值滤波等</li>
-<li>支持几何变换，如缩放、旋转、翻转等</li>
-<li>强大的插件系统，可以任意定制自己想要的功能，同时拥有极好的插件生态</li>
-</ul>
-<h1 id="安装"><a href="#安装" class="headerlink" title="安装"></a>安装</h1><p>ImageJ因为发展了多年，有很多版本，乍一看很容易弄混。最开始是1997年开发的ImageJ1，即ImageJ 1.x这些版本号的软件，目前也在活跃开发中。但目前所说的ImageJ，是指的ImageJ2，它是对ImageJ1的一个完全重写，更加便于二次开发等，同时它也保持了对ImageJ1的兼容性，所以以前的插件和宏都能在新的ImageJ上运行。<br>这里建议直接安装Fiji，它是ImageJ和常用插件的一个综合发行版。Fiji的进一步功能有：</p>
-<ul>
-<li>更多的功能，如<a target="_blank" rel="noopener" href="https://zh.wikipedia.org/wiki/%E5%9B%BE%E5%83%8F%E9%85%8D%E5%87%86">图像配准</a>、<a target="_blank" rel="noopener" href="https://zh.wikipedia.org/zh-cn/%E5%BD%B1%E5%83%8F%E6%8B%BC%E6%8E%A5">图像拼接</a>、<a target="_blank" rel="noopener" href="https://zh.wikipedia.org/zh-cn/%E5%9B%BE%E5%83%8F%E5%88%86%E5%89%B2">图像分割</a>、特征提取和三维可视化</li>
-<li>支持多种脚本语言，如BeanScript、Clojure、Jython、Python、Ruby等</li>
-<li>便利的插件升级系统，可以追踪和提示插件是否有更新及后续安装</li>
-</ul>
-<h1 id="相关软件"><a href="#相关软件" class="headerlink" title="相关软件"></a>相关软件</h1><p>还有很多其他相对大型的软件基于ImageJ来开发，如：</p>
-<ul>
-<li><a target="_blank" rel="noopener" href="https://bio7.org/">Bio7</a></li>
-<li><a target="_blank" rel="noopener" href="http://bonej.org/">BoneJ</a></li>
-<li><a target="_blank" rel="noopener" href="https://imagej.net/TrakEM2">TrakEM2</a></li>
-</ul>
-<p>建议遇到问题时参考一下这些软件能不能有启发。</p>
+          开篇说明
+ImageJ是一个优秀的开源图像处理工具，本系列是对ImageJ的官方User Guide的学习。
 
+简介
+ImageJ是一个基于Java平台的图像处理和分析工具（它的发行版Fiji也提供了其他语言，如Python，的开发接口，Fiji与ImageJ的关系，就跟Ubuntu和Linux的关系一样，即Fiji是ImageJ和它的很多插件的集合发行版），由美国国立卫生研究院NIH所创立和开发。因为它基于Java平台，所以通吃各大平台，如Windows、Mac OS和Linux，只要有Java运行环境即可安装和运行。
+ImageJ的功能有：
+
+ * 显示、编辑、分析、处理、保存和打印8位、
+          <!--noindex-->
+            <div class="post-button">
+              <a class="btn" href="/2018/09/01/imagej-intro/#more" rel="contents">
+                Read more &raquo;
+              </a>
+            </div>
+          <!--/noindex-->
+        
       
     </div>
 
@@ -1504,18 +1109,21 @@
     <div class="post-body" itemprop="articleBody">
 
       
-          <p>该文是对以下博客的摘抄和总结：</p>
-<ul>
-<li><a target="_blank" rel="noopener" href="http://mindhacks.cn/2008/09/21/the-magical-bayesian-method/">数学之美番外篇：平凡而又神奇的贝叶斯方法</a></li>
-<li><a target="_blank" rel="noopener" href="https://zhuanlan.zhihu.com/p/26614750">一文搞懂极大似然估计</a></li>
-</ul>
-<h1 id="贝叶斯公式的背景"><a href="#贝叶斯公式的背景" class="headerlink" title="贝叶斯公式的背景"></a>贝叶斯公式的背景</h1><p>“所谓的贝叶斯方法源于他生前为解决一个“逆概”问题写的一篇文章，而这篇文章是在他死后才由他的一位朋友发表出来的。在贝叶斯写这篇文章之前，人们已经能够计算“正向概率”，如“假设袋子里面有N个白球，M个黑球，你伸手进去摸一把，摸出黑球的概率是多大”。而一个自然而然的问题是反过来：“如果我们事先并不知道袋子里面黑白球的比例，而是闭着眼睛摸出一个（或好几个）球，观察这些取出来的球的颜色之后，那么我们可以就此对袋子里面的黑白球的比例作出什么样的推测”。这个问题，就是所谓的逆概问题。”<br>这个时候，我们就需要提供一个猜测（hypothesis，更为严格的说法是“假设”，这里用“猜测”更通俗易懂一点），所谓猜测，当然就是不确定的（很可能有好多种乃至无数种猜测都能满足目前的观测），但也绝对不是两眼一抹黑瞎蒙——具体地说，我们需要做两件事情：1. 算出各种不同猜测的可能性大小。2. 算出最靠谱的猜测是什么。第一个就是计算特定猜测的后验概率，对于连续的猜测空间则是计算猜测的概率密度函数。第二个则是所谓的模型比较，模型比较如果不考虑先验概率的话就是最大似然方法。</p>
-<h1 id="例子：女裤style，导出“贝叶斯公式”"><a href="#例子：女裤style，导出“贝叶斯公式”" class="headerlink" title="例子：女裤style，导出“贝叶斯公式”"></a>例子：女裤style，导出“贝叶斯公式”</h1><p>问题：一所学校里面有 $60%$ 的男生和$40%$ 的女生。男生总是穿长裤，女生则一半穿长裤一半穿裙子。有了这些信息之后我们可以容易地计算“随机选取一个学生，他（她）穿长裤的概率和穿裙子的概率是多大”，这个就是前面说的“正向概率”的计算。然而，假设你走在校园中，迎面走来一个穿长裤的学生（很不幸的是你高度近似，你只看得见他（她）穿的是否长裤，而无法确定他（她）的性别），你能够推断出他（她）是男生的概率是多大吗？<br>分析：一些认知科学的研究表明，我们对形式化的贝叶斯问题不擅长，但对于以频率形式呈现的等价问题却很擅长。在这里，我们不妨把问题重新叙述成：你在校园里面随机游走，遇到了 $N$ 个穿长裤的人（仍然假设你无法直接观察到他们的性别），问这$N$个人里面有多少个女生多少个男生。<br>解答：假设学校里面人的总数是 $U$ 个。$60%$ 的男生都穿长裤，于是我们得到了 <code>$U*P(Boy)*P(Pants|Boy)$</code> 个穿长裤的（男生）（其中 $P(Boy)$ 是男生的概率 $= 60%$，这里可以简单的理解为男生的比例；$P(Pants|Boy)$ 是条件概率，即在 Boy 这个条件下穿长裤的概率是多大，这里是 $100%$ ，因为所有男生都穿长裤）。$40%$ 的女生里面又有一半（$50%$）是穿长裤的，于是我们又得到了 <code>$U* P(Girl) * P(Pants|Girl)$</code> 个穿长裤的（女生）。加起来一共是 <code>$U * P(Boy) * P(Pants|Boy) + U * P(Girl) * P(Pants|Girl)$</code> 个穿长裤的，其中有 <code>$U * P(Girl) * P(Pants|Girl)$</code> 个女生。两者一比就是你要求的答案。<br>转为贝叶斯问题：我们要求的是 $P(Girl|Pants)$ （穿长裤的人里面有多少女生），我们计算的结果是 <code>$\frac&#123;U * P(Girl) * P(Pants|Girl)&#125;&#123;U * P(Boy) * P(Pants|Boy) + U * P(Girl) * P(Pants|Girl)&#125;$</code>。容易发现这里校园内人的总数是无关的，可以消去。于是得到:<br>$$<br>P(Girl|Pants)=\frac{P(Girl) * P(Pants|Girl)}{P(Boy) * P(Pants|Boy) + P(Girl) * P(Pants|Girl)}<br>$$<br>注意，如果把上式收缩起来，分母其实就是 $P(Pants)$ ，分子其实就是 $P(Pants, Girl)$ 。而这个比例$P(Girl|Pants)$很自然地就读作：在穿长裤的人（ $P(Pants)$ ）里面有多少（穿长裤）的女孩（ $P(Pants, Girl)$ ）。</p>
-<p>上式中的 Pants 和 Boy/Girl 可以指代一切东西，所以其一般形式就是：<br>$$<br>P(B|A) = \frac{P(A|B) * P(B)} {P(A|B) * P(B) + P(A|\sim B) * P(\sim B)}<br>$$<br>收缩起来就是：<br>$$<br>P(B|A) = \frac{P(AB)} {P(A)} = \frac{P(A|B) * P(B)}{P(A)}<br>$$</p>
-<h1 id="例子：拼写检查，导出“先验概率、最大似然估计和最大后验概率估计”"><a href="#例子：拼写检查，导出“先验概率、最大似然估计和最大后验概率估计”" class="headerlink" title="例子：拼写检查，导出“先验概率、最大似然估计和最大后验概率估计”"></a>例子：拼写检查，导出“先验概率、最大似然估计和最大后验概率估计”</h1><p>问题：我们看到用户输入了一个不在字典中的单词，我们需要去猜测：“这个家伙到底真正想输入的单词是什么呢？”。用刚才我们形式化的语言来叙述就是，我们需要求：$ P(我们猜测他想输入的单词 | 他实际输入的单词)$ 这个概率。并找出那个使得这个概率最大的猜测单词。显然，我们的猜测未必是唯一的，就像前面举的那个自然语言的歧义性的例子一样；这里，比如用户输入： thew ，那么他到底是想输入 the ，还是想输入 thaw ？到底哪个猜测可能性更大呢？幸运的是我们可以用贝叶斯公式来直接出它们各自的概率，我们不妨将我们的多个猜测记为 $h1, h2 .. (h=hypothesis)$，它们都属于一个有限且离散的猜测空间 $H$（单词总共就那么多而已），将用户实际输入的单词记为 $D, D 代表 Data ，即观测数据$，于是<br>$P(我们的猜测1 | 他实际输入的单词)$ 可以抽象地记为：$P(h1 | D)$，类似地，对于我们的猜测2，则是 $P(h2 | D)$。不妨统一记为：$P(h | D)$。那么运用一次贝叶斯公式，有：<br>$$<br>P(h|D) = \frac{P(h) * P(D|h)}{P(D)}<br>$$<br>对于不同的具体猜测$h1, h2, h3..$，$P(D)$都是一样的，所以在比较$P(h1 | D)$和$P(h2 | D)$时，可以忽略这个常数。即：<br>$$<br>P(h|D) \propto P(h) * P(D|h)<br>$$<br>这个式子的抽象含义是：对于给定观测数据，一个猜测是好是坏，取决于“这个猜测本身独立的可能性大小（先验概率，Prior ）”和“这个猜测生成我们观测到的数据的可能性大小”（似然，Likelihood ）的乘积。具体到我们的那个 thew 例子上，含义就是，用户实际是想输入 the 的可能性大小取决于 the 本身在词汇表中被使用的可能性（频繁程度）大小（先验概率）和 想打 the 却打成 thew 的可能性大小（似然）的乘积。下面的事情就很简单了，对于我们猜测为可能的每个单词计算一下 $P(h) * P(D | h)$ 这个值，然后取最大的，得到的就是最靠谱的猜测。<br>注意：贝叶斯方法计算的是两个概率的乘积，一个是先验概率，一个是最大似然估计。不能仅取其中一个，因为会有失偏颇。最大似然估计是计算了在$h$出现的情形下$D$出现的概率，但忽略了$h$本身出现的概率。如果$h$本身就很难出现，那么即使$P(D|h)$很大，那计算出的$P(h|D)$也会很小。比如如果用户输入的是tlp，那么到底他输入的是top还是tpp。当输入tpp时，有很大可能输成tlp，但tpp本身出现概率很小，所以更有可能是用户想输的是top。<br>奥卡姆剃刀就是说 $P(h)$ 较大的模型有较大的优势，而最大似然则是说最符合观测数据的（即 $P(D | h)$ 最大的）最有优势。整个模型比较就是这两方力量的拉锯。更一般的，大多数情形下我们的先验概率往往是均匀分布，此时就主要是似然估计在起作用。但即使只有似然估计起作用的时候，它也是倾向于更简单的模型，即此时是贝叶斯奥卡姆剃刀。</p>
-<p>所以，贝叶斯方法计算的是最大后验概率估计，它包括两个部分：先验概率和最大似然估计。具体地，似然估计是求的参数，是根据已有的数据，推知模型中的参数，以使得该数据出现的可能性最大。<br>背景知识：<br>概率（probabilty）和统计（statistics）看似两个相近的概念，其实研究的问题刚好相反。<br>概率是已知模型和参数，推数据。统计是已知数据，推模型和参数。<br>对于函数：<br>$$<br>P(x|\theta)<br>$$<br>其中，$x$表示数据，$\theta$表示模型的参数。<br>如果$\theta$已知，$x$是变量，那么这个函数叫做概率函数（probability function），描述对于不同的样本点$x$，其出现概率是多少。如果$x$已知，$\theta$是变量，那么这个函数叫做似然函数（likelihood function），描述对于不同的模型参数，出现$x$这个样本点的概率是多少。</p>
-<h1 id="例子：垃圾邮件过滤器，导出“朴素贝叶斯”"><a href="#例子：垃圾邮件过滤器，导出“朴素贝叶斯”" class="headerlink" title="例子：垃圾邮件过滤器，导出“朴素贝叶斯”"></a>例子：垃圾邮件过滤器，导出“朴素贝叶斯”</h1><p>问题：给定一封邮件，判定它是否属于垃圾邮件。按照先例，我们还是用 $D$ 来表示这封邮件，注意 $D$ 由 $N$ 个单词组成。我们用 $h$ 来表示垃圾邮件。问题可以形式化地描述为求：<br>$$<br>P(h|D) = P(h) * P(D|h) / P(D)<br>$$<br>其中 $P(h)$ 这个先验概率是很容易求出来的，只需要计算一个邮件库里面垃圾邮件占所有邮件的比例就行了。然而 $P(D|h)$ 却不容易求，因为 $D$ 里面含有 $N$ 个单词 $d1, d2, d3, ..$ ，所以$P(D|h) = P(d1,d2,..,dn|h)$ 。我们又一次遇到了数据稀疏性，为什么这么说呢？$P(d1,d2,..,dn|h)$ 就是说在垃圾邮件当中出现跟我们目前这封邮件一模一样的一封邮件的概率是多大！开玩笑，每封邮件都是不同的，世界上有无穷多封邮件。瞧，这就是数据稀疏性，因为可以肯定地说，你收集的训练数据库不管里面含了多少封邮件，也不可能找出一封跟目前这封一模一样的。结果呢？我们又该如何来计算它呢？我们将 $P(d1,d2,..,dn|h)$  扩展为： <code>$P(d1|h) * P(d2|d1, h) * P(d3|d2,h) * ..$</code>。这个式子就是假设一个词出现的概率只依赖于它前面的一个词。这里我们会使用一个更激进的假设，我们假设 $di$ 与 $di-1$ 是完全条件无关的，于是式子就简化为 <code>$P(d1|h) * P(d2|h) * P(d3|h) * ..$</code> 。这个就是所谓的条件独立假设，也正是朴素贝叶斯方法的朴素之处。而计算 <code>$P(d1|h) * P(d2|h) * P(d3|h) * ..$</code> 就太简单了，只要统计 $di$ 这个单词在垃圾邮件中出现的频率即可。</p>
+          该文是对以下博客的摘抄和总结：
 
+ * 数学之美番外篇：平凡而又神奇的贝叶斯方法
+ * 一文搞懂极大似然估计
+
+贝叶斯公式的背景
+“所谓的贝叶斯方法源于他生前为解决一个“逆概”问题写的一篇文章，而这篇文章是在他死后才由他的一位朋友发表出来的。在贝叶斯写这篇文章之前，人们已经能够计算“正向概率”，如“假设袋子里面有N个白球，M个黑球，你伸手进去摸一把，摸出黑球的概率是多大”。而一个自然而然的问题是反过来：“如果我们事先并不知道袋子里面黑白球的比例，而是闭着眼睛摸出一个（或好几个）球，观察这些取出来的球的颜色之后，那么我们可以就此对袋子里面的黑白球的比例作出什么样的推测”。这个问题，就是所谓的逆概
+          <!--noindex-->
+            <div class="post-button">
+              <a class="btn" href="/2018/07/30/bayesian-method/#more" rel="contents">
+                Read more &raquo;
+              </a>
+            </div>
+          <!--/noindex-->
+        
       
     </div>
 
@@ -1602,35 +1210,23 @@
     <div class="post-body" itemprop="articleBody">
 
       
-          <h1 id="参考文献"><a href="#参考文献" class="headerlink" title="参考文献"></a>参考文献</h1><p>变分自编码器（Variational Auto-Encoder）可以说是深度学习领域的一股清流，没有采用“盲目堆砌各种神经层而乱碰瞎试”的套路，而是将神经网络与贝叶斯概率图结合，是理论指导模型结构设计的范例。深入了解它的原理，可以有助于建立良好的算法设计思想。<br>本文是对“科学空间”博主苏剑林的三篇博客的摘抄总结（话说苏博主真是沉得下心来研究算法啊。。科普得还那么好。。）：</p>
-<ul>
-<li><a target="_blank" rel="noopener" href="https://kexue.fm/archives/5253">变分自编码器（一）：原来是这么一回事</a></li>
-<li><a target="_blank" rel="noopener" href="https://kexue.fm/archives/5343">变分自编码器（二）：从贝叶斯观点出发</a></li>
-<li><a target="_blank" rel="noopener" href="https://kexue.fm/archives/5383">变分自编码器（三）：这样做为什么能成？</a></li>
-</ul>
-<p>以及结合变分自编码VAE的PyTorch实现<a target="_blank" rel="noopener" href="https://github.com/yunjey/pytorch-tutorial/blob/master/tutorials/03-advanced/variational_autoencoder/main.py">VAE in PyTorch</a>,来对VAE进行理解。</p>
-<h1 id="VAE的原理"><a href="#VAE的原理" class="headerlink" title="VAE的原理"></a>VAE的原理</h1><h2 id="问题描述"><a href="#问题描述" class="headerlink" title="问题描述"></a>问题描述</h2><p>我们有一批数据样本${X_1, X_2, …, X_n}$，其整体用$X$来描述。我们想通过这些数据样本来得到$X$的分布$p(X)$，这样就可以得到所有可能的$X$。<br>但直接通过这些样本点来得到分布是不现实的，因为我们也不知道它符合什么样的分布。机器学习中的“生成模型”，比如VAE和GAN，对于这个问题的解决方式是引入一个中间隐变量$Z$，然后构建一个从隐变量$Z$生成数据$\hat{X}$的模型。那么，生成数据的边缘分布就可以如下计算：<br>$$<br>p(\hat{X})=\int_Z p(\hat{X}|Z)p(Z)dz<br>$$<br>理想情况下，该生成分布就是原始样本点的概率分布，即$p(\hat{X})=p(X)$。如果这个目标达到了，这样就既得到了$p(X)$这个概率分布，又得到了生成模型$p(X|Z)$，一举两得。<br>具体计算时，条件概率$p(X|Z)$和先验概率$p(Z)$都可以事先假定，但此时生成的数据是采样结果，并不知道它们的分布，所以生成模型的难题就是判断生成分布与真实分布的相似度。<br><img src="https://ws1.sinaimg.cn/large/0072Lfvtly1fu4dv5emcdj30or0c7myy.jpg"></p>
-<h2 id="损失函数"><a href="#损失函数" class="headerlink" title="损失函数"></a>损失函数</h2><p><strong>注意，原论文中的优化目标是最大化原始样本的对数似然函数，即：</strong><br>$$<br>\ln p_\theta (X_1, X_2,…, X_n) = \sum_{i=1}^N \ln p_\theta (X_i)<br>$$<br><strong>而经过推导以后，得到：该似然函数是编码模型$q(Z|X)$与后验概率$p(Z|X)$的KL散度与另一个loss的和，而直接优化这个似然函数不可行，且这个KL散度最小为0，因此转而优化这个loss，即似然函数的下界。而下方的推导，一开始的优化目标就是与原论文不同，下方的优化目标是真实联合分布和生成模型的联合分布的KL散度最小。实际上，两方一对比可以发现，原论文要优化的下界loss就是下方推导的联合分布的KL散度。<br>所以，下方的loss只是原论文的一个中间步骤，VAE的理想目标还是对原始数据的极大似然估计，但发现该目标实现不了，因此VAE只能说是一个近似模型。</strong></p>
-<p>假设$p(X)$就是要求的真实分布，因为：<br>$$<br>p(X)=\int_Z p(X|Z)p(Z)dz=\int_Z p(X,Z)dZ<br>$$<br>所以从联合分布的角度来看，假设有一个任意的联合概率分布$q(X,Z)$，用KL散度来度量两个联合分布之间的距离：<br>$$<br>KL(p(x,z)||q(x,z))= \iint p(X,Z) \ln\frac{p(X,Z)}{q(X,Z)}dZdX<br>$$<br>我们希望这个KL散度越小越好，因此，损失函数就是以这个KL散度为基本。由于我们手头上只有$X$的样本，因此利用$p(X,Z)=\tilde{p}(X)p(Z|X)$对上式进行改写：<br>\begin{aligned}<br>KL(p(X,Z)\parallel q(X,Z)) =&amp; \int \tilde{p}(X)\Big[ \int p(Z|X) \ln \frac{\tilde{p}(X)p(Z|X)}{q(X,Z)}dZ \Big]dX \\<br>=&amp; \mathbb{E}_{X\sim\tilde{p}(X)}\Big[ \int p(Z|X) \ln\frac{\tilde{p}(X)p(Z|X)}{q(X,Z)}dZ \Big] \\<br>=&amp; \mathbb{E}_{X\sim\tilde{p}(X)}\Big[ \int p(Z|X) \big[ \ln\tilde{p}(X)+\ln\frac{p(Z|X)}{q(X,Z)} \big]dZ \Big] \\<br>=&amp; \mathbb{E}_{X\sim\tilde{p}(X)}\Big[ \int p(Z|X) \ln\tilde{p}(X)dZ \Big] + \mathbb{E}_{X\sim\tilde{p}(X)}\Big[ \int p(Z|X) \ln\frac{p(Z|X)}{q(X,Z)} dZ \Big] \\<br>=&amp; \mathbb{E}_{X\sim\tilde{p}(X)}\Big[ \ln\tilde{p}(X)\int p(Z|X) dZ \Big] + \mathbb{E}_{X\sim\tilde{p}(X)}\Big[ \int p(Z|X) \ln\frac{p(Z|X)}{q(X,Z)} dZ \Big] \\<br>=&amp; \mathbb{E}_{X\sim\tilde{p}(X)}\Big[ \ln\tilde{p}(X)\Big] + \mathbb{E}_{X\sim\tilde{p}(X)}\Big[ \int p(Z|X) \ln\frac{p(Z|X)}{q(X,Z)} dZ \Big] \\<br>\end{aligned}<br>注意，这里的$\tilde{p}(X)$是根据样本$X_1,X_2,…,X_n$确定的关于$X$的先验分布，尽管我们不一定能准确写出它的形式，但它是确定的、存在的，因此第一项只是一个常数，所以，损失函数中可以去掉这一项，只包含KL散度的第二部分：<br>\begin{aligned}<br>L&amp;= KL(p(X|Z)||q(X,Z))-CONSTANT \\<br>&amp;= \mathbb{E}_{X\sim\tilde{p}(X)}\Big[ \int p(Z|X) \ln\frac{p(Z|X)}{q(X,Z)} dZ \Big] \\<br>\end{aligned}<br>因为KL散度最小为0，所以这里的损失函数的下界就是$-\mathbb{E}_{\tidle{p}(X)} \Big[ \ln \tilde{p}(X) \Big]$，注意到$\tilde{p}(X)$不一定是概率，在连续情形时它是概率密度，所以它可以大于1也可以小于1，所以这个下界有可能为负，即loss可能为负。实际比较损失与下界的接近程度就可以比较生成器的相对质量。<br>进一步地，把$q(X,Z)$利用联合概率$q(X,Z)=q(X|Z)q(Z)$进行变换：<br>\begin{aligned}<br>L &amp;= \mathbb{E}_{X\sim\tilde{p}(X)}\Big[ \int p(Z|X) \ln\frac{p(Z|X)}{q(X|Z)q(Z)} dZ \Big] \\<br>&amp;= \mathbb{E}_{X\sim\tilde{p}(X)}<br>\Big[ -\int p(Z|X)\ln q(X|Z)dZ + \int p(Z|X) \ln\frac{p(Z|X)}{q(Z)} dZ \Big] \\<br>&amp;= \mathbb{E}_{X\sim\tilde{p}(X)}<br>\Big[ \mathbb{E}_{Z\sim p(Z|X)}\big[ -\ln q(X|Z) \big] + \mathbb{E}_{z\sim p(Z|X)} \big[ \ln\frac{p(Z|X)}{q(Z)} \big] \Big] \\<br>&amp;= \mathbb{E}_{X\sim\tilde{p}(X)}<br>\Big[ \mathbb{E}_{Z\sim p(Z|X)}\big[ -\ln q(X|Z) \big] + KL \big( p(Z|X) || q(Z) \big) \Big] \\<br>\end{aligned}<br>注意，第一项中$Z$是根据$p(Z|X)$来采样的，而计算的却是$-\ln q(X|Z)$的期望。</p>
-<h2 id="实验"><a href="#实验" class="headerlink" title="实验"></a>实验</h2><p>现在$q(X|Z), q(Z|X), q(Z)$全都是未知的，连形式都没有确定，而为了实际算法，就得明确地把它们写出来。<br>首先，为了便于采样，假设$Z\sim N(0,1)$，即隐参量符合标准正态分布，这就解决了$q(Z)$。<br>然后，对于$q(Z|X)$，也是假设它是（各分量独立的）正态分布，其均值和方差由$X$决定，这个决定由神经网络算出。具体来说就是设计两个神经网络，它们接收$X$，分别输出均值$\mu(X)$和方差的对数$\ln \sigma^2$。这两个参数训练出来以后，就可以得到$p(Z|X)$的形式（注意是多元正态分布的概率密度）：<br>$$<br>p(Z|X)=\frac{1}{\prod\limits_{k=1}^d \sqrt{2\pi \sigma_{(k)}^2(X)}}\exp\left(-\frac{1}{2}\left\Vert\frac{Z-\mu(X)}{\sigma(X)}\right\Vert^2\right)<br>$$<br>其中，$d$是隐参量$Z$的维度。以$Z$的维度为2为例，上式的具体写法就是：<br>$$<br>p(Z|X)=\frac{1}{2\pi \sigma_{(1)}(X)\sigma_{(2)}(X)}\exp\left(-\frac{1}{2}\left((\frac{Z-\mu_1(X)}{\sigma_1(X)})^2+(\frac{Z-\mu_2(X)}{\sigma_2(X)})^2\right)\right)<br>$$<br>这部分实际就是Encoder的作用。<br>既然假定了$q(Z)$和$q(Z|X)$都是正态分布，那么它们的KL散度也就可以计算出来（由于考虑的是各分量独立的多元正态分布，因此只需要推导一元正态分布的情形即可）：<br>\begin{aligned}<br>&amp;KL\Big(N(\mu,\sigma^2) || N(0,1)\Big) \\<br>&amp;= \int \frac{1}{\sqrt{2\pi\sigma^2}}e^{-(x-\mu)^2/2\sigma^2} \left(\ln \frac{e^{-(x-\mu)^2/2\sigma^2}/\sqrt{2\pi\sigma^2}}{e^{-x^2/2}/\sqrt{2\pi}}\right)dx \\<br>&amp;= \int \frac{1}{\sqrt{2\pi\sigma^2}}e^{-(x-\mu)^2/2\sigma^2} \ln \Big[ \frac{1}{\sqrt{\sigma^2}}\exp ( \frac{1}{2}\big[x^2-(x-\mu)^2/\sigma^2\big] ) \Big] dx \\<br>&amp;=\frac{1}{2}\int \frac{1}{\sqrt{2\pi\sigma^2}}e^{-(x-\mu)^2/2\sigma^2} \Big[-\ln \sigma^2+x^2-(x-\mu)^2/\sigma^2 \Big] dx \\<br>&amp;=\frac{1}{2}\Big( \mu^2+\sigma^2-\ln \sigma^2-1) \\<br>\end{aligned}</p>
-<p>现在只剩下$q(X|Z)$。原始论文中给出了两种分布供选择，分别对应于不同的情形。</p>
-<h3 id="伯努利分布"><a href="#伯努利分布" class="headerlink" title="伯努利分布"></a>伯努利分布</h3><p>伯努利分布，即二元分布，只适用于$X$是一个多元的二值向量（只能是0或1）的清醒，比如$X$是二值图像，如MNIST数据集。这个分布的唯一参数就是$X=1$时的概率$\rho$，此时还是构建神经网络来训练这个参数。而后验分布$q(X|Z)$的表达式是：<br>$$<br>q(X|Z)=\prod_{k=1}^D \Big(\rho_{(k)}(Z)\Big)^{X_{(k)}} \Big(1 - \rho_{(k)}(Z)\Big)^{1 - X_{(k)}}<br>$$<br>这里，$D$是$X$的维度。<br>这时候就可以算出损失函数的第一项中的要求期望的那部分：<br>$$<br>-\ln q(X|Z) = \sum_{k=1}^D \Big[- X_{(k)} \ln \rho_{(k)}(Z) - (1-X_{(k)}) \ln \Big(1 -\rho_{(k)}(Z)\Big)\Big]<br>$$<br>可以看出，这一项正好是交叉熵的形式！所以，这部分可以直接调用软件中的交叉熵的计算函数。另外，要注意的是，$\rho(Z)$正好是用作Decoder，它要压缩到$0\sim 1$之间，这可以用sigmoid函数来整流。</p>
-<h3 id="正态分布"><a href="#正态分布" class="headerlink" title="正态分布"></a>正态分布</h3><p>如果假设$q(X|Z)$服从正态分布，那么它的形式就跟之前的$P(Z|X)$是一样的，只不过是$X$和$Z$交换位置（同时别忘了将维度也更改了）：<br>$$<br>p(X|Z)=\frac{1}{\prod\limits_{k=1}^D \sqrt{2\pi \sigma_{(k)}^2(Z)}}\exp\left(-\frac{1}{2}\left\Vert\frac{X-\mu(Z)}{\sigma(Z)}\right\Vert^2\right)<br>$$<br>这里的均值和方差的对数也是通过构建神经网络来训练得到（从下面可以看出，一般固定方差，所以就不用训练方差这个网络了），这里也是Decoder的作用。<br>那么，此时损失函数的第一项中的要求期望的那部分：<br>$$<br>-\ln q(X|Z) = \frac{1}{2}\left\Vert\frac{X-\mu(Z)}{\sigma(Z)}\right\Vert^2 + \frac{D}{2}\ln 2\pi + \frac{1}{2}\sum_{k=1}^D \ln \sigma_{(k)}^2(Z)<br>$$<br>如果我们将方差固定为一个常数$\sigma^2$，此时：<br>$$<br>-\ln q(X|Z) \sim \frac{1}{2\sigma^2}\left\Vert X-\mu(Z)\right\Vert^2<br>$$<br>上式就是将$\mu(Z)$作为Decoder时的MSE损失函数。<br>因此，对于二值数据，我们选择$\rho(Z)$作为Decoder（注意用sigmoid函数整流），然后用交叉熵作为损失函数，这对应于$q(X|Z)$是伯努利分布的情形；而对于一般数据，我们选择训练出来的均值$\mu(Z)$作为decoder，然后用MSE作为损失函数，这对应于$q(X|Z)$是固定方差的正态分布时的情形。具体这个方差取多少，是有一定人为性的，这个方差也决定了重构误差和KL散度的比例是多少。</p>
-<h3 id="采样"><a href="#采样" class="headerlink" title="采样"></a>采样</h3><p>对于损失函数：<br>$$<br>L = \mathbb{E}_{X\sim\tilde{p}(X)}<br>\Big[ \mathbb{E}_{Z\sim p(Z|X)}\big[ -\ln q(X|Z) \big] + KL \big( p(Z|X) || q(Z) \big) \Big]<br>$$<br>已经知道了$-\ln q(X|Z)$ 和$KL \big( p(Z|X) || q(Z) \big)$，还涉及到$\mathbb{E}_{Z\sim p(Z|X)}\big[ -\ln q(X|Z) \big]$怎么采样计算的问题。VAE直接给出了“只采一个样本就可以”的结论，因此损失函数变为：<br>$$<br>L = \mathbb{E}_{X\sim\tilde{p}(X)} \Big[ -\ln q(X|Z) + KL \big( p(Z|X) || q(Z) \big) \Big]<br>$$<br>事实上我们会运行多个epoch，每次的隐参量都是随机生成的，因此当epoch数足够多时，事实上是可以保证采样的充分性的。</p>
-<h1 id="VAE的形象化理解"><a href="#VAE的形象化理解" class="headerlink" title="VAE的形象化理解"></a>VAE的形象化理解</h1><h2 id="VAE的错误理解"><a href="#VAE的错误理解" class="headerlink" title="VAE的错误理解"></a>VAE的错误理解</h2><p>关于VAE的一个常见的错误理解如下图所示：<br><img src="https://ws1.sinaimg.cn/large/0072Lfvtly1fu4eolz910j30qt0dyq5e.jpg"><br>即，先根据原始的样本数据算出$Z$所符合的标准正态分布的均值和方差，然后再从该分布中采样一个$Z$，根据$Z$算出一个$X$。但问题是：究竟经过重新采样出来的$Z_k$及其算出来的$X_k$，是不是还对应着原来的$X_k$，所以此时如果直接最小化$D(\hat{X}_k, X_k)$是很不科学的（$D$代表某种距离函数），事实上代码也不是这么写的。</p>
-<h2 id="VAE的正确理解"><a href="#VAE的正确理解" class="headerlink" title="VAE的正确理解"></a>VAE的正确理解</h2><p>为了保证经过重新采样出来的$Z_k$及其算出来的$X_k$，还对应着原来的$X_k$，我们可以假定这个采样点$Z_k$所遵循的分布$p(Z)$是专属于$X_k$的，即$p(Z|X_k)$，而且该分布还假定是独立的、多元的正态分布。这样，每一个$X_k$都配备了一个专属的正态分布，这样才方便后面的生成器做还原（即每个样本$X_k$都有自己的均值和方差）。但这样一来，多少个$X$就有多少个正态分布。我们知道正态分布有两组参数：均值$\mu$和方差$\sigma^2$（多元的话，它们都是向量），那怎样确定专属于$X_k$的正态分布的均值和方差呢？方法就是用神经网络来拟合。这就是神经网络时代的哲学：难算的都用神经网络来拟合。注意，这里是构建两个分别含有两个全连接层的神经网络$\mu_k=f_1(X_k)$和$log\sigma^2=f_2(X_k)$来计算均值和方差。注意，$f_2$是训练的方差的对数。<br>示意图如下：<br><img src="https://ws1.sinaimg.cn/large/0072Lfvtly1fu4jl5x0o9j30rf0imtcm.jpg"></p>
-<h2 id="VAE的生成能力体现在哪"><a href="#VAE的生成能力体现在哪" class="headerlink" title="VAE的生成能力体现在哪"></a>VAE的生成能力体现在哪</h2><p>在最小化$D(\hat{X}_k,X_k)$时，结果会受到噪声的影响，这是因为$Z_k$是通过重新采样得到的（即通过一个随机数生成）。显然噪声会增加训练的难度，不过好在这个噪声强度（也就是方差）是通过一个神经网络算出来的，所以最终模型为了降低训练难度（只拟合均值，肯定比拟合多个来得容易），会想尽办法让方差为0。而方差为0的话，也就丧失了随机性，所以不管如何采样，其实都只是取得了均值。即，模型会慢慢退化成普通的AutoEncoder，没有了生成能力。<br>而VAE之所以是生成模型，是因为它还让所有的$p(Z|X)$都向标准正态分布看齐。因为此时：<br>$$<br>p(Z)=\sum_X p(Z|X)p(X)=\sum_X N(0,1)p(X)=N(0,1)\sum_X p(X)=N(0,1)<br>$$<br>这样就能推出这样的先验假设，即$p(Z)$是标准正态分布，这就意味着，隐参量符合了正态分布，这样就可以放心地从这个分布中随机采样，保证了生成能力。<br>示意图如下：<br><img src="https://ws1.sinaimg.cn/large/0072Lfvtly1fu4ku70trbj30rd0nmwiv.jpg"><br>那么，问题就变成了怎样让$p(Z|X)$向标准正态分布看齐。最直接的一个方法就是在损失函数中加入额外的loss：<br>$$<br>L_\mu = ||f_1(X_k)||^2 \quad and \quad L_{\sigma^2}=||f_2(X_K)||^2<br>$$<br>因为$f_1$和$f_2$分别代表了均值和方差的对数，达到标准正态分布意味着二者都为零。但是这种方法面临着这两个损失怎样选取的问题。所以，原文中直接算了一般的正态分布和标准正态分布的KL散度作为额外的损失，即<br>$$<br>L_{\mu,\sigma^2}=\frac{1}{2}\sum_{i=1}^d(\mu_{(i)}^2+\sigma_{(i)}^2-log\sigma_{(i)}^2-1)<br>$$<br>这里$d$是隐变量$Z$的维度，而$\mu_{(i)}$和$\sigma_{(i)}^2$分别表示一般正态分布的均值向量和方差向量的第i个分量。</p>
-<h2 id="VAE的本质"><a href="#VAE的本质" class="headerlink" title="VAE的本质"></a>VAE的本质</h2><p>VAE本质上就是在我们常规的自编码器的基础上，对encoder的结果（在VAE中对应着计算均值的网络）加上了“高斯噪声”，使得结果decoder能够对噪声有鲁棒性；而那个额外的KL loss（目的是让均值为0，方差为1），事实上就是相当于对encoder的一个正则项，希望encoder出来的东西均有零均值。<br>那另外一个encoder（对应着计算方差的网络）的作用呢？它是用来动态调节噪声的强度的。直觉上来想，当decoder还没有训练好时（重构误差远大于KL loss），就会适当降低噪声（KL loss增加，注意KL loss等于0表示分布就是标准正态分布），使得拟合起来容易一些（重构误差开始下降）；反之，如果decoder训练得还不错时（重构误差小于KL loss），这时候噪声就会增加（KL loss减少），使得拟合更加困难了（重构误差又开始增加），这时候decoder就要想办法提高它的生成能力了。<br>说白了，重构的过程是希望没噪声的，而KL loss则希望有高斯噪声的，两者是对立的。所以，VAE跟GAN一样，内部其实是包含了一个对抗的过程，只不过它们两者是混合起来，共同进化的。</p>
-<h1 id="条件VAE"><a href="#条件VAE" class="headerlink" title="条件VAE"></a>条件VAE</h1><p>因为目前的VAE是无监督训练的，因此很自然想到：如果有标签数据，那么能不能把标签信息加进去辅助生成样本呢？这个问题的意图，往往是希望能够实现控制某个变量来实现生成某一类图像。当然，这是肯定可以的，我们把这种情况叫做Conditional VAE，或者叫CVAE。（相应地，在GAN中我们也有个CGAN。）</p>
-<h1 id="程序实现"><a href="#程序实现" class="headerlink" title="程序实现"></a>程序实现</h1><h2 id="导入必要的包"><a href="#导入必要的包" class="headerlink" title="导入必要的包"></a>导入必要的包</h2><figure class="highlight cpp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">import</span> os</span><br><span class="line"><span class="keyword">import</span> torch</span><br><span class="line"><span class="keyword">import</span> torch.nn as nn</span><br><span class="line"><span class="keyword">import</span> torch.nn.functional as F</span><br><span class="line"><span class="keyword">import</span> torchvision</span><br><span class="line">from torchvision <span class="keyword">import</span> transforms</span><br><span class="line">from torchvision.utils <span class="keyword">import</span> save_image</span><br><span class="line"></span><br><span class="line"># Device configuration</span><br><span class="line">device = torch.device(&#x27;cuda&#x27; if torch.cuda.is_available() else &#x27;cpu&#x27;)</span><br><span class="line"></span><br><span class="line"># Create a directory <span class="keyword">if</span> <span class="keyword">not</span> exists</span><br><span class="line">sample_dir = &#x27;samples&#x27;</span><br><span class="line"><span class="keyword">if</span> <span class="keyword">not</span> os.path.<span class="built_in">exists</span>(sample_dir):</span><br><span class="line">    os.<span class="built_in">makedirs</span>(sample_dir)</span><br></pre></td></tr></table></figure>
-<p>导入PyTorch和TorchVision，并根据实际情形看使用GPU还是CPU。建立samples文件夹放置图片。</p>
-<h2 id="设置超参数和导入数据"><a href="#设置超参数和导入数据" class="headerlink" title="设置超参数和导入数据"></a>设置超参数和导入数据</h2><figure class="highlight cpp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br></pre></td><td class="code"><pre><span class="line">image_size = <span class="number">784</span> # 这个是输入图片的长宽像素之积，MNIST图片是<span class="number">28</span>*<span class="number">28</span>的，所以是<span class="number">784</span></span><br><span class="line">h_dim = <span class="number">400</span> # 计算均值方差的神经网络是一个含有两个全连接层和一个ReLU层的网络。这里是第一个全连接层的输出神经元个数 </span><br><span class="line">z_dim = <span class="number">20</span> # 这里是第二个全连接层的输出神经元个数</span><br><span class="line">num_epochs = <span class="number">15</span> # 迭代次数</span><br><span class="line">batch_size = <span class="number">128</span> # 批处理样本时每批的个数</span><br><span class="line">learning_rate = <span class="number">1e-3</span> # 学习速率</span><br><span class="line"></span><br><span class="line"># MNIST dataset</span><br><span class="line">dataset = torchvision.datasets.MNIST(root=&#x27;../../data&#x27;,</span><br><span class="line">                                     train=True,</span><br><span class="line">                                     transform=transforms.<span class="built_in">ToTensor</span>(),</span><br><span class="line">                                     download=True)</span><br><span class="line"></span><br><span class="line"># Data loader</span><br><span class="line">data_loader = torch.utils.data.<span class="built_in">DataLoader</span>(dataset=dataset,</span><br><span class="line">                                          batch_size=batch_size, </span><br><span class="line">                                          shuffle=True)</span><br></pre></td></tr></table></figure>
+          参考文献
+变分自编码器（Variational Auto-Encoder）可以说是深度学习领域的一股清流，没有采用“盲目堆砌各种神经层而乱碰瞎试”的套路，而是将神经网络与贝叶斯概率图结合，是理论指导模型结构设计的范例。深入了解它的原理，可以有助于建立良好的算法设计思想。
+本文是对“科学空间”博主苏剑林的三篇博客的摘抄总结（话说苏博主真是沉得下心来研究算法啊。。科普得还那么好。。）：
 
-<h2 id="模型构建"><a href="#模型构建" class="headerlink" title="模型构建"></a>模型构建</h2><figure class="highlight cpp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br></pre></td><td class="code"><pre><span class="line"># VAE model</span><br><span class="line"><span class="function">class <span class="title">VAE</span><span class="params">(nn.Module)</span>:</span></span><br><span class="line"><span class="function">    def __init__(self, image_size=</span><span class="number">784</span>, h_dim=<span class="number">400</span>, z_dim=<span class="number">20</span>):</span><br><span class="line">        <span class="built_in">super</span>(VAE, self).__init__()</span><br><span class="line">        self.fc1 = nn.<span class="built_in">Linear</span>(image_size, h_dim)</span><br><span class="line">        self.fc2 = nn.<span class="built_in">Linear</span>(h_dim, z_dim)</span><br><span class="line">        self.fc3 = nn.<span class="built_in">Linear</span>(h_dim, z_dim)</span><br><span class="line">        self.fc4 = nn.<span class="built_in">Linear</span>(z_dim, h_dim)</span><br><span class="line">        self.fc5 = nn.<span class="built_in">Linear</span>(h_dim, image_size)</span><br><span class="line">        </span><br><span class="line">    def <span class="built_in">encode</span>(self, x): # 编码器</span><br><span class="line">        h = F.<span class="built_in">relu</span>(self.<span class="built_in">fc1</span>(x)) # 计算第一个全连接层，然后用ReLU整流</span><br><span class="line">        <span class="keyword">return</span> self.<span class="built_in">fc2</span>(h), self.<span class="built_in">fc3</span>(h) # 对均值和方差(实际是$log\sigma^<span class="number">2</span>$)都计算第二个全连接层</span><br><span class="line">    </span><br><span class="line">    def <span class="built_in">reparameterize</span>(self, mu, log_var): # 重参数化</span><br><span class="line">        std = torch.<span class="built_in">exp</span>(log_var/<span class="number">2</span>)  # 这一步是将方差的对数转换为标准差。</span><br><span class="line">        eps = torch.<span class="built_in">randn_like</span>(std) # 生成一个跟std同样大小的取自标准正态分布的随机数。</span><br><span class="line">        <span class="keyword">return</span> mu + eps * std  # 根据标准正态分布的采样得到之前正态分布中的采样。</span><br><span class="line"></span><br><span class="line">    def <span class="built_in">decode</span>(self, z): # 解码器，也是两个全连接层，中间有个ReLU整流，最后有个Sigmoid层进行激活。</span><br><span class="line">        h = F.<span class="built_in">relu</span>(self.<span class="built_in">fc4</span>(z)) </span><br><span class="line">        <span class="keyword">return</span> F.<span class="built_in">sigmoid</span>(self.<span class="built_in">fc5</span>(h))</span><br><span class="line">    </span><br><span class="line">    def forward(self, x): # 前向计算</span><br><span class="line">        mu, log_var = self.<span class="built_in">encode</span>(x) # 对输入变量进行编码，得到隐变量所满足的正态分布的均值和方差</span><br><span class="line">        z = self.<span class="built_in">reparameterize</span>(mu, log_var) # 重参数化</span><br><span class="line">        x_reconst = self.<span class="built_in">decode</span>(z) # 解码器</span><br><span class="line">        <span class="keyword">return</span> x_reconst, mu, log_var</span><br></pre></td></tr></table></figure>
-<p>有几个注意点：<br>(1) 对每个输入的x都生成一个正态分布，然后再从该分布中采样得到z，然后再根据生成器得到新x。所以，输入x、隐参量z和输出x是一一对应的。<br>(2) 计算方差的神经网络实际计算的不是方差，而是它的对数，即$log(\sigma^2)$。<br>(3) 重参数reparameterize的作用：得到隐参量z的正态分布后，还要对其采样得到离散值。但这个“采样”操作是不可导的，因此没法应用于梯度下降的训练过程。而根据公式：<br>$$<br>\frac{1}{\sqrt{2\pi\sigma^2}}exp(-\frac{(z-\mu)^2}{2\sigma^2})dz =<br>\frac{1}{\sqrt{2\pi}}exp[-\frac{1}{2}(\frac{z-\mu}{\sigma})^2]d(\frac{z-\mu}{\sigma})<br>$$<br>可以看出变量$\epsilon=\frac{z-\mu}{\sigma}$服从标准正态分布。因此，从原正态分布中采样一个z，就等同于从标准正态分布中采样一个$\epsilon$，然后让$z=\mu+\epsilon\sigma$。这样，就可以不用把采样这个操作加入到反向传播中，而只需要将结果放进来即可。</p>
-<h2 id="训练和测试模型"><a href="#训练和测试模型" class="headerlink" title="训练和测试模型"></a>训练和测试模型</h2><figure class="highlight"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br></pre></td><td class="code"><pre><span class="line">model = <span class="built_in">VAE</span>().<span class="built_in">to</span>(device) </span><br><span class="line">optimizer = torch.optim.<span class="built_in">Adam</span>(model.<span class="built_in">parameters</span>(), lr=learning_rate)</span><br><span class="line"></span><br><span class="line"># Start training</span><br><span class="line"><span class="keyword">for</span> epoch in <span class="built_in">range</span>(num_epochs):</span><br><span class="line">    <span class="keyword">for</span> i, (x, _) in <span class="built_in">enumerate</span>(data_loader):</span><br><span class="line">        # Forward pass</span><br><span class="line">        x = x.<span class="built_in">to</span>(device).<span class="built_in">view</span>(<span class="number">-1</span>, image_size)</span><br><span class="line">        x_reconst, mu, log_var = <span class="built_in">model</span>(x)  # 前向计算，得到新的变量x，以及正态分布的均值和方差</span><br><span class="line">        </span><br><span class="line">        # Compute reconstruction loss <span class="keyword">and</span> kl divergence</span><br><span class="line">        # For KL divergence, see Appendix B in VAE paper <span class="keyword">or</span> http:<span class="comment">//yunjey47.tistory.com/43</span></span><br><span class="line">        reconst_loss = F.<span class="built_in">binary_cross_entropy</span>(x_reconst, x, size_average=False) # 计算输入变量和新变量之间的二进制交叉熵</span><br><span class="line">        kl_div = - <span class="number">0.5</span> * torch.<span class="built_in">sum</span>(<span class="number">1</span> + log_var - mu.<span class="built_in">pow</span>(<span class="number">2</span>) - log_var.<span class="built_in">exp</span>()) # 计算KL散度，公式见下方。</span><br><span class="line">        </span><br><span class="line">        # Backprop <span class="keyword">and</span> optimize</span><br><span class="line">        loss = reconst_loss + kl_div # 总损失等于交叉熵和KL散度之和</span><br><span class="line">        optimizer.<span class="built_in">zero_grad</span>() # 梯度置零</span><br><span class="line">        loss.<span class="built_in">backward</span>() # 反向传播</span><br><span class="line">        optimizer.<span class="built_in">step</span>() # 步进</span><br><span class="line">        </span><br><span class="line">        <span class="keyword">if</span> (i+<span class="number">1</span>) % <span class="number">10</span> == <span class="number">0</span>:</span><br><span class="line">            <span class="built_in">print</span> (<span class="string">&quot;Epoch[&#123;&#125;/&#123;&#125;], Step [&#123;&#125;/&#123;&#125;], Reconst Loss: &#123;:.4f&#125;, KL Div: &#123;:.4f&#125;&quot;</span> </span><br><span class="line">                   .format(epoch+<span class="number">1</span>, num_epochs, i+<span class="number">1</span>, <span class="built_in">len</span>(data_loader), reconst_loss.<span class="built_in">item</span>(), kl_div.<span class="built_in">item</span>()))</span><br><span class="line">    </span><br><span class="line">    with torch.<span class="built_in">no_grad</span>():</span><br><span class="line">        # Save the sampled images</span><br><span class="line">        z = torch.<span class="built_in">randn</span>(batch_size, z_dim).<span class="built_in">to</span>(device)</span><br><span class="line">        out = model.<span class="built_in">decode</span>(z).<span class="built_in">view</span>(<span class="number">-1</span>, <span class="number">1</span>, <span class="number">28</span>, <span class="number">28</span>)</span><br><span class="line">        save_image(out, os.path.join(sample_dir, &#x27;sampled-&#123;&#125;.png&#x27;.format(epoch+1)))</span><br><span class="line"></span><br><span class="line">        # Save the reconstructed images</span><br><span class="line">        out, _, _ = <span class="built_in">model</span>(x)</span><br><span class="line">        x_concat = torch.<span class="built_in">cat</span>([x.<span class="built_in">view</span>(<span class="number">-1</span>, <span class="number">1</span>, <span class="number">28</span>, <span class="number">28</span>), out.<span class="built_in">view</span>(<span class="number">-1</span>, <span class="number">1</span>, <span class="number">28</span>, <span class="number">28</span>)], dim=<span class="number">3</span>)</span><br><span class="line">        save_image(x_concat, os.path.join(sample_dir, &#x27;reconst-&#123;&#125;.png&#x27;.format(epoch+1)))</span><br></pre></td></tr></table></figure>
-<p>注意：<br>总损失函数等于交叉熵和KL散度。<br>KL散度是为了度量两个概率分布之间的差异。如果两个分布相等，那么KL散度为0。KL散度的一个主要性质是非负性，因此最小化KL散度的结果就是使得两个分布尽可能相等，这一点的严格证明要用到变分法，这里正是VAE中的V的来源。<br>KL散度的计算公式是：<br>$$<br>D_{KL}(p(x)||q(x))=\int p(x)\ln\frac{p(x)}{q(x)}dx<br>$$<br>上面的x是连续随机变量。如果是离散的随机变量，可以有两种方式计算：<br>一是使用数值计算，即<br>$$<br>D_{KL}(p(x)||q(x))=\sum{p(x_i) \ln \frac{p(x_i)}{q(x_i)}}\Delta x<br>$$<br>二是使用采样计算，即<br>$$<br>D_{KL}(p(x)||q(x))=E_{x \in p(x)} [\ln \frac{p(x_i)}{q(x_i)}]<br>$$<br>其中，E是期望，有：<br>$$<br>E_{x~p(x)}[f(x)]=\int f(x)p(x)dx \approx \frac{1}{n}\sum_{i=1}^n f(x_i), \qquad x_i \in p(x)<br>$$<br>注意，上式中的$x_i$是从概率分布$p_i$中采样，所以采样结果已经包含在了$p_i$中，故形式上与数值计算不同。</p>
+ * 变分自编码器（一）：原来是这么一回事
+ * 变分自编码器（二）：从贝叶斯观点出发
+ * 变分自编码器（三）：这样做为什么能成？
 
+以及结合变分自编码VAE的PyTorch实现VAE in PyTorch,来
+          <!--noindex-->
+            <div class="post-button">
+              <a class="btn" href="/2018/07/24/vae/#more" rel="contents">
+                Read more &raquo;
+              </a>
+            </div>
+          <!--/noindex-->
+        
       
     </div>
 
@@ -1740,6 +1336,12 @@
       </span>
       <span class="links-of-author-item">
         <a href="mailto:qixinbo@gmail.com" title="E-Mail → mailto:qixinbo@gmail.com" rel="noopener" target="_blank"><i class="envelope fa-fw"></i>E-Mail</a>
+      </span>
+      <span class="links-of-author-item">
+        <a href="https://twitter.com/qixinbo" title="Twitter → https:&#x2F;&#x2F;twitter.com&#x2F;qixinbo" rel="noopener" target="_blank"><i class="fab fa-twitter fa-fw"></i>Twitter</a>
+      </span>
+      <span class="links-of-author-item">
+        <a href="/atom.xml" title="RSS → &#x2F;atom.xml"><i class="fas fa-rss fa-fw"></i>RSS</a>
       </span>
   </div>
 
