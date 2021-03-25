@@ -1,0 +1,554 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=2">
+<meta name="theme-color" content="#222">
+<meta name="generator" content="Hexo 5.4.0">
+  <link rel="apple-touch-icon" sizes="180x180" href="/images/apple-touch-icon-next.png">
+  <link rel="icon" type="image/png" sizes="32x32" href="/favicon.ico">
+  <link rel="icon" type="image/png" sizes="16x16" href="/favicon.ico">
+  <link rel="mask-icon" href="/images/logo.svg" color="#222">
+
+<link rel="stylesheet" href="/css/main.css">
+
+
+<link rel="stylesheet" href="/lib/font-awesome/css/all.min.css">
+
+<script id="hexo-configurations">
+    var NexT = window.NexT || {};
+    var CONFIG = {"hostname":"qixinbo.github.io","root":"/","scheme":"Gemini","version":"7.8.0","exturl":false,"sidebar":{"position":"left","display":"post","padding":18,"offset":12,"onmobile":false},"copycode":{"enable":false,"show_result":false,"style":null},"back2top":{"enable":true,"sidebar":false,"scrollpercent":false},"bookmark":{"enable":false,"color":"#222","save":"auto"},"fancybox":false,"mediumzoom":false,"lazyload":false,"pangu":false,"comments":{"style":"tabs","active":null,"storage":true,"lazyload":false,"nav":null},"algolia":{"hits":{"per_page":10},"labels":{"input_placeholder":"Search for Posts","hits_empty":"We didn't find any results for the search: ${query}","hits_stats":"${hits} results found in ${time} ms"}},"localsearch":{"enable":false,"trigger":"auto","top_n_per_article":1,"unescape":false,"preload":false},"motion":{"enable":true,"async":false,"transition":{"post_block":"fadeIn","post_header":"slideDownIn","post_body":"slideDownIn","coll_header":"slideLeftIn","sidebar":"slideUpIn"}}};
+  </script>
+
+  <meta name="description" content="参考了以下网站：  http:&#x2F;&#x2F;www.las.ac.cn&#x2F;zhinan&#x2F;index.html http:&#x2F;&#x2F;lib.ihns.ac.cn:8080&#x2F;ei 及小木虫的帖子  查找期刊被SCI收录情况SCI(光盘版)收录的期刊范围有3000余种，SCIE(网络版)收录的期刊范围超过5000种。一般情况下，SCI(光盘版)收录的论文包含在SCIE(网络版)中。查找方法：进入Master Journa">
+<meta property="og:type" content="article">
+<meta property="og:title" content="如何查找论文是否被SCI、EI、CSCD等收录">
+<meta property="og:url" content="http://qixinbo.github.io/2016/01/30/paper-sci/index.html">
+<meta property="og:site_name" content="亓欣波">
+<meta property="og:description" content="参考了以下网站：  http:&#x2F;&#x2F;www.las.ac.cn&#x2F;zhinan&#x2F;index.html http:&#x2F;&#x2F;lib.ihns.ac.cn:8080&#x2F;ei 及小木虫的帖子  查找期刊被SCI收录情况SCI(光盘版)收录的期刊范围有3000余种，SCIE(网络版)收录的期刊范围超过5000种。一般情况下，SCI(光盘版)收录的论文包含在SCIE(网络版)中。查找方法：进入Master Journa">
+<meta property="og:locale" content="en_US">
+<meta property="article:published_time" content="2016-01-29T16:00:00.000Z">
+<meta property="article:modified_time" content="2021-03-25T07:20:30.817Z">
+<meta property="article:author" content="Xin-Bo Qi(亓欣波)">
+<meta property="article:tag" content="scholar">
+<meta name="twitter:card" content="summary">
+
+<link rel="canonical" href="http://qixinbo.github.io/2016/01/30/paper-sci/">
+
+
+<script id="page-configurations">
+  // https://hexo.io/docs/variables.html
+  CONFIG.page = {
+    sidebar: "",
+    isHome : false,
+    isPost : true,
+    lang   : 'en'
+  };
+</script>
+
+  <title>如何查找论文是否被SCI、EI、CSCD等收录 | 亓欣波</title>
+  
+
+
+
+
+
+
+  <noscript>
+  <style>
+  .use-motion .brand,
+  .use-motion .menu-item,
+  .sidebar-inner,
+  .use-motion .post-block,
+  .use-motion .pagination,
+  .use-motion .comments,
+  .use-motion .post-header,
+  .use-motion .post-body,
+  .use-motion .collection-header { opacity: initial; }
+
+  .use-motion .site-title,
+  .use-motion .site-subtitle {
+    opacity: initial;
+    top: initial;
+  }
+
+  .use-motion .logo-line-before i { left: initial; }
+  .use-motion .logo-line-after i { right: initial; }
+  </style>
+</noscript>
+
+</head>
+
+<body itemscope itemtype="http://schema.org/WebPage">
+  <div class="container use-motion">
+    <div class="headband"></div>
+
+    <header class="header" itemscope itemtype="http://schema.org/WPHeader">
+      <div class="header-inner"><div class="site-brand-container">
+  <div class="site-nav-toggle">
+    <div class="toggle" aria-label="Toggle navigation bar">
+      <span class="toggle-line toggle-line-first"></span>
+      <span class="toggle-line toggle-line-middle"></span>
+      <span class="toggle-line toggle-line-last"></span>
+    </div>
+  </div>
+
+  <div class="site-meta">
+
+    <a href="/" class="brand" rel="start">
+      <span class="logo-line-before"><i></i></span>
+      <h1 class="site-title">亓欣波</h1>
+      <span class="logo-line-after"><i></i></span>
+    </a>
+      <p class="site-subtitle" itemprop="description">Hi, I am Xin-Bo Qi (亓欣波)</p>
+  </div>
+
+  <div class="site-nav-right">
+    <div class="toggle popup-trigger">
+    </div>
+  </div>
+</div>
+
+
+
+
+<nav class="site-nav">
+  <ul id="menu" class="main-menu menu">
+        <li class="menu-item menu-item-home">
+
+    <a href="/" rel="section"><i class="home fa-fw"></i>Home</a>
+
+  </li>
+        <li class="menu-item menu-item-categories">
+
+    <a href="/categories/" rel="section"><i class="th fa-fw"></i>Categories</a>
+
+  </li>
+        <li class="menu-item menu-item-archives">
+
+    <a href="/archives/" rel="section"><i class="archive fa-fw"></i>Archives</a>
+
+  </li>
+        <li class="menu-item menu-item-tags">
+
+    <a href="/tags/" rel="section"><i class="tags fa-fw"></i>Tags</a>
+
+  </li>
+        <li class="menu-item menu-item-scholar">
+
+    <a href="/scholar/" rel="section"><i class="bar-chart fa-fw"></i>scholar</a>
+
+  </li>
+        <li class="menu-item menu-item-sources">
+
+    <a href="/sources/" rel="section"><i class="rss fa-fw"></i>sources</a>
+
+  </li>
+        <li class="menu-item menu-item-gallery">
+
+    <a href="/gallery/" rel="section"><i class="file-image-o fa-fw"></i>gallery</a>
+
+  </li>
+        <li class="menu-item menu-item-about">
+
+    <a href="/about/" rel="section"><i class="user fa-fw"></i>About</a>
+
+  </li>
+        <li class="menu-item menu-item-commonweal">
+
+    <a href="/404.html" rel="section"><i class="heartbeat fa-fw"></i>Commonweal 404</a>
+
+  </li>
+  </ul>
+</nav>
+
+
+
+
+</div>
+    </header>
+
+    
+  <div class="back-to-top">
+    <i class="fa fa-arrow-up"></i>
+    <span>0%</span>
+  </div>
+
+
+    <main class="main">
+      <div class="main-inner">
+        <div class="content-wrap">
+          
+
+          <div class="content post posts-expand">
+            
+
+    
+  
+  
+  <article itemscope itemtype="http://schema.org/Article" class="post-block" lang="en">
+    <link itemprop="mainEntityOfPage" href="http://qixinbo.github.io/2016/01/30/paper-sci/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="image" content="/images/avatar.jpg">
+      <meta itemprop="name" content="Xin-Bo Qi(亓欣波)">
+      <meta itemprop="description" content="Be interesting!">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="亓欣波">
+    </span>
+      <header class="post-header">
+        <h1 class="post-title" itemprop="name headline">
+          如何查找论文是否被SCI、EI、CSCD等收录
+        </h1>
+
+        <div class="post-meta">
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="far fa-calendar"></i>
+              </span>
+              <span class="post-meta-item-text">Posted on</span>
+
+              <time title="Created: 2016-01-30 00:00:00" itemprop="dateCreated datePublished" datetime="2016-01-30T00:00:00+08:00">2016-01-30</time>
+            </span>
+              <span class="post-meta-item">
+                <span class="post-meta-item-icon">
+                  <i class="far fa-calendar-check"></i>
+                </span>
+                <span class="post-meta-item-text">Edited on</span>
+                <time title="Modified: 2021-03-25 15:20:30" itemprop="dateModified" datetime="2021-03-25T15:20:30+08:00">2021-03-25</time>
+              </span>
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="far fa-folder"></i>
+              </span>
+              <span class="post-meta-item-text">In</span>
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+                  <a href="/categories/scholar/" itemprop="url" rel="index"><span itemprop="name">scholar</span></a>
+                </span>
+            </span>
+
+          
+  
+  <span class="post-meta-item">
+    
+      <span class="post-meta-item-icon">
+        <i class="far fa-comment"></i>
+      </span>
+      <span class="post-meta-item-text">Disqus: </span>
+    
+    <a title="disqus" href="/2016/01/30/paper-sci/#disqus_thread" itemprop="discussionUrl">
+      <span class="post-comments-count disqus-comment-count" data-disqus-identifier="2016/01/30/paper-sci/" itemprop="commentCount"></span>
+    </a>
+  </span>
+  
+  
+
+        </div>
+      </header>
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+        <p>参考了以下网站：</p>
+<ul>
+<li><a target="_blank" rel="noopener" href="http://www.las.ac.cn/zhinan/index.html">http://www.las.ac.cn/zhinan/index.html</a></li>
+<li><a target="_blank" rel="noopener" href="http://lib.ihns.ac.cn:8080/ei">http://lib.ihns.ac.cn:8080/ei</a></li>
+<li>及小木虫的帖子</li>
+</ul>
+<h1 id="查找期刊被SCI收录情况"><a href="#查找期刊被SCI收录情况" class="headerlink" title="查找期刊被SCI收录情况"></a>查找期刊被SCI收录情况</h1><p>SCI(光盘版)收录的期刊范围有3000余种，SCIE(网络版)收录的期刊范围超过5000种。一般情况下，SCI(光盘版)收录的论文包含在SCIE(网络版)中。<br>查找方法：<br>进入Master Journal List网页：<br><a target="_blank" rel="noopener" href="http://ip-science.thomsonreuters.com/mjl/">http://ip-science.thomsonreuters.com/mjl/</a><br>将期刊的名称或ISSN号填入，查找，然后点击列表中的“Coverage”链接，如果同时列出“<br>Science Citation Index<br>Science Citation Index Expanded<br>”<br>表明它是SCI光盘版的期刊。如果只列出“Science Citation Index Expanded”则表明它是扩展版(网络版)的期刊。<br>也可以直接进入这两种数据库的网站查询：<br>其来源期刊的网址分别为：<br>(1) <a target="_blank" rel="noopener" href="http://ip-science.thomsonreuters.com/cgi-bin/jrnlst/jloptions.cgi?PC=K">SCI (Science Citation Index)</a><br>(2) <a target="_blank" rel="noopener" href="http://ip-science.thomsonreuters.com/cgi-bin/jrnlst/jloptions.cgi?PC=D">SCI-E (Science Citation Index Expanded)</a></p>
+<h1 id="查找期刊被EI收录情况"><a href="#查找期刊被EI收录情况" class="headerlink" title="查找期刊被EI收录情况"></a>查找期刊被EI收录情况</h1><p>《工程索引》（The Engineering Index，简称EI）创刊于1884年，是美国工程信息公司（Engineering information Inc.现属ELSEVIER公司）出版的著名工程技术类综合性检索工具，为工程类文摘数据库，收录期刊、会议论文、技术报告等的文摘，是工程技术领域权威检索工具。<br>EI 数据库现由Engineering Village平台提供服务。EV平台上提供10多个数据库的内容，涵盖了工程、应用科学相关的最为广泛的领域，内容来源包括学术文献、商业出版物、发明专利、会议论文和技术报告等等；其中的EI Compendex 就是我们常说的美国工程索引Ei数据库，是全世界最早的工程文摘来源。EI Compendex收录年代自1969年起，涵盖175种专业工程学科，目前包含1100多万条记录，每年新增的50万条文摘索引信息分别来自5100种工程期刊、会议文集和技术报告。EI Compendex收录的文献涵盖了所有的工程领域，其中大约22%为会议文献，90%的文献语种是英文。 EI从1992年开始收录中国期刊。1998年EI在清华大学图书馆建立了中国镜像站。<br>此外，EV平台上还有Inspec、GeoBase、NTIS Database、Referex、Ei Patents、等10多个数据库资源。</p>
+<p>EI每年不定期更新所收录的期刊，查找哪些期刊被EI收录，必须进入<a target="_blank" rel="noopener" href="http://www.engineeringvillage.com/">EI数据库</a>以后，在右侧的Source title中进行检索或者浏览。</p>
+<h1 id="查找期刊被国内数据库收录情况"><a href="#查找期刊被国内数据库收录情况" class="headerlink" title="查找期刊被国内数据库收录情况"></a>查找期刊被国内数据库收录情况</h1><p>常用于查询国内期刊引用情况的国内数据库包括：</p>
+<ul>
+<li><a target="_blank" rel="noopener" href="http://www.sciencechina.ac.cn/">中国科学引文数据库(CSCD)</a></li>
+<li><a target="_blank" rel="noopener" href="http://www.periodicals.net.cn/jwsj.asp?fname=zbsm">中国科技论文与引文数据库(CSTPCD)</a></li>
+<li><a target="_blank" rel="noopener" href="http://cssci.nju.edu.cn/">中国社会科学引文数据库(CSSCI)</a></li>
+</ul>
+
+    </div>
+
+    
+    
+    
+        <div class="reward-container">
+  <div></div>
+  <button onclick="var qr = document.getElementById('qr'); qr.style.display = (qr.style.display === 'none') ? 'block' : 'none';">
+    Donate
+  </button>
+  <div id="qr" style="display: none;">
+      
+      <div style="display: inline-block;">
+        <img src="/images/wechat_reward.png" alt="Xin-Bo Qi(亓欣波) WeChat Pay">
+        <p>WeChat Pay</p>
+      </div>
+
+  </div>
+</div>
+
+
+      <footer class="post-footer">
+          <div class="post-tags">
+              <a href="/tags/scholar/" rel="tag"># scholar</a>
+          </div>
+
+        
+
+
+        
+    <div class="post-nav">
+      <div class="post-nav-item">
+    <a href="/2016/01/25/phasefield-KWC/" rel="prev" title="KWC多晶相场模型解析">
+      <i class="fa fa-chevron-left"></i> KWC多晶相场模型解析
+    </a></div>
+      <div class="post-nav-item">
+    <a href="/2016/02/22/openphase-vtk/" rel="next" title="OpenPhase实例学习系列：VTK文件格式详解">
+      OpenPhase实例学习系列：VTK文件格式详解 <i class="fa fa-chevron-right"></i>
+    </a></div>
+    </div>
+      </footer>
+    
+  </article>
+  
+  
+  
+
+
+
+          </div>
+          
+    
+  <div class="comments">
+    <div id="disqus_thread">
+      <noscript>Please enable JavaScript to view the comments powered by Disqus.</noscript>
+    </div>
+  </div>
+  
+
+<script>
+  window.addEventListener('tabs:register', () => {
+    let { activeClass } = CONFIG.comments;
+    if (CONFIG.comments.storage) {
+      activeClass = localStorage.getItem('comments_active') || activeClass;
+    }
+    if (activeClass) {
+      let activeTab = document.querySelector(`a[href="#comment-${activeClass}"]`);
+      if (activeTab) {
+        activeTab.click();
+      }
+    }
+  });
+  if (CONFIG.comments.storage) {
+    window.addEventListener('tabs:click', event => {
+      if (!event.target.matches('.tabs-comment .tab-content .tab-pane')) return;
+      let commentClass = event.target.classList[1];
+      localStorage.setItem('comments_active', commentClass);
+    });
+  }
+</script>
+
+        </div>
+          
+  
+  <div class="toggle sidebar-toggle">
+    <span class="toggle-line toggle-line-first"></span>
+    <span class="toggle-line toggle-line-middle"></span>
+    <span class="toggle-line toggle-line-last"></span>
+  </div>
+
+  <aside class="sidebar">
+    <div class="sidebar-inner">
+
+      <ul class="sidebar-nav motion-element">
+        <li class="sidebar-nav-toc">
+          Table of Contents
+        </li>
+        <li class="sidebar-nav-overview">
+          Overview
+        </li>
+      </ul>
+
+      <!--noindex-->
+      <div class="post-toc-wrap sidebar-panel">
+          <div class="post-toc motion-element"><ol class="nav"><li class="nav-item nav-level-1"><a class="nav-link" href="#%E6%9F%A5%E6%89%BE%E6%9C%9F%E5%88%8A%E8%A2%ABSCI%E6%94%B6%E5%BD%95%E6%83%85%E5%86%B5"><span class="nav-number">1.</span> <span class="nav-text">查找期刊被SCI收录情况</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#%E6%9F%A5%E6%89%BE%E6%9C%9F%E5%88%8A%E8%A2%ABEI%E6%94%B6%E5%BD%95%E6%83%85%E5%86%B5"><span class="nav-number">2.</span> <span class="nav-text">查找期刊被EI收录情况</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#%E6%9F%A5%E6%89%BE%E6%9C%9F%E5%88%8A%E8%A2%AB%E5%9B%BD%E5%86%85%E6%95%B0%E6%8D%AE%E5%BA%93%E6%94%B6%E5%BD%95%E6%83%85%E5%86%B5"><span class="nav-number">3.</span> <span class="nav-text">查找期刊被国内数据库收录情况</span></a></li></ol></div>
+      </div>
+      <!--/noindex-->
+
+      <div class="site-overview-wrap sidebar-panel">
+        <div class="site-author motion-element" itemprop="author" itemscope itemtype="http://schema.org/Person">
+    <img class="site-author-image" itemprop="image" alt="Xin-Bo Qi(亓欣波)"
+      src="/images/avatar.jpg">
+  <p class="site-author-name" itemprop="name">Xin-Bo Qi(亓欣波)</p>
+  <div class="site-description" itemprop="description">Be interesting!</div>
+</div>
+<div class="site-state-wrap motion-element">
+  <nav class="site-state">
+      <div class="site-state-item site-state-posts">
+          <a href="/archives/">
+        
+          <span class="site-state-item-count">120</span>
+          <span class="site-state-item-name">posts</span>
+        </a>
+      </div>
+      <div class="site-state-item site-state-categories">
+            <a href="/categories/">
+          
+        <span class="site-state-item-count">5</span>
+        <span class="site-state-item-name">categories</span></a>
+      </div>
+      <div class="site-state-item site-state-tags">
+            <a href="/tags/">
+          
+        <span class="site-state-item-count">41</span>
+        <span class="site-state-item-name">tags</span></a>
+      </div>
+  </nav>
+</div>
+  <div class="links-of-author motion-element">
+      <span class="links-of-author-item">
+        <a href="https://github.com/qixinbo" title="GitHub → https:&#x2F;&#x2F;github.com&#x2F;qixinbo" rel="noopener" target="_blank"><i class="github fa-fw"></i>GitHub</a>
+      </span>
+      <span class="links-of-author-item">
+        <a href="mailto:qixinbo@gmail.com" title="E-Mail → mailto:qixinbo@gmail.com" rel="noopener" target="_blank"><i class="envelope fa-fw"></i>E-Mail</a>
+      </span>
+  </div>
+
+
+  <div class="links-of-blogroll motion-element">
+    <div class="links-of-blogroll-title"><i class="fa fa-link fa-fw"></i>
+      Links
+    </div>
+    <ul class="links-of-blogroll-list">
+        <li class="links-of-blogroll-item">
+          <a href="https://www.tsinghua.edu.cn/" title="https:&#x2F;&#x2F;www.tsinghua.edu.cn" rel="noopener" target="_blank">THU</a>
+        </li>
+        <li class="links-of-blogroll-item">
+          <a href="http://www.imr.cas.cn/" title="http:&#x2F;&#x2F;www.imr.cas.cn" rel="noopener" target="_blank">IMR</a>
+        </li>
+        <li class="links-of-blogroll-item">
+          <a href="http://www.sdu.edu.cn/" title="http:&#x2F;&#x2F;www.sdu.edu.cn" rel="noopener" target="_blank">SDU</a>
+        </li>
+        <li class="links-of-blogroll-item">
+          <a href="http://liam0205.me/" title="http:&#x2F;&#x2F;liam0205.me&#x2F;" rel="noopener" target="_blank">黄晨成</a>
+        </li>
+    </ul>
+  </div>
+
+      </div>
+
+    </div>
+  </aside>
+  <div id="sidebar-dimmer"></div>
+
+
+      </div>
+    </main>
+
+    <footer class="footer">
+      <div class="footer-inner">
+        
+
+        
+
+<div class="copyright">
+  
+  &copy; 
+  <span itemprop="copyrightYear">2021</span>
+  <span class="with-love">
+    <i class="fa fa-heart"></i>
+  </span>
+  <span class="author" itemprop="copyrightHolder">Xin-Bo Qi(亓欣波)</span>
+</div>
+  <div class="powered-by">Powered by <a href="https://hexo.io/" class="theme-link" rel="noopener" target="_blank">Hexo</a> & <a href="https://theme-next.org/" class="theme-link" rel="noopener" target="_blank">NexT.Gemini</a>
+  </div>
+
+        
+
+
+
+
+
+
+
+
+      </div>
+    </footer>
+  </div>
+
+  
+  <script src="/lib/anime.min.js"></script>
+  <script src="/lib/velocity/velocity.min.js"></script>
+  <script src="/lib/velocity/velocity.ui.min.js"></script>
+
+<script src="/js/utils.js"></script>
+
+<script src="/js/motion.js"></script>
+
+
+<script src="/js/schemes/pisces.js"></script>
+
+
+<script src="/js/next-boot.js"></script>
+
+
+
+
+  
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+  
+
+  
+
+  
+
+<script>
+  function loadCount() {
+    var d = document, s = d.createElement('script');
+    s.src = 'https://qixinbo.disqus.com/count.js';
+    s.id = 'dsq-count-scr';
+    (d.head || d.body).appendChild(s);
+  }
+  // defer loading until the whole page loading is completed
+  window.addEventListener('load', loadCount, false);
+</script>
+<script>
+  var disqus_config = function() {
+    this.page.url = "http://qixinbo.github.io/2016/01/30/paper-sci/";
+    this.page.identifier = "2016/01/30/paper-sci/";
+    this.page.title = "如何查找论文是否被SCI、EI、CSCD等收录";
+    };
+  NexT.utils.loadComments(document.querySelector('#disqus_thread'), () => {
+    if (window.DISQUS) {
+      DISQUS.reset({
+        reload: true,
+        config: disqus_config
+      });
+    } else {
+      var d = document, s = d.createElement('script');
+      s.src = 'https://qixinbo.disqus.com/embed.js';
+      s.setAttribute('data-timestamp', '' + +new Date());
+      (d.head || d.body).appendChild(s);
+    }
+  });
+</script>
+
+</body>
+</html>

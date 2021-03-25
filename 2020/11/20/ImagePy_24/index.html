@@ -1,0 +1,572 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=2">
+<meta name="theme-color" content="#222">
+<meta name="generator" content="Hexo 5.4.0">
+  <link rel="apple-touch-icon" sizes="180x180" href="/images/apple-touch-icon-next.png">
+  <link rel="icon" type="image/png" sizes="32x32" href="/favicon.ico">
+  <link rel="icon" type="image/png" sizes="16x16" href="/favicon.ico">
+  <link rel="mask-icon" href="/images/logo.svg" color="#222">
+
+<link rel="stylesheet" href="/css/main.css">
+
+
+<link rel="stylesheet" href="/lib/font-awesome/css/all.min.css">
+
+<script id="hexo-configurations">
+    var NexT = window.NexT || {};
+    var CONFIG = {"hostname":"qixinbo.github.io","root":"/","scheme":"Gemini","version":"7.8.0","exturl":false,"sidebar":{"position":"left","display":"post","padding":18,"offset":12,"onmobile":false},"copycode":{"enable":false,"show_result":false,"style":null},"back2top":{"enable":true,"sidebar":false,"scrollpercent":false},"bookmark":{"enable":false,"color":"#222","save":"auto"},"fancybox":false,"mediumzoom":false,"lazyload":false,"pangu":false,"comments":{"style":"tabs","active":null,"storage":true,"lazyload":false,"nav":null},"algolia":{"hits":{"per_page":10},"labels":{"input_placeholder":"Search for Posts","hits_empty":"We didn't find any results for the search: ${query}","hits_stats":"${hits} results found in ${time} ms"}},"localsearch":{"enable":false,"trigger":"auto","top_n_per_article":1,"unescape":false,"preload":false},"motion":{"enable":true,"async":false,"transition":{"post_block":"fadeIn","post_header":"slideDownIn","post_body":"slideDownIn","coll_header":"slideLeftIn","sidebar":"slideUpIn"}}};
+  </script>
+
+  <meta name="description" content="sknw是一个从骨架图中创建图网络的库，代码在这里。 它不仅可以实现将单线转变成图graph的效果，而且里面的trace函数还可以实现像素追踪，将图像中的单线的坐标序列依次提取出来，从而将图像转变为矢量图。（sknw可以对闭合曲线进行坐标提取，对于闭合曲线，也可以使用find_contour来提取这些坐标序列） 输入图像输入图像必须是一个二值的骨架图。比如，这里的示例图像矩阵为： 12345678">
+<meta property="og:type" content="article">
+<meta property="og:title" content="ImagePy解析：24 -- 骨架图转图论sknw解析">
+<meta property="og:url" content="http://qixinbo.github.io/2020/11/20/ImagePy_24/index.html">
+<meta property="og:site_name" content="亓欣波">
+<meta property="og:description" content="sknw是一个从骨架图中创建图网络的库，代码在这里。 它不仅可以实现将单线转变成图graph的效果，而且里面的trace函数还可以实现像素追踪，将图像中的单线的坐标序列依次提取出来，从而将图像转变为矢量图。（sknw可以对闭合曲线进行坐标提取，对于闭合曲线，也可以使用find_contour来提取这些坐标序列） 输入图像输入图像必须是一个二值的骨架图。比如，这里的示例图像矩阵为： 12345678">
+<meta property="og:locale" content="en_US">
+<meta property="article:published_time" content="2020-11-19T16:00:00.000Z">
+<meta property="article:modified_time" content="2021-03-25T07:20:30.416Z">
+<meta property="article:author" content="Xin-Bo Qi(亓欣波)">
+<meta property="article:tag" content="ImagePy">
+<meta name="twitter:card" content="summary">
+
+<link rel="canonical" href="http://qixinbo.github.io/2020/11/20/ImagePy_24/">
+
+
+<script id="page-configurations">
+  // https://hexo.io/docs/variables.html
+  CONFIG.page = {
+    sidebar: "",
+    isHome : false,
+    isPost : true,
+    lang   : 'en'
+  };
+</script>
+
+  <title>ImagePy解析：24 -- 骨架图转图论sknw解析 | 亓欣波</title>
+  
+
+
+
+
+
+
+  <noscript>
+  <style>
+  .use-motion .brand,
+  .use-motion .menu-item,
+  .sidebar-inner,
+  .use-motion .post-block,
+  .use-motion .pagination,
+  .use-motion .comments,
+  .use-motion .post-header,
+  .use-motion .post-body,
+  .use-motion .collection-header { opacity: initial; }
+
+  .use-motion .site-title,
+  .use-motion .site-subtitle {
+    opacity: initial;
+    top: initial;
+  }
+
+  .use-motion .logo-line-before i { left: initial; }
+  .use-motion .logo-line-after i { right: initial; }
+  </style>
+</noscript>
+
+</head>
+
+<body itemscope itemtype="http://schema.org/WebPage">
+  <div class="container use-motion">
+    <div class="headband"></div>
+
+    <header class="header" itemscope itemtype="http://schema.org/WPHeader">
+      <div class="header-inner"><div class="site-brand-container">
+  <div class="site-nav-toggle">
+    <div class="toggle" aria-label="Toggle navigation bar">
+      <span class="toggle-line toggle-line-first"></span>
+      <span class="toggle-line toggle-line-middle"></span>
+      <span class="toggle-line toggle-line-last"></span>
+    </div>
+  </div>
+
+  <div class="site-meta">
+
+    <a href="/" class="brand" rel="start">
+      <span class="logo-line-before"><i></i></span>
+      <h1 class="site-title">亓欣波</h1>
+      <span class="logo-line-after"><i></i></span>
+    </a>
+      <p class="site-subtitle" itemprop="description">Hi, I am Xin-Bo Qi (亓欣波)</p>
+  </div>
+
+  <div class="site-nav-right">
+    <div class="toggle popup-trigger">
+    </div>
+  </div>
+</div>
+
+
+
+
+<nav class="site-nav">
+  <ul id="menu" class="main-menu menu">
+        <li class="menu-item menu-item-home">
+
+    <a href="/" rel="section"><i class="home fa-fw"></i>Home</a>
+
+  </li>
+        <li class="menu-item menu-item-categories">
+
+    <a href="/categories/" rel="section"><i class="th fa-fw"></i>Categories</a>
+
+  </li>
+        <li class="menu-item menu-item-archives">
+
+    <a href="/archives/" rel="section"><i class="archive fa-fw"></i>Archives</a>
+
+  </li>
+        <li class="menu-item menu-item-tags">
+
+    <a href="/tags/" rel="section"><i class="tags fa-fw"></i>Tags</a>
+
+  </li>
+        <li class="menu-item menu-item-scholar">
+
+    <a href="/scholar/" rel="section"><i class="bar-chart fa-fw"></i>scholar</a>
+
+  </li>
+        <li class="menu-item menu-item-sources">
+
+    <a href="/sources/" rel="section"><i class="rss fa-fw"></i>sources</a>
+
+  </li>
+        <li class="menu-item menu-item-gallery">
+
+    <a href="/gallery/" rel="section"><i class="file-image-o fa-fw"></i>gallery</a>
+
+  </li>
+        <li class="menu-item menu-item-about">
+
+    <a href="/about/" rel="section"><i class="user fa-fw"></i>About</a>
+
+  </li>
+        <li class="menu-item menu-item-commonweal">
+
+    <a href="/404.html" rel="section"><i class="heartbeat fa-fw"></i>Commonweal 404</a>
+
+  </li>
+  </ul>
+</nav>
+
+
+
+
+</div>
+    </header>
+
+    
+  <div class="back-to-top">
+    <i class="fa fa-arrow-up"></i>
+    <span>0%</span>
+  </div>
+
+
+    <main class="main">
+      <div class="main-inner">
+        <div class="content-wrap">
+          
+
+          <div class="content post posts-expand">
+            
+
+    
+  
+  
+  <article itemscope itemtype="http://schema.org/Article" class="post-block" lang="en">
+    <link itemprop="mainEntityOfPage" href="http://qixinbo.github.io/2020/11/20/ImagePy_24/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="image" content="/images/avatar.jpg">
+      <meta itemprop="name" content="Xin-Bo Qi(亓欣波)">
+      <meta itemprop="description" content="Be interesting!">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="亓欣波">
+    </span>
+      <header class="post-header">
+        <h1 class="post-title" itemprop="name headline">
+          ImagePy解析：24 -- 骨架图转图论sknw解析
+        </h1>
+
+        <div class="post-meta">
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="far fa-calendar"></i>
+              </span>
+              <span class="post-meta-item-text">Posted on</span>
+
+              <time title="Created: 2020-11-20 00:00:00" itemprop="dateCreated datePublished" datetime="2020-11-20T00:00:00+08:00">2020-11-20</time>
+            </span>
+              <span class="post-meta-item">
+                <span class="post-meta-item-icon">
+                  <i class="far fa-calendar-check"></i>
+                </span>
+                <span class="post-meta-item-text">Edited on</span>
+                <time title="Modified: 2021-03-25 15:20:30" itemprop="dateModified" datetime="2021-03-25T15:20:30+08:00">2021-03-25</time>
+              </span>
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="far fa-folder"></i>
+              </span>
+              <span class="post-meta-item-text">In</span>
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+                  <a href="/categories/computational-material-science/" itemprop="url" rel="index"><span itemprop="name">computational material science</span></a>
+                </span>
+            </span>
+
+          
+  
+  <span class="post-meta-item">
+    
+      <span class="post-meta-item-icon">
+        <i class="far fa-comment"></i>
+      </span>
+      <span class="post-meta-item-text">Disqus: </span>
+    
+    <a title="disqus" href="/2020/11/20/ImagePy_24/#disqus_thread" itemprop="discussionUrl">
+      <span class="post-comments-count disqus-comment-count" data-disqus-identifier="2020/11/20/ImagePy_24/" itemprop="commentCount"></span>
+    </a>
+  </span>
+  
+  
+
+        </div>
+      </header>
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+        <p>sknw是一个从骨架图中创建图网络的库，代码在<a target="_blank" rel="noopener" href="https://github.com/Image-Py/sknw">这里</a>。</p>
+<p>它不仅可以实现将单线转变成图graph的效果，而且里面的trace函数还可以实现像素追踪，将图像中的单线的坐标序列依次提取出来，从而将图像转变为矢量图。（sknw可以对闭合曲线进行坐标提取，对于闭合曲线，也可以使用find_contour来提取这些坐标序列）</p>
+<h1 id="输入图像"><a href="#输入图像" class="headerlink" title="输入图像"></a>输入图像</h1><p>输入图像必须是一个二值的骨架图。<br>比如，这里的示例图像矩阵为：</p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br></pre></td><td class="code"><pre><span class="line">img = np.array([</span><br><span class="line">    [<span class="number">0</span>,<span class="number">0</span>,<span class="number">0</span>,<span class="number">1</span>,<span class="number">0</span>,<span class="number">0</span>,<span class="number">0</span>,<span class="number">0</span>,<span class="number">0</span>],</span><br><span class="line">    [<span class="number">0</span>,<span class="number">0</span>,<span class="number">0</span>,<span class="number">1</span>,<span class="number">0</span>,<span class="number">0</span>,<span class="number">0</span>,<span class="number">1</span>,<span class="number">0</span>],</span><br><span class="line">    [<span class="number">0</span>,<span class="number">0</span>,<span class="number">0</span>,<span class="number">1</span>,<span class="number">0</span>,<span class="number">0</span>,<span class="number">0</span>,<span class="number">0</span>,<span class="number">0</span>],</span><br><span class="line">    [<span class="number">1</span>,<span class="number">1</span>,<span class="number">1</span>,<span class="number">1</span>,<span class="number">0</span>,<span class="number">0</span>,<span class="number">0</span>,<span class="number">0</span>,<span class="number">0</span>],</span><br><span class="line">    [<span class="number">0</span>,<span class="number">0</span>,<span class="number">0</span>,<span class="number">0</span>,<span class="number">1</span>,<span class="number">0</span>,<span class="number">0</span>,<span class="number">0</span>,<span class="number">0</span>],</span><br><span class="line">    [<span class="number">0</span>,<span class="number">1</span>,<span class="number">0</span>,<span class="number">0</span>,<span class="number">0</span>,<span class="number">1</span>,<span class="number">0</span>,<span class="number">0</span>,<span class="number">0</span>],</span><br><span class="line">    [<span class="number">1</span>,<span class="number">0</span>,<span class="number">1</span>,<span class="number">0</span>,<span class="number">0</span>,<span class="number">1</span>,<span class="number">1</span>,<span class="number">1</span>,<span class="number">1</span>],</span><br><span class="line">    [<span class="number">0</span>,<span class="number">1</span>,<span class="number">0</span>,<span class="number">0</span>,<span class="number">1</span>,<span class="number">0</span>,<span class="number">0</span>,<span class="number">0</span>,<span class="number">0</span>],</span><br><span class="line">    [<span class="number">0</span>,<span class="number">0</span>,<span class="number">0</span>,<span class="number">1</span>,<span class="number">0</span>,<span class="number">0</span>,<span class="number">0</span>,<span class="number">0</span>,<span class="number">0</span>]])</span><br></pre></td></tr></table></figure>
+
+<h1 id="标识节点"><a href="#标识节点" class="headerlink" title="标识节点"></a>标识节点</h1><figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br></pre></td><td class="code"><pre><span class="line">node_img = mark_node(img)</span><br><span class="line"></span><br><span class="line"><span class="function"><span class="keyword">def</span> <span class="title">mark_node</span>(<span class="params">ske</span>):</span></span><br><span class="line">    buf = np.pad(ske, (<span class="number">1</span>,<span class="number">1</span>), mode=<span class="string">&#x27;constant&#x27;</span>)</span><br><span class="line">    nbs = neighbors(buf.shape)</span><br><span class="line">    acc = np.cumprod((<span class="number">1</span>,)+buf.shape[::-<span class="number">1</span>][:-<span class="number">1</span>])[::-<span class="number">1</span>]</span><br><span class="line">    mark(buf, nbs)</span><br><span class="line">    <span class="keyword">return</span> buf</span><br><span class="line"></span><br><span class="line"><span class="function"><span class="keyword">def</span> <span class="title">mark</span>(<span class="params">img, nbs</span>):</span> <span class="comment"># mark the array use (0, 1, 2)</span></span><br><span class="line">    img = img.ravel()</span><br><span class="line">    <span class="keyword">for</span> p <span class="keyword">in</span> <span class="built_in">range</span>(<span class="built_in">len</span>(img)):</span><br><span class="line">        <span class="keyword">if</span> img[p]==<span class="number">0</span>:<span class="keyword">continue</span></span><br><span class="line">        s = <span class="number">0</span></span><br><span class="line">        <span class="keyword">for</span> dp <span class="keyword">in</span> nbs:</span><br><span class="line">            <span class="keyword">if</span> img[p+dp]!=<span class="number">0</span>:s+=<span class="number">1</span></span><br><span class="line">        <span class="keyword">if</span> s==<span class="number">2</span>:img[p]=<span class="number">1</span></span><br><span class="line">        <span class="keyword">else</span>:img[p]=<span class="number">2</span></span><br></pre></td></tr></table></figure>
+<p>这一步是将上面的骨架图中的特有节点标识出来（注意：新形成的图是在原图周围附加了一圈0作为缓冲）：<br>（1）像素值原来为0的地方，仍然为0；<br>（2）如果某非0像素，其八邻域有2个非0像素，那么标识该像素为1；这种像素代表了骨架图中的中间段的像素（其中有一部分1代表了环形闭合结构，在后面会特殊处理）；<br>（3）如果某非0像素，其八邻域中的非0像素个数不是2（比如是1、3等），那么标识该像素为2，这种像素代表了骨架图中端点和交点部分的像素。</p>
+<p>经过标识后，得到的图像矩阵为：</p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br></pre></td><td class="code"><pre><span class="line">[[<span class="number">0</span> <span class="number">0</span> <span class="number">0</span> <span class="number">0</span> <span class="number">0</span> <span class="number">0</span> <span class="number">0</span> <span class="number">0</span> <span class="number">0</span> <span class="number">0</span> <span class="number">0</span>]</span><br><span class="line">[<span class="number">0</span> <span class="number">0</span> <span class="number">0</span> <span class="number">0</span> <span class="number">2</span> <span class="number">0</span> <span class="number">0</span> <span class="number">0</span> <span class="number">0</span> <span class="number">0</span> <span class="number">0</span>]</span><br><span class="line">[<span class="number">0</span> <span class="number">0</span> <span class="number">0</span> <span class="number">0</span> <span class="number">1</span> <span class="number">0</span> <span class="number">0</span> <span class="number">0</span> <span class="number">2</span> <span class="number">0</span> <span class="number">0</span>]</span><br><span class="line">[<span class="number">0</span> <span class="number">0</span> <span class="number">0</span> <span class="number">0</span> <span class="number">2</span> <span class="number">0</span> <span class="number">0</span> <span class="number">0</span> <span class="number">0</span> <span class="number">0</span> <span class="number">0</span>]</span><br><span class="line">[<span class="number">0</span> <span class="number">2</span> <span class="number">1</span> <span class="number">2</span> <span class="number">2</span> <span class="number">0</span> <span class="number">0</span> <span class="number">0</span> <span class="number">0</span> <span class="number">0</span> <span class="number">0</span>]</span><br><span class="line">[<span class="number">0</span> <span class="number">0</span> <span class="number">0</span> <span class="number">0</span> <span class="number">0</span> <span class="number">1</span> <span class="number">0</span> <span class="number">0</span> <span class="number">0</span> <span class="number">0</span> <span class="number">0</span>]</span><br><span class="line">[<span class="number">0</span> <span class="number">0</span> <span class="number">1</span> <span class="number">0</span> <span class="number">0</span> <span class="number">0</span> <span class="number">2</span> <span class="number">0</span> <span class="number">0</span> <span class="number">0</span> <span class="number">0</span>]</span><br><span class="line">[<span class="number">0</span> <span class="number">1</span> <span class="number">0</span> <span class="number">1</span> <span class="number">0</span> <span class="number">0</span> <span class="number">2</span> <span class="number">2</span> <span class="number">1</span> <span class="number">2</span> <span class="number">0</span>]</span><br><span class="line">[<span class="number">0</span> <span class="number">0</span> <span class="number">1</span> <span class="number">0</span> <span class="number">0</span> <span class="number">1</span> <span class="number">0</span> <span class="number">0</span> <span class="number">0</span> <span class="number">0</span> <span class="number">0</span>]</span><br><span class="line">[<span class="number">0</span> <span class="number">0</span> <span class="number">0</span> <span class="number">0</span> <span class="number">2</span> <span class="number">0</span> <span class="number">0</span> <span class="number">0</span> <span class="number">0</span> <span class="number">0</span> <span class="number">0</span>]</span><br><span class="line">[<span class="number">0</span> <span class="number">0</span> <span class="number">0</span> <span class="number">0</span> <span class="number">0</span> <span class="number">0</span> <span class="number">0</span> <span class="number">0</span> <span class="number">0</span> <span class="number">0</span> <span class="number">0</span>]]</span><br></pre></td></tr></table></figure>
+
+<h1 id="泛洪填充"><a href="#泛洪填充" class="headerlink" title="泛洪填充"></a>泛洪填充</h1><figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br></pre></td><td class="code"><pre><span class="line">img = img.ravel()</span><br><span class="line">buf = np.zeros(<span class="number">131072</span>, dtype=np.int64)</span><br><span class="line">num = <span class="number">10</span></span><br><span class="line">nodes = []</span><br><span class="line"><span class="keyword">for</span> p <span class="keyword">in</span> <span class="built_in">range</span>(<span class="built_in">len</span>(img)):</span><br><span class="line">    <span class="keyword">if</span> img[p] == <span class="number">2</span>:</span><br><span class="line">        isiso, nds = fill(img, p, num, nbs, acc, buf)</span><br><span class="line">        <span class="keyword">if</span> isiso <span class="keyword">and</span> <span class="keyword">not</span> iso: <span class="keyword">continue</span></span><br><span class="line">        num += <span class="number">1</span></span><br><span class="line">        nodes.append(nds)</span><br></pre></td></tr></table></figure>
+<p>依次观察值为2的像素，对其进行等值填充（主要函数就是fill函数），并记录这些节点在原图中的坐标位置。<br>fill函数为：</p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="keyword">def</span> <span class="title">fill</span>(<span class="params">img, p, num, nbs, acc, buf</span>):</span></span><br><span class="line">    img[p] = num</span><br><span class="line">    buf[<span class="number">0</span>] = p</span><br><span class="line">    cur = <span class="number">0</span>; s = <span class="number">1</span>; iso = <span class="literal">True</span>;</span><br><span class="line"></span><br><span class="line">    <span class="keyword">while</span> <span class="literal">True</span>:</span><br><span class="line">        p = buf[cur]</span><br><span class="line">        <span class="keyword">for</span> dp <span class="keyword">in</span> nbs:</span><br><span class="line">            cp = p+dp</span><br><span class="line">            <span class="keyword">if</span> img[cp]==<span class="number">2</span>:</span><br><span class="line">                img[cp] = num</span><br><span class="line">                buf[s] = cp</span><br><span class="line">                s+=<span class="number">1</span></span><br><span class="line">            <span class="keyword">if</span> img[cp]==<span class="number">1</span>: iso=<span class="literal">False</span></span><br><span class="line">        cur += <span class="number">1</span></span><br><span class="line">        <span class="keyword">if</span> cur==s:<span class="keyword">break</span></span><br><span class="line">    <span class="keyword">return</span> iso, idx2rc(buf[:s], acc)</span><br></pre></td></tr></table></figure>
+<p>原理就是探究这些值为2的像素的邻居是否仍然是2，若是，则将其亦纳入探究范围，这样就标识出了这些节点。<br>经过上述代码后，得到的nodes数值为：</p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line">[array([[<span class="number">0</span>, <span class="number">3</span>]], dtype=int16), array([[<span class="number">1</span>, <span class="number">7</span>]], dtype=int16), array([[<span class="number">2</span>, <span class="number">3</span>],</span><br><span class="line">       [<span class="number">3</span>, <span class="number">2</span>],</span><br><span class="line">       [<span class="number">3</span>, <span class="number">3</span>]], dtype=int16), array([[<span class="number">3</span>, <span class="number">0</span>]], dtype=int16), array([[<span class="number">5</span>, <span class="number">5</span>],</span><br><span class="line">       [<span class="number">6</span>, <span class="number">5</span>],</span><br><span class="line">       [<span class="number">6</span>, <span class="number">6</span>]], dtype=int16), array([[<span class="number">6</span>, <span class="number">8</span>]], dtype=int16), array([[<span class="number">8</span>, <span class="number">3</span>]], dtype=int16)]</span><br></pre></td></tr></table></figure>
+<p>如何理解呢？很好理解，比如第一个坐标[0,3]就是第一个值为2的像素在原图中的位置，而坐标组合([[2, 3], [3, 2], [3, 3]])代表那三个相邻的值为2的像素。<br>同时img中的像素值也发生了变化，比如第一个值为2的像素，它的值由2变成了10（如上代码硬编码），而第一个值为2的像素则变成了11，同理，那三个相邻的值为2的像素变成了12，依次类推，最后一个值为2的像素变成了16。</p>
+<h1 id="像素追溯"><a href="#像素追溯" class="headerlink" title="像素追溯"></a>像素追溯</h1><figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><span class="line">edges = []</span><br><span class="line"><span class="keyword">for</span> p <span class="keyword">in</span> <span class="built_in">range</span>(<span class="built_in">len</span>(img)):</span><br><span class="line">    <span class="keyword">if</span> img[p] &lt;<span class="number">10</span>: <span class="keyword">continue</span></span><br><span class="line">    <span class="keyword">for</span> dp <span class="keyword">in</span> nbs:</span><br><span class="line">        <span class="keyword">if</span> img[p+dp]==<span class="number">1</span>:</span><br><span class="line">            edge = trace(img, p+dp, nbs, acc, buf)</span><br><span class="line">            edges.append(edge)</span><br></pre></td></tr></table></figure>
+<p>像素追溯部分的观察点就变成了与上述节点相邻且值为1的那些像素，即骨架图中的中间部分的像素（原理就是通过是否大于10而选择过滤出上面那些节点，然而通过其邻居是否是1来过滤得到这些值为1的像素），然后通过trace函数寻找其两端所连接的具体节点标识。</p>
+<p>trace函数为：</p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="keyword">def</span> <span class="title">trace</span>(<span class="params">img, p, nbs, acc, buf</span>):</span></span><br><span class="line">    c1 = <span class="number">0</span>; c2 = <span class="number">0</span>;</span><br><span class="line">    newp = <span class="number">0</span></span><br><span class="line">    cur = <span class="number">1</span></span><br><span class="line">    <span class="keyword">while</span> <span class="literal">True</span>:</span><br><span class="line">        buf[cur] = p</span><br><span class="line">        img[p] = <span class="number">0</span></span><br><span class="line">        cur += <span class="number">1</span></span><br><span class="line">        <span class="keyword">for</span> dp <span class="keyword">in</span> nbs:</span><br><span class="line">            cp = p + dp</span><br><span class="line">            <span class="keyword">if</span> img[cp] &gt;= <span class="number">10</span>:</span><br><span class="line">                <span class="keyword">if</span> c1==<span class="number">0</span>:</span><br><span class="line">                    c1 = img[cp]</span><br><span class="line">                    buf[<span class="number">0</span>] = cp</span><br><span class="line">                <span class="keyword">else</span>:</span><br><span class="line">                    c2 = img[cp]</span><br><span class="line">                    buf[cur] = cp</span><br><span class="line">            <span class="keyword">if</span> img[cp] == <span class="number">1</span>:</span><br><span class="line">                newp = cp</span><br><span class="line">        p = newp</span><br><span class="line">        <span class="keyword">if</span> c2!=<span class="number">0</span>:<span class="keyword">break</span></span><br><span class="line">    <span class="keyword">return</span> (c1-<span class="number">10</span>, c2-<span class="number">10</span>, idx2rc(buf[:cur+<span class="number">1</span>], acc))</span><br></pre></td></tr></table></figure>
+<p>trace的原理就是：观察这些值为1的像素的邻居，若为大于10，即找到了那些节点nodes，分别通过c1和c2来存储两侧的节点；若为1，则也将其设为进一步的观察点。<br>经过上述代码后，得到的edges的数值为：</p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br></pre></td><td class="code"><pre><span class="line">[(<span class="number">0</span>, <span class="number">2</span>, array([[<span class="number">0</span>, <span class="number">3</span>],</span><br><span class="line">       [<span class="number">1</span>, <span class="number">3</span>],</span><br><span class="line">       [<span class="number">2</span>, <span class="number">3</span>]], dtype=int16)), (<span class="number">3</span>, <span class="number">2</span>, array([[<span class="number">3</span>, <span class="number">0</span>],</span><br><span class="line">       [<span class="number">3</span>, <span class="number">1</span>],</span><br><span class="line">       [<span class="number">3</span>, <span class="number">2</span>]], dtype=int16)), (<span class="number">2</span>, <span class="number">4</span>, array([[<span class="number">3</span>, <span class="number">3</span>],</span><br><span class="line">       [<span class="number">4</span>, <span class="number">4</span>],</span><br><span class="line">       [<span class="number">5</span>, <span class="number">5</span>]], dtype=int16)), (<span class="number">4</span>, <span class="number">6</span>, array([[<span class="number">6</span>, <span class="number">5</span>],</span><br><span class="line">       [<span class="number">7</span>, <span class="number">4</span>],</span><br><span class="line">       [<span class="number">8</span>, <span class="number">3</span>]], dtype=int16)), (<span class="number">4</span>, <span class="number">5</span>, array([[<span class="number">6</span>, <span class="number">6</span>],</span><br><span class="line">       [<span class="number">6</span>, <span class="number">7</span>],</span><br><span class="line">       [<span class="number">6</span>, <span class="number">8</span>]], dtype=int16))]</span><br></pre></td></tr></table></figure>
+<p>如何理解呢？也很好理解。比如第一个元组((0, 2, array([[0, 3], [1, 3], [2, 3]])，前两个元素0和2分别是img中的值为10和12的像素减去10所得，第三个元素就是第一个值为1的元素的坐标，以及它所连接的两个值为2的节点的坐标。其他元组也是这个意思。通过这样的元组表示，就很自然地为后面的图graph中的首尾节点及中间连接做了准备。</p>
+<p>同时img中的像素值又发生了变化：与上面值为2的节点相连接的值为1的像素的值都变为了0（见trace函数中的硬编码），这是为了接下来的闭合曲线的处理。</p>
+<h2 id="闭合曲线的处理"><a href="#闭合曲线的处理" class="headerlink" title="闭合曲线的处理"></a>闭合曲线的处理</h2><p>上面的代码可以处理非闭合的曲线，因为很容易根据八邻域中的节点数目来获得交点部分所在。而对于闭合曲线，比如原图中左下方的四个1所形成的闭合曲线，其中无法找到值为2的这种像素，且无法对应到图graph中的节点的概念，因此需要特殊处理一下（这里是否处理这种闭合曲线，是用ring这个参数来指定）：</p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">for</span> p <span class="keyword">in</span> <span class="built_in">range</span>(<span class="built_in">len</span>(img)):</span><br><span class="line">    <span class="keyword">if</span> img[p]!=<span class="number">1</span>: <span class="keyword">continue</span></span><br><span class="line">    img[p] = num; num += <span class="number">1</span></span><br><span class="line">    nodes.append(idx2rc([p], acc))</span><br><span class="line">    <span class="keyword">for</span> dp <span class="keyword">in</span> nbs:</span><br><span class="line">        <span class="keyword">if</span> img[p+dp]==<span class="number">1</span>:</span><br><span class="line">            edge = trace(img, p+dp, nbs, acc, buf)</span><br><span class="line">            edges.append(edge)</span><br></pre></td></tr></table></figure>
+<p>注意，因为上面已经将值为1且与2相连的像素置为0，所以这里寻找的是剩下的值为1的像素。若为1，然后会将它继续添加到节点nodes中。<br>然后再对其邻居点进行追溯trace，不断地将邻居的为1的像素加入到edge中，最终得到的edge结果为：</p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line">(<span class="number">7</span>, <span class="number">7</span>, array([[<span class="number">5</span>, <span class="number">1</span>],</span><br><span class="line">       [<span class="number">6</span>, <span class="number">0</span>],</span><br><span class="line">       [<span class="number">7</span>, <span class="number">1</span>],</span><br><span class="line">       [<span class="number">6</span>, <span class="number">2</span>],</span><br><span class="line">       [<span class="number">5</span>, <span class="number">1</span>]], dtype=int16))</span><br></pre></td></tr></table></figure>
+<p>代表由7号节点到7号节点的一个循环。</p>
+<h1 id="创建图graph"><a href="#创建图graph" class="headerlink" title="创建图graph"></a>创建图graph</h1><p>经过上述节点标识和像素追溯，可以得到节点及其边为：</p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br></pre></td><td class="code"><pre><span class="line">nodes =</span><br><span class="line">[array([[<span class="number">0</span>, <span class="number">3</span>]], dtype=int16), array([[<span class="number">1</span>, <span class="number">7</span>]], dtype=int16), array([[<span class="number">2</span>, <span class="number">3</span>],</span><br><span class="line">       [<span class="number">3</span>, <span class="number">2</span>],</span><br><span class="line">       [<span class="number">3</span>, <span class="number">3</span>]], dtype=int16), array([[<span class="number">3</span>, <span class="number">0</span>]], dtype=int16), array([[<span class="number">5</span>, <span class="number">5</span>],</span><br><span class="line">       [<span class="number">6</span>, <span class="number">5</span>],</span><br><span class="line">       [<span class="number">6</span>, <span class="number">6</span>]], dtype=int16), array([[<span class="number">6</span>, <span class="number">8</span>]], dtype=int16), array([[<span class="number">8</span>, <span class="number">3</span>]], dtype=int16), array([[<span class="number">5</span>, <span class="number">1</span>]], dtype=int16)]</span><br><span class="line"> </span><br><span class="line">edges =</span><br><span class="line">[(<span class="number">0</span>, <span class="number">2</span>, array([[<span class="number">0</span>, <span class="number">3</span>],</span><br><span class="line">       [<span class="number">1</span>, <span class="number">3</span>],</span><br><span class="line">       [<span class="number">2</span>, <span class="number">3</span>]], dtype=int16)), (<span class="number">3</span>, <span class="number">2</span>, array([[<span class="number">3</span>, <span class="number">0</span>],</span><br><span class="line">       [<span class="number">3</span>, <span class="number">1</span>],</span><br><span class="line">       [<span class="number">3</span>, <span class="number">2</span>]], dtype=int16)), (<span class="number">2</span>, <span class="number">4</span>, array([[<span class="number">3</span>, <span class="number">3</span>],</span><br><span class="line">       [<span class="number">4</span>, <span class="number">4</span>],</span><br><span class="line">       [<span class="number">5</span>, <span class="number">5</span>]], dtype=int16)), (<span class="number">4</span>, <span class="number">6</span>, array([[<span class="number">6</span>, <span class="number">5</span>],</span><br><span class="line">       [<span class="number">7</span>, <span class="number">4</span>],</span><br><span class="line">       [<span class="number">8</span>, <span class="number">3</span>]], dtype=int16)), (<span class="number">4</span>, <span class="number">5</span>, array([[<span class="number">6</span>, <span class="number">6</span>],</span><br><span class="line">       [<span class="number">6</span>, <span class="number">7</span>],</span><br><span class="line">       [<span class="number">6</span>, <span class="number">8</span>]], dtype=int16)), (<span class="number">7</span>, <span class="number">7</span>, array([[<span class="number">5</span>, <span class="number">1</span>],</span><br><span class="line">       [<span class="number">6</span>, <span class="number">0</span>],</span><br><span class="line">       [<span class="number">7</span>, <span class="number">1</span>],</span><br><span class="line">       [<span class="number">6</span>, <span class="number">2</span>],</span><br><span class="line">       [<span class="number">5</span>, <span class="number">1</span>]], dtype=int16))]</span><br></pre></td></tr></table></figure>
+<p>使用networkx库来构建graph：</p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">import</span> networkx <span class="keyword">as</span> nx</span><br><span class="line"><span class="function"><span class="keyword">def</span> <span class="title">build_graph</span>(<span class="params">nodes, edges, multi=<span class="literal">False</span></span>):</span></span><br><span class="line">    graph = nx.MultiGraph() <span class="keyword">if</span> multi <span class="keyword">else</span> nx.Graph()</span><br><span class="line">    <span class="keyword">for</span> i <span class="keyword">in</span> <span class="built_in">range</span>(<span class="built_in">len</span>(nodes)):</span><br><span class="line">        graph.add_node(i, pts=nodes[i], o=nodes[i].mean(axis=<span class="number">0</span>))</span><br><span class="line">    <span class="keyword">for</span> s,e,pts <span class="keyword">in</span> edges:</span><br><span class="line">        l = np.linalg.norm(pts[<span class="number">1</span>:]-pts[:-<span class="number">1</span>], axis=<span class="number">1</span>).<span class="built_in">sum</span>()</span><br><span class="line">        graph.add_edge(s,e, pts=pts, weight=l)</span><br><span class="line">    <span class="keyword">return</span> graph</span><br></pre></td></tr></table></figure>
+
+    </div>
+
+    
+    
+    
+        <div class="reward-container">
+  <div></div>
+  <button onclick="var qr = document.getElementById('qr'); qr.style.display = (qr.style.display === 'none') ? 'block' : 'none';">
+    Donate
+  </button>
+  <div id="qr" style="display: none;">
+      
+      <div style="display: inline-block;">
+        <img src="/images/wechat_reward.png" alt="Xin-Bo Qi(亓欣波) WeChat Pay">
+        <p>WeChat Pay</p>
+      </div>
+
+  </div>
+</div>
+
+
+      <footer class="post-footer">
+          <div class="post-tags">
+              <a href="/tags/ImagePy/" rel="tag"># ImagePy</a>
+          </div>
+
+        
+
+
+        
+    <div class="post-nav">
+      <div class="post-nav-item">
+    <a href="/2020/10/24/cellpose-1/" rel="prev" title="胞状物体通用分割算法Cellpose解析：使用篇">
+      <i class="fa fa-chevron-left"></i> 胞状物体通用分割算法Cellpose解析：使用篇
+    </a></div>
+      <div class="post-nav-item">
+    <a href="/2020/12/26/algorithm/" rel="next" title="数据结构与算法笔记">
+      数据结构与算法笔记 <i class="fa fa-chevron-right"></i>
+    </a></div>
+    </div>
+      </footer>
+    
+  </article>
+  
+  
+  
+
+
+
+          </div>
+          
+    
+  <div class="comments">
+    <div id="disqus_thread">
+      <noscript>Please enable JavaScript to view the comments powered by Disqus.</noscript>
+    </div>
+  </div>
+  
+
+<script>
+  window.addEventListener('tabs:register', () => {
+    let { activeClass } = CONFIG.comments;
+    if (CONFIG.comments.storage) {
+      activeClass = localStorage.getItem('comments_active') || activeClass;
+    }
+    if (activeClass) {
+      let activeTab = document.querySelector(`a[href="#comment-${activeClass}"]`);
+      if (activeTab) {
+        activeTab.click();
+      }
+    }
+  });
+  if (CONFIG.comments.storage) {
+    window.addEventListener('tabs:click', event => {
+      if (!event.target.matches('.tabs-comment .tab-content .tab-pane')) return;
+      let commentClass = event.target.classList[1];
+      localStorage.setItem('comments_active', commentClass);
+    });
+  }
+</script>
+
+        </div>
+          
+  
+  <div class="toggle sidebar-toggle">
+    <span class="toggle-line toggle-line-first"></span>
+    <span class="toggle-line toggle-line-middle"></span>
+    <span class="toggle-line toggle-line-last"></span>
+  </div>
+
+  <aside class="sidebar">
+    <div class="sidebar-inner">
+
+      <ul class="sidebar-nav motion-element">
+        <li class="sidebar-nav-toc">
+          Table of Contents
+        </li>
+        <li class="sidebar-nav-overview">
+          Overview
+        </li>
+      </ul>
+
+      <!--noindex-->
+      <div class="post-toc-wrap sidebar-panel">
+          <div class="post-toc motion-element"><ol class="nav"><li class="nav-item nav-level-1"><a class="nav-link" href="#%E8%BE%93%E5%85%A5%E5%9B%BE%E5%83%8F"><span class="nav-number">1.</span> <span class="nav-text">输入图像</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#%E6%A0%87%E8%AF%86%E8%8A%82%E7%82%B9"><span class="nav-number">2.</span> <span class="nav-text">标识节点</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#%E6%B3%9B%E6%B4%AA%E5%A1%AB%E5%85%85"><span class="nav-number">3.</span> <span class="nav-text">泛洪填充</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#%E5%83%8F%E7%B4%A0%E8%BF%BD%E6%BA%AF"><span class="nav-number">4.</span> <span class="nav-text">像素追溯</span></a><ol class="nav-child"><li class="nav-item nav-level-2"><a class="nav-link" href="#%E9%97%AD%E5%90%88%E6%9B%B2%E7%BA%BF%E7%9A%84%E5%A4%84%E7%90%86"><span class="nav-number">4.1.</span> <span class="nav-text">闭合曲线的处理</span></a></li></ol></li><li class="nav-item nav-level-1"><a class="nav-link" href="#%E5%88%9B%E5%BB%BA%E5%9B%BEgraph"><span class="nav-number">5.</span> <span class="nav-text">创建图graph</span></a></li></ol></div>
+      </div>
+      <!--/noindex-->
+
+      <div class="site-overview-wrap sidebar-panel">
+        <div class="site-author motion-element" itemprop="author" itemscope itemtype="http://schema.org/Person">
+    <img class="site-author-image" itemprop="image" alt="Xin-Bo Qi(亓欣波)"
+      src="/images/avatar.jpg">
+  <p class="site-author-name" itemprop="name">Xin-Bo Qi(亓欣波)</p>
+  <div class="site-description" itemprop="description">Be interesting!</div>
+</div>
+<div class="site-state-wrap motion-element">
+  <nav class="site-state">
+      <div class="site-state-item site-state-posts">
+          <a href="/archives/">
+        
+          <span class="site-state-item-count">120</span>
+          <span class="site-state-item-name">posts</span>
+        </a>
+      </div>
+      <div class="site-state-item site-state-categories">
+            <a href="/categories/">
+          
+        <span class="site-state-item-count">5</span>
+        <span class="site-state-item-name">categories</span></a>
+      </div>
+      <div class="site-state-item site-state-tags">
+            <a href="/tags/">
+          
+        <span class="site-state-item-count">41</span>
+        <span class="site-state-item-name">tags</span></a>
+      </div>
+  </nav>
+</div>
+  <div class="links-of-author motion-element">
+      <span class="links-of-author-item">
+        <a href="https://github.com/qixinbo" title="GitHub → https:&#x2F;&#x2F;github.com&#x2F;qixinbo" rel="noopener" target="_blank"><i class="github fa-fw"></i>GitHub</a>
+      </span>
+      <span class="links-of-author-item">
+        <a href="mailto:qixinbo@gmail.com" title="E-Mail → mailto:qixinbo@gmail.com" rel="noopener" target="_blank"><i class="envelope fa-fw"></i>E-Mail</a>
+      </span>
+  </div>
+
+
+  <div class="links-of-blogroll motion-element">
+    <div class="links-of-blogroll-title"><i class="fa fa-link fa-fw"></i>
+      Links
+    </div>
+    <ul class="links-of-blogroll-list">
+        <li class="links-of-blogroll-item">
+          <a href="https://www.tsinghua.edu.cn/" title="https:&#x2F;&#x2F;www.tsinghua.edu.cn" rel="noopener" target="_blank">THU</a>
+        </li>
+        <li class="links-of-blogroll-item">
+          <a href="http://www.imr.cas.cn/" title="http:&#x2F;&#x2F;www.imr.cas.cn" rel="noopener" target="_blank">IMR</a>
+        </li>
+        <li class="links-of-blogroll-item">
+          <a href="http://www.sdu.edu.cn/" title="http:&#x2F;&#x2F;www.sdu.edu.cn" rel="noopener" target="_blank">SDU</a>
+        </li>
+        <li class="links-of-blogroll-item">
+          <a href="http://liam0205.me/" title="http:&#x2F;&#x2F;liam0205.me&#x2F;" rel="noopener" target="_blank">黄晨成</a>
+        </li>
+    </ul>
+  </div>
+
+      </div>
+
+    </div>
+  </aside>
+  <div id="sidebar-dimmer"></div>
+
+
+      </div>
+    </main>
+
+    <footer class="footer">
+      <div class="footer-inner">
+        
+
+        
+
+<div class="copyright">
+  
+  &copy; 
+  <span itemprop="copyrightYear">2021</span>
+  <span class="with-love">
+    <i class="fa fa-heart"></i>
+  </span>
+  <span class="author" itemprop="copyrightHolder">Xin-Bo Qi(亓欣波)</span>
+</div>
+  <div class="powered-by">Powered by <a href="https://hexo.io/" class="theme-link" rel="noopener" target="_blank">Hexo</a> & <a href="https://theme-next.org/" class="theme-link" rel="noopener" target="_blank">NexT.Gemini</a>
+  </div>
+
+        
+
+
+
+
+
+
+
+
+      </div>
+    </footer>
+  </div>
+
+  
+  <script src="/lib/anime.min.js"></script>
+  <script src="/lib/velocity/velocity.min.js"></script>
+  <script src="/lib/velocity/velocity.ui.min.js"></script>
+
+<script src="/js/utils.js"></script>
+
+<script src="/js/motion.js"></script>
+
+
+<script src="/js/schemes/pisces.js"></script>
+
+
+<script src="/js/next-boot.js"></script>
+
+
+
+
+  
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+  
+
+  
+
+  
+
+<script>
+  function loadCount() {
+    var d = document, s = d.createElement('script');
+    s.src = 'https://qixinbo.disqus.com/count.js';
+    s.id = 'dsq-count-scr';
+    (d.head || d.body).appendChild(s);
+  }
+  // defer loading until the whole page loading is completed
+  window.addEventListener('load', loadCount, false);
+</script>
+<script>
+  var disqus_config = function() {
+    this.page.url = "http://qixinbo.github.io/2020/11/20/ImagePy_24/";
+    this.page.identifier = "2020/11/20/ImagePy_24/";
+    this.page.title = "ImagePy解析：24 -- 骨架图转图论sknw解析";
+    };
+  NexT.utils.loadComments(document.querySelector('#disqus_thread'), () => {
+    if (window.DISQUS) {
+      DISQUS.reset({
+        reload: true,
+        config: disqus_config
+      });
+    } else {
+      var d = document, s = d.createElement('script');
+      s.src = 'https://qixinbo.disqus.com/embed.js';
+      s.setAttribute('data-timestamp', '' + +new Date());
+      (d.head || d.body).appendChild(s);
+    }
+  });
+</script>
+
+</body>
+</html>

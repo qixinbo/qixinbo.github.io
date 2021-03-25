@@ -1,0 +1,564 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=2">
+<meta name="theme-color" content="#222">
+<meta name="generator" content="Hexo 5.4.0">
+  <link rel="apple-touch-icon" sizes="180x180" href="/images/apple-touch-icon-next.png">
+  <link rel="icon" type="image/png" sizes="32x32" href="/favicon.ico">
+  <link rel="icon" type="image/png" sizes="16x16" href="/favicon.ico">
+  <link rel="mask-icon" href="/images/logo.svg" color="#222">
+
+<link rel="stylesheet" href="/css/main.css">
+
+
+<link rel="stylesheet" href="/lib/font-awesome/css/all.min.css">
+
+<script id="hexo-configurations">
+    var NexT = window.NexT || {};
+    var CONFIG = {"hostname":"qixinbo.github.io","root":"/","scheme":"Gemini","version":"7.8.0","exturl":false,"sidebar":{"position":"left","display":"post","padding":18,"offset":12,"onmobile":false},"copycode":{"enable":false,"show_result":false,"style":null},"back2top":{"enable":true,"sidebar":false,"scrollpercent":false},"bookmark":{"enable":false,"color":"#222","save":"auto"},"fancybox":false,"mediumzoom":false,"lazyload":false,"pangu":false,"comments":{"style":"tabs","active":null,"storage":true,"lazyload":false,"nav":null},"algolia":{"hits":{"per_page":10},"labels":{"input_placeholder":"Search for Posts","hits_empty":"We didn't find any results for the search: ${query}","hits_stats":"${hits} results found in ${time} ms"}},"localsearch":{"enable":false,"trigger":"auto","top_n_per_article":1,"unescape":false,"preload":false},"motion":{"enable":true,"async":false,"transition":{"post_block":"fadeIn","post_header":"slideDownIn","post_body":"slideDownIn","coll_header":"slideLeftIn","sidebar":"slideUpIn"}}};
+  </script>
+
+  <meta name="description" content="本文是对徐祖耀老师所著的《相变原理》(科学出版社2000年出版)第一章的读书笔记。 相变的定义在均匀单相中，或在几个混合相中，出现了不同成分或不同结构(包括原子、离子或电子位置及位向的改变)、不同组织形态或不同性质的相，就称为相变。 相变何时发生当母相失稳而新相具有较高的稳定性时，就会发生相变。母相失稳可以需要跨过一定的能垒(需要一定的形核驱动力，即先形核)，也可以连续失稳(没有能垒的连续型相变，">
+<meta property="og:type" content="article">
+<meta property="og:title" content="相变的一般特征">
+<meta property="og:url" content="http://qixinbo.github.io/2016/03/01/phasetransform-chap1/index.html">
+<meta property="og:site_name" content="亓欣波">
+<meta property="og:description" content="本文是对徐祖耀老师所著的《相变原理》(科学出版社2000年出版)第一章的读书笔记。 相变的定义在均匀单相中，或在几个混合相中，出现了不同成分或不同结构(包括原子、离子或电子位置及位向的改变)、不同组织形态或不同性质的相，就称为相变。 相变何时发生当母相失稳而新相具有较高的稳定性时，就会发生相变。母相失稳可以需要跨过一定的能垒(需要一定的形核驱动力，即先形核)，也可以连续失稳(没有能垒的连续型相变，">
+<meta property="og:locale" content="en_US">
+<meta property="article:published_time" content="2016-02-29T16:00:00.000Z">
+<meta property="article:modified_time" content="2021-03-25T07:20:30.817Z">
+<meta property="article:author" content="Xin-Bo Qi(亓欣波)">
+<meta property="article:tag" content="phasetransform">
+<meta name="twitter:card" content="summary">
+
+<link rel="canonical" href="http://qixinbo.github.io/2016/03/01/phasetransform-chap1/">
+
+
+<script id="page-configurations">
+  // https://hexo.io/docs/variables.html
+  CONFIG.page = {
+    sidebar: "",
+    isHome : false,
+    isPost : true,
+    lang   : 'en'
+  };
+</script>
+
+  <title>相变的一般特征 | 亓欣波</title>
+  
+
+
+
+
+
+
+  <noscript>
+  <style>
+  .use-motion .brand,
+  .use-motion .menu-item,
+  .sidebar-inner,
+  .use-motion .post-block,
+  .use-motion .pagination,
+  .use-motion .comments,
+  .use-motion .post-header,
+  .use-motion .post-body,
+  .use-motion .collection-header { opacity: initial; }
+
+  .use-motion .site-title,
+  .use-motion .site-subtitle {
+    opacity: initial;
+    top: initial;
+  }
+
+  .use-motion .logo-line-before i { left: initial; }
+  .use-motion .logo-line-after i { right: initial; }
+  </style>
+</noscript>
+
+</head>
+
+<body itemscope itemtype="http://schema.org/WebPage">
+  <div class="container use-motion">
+    <div class="headband"></div>
+
+    <header class="header" itemscope itemtype="http://schema.org/WPHeader">
+      <div class="header-inner"><div class="site-brand-container">
+  <div class="site-nav-toggle">
+    <div class="toggle" aria-label="Toggle navigation bar">
+      <span class="toggle-line toggle-line-first"></span>
+      <span class="toggle-line toggle-line-middle"></span>
+      <span class="toggle-line toggle-line-last"></span>
+    </div>
+  </div>
+
+  <div class="site-meta">
+
+    <a href="/" class="brand" rel="start">
+      <span class="logo-line-before"><i></i></span>
+      <h1 class="site-title">亓欣波</h1>
+      <span class="logo-line-after"><i></i></span>
+    </a>
+      <p class="site-subtitle" itemprop="description">Hi, I am Xin-Bo Qi (亓欣波)</p>
+  </div>
+
+  <div class="site-nav-right">
+    <div class="toggle popup-trigger">
+    </div>
+  </div>
+</div>
+
+
+
+
+<nav class="site-nav">
+  <ul id="menu" class="main-menu menu">
+        <li class="menu-item menu-item-home">
+
+    <a href="/" rel="section"><i class="home fa-fw"></i>Home</a>
+
+  </li>
+        <li class="menu-item menu-item-categories">
+
+    <a href="/categories/" rel="section"><i class="th fa-fw"></i>Categories</a>
+
+  </li>
+        <li class="menu-item menu-item-archives">
+
+    <a href="/archives/" rel="section"><i class="archive fa-fw"></i>Archives</a>
+
+  </li>
+        <li class="menu-item menu-item-tags">
+
+    <a href="/tags/" rel="section"><i class="tags fa-fw"></i>Tags</a>
+
+  </li>
+        <li class="menu-item menu-item-scholar">
+
+    <a href="/scholar/" rel="section"><i class="bar-chart fa-fw"></i>scholar</a>
+
+  </li>
+        <li class="menu-item menu-item-sources">
+
+    <a href="/sources/" rel="section"><i class="rss fa-fw"></i>sources</a>
+
+  </li>
+        <li class="menu-item menu-item-gallery">
+
+    <a href="/gallery/" rel="section"><i class="file-image-o fa-fw"></i>gallery</a>
+
+  </li>
+        <li class="menu-item menu-item-about">
+
+    <a href="/about/" rel="section"><i class="user fa-fw"></i>About</a>
+
+  </li>
+        <li class="menu-item menu-item-commonweal">
+
+    <a href="/404.html" rel="section"><i class="heartbeat fa-fw"></i>Commonweal 404</a>
+
+  </li>
+  </ul>
+</nav>
+
+
+
+
+</div>
+    </header>
+
+    
+  <div class="back-to-top">
+    <i class="fa fa-arrow-up"></i>
+    <span>0%</span>
+  </div>
+
+
+    <main class="main">
+      <div class="main-inner">
+        <div class="content-wrap">
+          
+
+          <div class="content post posts-expand">
+            
+
+    
+  
+  
+  <article itemscope itemtype="http://schema.org/Article" class="post-block" lang="en">
+    <link itemprop="mainEntityOfPage" href="http://qixinbo.github.io/2016/03/01/phasetransform-chap1/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="image" content="/images/avatar.jpg">
+      <meta itemprop="name" content="Xin-Bo Qi(亓欣波)">
+      <meta itemprop="description" content="Be interesting!">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="亓欣波">
+    </span>
+      <header class="post-header">
+        <h1 class="post-title" itemprop="name headline">
+          相变的一般特征
+        </h1>
+
+        <div class="post-meta">
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="far fa-calendar"></i>
+              </span>
+              <span class="post-meta-item-text">Posted on</span>
+
+              <time title="Created: 2016-03-01 00:00:00" itemprop="dateCreated datePublished" datetime="2016-03-01T00:00:00+08:00">2016-03-01</time>
+            </span>
+              <span class="post-meta-item">
+                <span class="post-meta-item-icon">
+                  <i class="far fa-calendar-check"></i>
+                </span>
+                <span class="post-meta-item-text">Edited on</span>
+                <time title="Modified: 2021-03-25 15:20:30" itemprop="dateModified" datetime="2021-03-25T15:20:30+08:00">2021-03-25</time>
+              </span>
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="far fa-folder"></i>
+              </span>
+              <span class="post-meta-item-text">In</span>
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+                  <a href="/categories/computational-material-science/" itemprop="url" rel="index"><span itemprop="name">computational material science</span></a>
+                </span>
+            </span>
+
+          
+  
+  <span class="post-meta-item">
+    
+      <span class="post-meta-item-icon">
+        <i class="far fa-comment"></i>
+      </span>
+      <span class="post-meta-item-text">Disqus: </span>
+    
+    <a title="disqus" href="/2016/03/01/phasetransform-chap1/#disqus_thread" itemprop="discussionUrl">
+      <span class="post-comments-count disqus-comment-count" data-disqus-identifier="2016/03/01/phasetransform-chap1/" itemprop="commentCount"></span>
+    </a>
+  </span>
+  
+  
+
+        </div>
+      </header>
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+        <p>本文是对徐祖耀老师所著的《相变原理》(科学出版社2000年出版)第一章的读书笔记。</p>
+<h1 id="相变的定义"><a href="#相变的定义" class="headerlink" title="相变的定义"></a>相变的定义</h1><p>在均匀单相中，或在几个混合相中，出现了不同成分或不同结构(包括原子、离子或电子位置及位向的改变)、不同组织形态或不同性质的相，就称为相变。</p>
+<h1 id="相变何时发生"><a href="#相变何时发生" class="headerlink" title="相变何时发生"></a>相变何时发生</h1><p>当母相失稳而新相具有较高的稳定性时，就会发生相变。<br>母相失稳可以需要跨过一定的能垒(需要一定的形核驱动力，即先形核)，也可以连续失稳(没有能垒的连续型相变，不需要进行形核过程，如Spinodal分解)。<br>在一些固态相变中，除<strong>温度</strong>因素外，<strong>压强</strong>和<strong>应变</strong>也引起母相的失稳。<br>固态相变热循环时往往发生较大的<strong>热滞</strong>，即冷却时的相变温度不等于再次加热时的相变温度，在加热、冷却相变曲线中形成热滞回线。与此类似的还有<strong>压滞</strong>。</p>
+<h1 id="为什么发生相变"><a href="#为什么发生相变" class="headerlink" title="为什么发生相变"></a>为什么发生相变</h1><p>人们提出母相点阵的失稳是由于点阵振动模——光学振动模或声学振动模的软化所致。<br>这种软化的振动模称为软模。</p>
+<h1 id="过渡相"><a href="#过渡相" class="headerlink" title="过渡相"></a>过渡相</h1><p>在相变中有时先产生亚稳定的过渡相，然后过渡相再向稳定相转化。如Fe3C、GP区等。<br>产生过渡相的原因可能是该相虽然相变驱动力小于稳定相，但形核驱动力大于稳定相等。</p>
+<h1 id="扩散形核"><a href="#扩散形核" class="headerlink" title="扩散形核"></a>扩散形核</h1><p>扩散形核发生在<strong>扩散型相变</strong>的<strong>形核</strong>过程(与此对应还有非扩散型相变、非形核)。<br>母相中组成新相的原子(或分子)集团，称为核胚。形核过程就是以这些核胚或新相的起伏依靠单个原子热激活的扩散跃迁，形成最小的、可供相变为更稳定相的集合体的过程。<br>扩散激活能与新旧两相的自由能差没有关系：当不能稳定形核时，需要跨过扩散激活能+自由能差;当能稳定形核时，也需且仅需越过扩散激活能，因此经典的形核自由能差-半径曲线上应该是<strong>峰谷</strong>形，即波浪形！！<br>当半径大于临界形核半径时，在热起伏的作用下也有可能使得核胚不稳定存在，因此在半径大于临界形核半径加上临界宽度/2时，核胚才能保证不受热起伏的破坏而稳定存在。<br>扩散形核需要具有<strong>结构、浓度和能量起伏</strong>。</p>
+<h1 id="相界面"><a href="#相界面" class="headerlink" title="相界面"></a>相界面</h1><p>相变时母相和新相之间界面的结构影响新相长大的形态和动力学。<br>凝固时，液固之间的界面分为粗糙界面或光滑界面。两者可由Jackson因子($\Delta S/R$)是否大于2判断，大于2是光滑界面，小于2是粗糙界面。原子进入固相的粗糙界面后，由于临近原子较多，增加的表面能量较低，长大速率较大，因此晶体的小面没有机会暴露在外，有时呈数值状长大；原子进入固相的光滑界面时，所增加的表面能较大，长大缓慢，晶体外形常呈小面，晶体具有一定晶形。在小的相变驱动力或小的过冷度下，凝固时只能由粗糙界面进入原子而长大。<br>固态相变时两相间界面分为完全共格、半共格和非共格界面三类。</p>
+<ol>
+<li>完全共格界面：当两相界面上原子排列完全吻合，两相的晶格共同连结，或者界面上的原子为两相所共有时，就形成完全共格界面。实际情形下两相点阵总会有差别，因此界面上将产生弹性应变，但两相界面能较小。</li>
+<li>半共格界面：两相界面上分布若干位错及相当于小角度晶界的相界面称为半共格界面。</li>
+<li>非共格界面：两相界面上原子排列完全不吻合，或者有很多缺陷分布在界面上，称为非共格界面。非共格界面上可以存在刃型位错、螺型位错和混合型位错，呈复杂的缺陷分布，相当于大角度晶界。由于此界面上原子分布较为紊乱，则其表面能较高，弹性应变能较低。<br>为补偿两相之间的不匹配，设想在相界面上安装<strong>补偿错配位错</strong>，这就是错配度的由来。</li>
+</ol>
+<h1 id="晶核长大"><a href="#晶核长大" class="headerlink" title="晶核长大"></a>晶核长大</h1><p>晶核依靠原子跳跃到晶核表面，使其长大成为一个晶体。<br>晶核常以一定的结晶面暴露于母相中，长大速率较小的晶面(表面能较小)将扩展，长大速率较大的晶面(表面能较大)将收缩。这是因为晶核所取的形状应使它的表面能趋于最低。这就是<strong>Wulff法则</strong>。但由临界核心长成宏观晶体还要受周围环境的热力学和动力学因素控制，因此很难按上述法则长成完整晶体。<br>新相形核后的长大有两种方式：扩散控制型长大和界面控制型长大。<br>扩散控制长大是受原子长距离体积扩散所控制，界面控制长大是受相界面上原子短程迁动所控制。<br>一般相变兼有这两种控制方式。<br>与形核时有以下不同：</p>
+<ol>
+<li>长大时和临界核心所接触的基体浓度不为$C_\alpha$，而是相界上基体的平衡浓度。</li>
+<li>表面效应是形核的主要因素，但在长大阶段，它并不影响整个晶体的长大，只影响小的弯曲界面处的长大，如新相片的边缘、针的尖端，这些地方的曲率不随长大时间而减小。</li>
+</ol>
+<h1 id="相变动力学"><a href="#相变动力学" class="headerlink" title="相变动力学"></a>相变动力学</h1><p>分为两种情形考虑：</p>
+<ol>
+<li>等温相变：在相变临界温度以下的某一恒定温度下，随时间的增长，新相形成量(一般以体积分数表示)增加。</li>
+<li>变温相变：新相形成量只是温度的函数的相变。如在一定温度下新相形成后，由于应变能太大等原因不能继续长大，需降温求得更大的驱动力，才能继续进行形核和长大。</li>
+</ol>
+<h1 id="相变驱动力VS形核驱动力"><a href="#相变驱动力VS形核驱动力" class="headerlink" title="相变驱动力VS形核驱动力"></a>相变驱动力VS形核驱动力</h1><p>相变驱动力与形核驱动力是两个不同的概念。这一部分参考孙振岩、刘春明编著的《合金中的扩散与相变》。</p>
+<h2 id="相变驱动力"><a href="#相变驱动力" class="headerlink" title="相变驱动力"></a>相变驱动力</h2><p>在恒温恒压下，相变驱动力通常指吉布斯自由能的净降低量。<br>在自由能-成分曲线上，相变驱动力就是母相自由能与新相(可以是混合相)自由能的垂直距离。<br>(如果新相是混合相，那么每相的浓度点是通过两个自由能曲线的公切线来确定，原因是平衡时溶质原子在两相中的化学势应相等，而化学势就是自由能对浓度的切线，所以化学势相等必须对应于公切线)</p>
+<h2 id="形核驱动力"><a href="#形核驱动力" class="headerlink" title="形核驱动力"></a>形核驱动力</h2><p>形核的特点是此时新相的量很少。<br>对于这种从大量母相中析出少量新相的情形，形核驱动力可通过自由能-成分曲线上，该母相成分点的切线与析出相自由能的垂直距离来计算。按照这种求法，不同成分的核心形核驱动力不同。为确定具有最大形核驱动力的核心的成分，可在新相自由能-成分曲线上做一条与母相自由能曲线上过原始成分点的切线相平行的线，该线与新相自由能曲线相切的点即为形核的核心成分，该点对应的两条平行线之间的垂直距离就是形核驱动力。</p>
+
+    </div>
+
+    
+    
+    
+        <div class="reward-container">
+  <div></div>
+  <button onclick="var qr = document.getElementById('qr'); qr.style.display = (qr.style.display === 'none') ? 'block' : 'none';">
+    Donate
+  </button>
+  <div id="qr" style="display: none;">
+      
+      <div style="display: inline-block;">
+        <img src="/images/wechat_reward.png" alt="Xin-Bo Qi(亓欣波) WeChat Pay">
+        <p>WeChat Pay</p>
+      </div>
+
+  </div>
+</div>
+
+
+      <footer class="post-footer">
+          <div class="post-tags">
+              <a href="/tags/phasetransform/" rel="tag"># phasetransform</a>
+          </div>
+
+        
+
+
+        
+    <div class="post-nav">
+      <div class="post-nav-item">
+    <a href="/2016/02/27/multiple-phasefield/" rel="prev" title="多相材料的相场模型">
+      <i class="fa fa-chevron-left"></i> 多相材料的相场模型
+    </a></div>
+      <div class="post-nav-item">
+    <a href="/2016/03/05/opencalphad-examples/" rel="next" title="开源计算相图软件OpenCalphad四个算例">
+      开源计算相图软件OpenCalphad四个算例 <i class="fa fa-chevron-right"></i>
+    </a></div>
+    </div>
+      </footer>
+    
+  </article>
+  
+  
+  
+
+
+
+          </div>
+          
+    
+  <div class="comments">
+    <div id="disqus_thread">
+      <noscript>Please enable JavaScript to view the comments powered by Disqus.</noscript>
+    </div>
+  </div>
+  
+
+<script>
+  window.addEventListener('tabs:register', () => {
+    let { activeClass } = CONFIG.comments;
+    if (CONFIG.comments.storage) {
+      activeClass = localStorage.getItem('comments_active') || activeClass;
+    }
+    if (activeClass) {
+      let activeTab = document.querySelector(`a[href="#comment-${activeClass}"]`);
+      if (activeTab) {
+        activeTab.click();
+      }
+    }
+  });
+  if (CONFIG.comments.storage) {
+    window.addEventListener('tabs:click', event => {
+      if (!event.target.matches('.tabs-comment .tab-content .tab-pane')) return;
+      let commentClass = event.target.classList[1];
+      localStorage.setItem('comments_active', commentClass);
+    });
+  }
+</script>
+
+        </div>
+          
+  
+  <div class="toggle sidebar-toggle">
+    <span class="toggle-line toggle-line-first"></span>
+    <span class="toggle-line toggle-line-middle"></span>
+    <span class="toggle-line toggle-line-last"></span>
+  </div>
+
+  <aside class="sidebar">
+    <div class="sidebar-inner">
+
+      <ul class="sidebar-nav motion-element">
+        <li class="sidebar-nav-toc">
+          Table of Contents
+        </li>
+        <li class="sidebar-nav-overview">
+          Overview
+        </li>
+      </ul>
+
+      <!--noindex-->
+      <div class="post-toc-wrap sidebar-panel">
+          <div class="post-toc motion-element"><ol class="nav"><li class="nav-item nav-level-1"><a class="nav-link" href="#%E7%9B%B8%E5%8F%98%E7%9A%84%E5%AE%9A%E4%B9%89"><span class="nav-number">1.</span> <span class="nav-text">相变的定义</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#%E7%9B%B8%E5%8F%98%E4%BD%95%E6%97%B6%E5%8F%91%E7%94%9F"><span class="nav-number">2.</span> <span class="nav-text">相变何时发生</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#%E4%B8%BA%E4%BB%80%E4%B9%88%E5%8F%91%E7%94%9F%E7%9B%B8%E5%8F%98"><span class="nav-number">3.</span> <span class="nav-text">为什么发生相变</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#%E8%BF%87%E6%B8%A1%E7%9B%B8"><span class="nav-number">4.</span> <span class="nav-text">过渡相</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#%E6%89%A9%E6%95%A3%E5%BD%A2%E6%A0%B8"><span class="nav-number">5.</span> <span class="nav-text">扩散形核</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#%E7%9B%B8%E7%95%8C%E9%9D%A2"><span class="nav-number">6.</span> <span class="nav-text">相界面</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#%E6%99%B6%E6%A0%B8%E9%95%BF%E5%A4%A7"><span class="nav-number">7.</span> <span class="nav-text">晶核长大</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#%E7%9B%B8%E5%8F%98%E5%8A%A8%E5%8A%9B%E5%AD%A6"><span class="nav-number">8.</span> <span class="nav-text">相变动力学</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#%E7%9B%B8%E5%8F%98%E9%A9%B1%E5%8A%A8%E5%8A%9BVS%E5%BD%A2%E6%A0%B8%E9%A9%B1%E5%8A%A8%E5%8A%9B"><span class="nav-number">9.</span> <span class="nav-text">相变驱动力VS形核驱动力</span></a><ol class="nav-child"><li class="nav-item nav-level-2"><a class="nav-link" href="#%E7%9B%B8%E5%8F%98%E9%A9%B1%E5%8A%A8%E5%8A%9B"><span class="nav-number">9.1.</span> <span class="nav-text">相变驱动力</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E5%BD%A2%E6%A0%B8%E9%A9%B1%E5%8A%A8%E5%8A%9B"><span class="nav-number">9.2.</span> <span class="nav-text">形核驱动力</span></a></li></ol></li></ol></div>
+      </div>
+      <!--/noindex-->
+
+      <div class="site-overview-wrap sidebar-panel">
+        <div class="site-author motion-element" itemprop="author" itemscope itemtype="http://schema.org/Person">
+    <img class="site-author-image" itemprop="image" alt="Xin-Bo Qi(亓欣波)"
+      src="/images/avatar.jpg">
+  <p class="site-author-name" itemprop="name">Xin-Bo Qi(亓欣波)</p>
+  <div class="site-description" itemprop="description">Be interesting!</div>
+</div>
+<div class="site-state-wrap motion-element">
+  <nav class="site-state">
+      <div class="site-state-item site-state-posts">
+          <a href="/archives/">
+        
+          <span class="site-state-item-count">120</span>
+          <span class="site-state-item-name">posts</span>
+        </a>
+      </div>
+      <div class="site-state-item site-state-categories">
+            <a href="/categories/">
+          
+        <span class="site-state-item-count">5</span>
+        <span class="site-state-item-name">categories</span></a>
+      </div>
+      <div class="site-state-item site-state-tags">
+            <a href="/tags/">
+          
+        <span class="site-state-item-count">41</span>
+        <span class="site-state-item-name">tags</span></a>
+      </div>
+  </nav>
+</div>
+  <div class="links-of-author motion-element">
+      <span class="links-of-author-item">
+        <a href="https://github.com/qixinbo" title="GitHub → https:&#x2F;&#x2F;github.com&#x2F;qixinbo" rel="noopener" target="_blank"><i class="github fa-fw"></i>GitHub</a>
+      </span>
+      <span class="links-of-author-item">
+        <a href="mailto:qixinbo@gmail.com" title="E-Mail → mailto:qixinbo@gmail.com" rel="noopener" target="_blank"><i class="envelope fa-fw"></i>E-Mail</a>
+      </span>
+  </div>
+
+
+  <div class="links-of-blogroll motion-element">
+    <div class="links-of-blogroll-title"><i class="fa fa-link fa-fw"></i>
+      Links
+    </div>
+    <ul class="links-of-blogroll-list">
+        <li class="links-of-blogroll-item">
+          <a href="https://www.tsinghua.edu.cn/" title="https:&#x2F;&#x2F;www.tsinghua.edu.cn" rel="noopener" target="_blank">THU</a>
+        </li>
+        <li class="links-of-blogroll-item">
+          <a href="http://www.imr.cas.cn/" title="http:&#x2F;&#x2F;www.imr.cas.cn" rel="noopener" target="_blank">IMR</a>
+        </li>
+        <li class="links-of-blogroll-item">
+          <a href="http://www.sdu.edu.cn/" title="http:&#x2F;&#x2F;www.sdu.edu.cn" rel="noopener" target="_blank">SDU</a>
+        </li>
+        <li class="links-of-blogroll-item">
+          <a href="http://liam0205.me/" title="http:&#x2F;&#x2F;liam0205.me&#x2F;" rel="noopener" target="_blank">黄晨成</a>
+        </li>
+    </ul>
+  </div>
+
+      </div>
+
+    </div>
+  </aside>
+  <div id="sidebar-dimmer"></div>
+
+
+      </div>
+    </main>
+
+    <footer class="footer">
+      <div class="footer-inner">
+        
+
+        
+
+<div class="copyright">
+  
+  &copy; 
+  <span itemprop="copyrightYear">2021</span>
+  <span class="with-love">
+    <i class="fa fa-heart"></i>
+  </span>
+  <span class="author" itemprop="copyrightHolder">Xin-Bo Qi(亓欣波)</span>
+</div>
+  <div class="powered-by">Powered by <a href="https://hexo.io/" class="theme-link" rel="noopener" target="_blank">Hexo</a> & <a href="https://theme-next.org/" class="theme-link" rel="noopener" target="_blank">NexT.Gemini</a>
+  </div>
+
+        
+
+
+
+
+
+
+
+
+      </div>
+    </footer>
+  </div>
+
+  
+  <script src="/lib/anime.min.js"></script>
+  <script src="/lib/velocity/velocity.min.js"></script>
+  <script src="/lib/velocity/velocity.ui.min.js"></script>
+
+<script src="/js/utils.js"></script>
+
+<script src="/js/motion.js"></script>
+
+
+<script src="/js/schemes/pisces.js"></script>
+
+
+<script src="/js/next-boot.js"></script>
+
+
+
+
+  
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+  
+
+  
+
+  
+
+<script>
+  function loadCount() {
+    var d = document, s = d.createElement('script');
+    s.src = 'https://qixinbo.disqus.com/count.js';
+    s.id = 'dsq-count-scr';
+    (d.head || d.body).appendChild(s);
+  }
+  // defer loading until the whole page loading is completed
+  window.addEventListener('load', loadCount, false);
+</script>
+<script>
+  var disqus_config = function() {
+    this.page.url = "http://qixinbo.github.io/2016/03/01/phasetransform-chap1/";
+    this.page.identifier = "2016/03/01/phasetransform-chap1/";
+    this.page.title = "相变的一般特征";
+    };
+  NexT.utils.loadComments(document.querySelector('#disqus_thread'), () => {
+    if (window.DISQUS) {
+      DISQUS.reset({
+        reload: true,
+        config: disqus_config
+      });
+    } else {
+      var d = document, s = d.createElement('script');
+      s.src = 'https://qixinbo.disqus.com/embed.js';
+      s.setAttribute('data-timestamp', '' + +new Date());
+      (d.head || d.body).appendChild(s);
+    }
+  });
+</script>
+
+</body>
+</html>

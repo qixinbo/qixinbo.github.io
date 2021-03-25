@@ -1,0 +1,572 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=2">
+<meta name="theme-color" content="#222">
+<meta name="generator" content="Hexo 5.4.0">
+  <link rel="apple-touch-icon" sizes="180x180" href="/images/apple-touch-icon-next.png">
+  <link rel="icon" type="image/png" sizes="32x32" href="/favicon.ico">
+  <link rel="icon" type="image/png" sizes="16x16" href="/favicon.ico">
+  <link rel="mask-icon" href="/images/logo.svg" color="#222">
+
+<link rel="stylesheet" href="/css/main.css">
+
+
+<link rel="stylesheet" href="/lib/font-awesome/css/all.min.css">
+
+<script id="hexo-configurations">
+    var NexT = window.NexT || {};
+    var CONFIG = {"hostname":"qixinbo.github.io","root":"/","scheme":"Gemini","version":"7.8.0","exturl":false,"sidebar":{"position":"left","display":"post","padding":18,"offset":12,"onmobile":false},"copycode":{"enable":false,"show_result":false,"style":null},"back2top":{"enable":true,"sidebar":false,"scrollpercent":false},"bookmark":{"enable":false,"color":"#222","save":"auto"},"fancybox":false,"mediumzoom":false,"lazyload":false,"pangu":false,"comments":{"style":"tabs","active":null,"storage":true,"lazyload":false,"nav":null},"algolia":{"hits":{"per_page":10},"labels":{"input_placeholder":"Search for Posts","hits_empty":"We didn't find any results for the search: ${query}","hits_stats":"${hits} results found in ${time} ms"}},"localsearch":{"enable":false,"trigger":"auto","top_n_per_article":1,"unescape":false,"preload":false},"motion":{"enable":true,"async":false,"transition":{"post_block":"fadeIn","post_header":"slideDownIn","post_body":"slideDownIn","coll_header":"slideLeftIn","sidebar":"slideUpIn"}}};
+  </script>
+
+  <meta name="description" content="本章说明这里详解Plugins菜单的功能。Plugins菜单反映了ImageJ&#x2F;plugins文件夹（至多两个子文件夹）的层级结构，因此可以创建子菜单（即子文件夹）来保持该菜单的简洁性，比如将EPS_Writer.class移动到ImageJ&#x2F;Plugins&#x2F;Input&#x2F;PDF文件夹就可以实现将EPS Writer插件移入Plugins-Input-PDF子菜单下。另外，勾选Edit-Option">
+<meta property="og:type" content="article">
+<meta property="og:title" content="ImageJ 用户指南 -- 10. 菜单栏之Plugins">
+<meta property="og:url" content="http://qixinbo.github.io/2018/09/10/imagej-ui-menu-plugins/index.html">
+<meta property="og:site_name" content="亓欣波">
+<meta property="og:description" content="本章说明这里详解Plugins菜单的功能。Plugins菜单反映了ImageJ&#x2F;plugins文件夹（至多两个子文件夹）的层级结构，因此可以创建子菜单（即子文件夹）来保持该菜单的简洁性，比如将EPS_Writer.class移动到ImageJ&#x2F;Plugins&#x2F;Input&#x2F;PDF文件夹就可以实现将EPS Writer插件移入Plugins-Input-PDF子菜单下。另外，勾选Edit-Option">
+<meta property="og:locale" content="en_US">
+<meta property="article:published_time" content="2018-09-09T16:00:00.000Z">
+<meta property="article:modified_time" content="2021-03-25T07:20:30.685Z">
+<meta property="article:author" content="Xin-Bo Qi(亓欣波)">
+<meta property="article:tag" content="ImageJ">
+<meta name="twitter:card" content="summary">
+
+<link rel="canonical" href="http://qixinbo.github.io/2018/09/10/imagej-ui-menu-plugins/">
+
+
+<script id="page-configurations">
+  // https://hexo.io/docs/variables.html
+  CONFIG.page = {
+    sidebar: "",
+    isHome : false,
+    isPost : true,
+    lang   : 'en'
+  };
+</script>
+
+  <title>ImageJ 用户指南 -- 10. 菜单栏之Plugins | 亓欣波</title>
+  
+
+
+
+
+
+
+  <noscript>
+  <style>
+  .use-motion .brand,
+  .use-motion .menu-item,
+  .sidebar-inner,
+  .use-motion .post-block,
+  .use-motion .pagination,
+  .use-motion .comments,
+  .use-motion .post-header,
+  .use-motion .post-body,
+  .use-motion .collection-header { opacity: initial; }
+
+  .use-motion .site-title,
+  .use-motion .site-subtitle {
+    opacity: initial;
+    top: initial;
+  }
+
+  .use-motion .logo-line-before i { left: initial; }
+  .use-motion .logo-line-after i { right: initial; }
+  </style>
+</noscript>
+
+</head>
+
+<body itemscope itemtype="http://schema.org/WebPage">
+  <div class="container use-motion">
+    <div class="headband"></div>
+
+    <header class="header" itemscope itemtype="http://schema.org/WPHeader">
+      <div class="header-inner"><div class="site-brand-container">
+  <div class="site-nav-toggle">
+    <div class="toggle" aria-label="Toggle navigation bar">
+      <span class="toggle-line toggle-line-first"></span>
+      <span class="toggle-line toggle-line-middle"></span>
+      <span class="toggle-line toggle-line-last"></span>
+    </div>
+  </div>
+
+  <div class="site-meta">
+
+    <a href="/" class="brand" rel="start">
+      <span class="logo-line-before"><i></i></span>
+      <h1 class="site-title">亓欣波</h1>
+      <span class="logo-line-after"><i></i></span>
+    </a>
+      <p class="site-subtitle" itemprop="description">Hi, I am Xin-Bo Qi (亓欣波)</p>
+  </div>
+
+  <div class="site-nav-right">
+    <div class="toggle popup-trigger">
+    </div>
+  </div>
+</div>
+
+
+
+
+<nav class="site-nav">
+  <ul id="menu" class="main-menu menu">
+        <li class="menu-item menu-item-home">
+
+    <a href="/" rel="section"><i class="home fa-fw"></i>Home</a>
+
+  </li>
+        <li class="menu-item menu-item-categories">
+
+    <a href="/categories/" rel="section"><i class="th fa-fw"></i>Categories</a>
+
+  </li>
+        <li class="menu-item menu-item-archives">
+
+    <a href="/archives/" rel="section"><i class="archive fa-fw"></i>Archives</a>
+
+  </li>
+        <li class="menu-item menu-item-tags">
+
+    <a href="/tags/" rel="section"><i class="tags fa-fw"></i>Tags</a>
+
+  </li>
+        <li class="menu-item menu-item-scholar">
+
+    <a href="/scholar/" rel="section"><i class="bar-chart fa-fw"></i>scholar</a>
+
+  </li>
+        <li class="menu-item menu-item-sources">
+
+    <a href="/sources/" rel="section"><i class="rss fa-fw"></i>sources</a>
+
+  </li>
+        <li class="menu-item menu-item-gallery">
+
+    <a href="/gallery/" rel="section"><i class="file-image-o fa-fw"></i>gallery</a>
+
+  </li>
+        <li class="menu-item menu-item-about">
+
+    <a href="/about/" rel="section"><i class="user fa-fw"></i>About</a>
+
+  </li>
+        <li class="menu-item menu-item-commonweal">
+
+    <a href="/404.html" rel="section"><i class="heartbeat fa-fw"></i>Commonweal 404</a>
+
+  </li>
+  </ul>
+</nav>
+
+
+
+
+</div>
+    </header>
+
+    
+  <div class="back-to-top">
+    <i class="fa fa-arrow-up"></i>
+    <span>0%</span>
+  </div>
+
+
+    <main class="main">
+      <div class="main-inner">
+        <div class="content-wrap">
+          
+
+          <div class="content post posts-expand">
+            
+
+    
+  
+  
+  <article itemscope itemtype="http://schema.org/Article" class="post-block" lang="en">
+    <link itemprop="mainEntityOfPage" href="http://qixinbo.github.io/2018/09/10/imagej-ui-menu-plugins/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="image" content="/images/avatar.jpg">
+      <meta itemprop="name" content="Xin-Bo Qi(亓欣波)">
+      <meta itemprop="description" content="Be interesting!">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="亓欣波">
+    </span>
+      <header class="post-header">
+        <h1 class="post-title" itemprop="name headline">
+          ImageJ 用户指南 -- 10. 菜单栏之Plugins
+        </h1>
+
+        <div class="post-meta">
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="far fa-calendar"></i>
+              </span>
+              <span class="post-meta-item-text">Posted on</span>
+
+              <time title="Created: 2018-09-10 00:00:00" itemprop="dateCreated datePublished" datetime="2018-09-10T00:00:00+08:00">2018-09-10</time>
+            </span>
+              <span class="post-meta-item">
+                <span class="post-meta-item-icon">
+                  <i class="far fa-calendar-check"></i>
+                </span>
+                <span class="post-meta-item-text">Edited on</span>
+                <time title="Modified: 2021-03-25 15:20:30" itemprop="dateModified" datetime="2021-03-25T15:20:30+08:00">2021-03-25</time>
+              </span>
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="far fa-folder"></i>
+              </span>
+              <span class="post-meta-item-text">In</span>
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+                  <a href="/categories/programming/" itemprop="url" rel="index"><span itemprop="name">programming</span></a>
+                </span>
+            </span>
+
+          
+  
+  <span class="post-meta-item">
+    
+      <span class="post-meta-item-icon">
+        <i class="far fa-comment"></i>
+      </span>
+      <span class="post-meta-item-text">Disqus: </span>
+    
+    <a title="disqus" href="/2018/09/10/imagej-ui-menu-plugins/#disqus_thread" itemprop="discussionUrl">
+      <span class="post-comments-count disqus-comment-count" data-disqus-identifier="2018/09/10/imagej-ui-menu-plugins/" itemprop="commentCount"></span>
+    </a>
+  </span>
+  
+  
+
+        </div>
+      </header>
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+        <h1 id="本章说明"><a href="#本章说明" class="headerlink" title="本章说明"></a>本章说明</h1><p>这里详解Plugins菜单的功能。<br>Plugins菜单反映了ImageJ/plugins文件夹（至多两个子文件夹）的层级结构，因此可以创建子菜单（即子文件夹）来保持该菜单的简洁性，比如将EPS_Writer.class移动到ImageJ/Plugins/Input/PDF文件夹就可以实现将EPS Writer插件移入Plugins-Input-PDF子菜单下。<br>另外，勾选Edit-Options-Misc中的Move isolated plugins，就可以将仅有一个命令的插件移入Plugins-Miscellaneous菜单中。</p>
+<h1 id="Plugins"><a href="#Plugins" class="headerlink" title="Plugins"></a>Plugins</h1><h2 id="Macros"><a href="#Macros" class="headerlink" title="Macros"></a>Macros</h2><p>该菜单包含了安装、运行、录制宏等命令。在文件StartupMacros.txt中包含的宏会在ImageJ启动时自动加载。ImageJ被设计成一次仅能安装一个集合的宏，因此，通过Install加载的最后一个集合的宏总会替换上一次的宏。</p>
+<h3 id="Install"><a href="#Install" class="headerlink" title="Install"></a>Install</h3><p>安装宏。</p>
+<h3 id="Run"><a href="#Run" class="headerlink" title="Run"></a>Run</h3><p>加载宏并运行，而不在Editor中打开。为了运行一个宏，同时查看它的代码，使用File-Open，然后在编辑器里点Macros-Run Macro。</p>
+<h3 id="Startup-Macro"><a href="#Startup-Macro" class="headerlink" title="Startup Macro"></a>Startup Macro</h3><p>打开ImageJ/macros/StartupMacro.txt文件。</p>
+<h3 id="Record"><a href="#Record" class="headerlink" title="Record"></a>Record</h3><p>打开ImageJ的命令录制器。为了创建一个宏，先打开录制器，然后使用一个或多个命令，然后点击Create。当录制器打开时，使用的每一个菜单命令都将产生一个run函数。</p>
+<h2 id="Shortcuts"><a href="#Shortcuts" class="headerlink" title="Shortcuts"></a>Shortcuts</h2><p>快捷键相关的操作。</p>
+<h3 id="List-Shortcuts"><a href="#List-Shortcuts" class="headerlink" title="List Shortcuts"></a>List Shortcuts</h3><p>该命令显示快捷键列表。在command一列中用星号开头的快捷键是用Create Shortcuts创建的，而用^号开头的表明是通过所安装的macro创建，其会覆盖掉ImageJ的默认热键。</p>
+<h3 id="Create-Shortcuts"><a href="#Create-Shortcuts" class="headerlink" title="Create Shortcuts"></a>Create Shortcuts</h3><p>为ImageJ的菜单命令指定一个快捷键。</p>
+<h3 id="Install-Plugins"><a href="#Install-Plugins" class="headerlink" title="Install Plugins"></a>Install Plugins</h3><p>在用户指定的子菜单下安装一个插件。如果一个插件有showAbout()函数，那么它会自动添加到Help-About Plugins子菜单下。<br>注意，新版的ImageJ将Install Plugins单独提到Plugins这个一级菜单下了。</p>
+<h3 id="Remove"><a href="#Remove" class="headerlink" title="Remove"></a>Remove</h3><p>删除通过Create Shortcuts添加的命令。</p>
+<h2 id="Utilities"><a href="#Utilities" class="headerlink" title="Utilities"></a>Utilities</h2><h3 id="Control-Panel"><a href="#Control-Panel" class="headerlink" title="Control Panel"></a>Control Panel</h3><p>该命令用一个遗传树的结构来显示ImageJ的菜单。点击一个叶子节点来启动对应的命令。双击一个主干节点（文件夹图标）会展开或收起它。点击和拖拽一个主干节点可以在另外一个窗口中显示它的子节点。</p>
+<h3 id="Find-Commands"><a href="#Find-Commands" class="headerlink" title="Find Commands"></a>Find Commands</h3><p>无需浏览所有菜单而直接找到一个命令的最快捷的方式。<br>快捷键是“L”。</p>
+<h3 id="Search"><a href="#Search" class="headerlink" title="Search"></a>Search</h3><p>查找包含某个特定字符串的宏、脚本、插件源代码等。</p>
+<h3 id="Monitor-Events"><a href="#Monitor-Events" class="headerlink" title="Monitor Events"></a>Monitor Events</h3><p>通过使用IJEventListener、CommandListener、ImageLister界面，可以监视前景色和背景色的变化、工具切换、日志窗口、命令执行、图形窗口的打开、关闭和升级等。</p>
+<h3 id="Monitor-Memory"><a href="#Monitor-Memory" class="headerlink" title="Monitor Memory"></a>Monitor Memory</h3><p>显示内存使用情况。</p>
+<h3 id="Capture-Screen"><a href="#Capture-Screen" class="headerlink" title="Capture Screen"></a>Capture Screen</h3><p>将电脑的当前屏幕截屏，显示成一个RGB图片。</p>
+<h3 id="Capture-Image"><a href="#Capture-Image" class="headerlink" title="Capture Image"></a>Capture Image</h3><p>将当前显示的图片保存进一个RGB图片，所见即所得。</p>
+<h3 id="ImageJ-Properties"><a href="#ImageJ-Properties" class="headerlink" title="ImageJ Properties"></a>ImageJ Properties</h3><p>显示ImageJ的属性，如Java版本、OS名字和版本、文件路径、屏幕尺寸等信息。</p>
+<h3 id="Threads"><a href="#Threads" class="headerlink" title="Threads"></a>Threads</h3><p>显示当前运行的线程和优先级。</p>
+<h3 id="Benchmark"><a href="#Benchmark" class="headerlink" title="Benchmark"></a>Benchmark</h3><p>在当前图片上运行62种图像处理操作，然后在状态栏上显示运行时间。</p>
+<h3 id="Reset"><a href="#Reset" class="headerlink" title="Reset"></a>Reset</h3><p>使用该命令解锁一个锁定的图片、释放剪贴板所使用的内存和undo的缓存。</p>
+<h2 id="New"><a href="#New" class="headerlink" title="New"></a>New</h2><p>打开一个编辑窗口，用来编辑和运行宏、脚本和插件。</p>
+<h3 id="Macro"><a href="#Macro" class="headerlink" title="Macro"></a>Macro</h3><p>打开一个空白的编辑器窗口。</p>
+<h3 id="Macro-Tool"><a href="#Macro-Tool" class="headerlink" title="Macro Tool"></a>Macro Tool</h3><p>打开一个创建圆形选区的宏demo。</p>
+<h3 id="JavaScript"><a href="#JavaScript" class="headerlink" title="JavaScript"></a>JavaScript</h3><p>打开一个名为Script.js的空白的编辑器窗口。</p>
+<h3 id="Plugin"><a href="#Plugin" class="headerlink" title="Plugin"></a>Plugin</h3><p>打开一个使用PlugIn接口的原型插件。该类型的插件打开、捕捉和差生图片。使用Ctrl+R来编译和运行。注意插件的名字应该包含至少一个下划线。</p>
+<h3 id="Plugin-Filter"><a href="#Plugin-Filter" class="headerlink" title="Plugin Filter"></a>Plugin Filter</h3><p>打开一个使用PlugInFilter接口的原型插件。该类型的插件处理当前图片。</p>
+<h3 id="Plugin-Frame"><a href="#Plugin-Frame" class="headerlink" title="Plugin Frame"></a>Plugin Frame</h3><p>打开一个使用PlugInFrame类的原型插件。该类型的插件显示一个包含控制体（如按钮和滑块）的窗口。</p>
+<h3 id="Plugin-Tool"><a href="#Plugin-Tool" class="headerlink" title="Plugin Tool"></a>Plugin Tool</h3><p>打开一个使用PlugInTool的原型插件，该插件用于与画布交互。</p>
+<h3 id="Text-Window"><a href="#Text-Window" class="headerlink" title="Text Window"></a>Text Window</h3><p>打开一个特定尺寸的文本窗口，用于宏的写入。</p>
+<h3 id="Table"><a href="#Table" class="headerlink" title="Table"></a>Table</h3><p>打开一个类似于Results Table的空白table，用于宏的写入。</p>
+<h2 id="Compile-and-Run"><a href="#Compile-and-Run" class="headerlink" title="Compile and Run"></a>Compile and Run</h2><p>编译和运行一个插件。如果一个文件的名字后缀是.class，则运行该插件。</p>
+
+    </div>
+
+    
+    
+    
+        <div class="reward-container">
+  <div></div>
+  <button onclick="var qr = document.getElementById('qr'); qr.style.display = (qr.style.display === 'none') ? 'block' : 'none';">
+    Donate
+  </button>
+  <div id="qr" style="display: none;">
+      
+      <div style="display: inline-block;">
+        <img src="/images/wechat_reward.png" alt="Xin-Bo Qi(亓欣波) WeChat Pay">
+        <p>WeChat Pay</p>
+      </div>
+
+  </div>
+</div>
+
+
+      <footer class="post-footer">
+          <div class="post-tags">
+              <a href="/tags/ImageJ/" rel="tag"># ImageJ</a>
+          </div>
+
+        
+
+
+        
+    <div class="post-nav">
+      <div class="post-nav-item">
+    <a href="/2018/09/09/imagej-ui-menu-analyze/" rel="prev" title="ImageJ 用户指南 -- 9. 菜单栏之Analyze">
+      <i class="fa fa-chevron-left"></i> ImageJ 用户指南 -- 9. 菜单栏之Analyze
+    </a></div>
+      <div class="post-nav-item">
+    <a href="/2018/09/11/imagej-ui-menu-window-help/" rel="next" title="ImageJ 用户指南 -- 11. 菜单栏之Window和Help">
+      ImageJ 用户指南 -- 11. 菜单栏之Window和Help <i class="fa fa-chevron-right"></i>
+    </a></div>
+    </div>
+      </footer>
+    
+  </article>
+  
+  
+  
+
+
+
+          </div>
+          
+    
+  <div class="comments">
+    <div id="disqus_thread">
+      <noscript>Please enable JavaScript to view the comments powered by Disqus.</noscript>
+    </div>
+  </div>
+  
+
+<script>
+  window.addEventListener('tabs:register', () => {
+    let { activeClass } = CONFIG.comments;
+    if (CONFIG.comments.storage) {
+      activeClass = localStorage.getItem('comments_active') || activeClass;
+    }
+    if (activeClass) {
+      let activeTab = document.querySelector(`a[href="#comment-${activeClass}"]`);
+      if (activeTab) {
+        activeTab.click();
+      }
+    }
+  });
+  if (CONFIG.comments.storage) {
+    window.addEventListener('tabs:click', event => {
+      if (!event.target.matches('.tabs-comment .tab-content .tab-pane')) return;
+      let commentClass = event.target.classList[1];
+      localStorage.setItem('comments_active', commentClass);
+    });
+  }
+</script>
+
+        </div>
+          
+  
+  <div class="toggle sidebar-toggle">
+    <span class="toggle-line toggle-line-first"></span>
+    <span class="toggle-line toggle-line-middle"></span>
+    <span class="toggle-line toggle-line-last"></span>
+  </div>
+
+  <aside class="sidebar">
+    <div class="sidebar-inner">
+
+      <ul class="sidebar-nav motion-element">
+        <li class="sidebar-nav-toc">
+          Table of Contents
+        </li>
+        <li class="sidebar-nav-overview">
+          Overview
+        </li>
+      </ul>
+
+      <!--noindex-->
+      <div class="post-toc-wrap sidebar-panel">
+          <div class="post-toc motion-element"><ol class="nav"><li class="nav-item nav-level-1"><a class="nav-link" href="#%E6%9C%AC%E7%AB%A0%E8%AF%B4%E6%98%8E"><span class="nav-number">1.</span> <span class="nav-text">本章说明</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#Plugins"><span class="nav-number">2.</span> <span class="nav-text">Plugins</span></a><ol class="nav-child"><li class="nav-item nav-level-2"><a class="nav-link" href="#Macros"><span class="nav-number">2.1.</span> <span class="nav-text">Macros</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#Install"><span class="nav-number">2.1.1.</span> <span class="nav-text">Install</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#Run"><span class="nav-number">2.1.2.</span> <span class="nav-text">Run</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#Startup-Macro"><span class="nav-number">2.1.3.</span> <span class="nav-text">Startup Macro</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#Record"><span class="nav-number">2.1.4.</span> <span class="nav-text">Record</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#Shortcuts"><span class="nav-number">2.2.</span> <span class="nav-text">Shortcuts</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#List-Shortcuts"><span class="nav-number">2.2.1.</span> <span class="nav-text">List Shortcuts</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#Create-Shortcuts"><span class="nav-number">2.2.2.</span> <span class="nav-text">Create Shortcuts</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#Install-Plugins"><span class="nav-number">2.2.3.</span> <span class="nav-text">Install Plugins</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#Remove"><span class="nav-number">2.2.4.</span> <span class="nav-text">Remove</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#Utilities"><span class="nav-number">2.3.</span> <span class="nav-text">Utilities</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#Control-Panel"><span class="nav-number">2.3.1.</span> <span class="nav-text">Control Panel</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#Find-Commands"><span class="nav-number">2.3.2.</span> <span class="nav-text">Find Commands</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#Search"><span class="nav-number">2.3.3.</span> <span class="nav-text">Search</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#Monitor-Events"><span class="nav-number">2.3.4.</span> <span class="nav-text">Monitor Events</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#Monitor-Memory"><span class="nav-number">2.3.5.</span> <span class="nav-text">Monitor Memory</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#Capture-Screen"><span class="nav-number">2.3.6.</span> <span class="nav-text">Capture Screen</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#Capture-Image"><span class="nav-number">2.3.7.</span> <span class="nav-text">Capture Image</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#ImageJ-Properties"><span class="nav-number">2.3.8.</span> <span class="nav-text">ImageJ Properties</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#Threads"><span class="nav-number">2.3.9.</span> <span class="nav-text">Threads</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#Benchmark"><span class="nav-number">2.3.10.</span> <span class="nav-text">Benchmark</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#Reset"><span class="nav-number">2.3.11.</span> <span class="nav-text">Reset</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#New"><span class="nav-number">2.4.</span> <span class="nav-text">New</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#Macro"><span class="nav-number">2.4.1.</span> <span class="nav-text">Macro</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#Macro-Tool"><span class="nav-number">2.4.2.</span> <span class="nav-text">Macro Tool</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#JavaScript"><span class="nav-number">2.4.3.</span> <span class="nav-text">JavaScript</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#Plugin"><span class="nav-number">2.4.4.</span> <span class="nav-text">Plugin</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#Plugin-Filter"><span class="nav-number">2.4.5.</span> <span class="nav-text">Plugin Filter</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#Plugin-Frame"><span class="nav-number">2.4.6.</span> <span class="nav-text">Plugin Frame</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#Plugin-Tool"><span class="nav-number">2.4.7.</span> <span class="nav-text">Plugin Tool</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#Text-Window"><span class="nav-number">2.4.8.</span> <span class="nav-text">Text Window</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#Table"><span class="nav-number">2.4.9.</span> <span class="nav-text">Table</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#Compile-and-Run"><span class="nav-number">2.5.</span> <span class="nav-text">Compile and Run</span></a></li></ol></li></ol></div>
+      </div>
+      <!--/noindex-->
+
+      <div class="site-overview-wrap sidebar-panel">
+        <div class="site-author motion-element" itemprop="author" itemscope itemtype="http://schema.org/Person">
+    <img class="site-author-image" itemprop="image" alt="Xin-Bo Qi(亓欣波)"
+      src="/images/avatar.jpg">
+  <p class="site-author-name" itemprop="name">Xin-Bo Qi(亓欣波)</p>
+  <div class="site-description" itemprop="description">Be interesting!</div>
+</div>
+<div class="site-state-wrap motion-element">
+  <nav class="site-state">
+      <div class="site-state-item site-state-posts">
+          <a href="/archives/">
+        
+          <span class="site-state-item-count">120</span>
+          <span class="site-state-item-name">posts</span>
+        </a>
+      </div>
+      <div class="site-state-item site-state-categories">
+            <a href="/categories/">
+          
+        <span class="site-state-item-count">5</span>
+        <span class="site-state-item-name">categories</span></a>
+      </div>
+      <div class="site-state-item site-state-tags">
+            <a href="/tags/">
+          
+        <span class="site-state-item-count">41</span>
+        <span class="site-state-item-name">tags</span></a>
+      </div>
+  </nav>
+</div>
+  <div class="links-of-author motion-element">
+      <span class="links-of-author-item">
+        <a href="https://github.com/qixinbo" title="GitHub → https:&#x2F;&#x2F;github.com&#x2F;qixinbo" rel="noopener" target="_blank"><i class="github fa-fw"></i>GitHub</a>
+      </span>
+      <span class="links-of-author-item">
+        <a href="mailto:qixinbo@gmail.com" title="E-Mail → mailto:qixinbo@gmail.com" rel="noopener" target="_blank"><i class="envelope fa-fw"></i>E-Mail</a>
+      </span>
+  </div>
+
+
+  <div class="links-of-blogroll motion-element">
+    <div class="links-of-blogroll-title"><i class="fa fa-link fa-fw"></i>
+      Links
+    </div>
+    <ul class="links-of-blogroll-list">
+        <li class="links-of-blogroll-item">
+          <a href="https://www.tsinghua.edu.cn/" title="https:&#x2F;&#x2F;www.tsinghua.edu.cn" rel="noopener" target="_blank">THU</a>
+        </li>
+        <li class="links-of-blogroll-item">
+          <a href="http://www.imr.cas.cn/" title="http:&#x2F;&#x2F;www.imr.cas.cn" rel="noopener" target="_blank">IMR</a>
+        </li>
+        <li class="links-of-blogroll-item">
+          <a href="http://www.sdu.edu.cn/" title="http:&#x2F;&#x2F;www.sdu.edu.cn" rel="noopener" target="_blank">SDU</a>
+        </li>
+        <li class="links-of-blogroll-item">
+          <a href="http://liam0205.me/" title="http:&#x2F;&#x2F;liam0205.me&#x2F;" rel="noopener" target="_blank">黄晨成</a>
+        </li>
+    </ul>
+  </div>
+
+      </div>
+
+    </div>
+  </aside>
+  <div id="sidebar-dimmer"></div>
+
+
+      </div>
+    </main>
+
+    <footer class="footer">
+      <div class="footer-inner">
+        
+
+        
+
+<div class="copyright">
+  
+  &copy; 
+  <span itemprop="copyrightYear">2021</span>
+  <span class="with-love">
+    <i class="fa fa-heart"></i>
+  </span>
+  <span class="author" itemprop="copyrightHolder">Xin-Bo Qi(亓欣波)</span>
+</div>
+  <div class="powered-by">Powered by <a href="https://hexo.io/" class="theme-link" rel="noopener" target="_blank">Hexo</a> & <a href="https://theme-next.org/" class="theme-link" rel="noopener" target="_blank">NexT.Gemini</a>
+  </div>
+
+        
+
+
+
+
+
+
+
+
+      </div>
+    </footer>
+  </div>
+
+  
+  <script src="/lib/anime.min.js"></script>
+  <script src="/lib/velocity/velocity.min.js"></script>
+  <script src="/lib/velocity/velocity.ui.min.js"></script>
+
+<script src="/js/utils.js"></script>
+
+<script src="/js/motion.js"></script>
+
+
+<script src="/js/schemes/pisces.js"></script>
+
+
+<script src="/js/next-boot.js"></script>
+
+
+
+
+  
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+  
+
+  
+
+  
+
+<script>
+  function loadCount() {
+    var d = document, s = d.createElement('script');
+    s.src = 'https://qixinbo.disqus.com/count.js';
+    s.id = 'dsq-count-scr';
+    (d.head || d.body).appendChild(s);
+  }
+  // defer loading until the whole page loading is completed
+  window.addEventListener('load', loadCount, false);
+</script>
+<script>
+  var disqus_config = function() {
+    this.page.url = "http://qixinbo.github.io/2018/09/10/imagej-ui-menu-plugins/";
+    this.page.identifier = "2018/09/10/imagej-ui-menu-plugins/";
+    this.page.title = "ImageJ 用户指南 -- 10. 菜单栏之Plugins";
+    };
+  NexT.utils.loadComments(document.querySelector('#disqus_thread'), () => {
+    if (window.DISQUS) {
+      DISQUS.reset({
+        reload: true,
+        config: disqus_config
+      });
+    } else {
+      var d = document, s = d.createElement('script');
+      s.src = 'https://qixinbo.disqus.com/embed.js';
+      s.setAttribute('data-timestamp', '' + +new Date());
+      (d.head || d.body).appendChild(s);
+    }
+  });
+</script>
+
+</body>
+</html>

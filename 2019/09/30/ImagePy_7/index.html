@@ -1,0 +1,596 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=2">
+<meta name="theme-color" content="#222">
+<meta name="generator" content="Hexo 5.4.0">
+  <link rel="apple-touch-icon" sizes="180x180" href="/images/apple-touch-icon-next.png">
+  <link rel="icon" type="image/png" sizes="32x32" href="/favicon.ico">
+  <link rel="icon" type="image/png" sizes="16x16" href="/favicon.ico">
+  <link rel="mask-icon" href="/images/logo.svg" color="#222">
+
+<link rel="stylesheet" href="/css/main.css">
+
+
+<link rel="stylesheet" href="/lib/font-awesome/css/all.min.css">
+
+<script id="hexo-configurations">
+    var NexT = window.NexT || {};
+    var CONFIG = {"hostname":"qixinbo.github.io","root":"/","scheme":"Gemini","version":"7.8.0","exturl":false,"sidebar":{"position":"left","display":"post","padding":18,"offset":12,"onmobile":false},"copycode":{"enable":false,"show_result":false,"style":null},"back2top":{"enable":true,"sidebar":false,"scrollpercent":false},"bookmark":{"enable":false,"color":"#222","save":"auto"},"fancybox":false,"mediumzoom":false,"lazyload":false,"pangu":false,"comments":{"style":"tabs","active":null,"storage":true,"lazyload":false,"nav":null},"algolia":{"hits":{"per_page":10},"labels":{"input_placeholder":"Search for Posts","hits_empty":"We didn't find any results for the search: ${query}","hits_stats":"${hits} results found in ${time} ms"}},"localsearch":{"enable":false,"trigger":"auto","top_n_per_article":1,"unescape":false,"preload":false},"motion":{"enable":true,"async":false,"transition":{"post_block":"fadeIn","post_header":"slideDownIn","post_body":"slideDownIn","coll_header":"slideLeftIn","sidebar":"slideUpIn"}}};
+  </script>
+
+  <meta name="description" content="%%%%%%%%%%%% 更新日志 %%%%%%%%%%%%%2019-10-13 更新：修正之前关于自定义控件的Bind()函数的解释、增加对GUI界面绘制的理解2019-10-4 更新：增加参数对话框ParaDiglog部分的解析%%%%%%%%%%%%%%%%%%%%%%%%%%%%%% 参考文献：Demo PluginImagePy开发文档 —— 自由引擎 这一篇解析ImagePy的插件的">
+<meta property="og:type" content="article">
+<meta property="og:title" content="ImagePy解析：7 -- ImagePy插件运行解析">
+<meta property="og:url" content="http://qixinbo.github.io/2019/09/30/ImagePy_7/index.html">
+<meta property="og:site_name" content="亓欣波">
+<meta property="og:description" content="%%%%%%%%%%%% 更新日志 %%%%%%%%%%%%%2019-10-13 更新：修正之前关于自定义控件的Bind()函数的解释、增加对GUI界面绘制的理解2019-10-4 更新：增加参数对话框ParaDiglog部分的解析%%%%%%%%%%%%%%%%%%%%%%%%%%%%%% 参考文献：Demo PluginImagePy开发文档 —— 自由引擎 这一篇解析ImagePy的插件的">
+<meta property="og:locale" content="en_US">
+<meta property="article:published_time" content="2019-09-29T16:00:00.000Z">
+<meta property="article:modified_time" content="2021-03-25T07:20:30.431Z">
+<meta property="article:author" content="Xin-Bo Qi(亓欣波)">
+<meta property="article:tag" content="ImagePy">
+<meta name="twitter:card" content="summary">
+
+<link rel="canonical" href="http://qixinbo.github.io/2019/09/30/ImagePy_7/">
+
+
+<script id="page-configurations">
+  // https://hexo.io/docs/variables.html
+  CONFIG.page = {
+    sidebar: "",
+    isHome : false,
+    isPost : true,
+    lang   : 'en'
+  };
+</script>
+
+  <title>ImagePy解析：7 -- ImagePy插件运行解析 | 亓欣波</title>
+  
+
+
+
+
+
+
+  <noscript>
+  <style>
+  .use-motion .brand,
+  .use-motion .menu-item,
+  .sidebar-inner,
+  .use-motion .post-block,
+  .use-motion .pagination,
+  .use-motion .comments,
+  .use-motion .post-header,
+  .use-motion .post-body,
+  .use-motion .collection-header { opacity: initial; }
+
+  .use-motion .site-title,
+  .use-motion .site-subtitle {
+    opacity: initial;
+    top: initial;
+  }
+
+  .use-motion .logo-line-before i { left: initial; }
+  .use-motion .logo-line-after i { right: initial; }
+  </style>
+</noscript>
+
+</head>
+
+<body itemscope itemtype="http://schema.org/WebPage">
+  <div class="container use-motion">
+    <div class="headband"></div>
+
+    <header class="header" itemscope itemtype="http://schema.org/WPHeader">
+      <div class="header-inner"><div class="site-brand-container">
+  <div class="site-nav-toggle">
+    <div class="toggle" aria-label="Toggle navigation bar">
+      <span class="toggle-line toggle-line-first"></span>
+      <span class="toggle-line toggle-line-middle"></span>
+      <span class="toggle-line toggle-line-last"></span>
+    </div>
+  </div>
+
+  <div class="site-meta">
+
+    <a href="/" class="brand" rel="start">
+      <span class="logo-line-before"><i></i></span>
+      <h1 class="site-title">亓欣波</h1>
+      <span class="logo-line-after"><i></i></span>
+    </a>
+      <p class="site-subtitle" itemprop="description">Hi, I am Xin-Bo Qi (亓欣波)</p>
+  </div>
+
+  <div class="site-nav-right">
+    <div class="toggle popup-trigger">
+    </div>
+  </div>
+</div>
+
+
+
+
+<nav class="site-nav">
+  <ul id="menu" class="main-menu menu">
+        <li class="menu-item menu-item-home">
+
+    <a href="/" rel="section"><i class="home fa-fw"></i>Home</a>
+
+  </li>
+        <li class="menu-item menu-item-categories">
+
+    <a href="/categories/" rel="section"><i class="th fa-fw"></i>Categories</a>
+
+  </li>
+        <li class="menu-item menu-item-archives">
+
+    <a href="/archives/" rel="section"><i class="archive fa-fw"></i>Archives</a>
+
+  </li>
+        <li class="menu-item menu-item-tags">
+
+    <a href="/tags/" rel="section"><i class="tags fa-fw"></i>Tags</a>
+
+  </li>
+        <li class="menu-item menu-item-scholar">
+
+    <a href="/scholar/" rel="section"><i class="bar-chart fa-fw"></i>scholar</a>
+
+  </li>
+        <li class="menu-item menu-item-sources">
+
+    <a href="/sources/" rel="section"><i class="rss fa-fw"></i>sources</a>
+
+  </li>
+        <li class="menu-item menu-item-gallery">
+
+    <a href="/gallery/" rel="section"><i class="file-image-o fa-fw"></i>gallery</a>
+
+  </li>
+        <li class="menu-item menu-item-about">
+
+    <a href="/about/" rel="section"><i class="user fa-fw"></i>About</a>
+
+  </li>
+        <li class="menu-item menu-item-commonweal">
+
+    <a href="/404.html" rel="section"><i class="heartbeat fa-fw"></i>Commonweal 404</a>
+
+  </li>
+  </ul>
+</nav>
+
+
+
+
+</div>
+    </header>
+
+    
+  <div class="back-to-top">
+    <i class="fa fa-arrow-up"></i>
+    <span>0%</span>
+  </div>
+
+
+    <main class="main">
+      <div class="main-inner">
+        <div class="content-wrap">
+          
+
+          <div class="content post posts-expand">
+            
+
+    
+  
+  
+  <article itemscope itemtype="http://schema.org/Article" class="post-block" lang="en">
+    <link itemprop="mainEntityOfPage" href="http://qixinbo.github.io/2019/09/30/ImagePy_7/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="image" content="/images/avatar.jpg">
+      <meta itemprop="name" content="Xin-Bo Qi(亓欣波)">
+      <meta itemprop="description" content="Be interesting!">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="亓欣波">
+    </span>
+      <header class="post-header">
+        <h1 class="post-title" itemprop="name headline">
+          ImagePy解析：7 -- ImagePy插件运行解析
+        </h1>
+
+        <div class="post-meta">
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="far fa-calendar"></i>
+              </span>
+              <span class="post-meta-item-text">Posted on</span>
+
+              <time title="Created: 2019-09-30 00:00:00" itemprop="dateCreated datePublished" datetime="2019-09-30T00:00:00+08:00">2019-09-30</time>
+            </span>
+              <span class="post-meta-item">
+                <span class="post-meta-item-icon">
+                  <i class="far fa-calendar-check"></i>
+                </span>
+                <span class="post-meta-item-text">Edited on</span>
+                <time title="Modified: 2021-03-25 15:20:30" itemprop="dateModified" datetime="2021-03-25T15:20:30+08:00">2021-03-25</time>
+              </span>
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="far fa-folder"></i>
+              </span>
+              <span class="post-meta-item-text">In</span>
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+                  <a href="/categories/computational-material-science/" itemprop="url" rel="index"><span itemprop="name">computational material science</span></a>
+                </span>
+            </span>
+
+          
+  
+  <span class="post-meta-item">
+    
+      <span class="post-meta-item-icon">
+        <i class="far fa-comment"></i>
+      </span>
+      <span class="post-meta-item-text">Disqus: </span>
+    
+    <a title="disqus" href="/2019/09/30/ImagePy_7/#disqus_thread" itemprop="discussionUrl">
+      <span class="post-comments-count disqus-comment-count" data-disqus-identifier="2019/09/30/ImagePy_7/" itemprop="commentCount"></span>
+    </a>
+  </span>
+  
+  
+
+        </div>
+      </header>
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+        <p>%%%%%%%%%%%% 更新日志 %%%%%%%%%%%%%<br>2019-10-13 更新：修正之前关于自定义控件的Bind()函数的解释、增加对GUI界面绘制的理解<br>2019-10-4 更新：增加参数对话框ParaDiglog部分的解析<br>%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%</p>
+<p>参考文献：<br><a target="_blank" rel="noopener" href="https://github.com/Image-Py/demoplugin/blob/master/READMECN.md">Demo Plugin</a><br><a target="_blank" rel="noopener" href="https://zhuanlan.zhihu.com/p/25483752">ImagePy开发文档 —— 自由引擎</a></p>
+<p>这一篇解析ImagePy的插件的编写规则、运行机理。</p>
+<h1 id="ImagePy的自由引擎Free-engine解析"><a href="#ImagePy的自由引擎Free-engine解析" class="headerlink" title="ImagePy的自由引擎Free engine解析"></a>ImagePy的自由引擎Free engine解析</h1><p>在<a target="_blank" rel="noopener" href="http://qixinbo.info/2019/03/17/ImagePy_1/">第一篇解析</a>中已提到，ImagePy提前定义了多种引擎，来作为插件的基类，如Filter类作为滤波器基类。这里通过解析Free引擎来研究ImagePy的插件运行原理。Free引擎是与图像本身相关性最弱的一个引擎，它仅仅是用来完成一个任务，如打开、新建图像，打开主题帮助，查看版本信息等操作（语出上面的参考文献）。</p>
+<p>Free引擎的源码为：</p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br></pre></td><td class="code"><pre><span class="line"><span class="class"><span class="keyword">class</span> <span class="title">Free</span>:</span></span><br><span class="line">    title = <span class="string">&#x27;Free&#x27;</span></span><br><span class="line">    view = <span class="literal">None</span></span><br><span class="line">    para = <span class="literal">None</span></span><br><span class="line">    prgs = (<span class="literal">None</span>, <span class="number">1</span>)</span><br><span class="line">    asyn = <span class="literal">True</span></span><br><span class="line"></span><br><span class="line">    <span class="function"><span class="keyword">def</span> <span class="title">progress</span>(<span class="params">self, i, n</span>):</span></span><br><span class="line">        self.prgs = (i, n)</span><br><span class="line"></span><br><span class="line">    <span class="function"><span class="keyword">def</span> <span class="title">run</span>(<span class="params">self, para=<span class="literal">None</span></span>):</span></span><br><span class="line">        <span class="built_in">print</span>(<span class="string">&#x27;this is a plugin&#x27;</span>)</span><br><span class="line"></span><br><span class="line">    <span class="function"><span class="keyword">def</span> <span class="title">runasyn</span>(<span class="params">self, para, callback=<span class="literal">None</span></span>):</span></span><br><span class="line">        TaskManager.add(self)</span><br><span class="line">        start = time()</span><br><span class="line">        self.run(para)</span><br><span class="line">        IPy.set_info(<span class="string">&#x27;%s: cost %.3fs&#x27;</span>%(self.title, time()-start))</span><br><span class="line">        TaskManager.remove(self)</span><br><span class="line">        <span class="keyword">if</span> callback!=<span class="literal">None</span>:callback()</span><br><span class="line"></span><br><span class="line">    <span class="function"><span class="keyword">def</span> <span class="title">load</span>(<span class="params">self</span>):</span><span class="keyword">return</span> <span class="literal">True</span></span><br><span class="line"></span><br><span class="line">    <span class="function"><span class="keyword">def</span> <span class="title">show</span>(<span class="params">self</span>):</span></span><br><span class="line">        <span class="keyword">if</span> self.view==<span class="literal">None</span>:<span class="keyword">return</span> <span class="literal">True</span></span><br><span class="line">        <span class="keyword">with</span> ParaDialog(WindowsManager.get(), self.title) <span class="keyword">as</span> dialog:</span><br><span class="line">            dialog.init_view(self.view, self.para, <span class="literal">False</span>, <span class="literal">True</span>)</span><br><span class="line">            doc = self.__doc__ <span class="keyword">or</span> <span class="string">&#x27;### Sorry\nNo document yet!&#x27;</span></span><br><span class="line">            dialog.on_help = <span class="keyword">lambda</span> : IPy.show_md(self.title, DocumentManager.get(self.title))</span><br><span class="line">            <span class="keyword">return</span> dialog.ShowModal() == wx.ID_OK</span><br><span class="line"></span><br><span class="line">    <span class="function"><span class="keyword">def</span> <span class="title">start</span>(<span class="params">self, para=<span class="literal">None</span>, callback=<span class="literal">None</span></span>):</span></span><br><span class="line">        <span class="keyword">if</span> <span class="keyword">not</span> self.load():</span><br><span class="line">            <span class="keyword">return</span></span><br><span class="line"></span><br><span class="line">        <span class="keyword">if</span> para!=<span class="literal">None</span> <span class="keyword">or</span> self.show():</span><br><span class="line">            <span class="keyword">if</span> para==<span class="literal">None</span>:</span><br><span class="line">                para = self.para</span><br><span class="line">            win = WidgetsManager.getref(<span class="string">&#x27;Macros Recorder&#x27;</span>)</span><br><span class="line">            <span class="keyword">if</span> win!=<span class="literal">None</span>:</span><br><span class="line">                win.write(<span class="string">&#x27;&#123;&#125;&gt;&#123;&#125;&#x27;</span>.<span class="built_in">format</span>(self.title, para))</span><br><span class="line">            <span class="keyword">if</span> self.asyn <span class="keyword">and</span> IPy.uimode()!=<span class="string">&#x27;no&#x27;</span>:</span><br><span class="line">                threading.Thread(target = self.runasyn, args = (para, callback)).start()</span><br><span class="line">            <span class="keyword">else</span>:</span><br><span class="line">                self.runasyn(para, callback)</span><br></pre></td></tr></table></figure>
+<h2 id="title属性"><a href="#title属性" class="headerlink" title="title属性"></a>title属性</h2><p>title是插件的标题，将作为菜单栏的显示、交互对话框的标题，以及插件管理器中的主键。<br>比如作为菜单栏的显示时，就是pluginloader中的以下代码：</p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="keyword">def</span> <span class="title">buildItem</span>(<span class="params">parent, root, item</span>):</span></span><br><span class="line">    LanguageManager.add(item.title)</span><br><span class="line">    title = LanguageManager.get(item.title) <span class="keyword">if</span> sc==<span class="literal">None</span> <span class="keyword">else</span> LanguageManager.get(item.title)+<span class="string">&#x27;\t&#x27;</span>+sc</span><br><span class="line">    mi = wx.MenuItem(root, -<span class="number">1</span>, title)</span><br></pre></td></tr></table></figure>
+<h2 id="para和view属性"><a href="#para和view属性" class="headerlink" title="para和view属性"></a>para和view属性</h2><p>定义函数需要的参数及交互方式，两者默认都为None，表示没有参数，也不需要交互</p>
+<h2 id="show-方法"><a href="#show-方法" class="headerlink" title="show()方法"></a>show()方法</h2><p>弹出交互对话框，一般时候我们只需要设定para和view，Filter会自动调用ParaDialog 生成交互对话框，但必要时，可以覆盖 show()方法。<br>这里默认的show()方法中会先查看self.view是否为None，如果view为None，即不交互，则返回True，即使view有值，即有交互，那么在蹦出对话框后，如果后面点击了OK按钮，那么也会使得self.show()返回true。</p>
+<h2 id="run-方法"><a href="#run-方法" class="headerlink" title="run()方法"></a>run()方法</h2><p>核心函数，para 将作为参数传入，在这里做你想要做的。</p>
+<h2 id="load-方法"><a href="#load-方法" class="headerlink" title="load()方法"></a>load()方法</h2><p>如果return结果为False，插件将中止执行。默认返回True，如有必要，可以对其进行重载，进行一系列条件检验，如不满足，IPy.alert弹出提示，并返回False。</p>
+<h2 id="start-方法"><a href="#start-方法" class="headerlink" title="start()方法"></a>start()方法</h2><p>启动函数。之所以会启动，就是因为之前在创建菜单时的按键绑定：</p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="keyword">def</span> <span class="title">buildItem</span>(<span class="params">parent, root, item</span>):</span></span><br><span class="line">    ...</span><br><span class="line">    mi = wx.MenuItem(root, -<span class="number">1</span>, title)</span><br><span class="line">    parent.Bind(wx.EVT_MENU, <span class="keyword">lambda</span> x, p=item:p().start(), mi)</span><br><span class="line">    root.Append(mi)</span><br></pre></td></tr></table></figure>
+<p>具体看一下start函数是怎么运行的：</p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="keyword">def</span> <span class="title">start</span>(<span class="params">self, para=<span class="literal">None</span>, callback=<span class="literal">None</span></span>):</span></span><br><span class="line">    <span class="keyword">if</span> <span class="keyword">not</span> self.load():<span class="keyword">return</span></span><br><span class="line">    <span class="keyword">if</span> para!=<span class="literal">None</span> <span class="keyword">or</span> self.show():</span><br><span class="line">        <span class="keyword">if</span> para==<span class="literal">None</span>:para = self.para</span><br><span class="line">        win = WidgetsManager.getref(<span class="string">&#x27;Macros Recorder&#x27;</span>)</span><br><span class="line">        <span class="keyword">if</span> win!=<span class="literal">None</span>:</span><br><span class="line">            win.write(<span class="string">&#x27;&#123;&#125;&gt;&#123;&#125;&#x27;</span>.<span class="built_in">format</span>(self.title, para))</span><br><span class="line">        <span class="keyword">if</span> self.asyn <span class="keyword">and</span> IPy.uimode()!=<span class="string">&#x27;no&#x27;</span>:</span><br><span class="line">            threading.Thread(target = self.runasyn, args = (para, callback)).start()</span><br><span class="line">        <span class="keyword">else</span>:</span><br><span class="line">            self.runasyn(para, callback)</span><br></pre></td></tr></table></figure>
+<p>首先判断self.load()，如果特定插件有重载这个函数，那么就会执行。继续往下，判断para是否不为None或者self.show()是否为True，如果两者有其一满足，则继续往下走，然后就会以新开一个线程或在这个线程下直接运行self.runasyn()，这个函数就会继续调用self.run()方法。</p>
+<p>下面通过三个基于Free引擎的三个事例插件详细探究。 </p>
+<h1 id="跟世界打招呼"><a href="#跟世界打招呼" class="headerlink" title="跟世界打招呼"></a>跟世界打招呼</h1><p>下面是最简单的ImagePy向世界打招呼的方式：</p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">from</span> imagepy.core.engine <span class="keyword">import</span> Free</span><br><span class="line"><span class="keyword">from</span> imagepy <span class="keyword">import</span> IPy</span><br><span class="line"> </span><br><span class="line"><span class="class"><span class="keyword">class</span> <span class="title">Plugin</span>(<span class="params">Free</span>):</span></span><br><span class="line">    title = <span class="string">&#x27;Hello World&#x27;</span></span><br><span class="line"></span><br><span class="line">    <span class="function"><span class="keyword">def</span> <span class="title">run</span>(<span class="params">self, para=<span class="literal">None</span></span>):</span></span><br><span class="line">        IPy.alert(<span class="string">&#x27;Hello World, I am ImagePy!&#x27;</span>)</span><br></pre></td></tr></table></figure>
+<p>这里就是重定义了title属性，以及run()方法，调用了IPy的alert()方法，以publisher和subscriber的方式发送和接收一个alert消息，蹦出一个wxPython的MessageDialog对话框。<br>注意这个地方除了蹦出这个对话框，还有一个变化，即因为是通过runasyn()方法调用的run()方法，所以runasyn()方法中的另外的语句也会执行。</p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="keyword">def</span> <span class="title">runasyn</span>(<span class="params">self, para, callback=<span class="literal">None</span></span>):</span></span><br><span class="line">    TaskManager.add(self)</span><br><span class="line">    start = time()</span><br><span class="line">    self.run(para)</span><br><span class="line">    IPy.set_info(<span class="string">&#x27;%s: cost %.3fs&#x27;</span>%(self.title, time()-start))</span><br><span class="line">    TaskManager.remove(self)</span><br><span class="line">    <span class="keyword">if</span> callback!=<span class="literal">None</span>:callback()</span><br></pre></td></tr></table></figure>
+<p>即还会调用IPy的set_info()方法，然后因为curapp已传入当前的ImagePy这个Frame，所以会调用它的set_info()方法，效果就是在最下面的状态栏上打出”Hello World: cost 0.000s”的字样。</p>
+<h1 id="你是谁"><a href="#你是谁" class="headerlink" title="你是谁"></a>你是谁</h1><p>“你是谁”这个插件可以展示怎样与插件进行交互。</p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">from</span> imagepy.core.engine <span class="keyword">import</span> Free</span><br><span class="line"><span class="keyword">from</span> imagepy <span class="keyword">import</span> IPy</span><br><span class="line"></span><br><span class="line"><span class="class"><span class="keyword">class</span> <span class="title">Plugin</span>(<span class="params">Free</span>):</span></span><br><span class="line">    title = <span class="string">&#x27;Who Are You&#x27;</span></span><br><span class="line">    para = &#123;<span class="string">&#x27;name&#x27;</span>:<span class="string">&#x27;&#x27;</span>, <span class="string">&#x27;age&#x27;</span>:<span class="number">0</span>&#125;</span><br><span class="line">    view = [(<span class="built_in">str</span>, <span class="string">&#x27;name&#x27;</span>, <span class="string">&#x27;name&#x27;</span>, <span class="string">&#x27;please&#x27;</span>),</span><br><span class="line">            (<span class="built_in">int</span>, <span class="string">&#x27;age&#x27;</span>, (<span class="number">0</span>,<span class="number">120</span>), <span class="number">0</span>, <span class="string">&#x27;age&#x27;</span>, <span class="string">&#x27;years old&#x27;</span>)]</span><br><span class="line"></span><br><span class="line">    <span class="function"><span class="keyword">def</span> <span class="title">run</span>(<span class="params">self, para=<span class="literal">None</span></span>):</span></span><br><span class="line">        IPy.alert(<span class="string">&#x27;Name:\t%s\r\nAge:\t%d&#x27;</span>%(para[<span class="string">&#x27;name&#x27;</span>], para[<span class="string">&#x27;age&#x27;</span>]))</span><br></pre></td></tr></table></figure>
+<p>注意此时设置了para和view都不为None，那么在start()方法中，就会因为view有值而进入交互模式，弹出一个对话框，这个对话框也是定制的，基类是wxPython的Diglog类。para是接收的具体参数，view来控制这个对话框的显示样式。</p>
+<p>那么这个对话框是如何自定义接收参数的界面并传递参数的呢，一切要从free引擎的show()方法入手：</p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="keyword">def</span> <span class="title">show</span>(<span class="params">self</span>):</span></span><br><span class="line">    <span class="keyword">if</span> self.view==<span class="literal">None</span>:</span><br><span class="line">        <span class="keyword">return</span> <span class="literal">True</span></span><br><span class="line">    <span class="keyword">with</span> ParaDialog(WindowsManager.get(), self.title) <span class="keyword">as</span> dialog:</span><br><span class="line">        dialog.init_view(self.view, self.para, <span class="literal">False</span>, <span class="literal">True</span>)</span><br><span class="line">        <span class="keyword">return</span> dialog.ShowModal() == wx.ID_OK</span><br></pre></td></tr></table></figure>
+<p>ParaDialog就是那个定制的基于wxPython Dialog类的对话框类，它负责解析“你是谁”插件中的para和view参数。<br>首先看它的入口函数：</p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="keyword">def</span> <span class="title">init_view</span>(<span class="params">self, items, para, preview=<span class="literal">False</span>, modal = <span class="literal">True</span></span>):</span></span><br><span class="line">    <span class="built_in">print</span>(<span class="string">&quot;*********Enter init_view ********&quot;</span>)</span><br><span class="line">    <span class="built_in">print</span>(<span class="string">&quot;para = &quot;</span>, para)</span><br><span class="line">    <span class="built_in">print</span>(<span class="string">&quot;items = &quot;</span>, items)</span><br><span class="line">    self.para = para</span><br><span class="line"></span><br><span class="line">    <span class="keyword">for</span> item <span class="keyword">in</span> items:</span><br><span class="line">        <span class="built_in">print</span>(<span class="string">&quot;item = &quot;</span>, item)</span><br><span class="line">        <span class="built_in">print</span>(<span class="string">&quot;Ctrl = &quot;</span>, widgets[item[<span class="number">0</span>]])</span><br><span class="line">        <span class="built_in">print</span>(<span class="string">&quot;key = &quot;</span>, item[<span class="number">1</span>])</span><br><span class="line">        <span class="built_in">print</span>(<span class="string">&quot;pre/postfix = &quot;</span>, item[<span class="number">2</span>:])</span><br><span class="line">        self.add_ctrl_(widgets[item[<span class="number">0</span>]], item[<span class="number">1</span>], item[<span class="number">2</span>:])</span><br></pre></td></tr></table></figure>
+
+<p>针对于“你是谁”插件，上面的一系列print输出就是：</p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br></pre></td><td class="code"><pre><span class="line">*********Enter init_view ********</span><br><span class="line">para =  &#123;<span class="string">&#x27;name&#x27;</span>: <span class="string">&#x27;&#x27;</span>, <span class="string">&#x27;age&#x27;</span>: <span class="number">0</span>&#125; </span><br><span class="line">items =  [(&lt;class &#x27;str&#x27;&gt;, &#x27;name&#x27;, &#x27;name&#x27;, &#x27;please&#x27;), (&lt;class &#x27;int&#x27;&gt;, &#x27;age&#x27;, (0, 120), 0, &#x27;age&#x27;, &#x27;years old&#x27;)]</span><br><span class="line">item =  (&lt;class &#x27;str&#x27;&gt;, &#x27;name&#x27;, &#x27;name&#x27;, &#x27;please&#x27;)</span><br><span class="line">Ctrl =  &lt;<span class="class"><span class="keyword">class</span> &#x27;<span class="title">imagepy</span>.<span class="title">ui</span>.<span class="title">widgets</span>.<span class="title">normal</span>.<span class="title">TextCtrl</span>&#x27;&gt;</span></span><br><span class="line">key =  name</span><br><span class="line">pre/postfix =  (<span class="string">&#x27;name&#x27;</span>, <span class="string">&#x27;please&#x27;</span>)</span><br><span class="line">item =  (&lt;class &#x27;int&#x27;&gt;, &#x27;age&#x27;, (0, 120), 0, &#x27;age&#x27;, &#x27;years old&#x27;)</span><br><span class="line">Ctrl =  &lt;<span class="class"><span class="keyword">class</span> &#x27;<span class="title">imagepy</span>.<span class="title">ui</span>.<span class="title">widgets</span>.<span class="title">normal</span>.<span class="title">NumCtrl</span>&#x27;&gt;</span></span><br><span class="line">key =  age</span><br><span class="line">pre/postfix =  ((<span class="number">0</span>, <span class="number">120</span>), <span class="number">0</span>, <span class="string">&#x27;age&#x27;</span>, <span class="string">&#x27;years old&#x27;</span>)</span><br></pre></td></tr></table></figure>
+<p>可以看出，它将view的每个元组的第一项都解析成了它自定义的类，比如imagepy.ui.widgets.normal.TextCtrl和imagepy.ui.widgets.normal.NumCtrl，具体的解析关系就是在panelconfig.py的最上面的：</p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line">widgets = &#123; <span class="string">&#x27;ctrl&#x27;</span>:<span class="literal">None</span>, <span class="string">&#x27;slide&#x27;</span>:FloatSlider, <span class="built_in">int</span>:NumCtrl,</span><br><span class="line">            <span class="built_in">float</span>:NumCtrl, <span class="string">&#x27;lab&#x27;</span>:Label, <span class="built_in">bool</span>:Check, <span class="built_in">str</span>:TextCtrl,</span><br><span class="line">            <span class="built_in">list</span>:Choice, <span class="string">&#x27;img&#x27;</span>:ImageList, <span class="string">&#x27;tab&#x27;</span>:TableList, <span class="string">&#x27;color&#x27;</span>:ColorCtrl,</span><br><span class="line">            <span class="string">&#x27;any&#x27;</span>:AnyType, <span class="string">&#x27;chos&#x27;</span>:Choices, <span class="string">&#x27;fields&#x27;</span>:TableFields,</span><br><span class="line">            <span class="string">&#x27;field&#x27;</span>:TableField, <span class="string">&#x27;hist&#x27;</span>:HistCanvas, <span class="string">&#x27;cmap&#x27;</span>:ColorMap&#125;</span><br></pre></td></tr></table></figure>
+<p>它是一个字典，因此很容易就将key-value对应起来。<br>注意，这个地方在接收输入参数时，还有一个特别灵巧的地方：</p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="keyword">def</span> <span class="title">add_ctrl_</span>(<span class="params">self, Ctrl, key, p</span>):</span></span><br><span class="line">    ctrl = Ctrl(self, *p)</span><br><span class="line">    <span class="keyword">if</span> <span class="keyword">not</span> p[<span class="number">0</span>] <span class="keyword">is</span> <span class="literal">None</span>:</span><br><span class="line">        self.ctrl_dic[key] = ctrl</span><br></pre></td></tr></table></figure>
+<p>因为不同类型的输入框需要不同数目的参数，比如接收字符串文本时，需要有名称和单位这样的提示语，那么就需要定义prefix和suffix，如果接收数值，还需要定义数值范围、精度等信息，因此参数的数目是不固定的，这里就运用了Python的可变参数的功能，这里使用一个星号来接收不定长度的元组参数（还可以用两个星号来接收不同长度的字典参数）。关于可变长参数，如下是一篇很好的教程：<br><a target="_blank" rel="noopener" href="https://n3xtchen.github.io/n3xtchen/python/2014/08/08/python-args-and-kwargs">Python 优雅的使用参数 - 可变参数（*args &amp; **kwargs)</a><br>同时add_ctrl_()的接下来一句话将不同的组件与key相联系起来，key参数是view与para联系的纽带，如reset()方法中所示：</p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="keyword">def</span> <span class="title">reset</span>(<span class="params">self, para=<span class="literal">None</span></span>):</span></span><br><span class="line">    <span class="keyword">if</span> para!=<span class="literal">None</span>:self.para = para</span><br><span class="line">    <span class="comment">#print(para, &#x27;====&#x27;)</span></span><br><span class="line">    <span class="keyword">for</span> p <span class="keyword">in</span> <span class="built_in">list</span>(self.para.keys()):</span><br><span class="line">        <span class="keyword">if</span> p <span class="keyword">in</span> self.ctrl_dic:</span><br><span class="line">            self.ctrl_dic[p].SetValue(self.para[p])</span><br></pre></td></tr></table></figure>
+<p>通过查看是否两者都有相同的key，来读取para中的value大小并赋值给相应的对话框。<br>再总结一下“你是谁”插件中view的写法：<br>str：用于接收文本字符串，view中的用法为：(str, key, prefix, suffix)，key是para中的key，prefix和suffix分别是输入框前后的提示内容，如title和unit；<br>int：用于接收整型数值，view中的用法为：(int, key, (lim1, lim2), accu, ‘prefix’, ‘suffix’)，其中key是para中的key，limit用于限定输入数值的范围，accu限定小数点位数，prefix和suffix用作输入框前后的提示内容。</p>
+<p>以下部分的解析之前有误，感谢霄龙哥的讲解~~</p>
+<p>ImagePy自定义的比如TextCtrl、NumCtrl等都是在wxPython标准组件上的组合。比如，自定义的TextCtrl是StaticText、标准组件TextCtrl和另外一个StaticText的组合。查看这个自定义的TextCtrl，可以发现有两个Bind()绑定：</p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line">    self.ctrl.Bind(wx.EVT_KEY_UP, self.ontext)</span><br><span class="line"><span class="function"><span class="keyword">def</span> <span class="title">Bind</span>(<span class="params">self, z, f</span>):</span>self.f = f  </span><br><span class="line"><span class="function"><span class="keyword">def</span> <span class="title">ontext</span>(<span class="params">self, event</span>):</span></span><br><span class="line">    self.f(event)</span><br></pre></td></tr></table></figure>
+<p>第一个Bind是对该自定义的TextCtrl中的标准TextCtrl组件的绑定，第二个是对该自定义的TextCtrl自身的绑定。<br>这个地方的运行原理是这样的：标准TextCtrl等输入框都绑定了按键弹起EVT_KEY_UP这个事件，即任何一个键弹起时，都会触发ontext()方法，这个方法又调用了self.f()方法，那么self.f()方法是怎样的？其实就是第二行的Bind()函数，它在ParaDiglog类中是这样执行的：</p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="keyword">def</span> <span class="title">add_ctrl_</span>(<span class="params">self, Ctrl, key, p</span>):</span></span><br><span class="line">    ctrl = Ctrl(self, *p)</span><br><span class="line">    <span class="keyword">if</span> <span class="keyword">not</span> p[<span class="number">0</span>] <span class="keyword">is</span> <span class="literal">None</span>:</span><br><span class="line">        self.ctrl_dic[key] = ctrl</span><br><span class="line">    <span class="keyword">if</span> <span class="built_in">hasattr</span>(ctrl, <span class="string">&#x27;Bind&#x27;</span>):</span><br><span class="line">        ctrl.Bind(<span class="literal">None</span>, self.para_changed)</span><br></pre></td></tr></table></figure>
+<p>即如果该面板中添加的组件有Bind()函数，那么就调用它的Bind()函数，将ParaDialog的para_changed()方法传入，即将它赋值给了自定义TextCtrl的self.f()方法，所以，上面的ontext就是实际执行了para_changed()方法。<br>因为自定义的TextCtrl基于wxPython的Panel类，其实仔细查看Panel类的继承关系就知道，wx.Panel继承自wx.Window，wx.Window又继承自wx.EventHandler，而wx.EventHandler中有Bind()函数，其定义为</p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">Bind(self, event, handler, source=<span class="literal">None</span>, <span class="built_in">id</span>=wx.ID_ANY, id2=wx.ID_ANY)</span><br></pre></td></tr></table></figure>
+<p>因此，自定义TextCtrl中的这个Bind()方法就是对它的重载：</p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="keyword">def</span> <span class="title">Bind</span>(<span class="params">self, z, f</span>):</span>self.f = f</span><br></pre></td></tr></table></figure>
+<p>即z就是个事件event，f就是句柄或称事件处理函数handler。因此，调用Bind()的时候就是给定两个参数，一个是event，一个是handler。</p>
+<p>这个地方龙哥又延伸了一下：</p>
+<blockquote>
+<p>其实所有的控件，本质上都是GDI draw出来的（查看ImagePy的Histgram的panel就知道都是调用了GDI绘图），包括按钮、选项卡和文本框等等。<br>所有的控件本质上都是一个panel，可以draw自己（根据数据进行draw），也可以响应事件（基础事件也只有鼠标点击和键盘，具体是哪个键则是操作系统维护的）。所以，控件的核心就是数据关联，然后draw和Bind。<br>举个例子：ImagePy的表格控件，也只是一个panel，要做的事情就是关联数据、维护表格行列宽度、绘制滚动条，然后计算显示的范围、绘制行列分割线、绘制每个单元格的值。然后重载鼠标单击事件，对外暴露成一个Bind，关联一个特殊的标识符，比如叫wx.EVT_Cell_Clicked，然后根据鼠标点击的x和y，计算出对应的单元格，然后高亮绘制，看起来就像是选中了。<br>没有现成的控件，就要从panel开始重载（自己动手、丰衣足食）。</p>
+</blockquote>
+<h1 id="问卷调查"><a href="#问卷调查" class="headerlink" title="问卷调查"></a>问卷调查</h1><p>这个插件详细说明了怎样设置参数和定制对话框样式。</p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">from</span> imagepy.core.engine <span class="keyword">import</span> Free</span><br><span class="line"><span class="keyword">from</span> imagepy <span class="keyword">import</span> IPy</span><br><span class="line"></span><br><span class="line"><span class="class"><span class="keyword">class</span> <span class="title">Plugin</span>(<span class="params">Free</span>):</span></span><br><span class="line">    title = <span class="string">&#x27;Questionnaire&#x27;</span></span><br><span class="line"></span><br><span class="line">    para = &#123;<span class="string">&#x27;name&#x27;</span>:<span class="string">&#x27;yxdragon&#x27;</span>, <span class="string">&#x27;age&#x27;</span>:<span class="number">10</span>, <span class="string">&#x27;h&#x27;</span>:<span class="number">1.72</span>, <span class="string">&#x27;w&#x27;</span>:<span class="number">70</span>, <span class="string">&#x27;sport&#x27;</span>:<span class="literal">True</span>, <span class="string">&#x27;sys&#x27;</span>:<span class="string">&#x27;Mac&#x27;</span>, <span class="string">&#x27;lan&#x27;</span>:[<span class="string">&#x27;C/C++&#x27;</span>, <span class="string">&#x27;Python&#x27;</span>], <span class="string">&#x27;c&#x27;</span>:(<span class="number">255</span>,<span class="number">0</span>,<span class="number">0</span>)&#125;</span><br><span class="line"></span><br><span class="line">    view = [(<span class="string">&#x27;lab&#x27;</span>, <span class="string">&#x27;lab&#x27;</span>, <span class="string">&#x27;This is a questionnaire&#x27;</span>),</span><br><span class="line">            (<span class="built_in">str</span>, <span class="string">&#x27;name&#x27;</span>, <span class="string">&#x27;name&#x27;</span>, <span class="string">&#x27;please&#x27;</span>),</span><br><span class="line">            (<span class="built_in">int</span>, <span class="string">&#x27;age&#x27;</span>, (<span class="number">0</span>,<span class="number">150</span>), <span class="number">0</span>, <span class="string">&#x27;age&#x27;</span>, <span class="string">&#x27;years old&#x27;</span>),</span><br><span class="line">            (<span class="built_in">float</span>, <span class="string">&#x27;h&#x27;</span>, (<span class="number">0.3</span>, <span class="number">2.5</span>), <span class="number">2</span>, <span class="string">&#x27;height&#x27;</span>, <span class="string">&#x27;m&#x27;</span>),</span><br><span class="line">            (<span class="string">&#x27;slide&#x27;</span>, <span class="string">&#x27;w&#x27;</span>, (<span class="number">1</span>, <span class="number">150</span>), <span class="number">0</span>, <span class="string">&#x27;kg&#x27;</span>),</span><br><span class="line">            (<span class="built_in">bool</span>, <span class="string">&#x27;sport&#x27;</span>, <span class="string">&#x27;do you like sport&#x27;</span>),</span><br><span class="line">            (<span class="built_in">list</span>, <span class="string">&#x27;sys&#x27;</span>, [<span class="string">&#x27;Windows&#x27;</span>,<span class="string">&#x27;Mac&#x27;</span>,<span class="string">&#x27;Linux&#x27;</span>], <span class="built_in">str</span>, <span class="string">&#x27;favourite&#x27;</span>, <span class="string">&#x27;system&#x27;</span>),</span><br><span class="line">            (<span class="string">&#x27;chos&#x27;</span>, <span class="string">&#x27;lan&#x27;</span>, [<span class="string">&#x27;C/C++&#x27;</span>,<span class="string">&#x27;Java&#x27;</span>,<span class="string">&#x27;Python&#x27;</span>], <span class="string">&#x27;lanuage you like(multi)&#x27;</span>),</span><br><span class="line">            (<span class="string">&#x27;color&#x27;</span>, <span class="string">&#x27;c&#x27;</span>, <span class="string">&#x27;which&#x27;</span>, <span class="string">&#x27;you like&#x27;</span>)]</span><br><span class="line"></span><br><span class="line">    <span class="function"><span class="keyword">def</span> <span class="title">run</span>(<span class="params">self, para=<span class="literal">None</span></span>):</span></span><br><span class="line">        rst = [<span class="string">&#x27;Questionnaire Result&#x27;</span>,</span><br><span class="line">            <span class="string">&#x27;Name:%s&#x27;</span>%para[<span class="string">&#x27;name&#x27;</span>],</span><br><span class="line">            <span class="string">&#x27;Age:%s&#x27;</span>%para[<span class="string">&#x27;age&#x27;</span>],</span><br><span class="line">            <span class="string">&#x27;Height:%sm&#x27;</span>%para[<span class="string">&#x27;h&#x27;</span>],</span><br><span class="line">            <span class="string">&#x27;Weight:%skg&#x27;</span>%para[<span class="string">&#x27;w&#x27;</span>],</span><br><span class="line">            <span class="string">&#x27;Like Sport:%s&#x27;</span>%para[<span class="string">&#x27;sport&#x27;</span>],</span><br><span class="line">            <span class="string">&#x27;Favourite System:%s&#x27;</span>%para[<span class="string">&#x27;sys&#x27;</span>],</span><br><span class="line">            <span class="string">&#x27;Like lanuage:%s&#x27;</span>%para[<span class="string">&#x27;lan&#x27;</span>],</span><br><span class="line">            <span class="string">&#x27;Favourite Color:%s&#x27;</span>%<span class="built_in">str</span>(para[<span class="string">&#x27;c&#x27;</span>])]</span><br><span class="line"></span><br><span class="line">        IPy.alert(<span class="string">&#x27;\r\n&#x27;</span>.join(rst))</span><br></pre></td></tr></table></figure>
+<p>首先，para就是一个python字典，里面就是一系列的key-value键值对。<br>view是一个列表，具体格式得按照一定的规则。明天就是70周年国庆了，这里先将格式要求抄录如下，后面再详细分析。<br>lab: para类型：不需要参数, view用法：(‘lab’, ‘lab’, ‘what you want to show’)<br>str: para类型：str, view用法：(str, key, prefix, suffix)，其中key要和para中的key对应，prefix，suffix用作输入框前后的提示内容。<br>int: para类型：int，view用法：(int, key, (lim1, lim2), accu, ‘prefix’, ‘suffix’)，其中key要和para中的key对应，limit用于限定输入数值的范围，accu限定小数点位数(0)，prefix，suffix用作输入框前后的提示内容。<br>float: para类型：float，view用法：(int, key, (lim1, lim2), accu, ‘prefix’, ‘suffix’)，其中key要和para中的key对应，limit用于限定输入数值的范围，accu限定小数点位数，prefix，suffix用作输入框前后的提示内容。<br>slider: para类型：int/float，view用法：(‘slide’, key, (lim1, lim2), accu, ‘prefix’)，其中key要和para中的key对应，limit用于限定输入数值的范围，accu限定小数点位数，prefix用作输入框前后的提示内容。<br>bool: para类型：bool，view用法：(bool, ‘key’, ‘label’)，其中key要和para中的key对应，label用作提示。<br>list: para类型：any type，view用法：(list, key, [choices], type, prefix, suffix)，其中key要和para中的key对应，choices是字符选项，type是期望输出类型，如str, int，prefix，suffix用作选择框前后的提示内容。<br>choices: para类型：str list，view用法：(‘chos’, key, [choices], prefix, suffix)，与list类似，不同的是choices可以支持多选，选项以list of string形式记录。<br>color: para类型：(r,g,b) 0-255，用法：(‘color’, key, prefix, suffix)，其中key要和para中的key对应，prefix，suffix用作输入框前后的提示内容。</p>
+
+    </div>
+
+    
+    
+    
+        <div class="reward-container">
+  <div></div>
+  <button onclick="var qr = document.getElementById('qr'); qr.style.display = (qr.style.display === 'none') ? 'block' : 'none';">
+    Donate
+  </button>
+  <div id="qr" style="display: none;">
+      
+      <div style="display: inline-block;">
+        <img src="/images/wechat_reward.png" alt="Xin-Bo Qi(亓欣波) WeChat Pay">
+        <p>WeChat Pay</p>
+      </div>
+
+  </div>
+</div>
+
+
+      <footer class="post-footer">
+          <div class="post-tags">
+              <a href="/tags/ImagePy/" rel="tag"># ImagePy</a>
+          </div>
+
+        
+
+
+        
+    <div class="post-nav">
+      <div class="post-nav-item">
+    <a href="/2019/09/07/ImagePy_6/" rel="prev" title="ImagePy解析：6 -- wxPython GDI绘图和FloatCanvas">
+      <i class="fa fa-chevron-left"></i> ImagePy解析：6 -- wxPython GDI绘图和FloatCanvas
+    </a></div>
+      <div class="post-nav-item">
+    <a href="/2019/10/05/ImagePy_8/" rel="next" title="ImagePy解析：8 -- 由新建图像谈起（引出IPy、ImagePlus、Canvas、ImageManager）">
+      ImagePy解析：8 -- 由新建图像谈起（引出IPy、ImagePlus、Canvas、ImageManager） <i class="fa fa-chevron-right"></i>
+    </a></div>
+    </div>
+      </footer>
+    
+  </article>
+  
+  
+  
+
+
+
+          </div>
+          
+    
+  <div class="comments">
+    <div id="disqus_thread">
+      <noscript>Please enable JavaScript to view the comments powered by Disqus.</noscript>
+    </div>
+  </div>
+  
+
+<script>
+  window.addEventListener('tabs:register', () => {
+    let { activeClass } = CONFIG.comments;
+    if (CONFIG.comments.storage) {
+      activeClass = localStorage.getItem('comments_active') || activeClass;
+    }
+    if (activeClass) {
+      let activeTab = document.querySelector(`a[href="#comment-${activeClass}"]`);
+      if (activeTab) {
+        activeTab.click();
+      }
+    }
+  });
+  if (CONFIG.comments.storage) {
+    window.addEventListener('tabs:click', event => {
+      if (!event.target.matches('.tabs-comment .tab-content .tab-pane')) return;
+      let commentClass = event.target.classList[1];
+      localStorage.setItem('comments_active', commentClass);
+    });
+  }
+</script>
+
+        </div>
+          
+  
+  <div class="toggle sidebar-toggle">
+    <span class="toggle-line toggle-line-first"></span>
+    <span class="toggle-line toggle-line-middle"></span>
+    <span class="toggle-line toggle-line-last"></span>
+  </div>
+
+  <aside class="sidebar">
+    <div class="sidebar-inner">
+
+      <ul class="sidebar-nav motion-element">
+        <li class="sidebar-nav-toc">
+          Table of Contents
+        </li>
+        <li class="sidebar-nav-overview">
+          Overview
+        </li>
+      </ul>
+
+      <!--noindex-->
+      <div class="post-toc-wrap sidebar-panel">
+          <div class="post-toc motion-element"><ol class="nav"><li class="nav-item nav-level-1"><a class="nav-link" href="#ImagePy%E7%9A%84%E8%87%AA%E7%94%B1%E5%BC%95%E6%93%8EFree-engine%E8%A7%A3%E6%9E%90"><span class="nav-number">1.</span> <span class="nav-text">ImagePy的自由引擎Free engine解析</span></a><ol class="nav-child"><li class="nav-item nav-level-2"><a class="nav-link" href="#title%E5%B1%9E%E6%80%A7"><span class="nav-number">1.1.</span> <span class="nav-text">title属性</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#para%E5%92%8Cview%E5%B1%9E%E6%80%A7"><span class="nav-number">1.2.</span> <span class="nav-text">para和view属性</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#show-%E6%96%B9%E6%B3%95"><span class="nav-number">1.3.</span> <span class="nav-text">show()方法</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#run-%E6%96%B9%E6%B3%95"><span class="nav-number">1.4.</span> <span class="nav-text">run()方法</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#load-%E6%96%B9%E6%B3%95"><span class="nav-number">1.5.</span> <span class="nav-text">load()方法</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#start-%E6%96%B9%E6%B3%95"><span class="nav-number">1.6.</span> <span class="nav-text">start()方法</span></a></li></ol></li><li class="nav-item nav-level-1"><a class="nav-link" href="#%E8%B7%9F%E4%B8%96%E7%95%8C%E6%89%93%E6%8B%9B%E5%91%BC"><span class="nav-number">2.</span> <span class="nav-text">跟世界打招呼</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#%E4%BD%A0%E6%98%AF%E8%B0%81"><span class="nav-number">3.</span> <span class="nav-text">你是谁</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#%E9%97%AE%E5%8D%B7%E8%B0%83%E6%9F%A5"><span class="nav-number">4.</span> <span class="nav-text">问卷调查</span></a></li></ol></div>
+      </div>
+      <!--/noindex-->
+
+      <div class="site-overview-wrap sidebar-panel">
+        <div class="site-author motion-element" itemprop="author" itemscope itemtype="http://schema.org/Person">
+    <img class="site-author-image" itemprop="image" alt="Xin-Bo Qi(亓欣波)"
+      src="/images/avatar.jpg">
+  <p class="site-author-name" itemprop="name">Xin-Bo Qi(亓欣波)</p>
+  <div class="site-description" itemprop="description">Be interesting!</div>
+</div>
+<div class="site-state-wrap motion-element">
+  <nav class="site-state">
+      <div class="site-state-item site-state-posts">
+          <a href="/archives/">
+        
+          <span class="site-state-item-count">120</span>
+          <span class="site-state-item-name">posts</span>
+        </a>
+      </div>
+      <div class="site-state-item site-state-categories">
+            <a href="/categories/">
+          
+        <span class="site-state-item-count">5</span>
+        <span class="site-state-item-name">categories</span></a>
+      </div>
+      <div class="site-state-item site-state-tags">
+            <a href="/tags/">
+          
+        <span class="site-state-item-count">41</span>
+        <span class="site-state-item-name">tags</span></a>
+      </div>
+  </nav>
+</div>
+  <div class="links-of-author motion-element">
+      <span class="links-of-author-item">
+        <a href="https://github.com/qixinbo" title="GitHub → https:&#x2F;&#x2F;github.com&#x2F;qixinbo" rel="noopener" target="_blank"><i class="github fa-fw"></i>GitHub</a>
+      </span>
+      <span class="links-of-author-item">
+        <a href="mailto:qixinbo@gmail.com" title="E-Mail → mailto:qixinbo@gmail.com" rel="noopener" target="_blank"><i class="envelope fa-fw"></i>E-Mail</a>
+      </span>
+  </div>
+
+
+  <div class="links-of-blogroll motion-element">
+    <div class="links-of-blogroll-title"><i class="fa fa-link fa-fw"></i>
+      Links
+    </div>
+    <ul class="links-of-blogroll-list">
+        <li class="links-of-blogroll-item">
+          <a href="https://www.tsinghua.edu.cn/" title="https:&#x2F;&#x2F;www.tsinghua.edu.cn" rel="noopener" target="_blank">THU</a>
+        </li>
+        <li class="links-of-blogroll-item">
+          <a href="http://www.imr.cas.cn/" title="http:&#x2F;&#x2F;www.imr.cas.cn" rel="noopener" target="_blank">IMR</a>
+        </li>
+        <li class="links-of-blogroll-item">
+          <a href="http://www.sdu.edu.cn/" title="http:&#x2F;&#x2F;www.sdu.edu.cn" rel="noopener" target="_blank">SDU</a>
+        </li>
+        <li class="links-of-blogroll-item">
+          <a href="http://liam0205.me/" title="http:&#x2F;&#x2F;liam0205.me&#x2F;" rel="noopener" target="_blank">黄晨成</a>
+        </li>
+    </ul>
+  </div>
+
+      </div>
+
+    </div>
+  </aside>
+  <div id="sidebar-dimmer"></div>
+
+
+      </div>
+    </main>
+
+    <footer class="footer">
+      <div class="footer-inner">
+        
+
+        
+
+<div class="copyright">
+  
+  &copy; 
+  <span itemprop="copyrightYear">2021</span>
+  <span class="with-love">
+    <i class="fa fa-heart"></i>
+  </span>
+  <span class="author" itemprop="copyrightHolder">Xin-Bo Qi(亓欣波)</span>
+</div>
+  <div class="powered-by">Powered by <a href="https://hexo.io/" class="theme-link" rel="noopener" target="_blank">Hexo</a> & <a href="https://theme-next.org/" class="theme-link" rel="noopener" target="_blank">NexT.Gemini</a>
+  </div>
+
+        
+
+
+
+
+
+
+
+
+      </div>
+    </footer>
+  </div>
+
+  
+  <script src="/lib/anime.min.js"></script>
+  <script src="/lib/velocity/velocity.min.js"></script>
+  <script src="/lib/velocity/velocity.ui.min.js"></script>
+
+<script src="/js/utils.js"></script>
+
+<script src="/js/motion.js"></script>
+
+
+<script src="/js/schemes/pisces.js"></script>
+
+
+<script src="/js/next-boot.js"></script>
+
+
+
+
+  
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+  
+
+  
+
+  
+
+<script>
+  function loadCount() {
+    var d = document, s = d.createElement('script');
+    s.src = 'https://qixinbo.disqus.com/count.js';
+    s.id = 'dsq-count-scr';
+    (d.head || d.body).appendChild(s);
+  }
+  // defer loading until the whole page loading is completed
+  window.addEventListener('load', loadCount, false);
+</script>
+<script>
+  var disqus_config = function() {
+    this.page.url = "http://qixinbo.github.io/2019/09/30/ImagePy_7/";
+    this.page.identifier = "2019/09/30/ImagePy_7/";
+    this.page.title = "ImagePy解析：7 -- ImagePy插件运行解析";
+    };
+  NexT.utils.loadComments(document.querySelector('#disqus_thread'), () => {
+    if (window.DISQUS) {
+      DISQUS.reset({
+        reload: true,
+        config: disqus_config
+      });
+    } else {
+      var d = document, s = d.createElement('script');
+      s.src = 'https://qixinbo.disqus.com/embed.js';
+      s.setAttribute('data-timestamp', '' + +new Date());
+      (d.head || d.body).appendChild(s);
+    }
+  });
+</script>
+
+</body>
+</html>

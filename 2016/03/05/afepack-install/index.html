@@ -1,0 +1,687 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=2">
+<meta name="theme-color" content="#222">
+<meta name="generator" content="Hexo 5.4.0">
+  <link rel="apple-touch-icon" sizes="180x180" href="/images/apple-touch-icon-next.png">
+  <link rel="icon" type="image/png" sizes="32x32" href="/favicon.ico">
+  <link rel="icon" type="image/png" sizes="16x16" href="/favicon.ico">
+  <link rel="mask-icon" href="/images/logo.svg" color="#222">
+
+<link rel="stylesheet" href="/css/main.css">
+
+
+<link rel="stylesheet" href="/lib/font-awesome/css/all.min.css">
+
+<script id="hexo-configurations">
+    var NexT = window.NexT || {};
+    var CONFIG = {"hostname":"qixinbo.github.io","root":"/","scheme":"Gemini","version":"7.8.0","exturl":false,"sidebar":{"position":"left","display":"post","padding":18,"offset":12,"onmobile":false},"copycode":{"enable":false,"show_result":false,"style":null},"back2top":{"enable":true,"sidebar":false,"scrollpercent":false},"bookmark":{"enable":false,"color":"#222","save":"auto"},"fancybox":false,"mediumzoom":false,"lazyload":false,"pangu":false,"comments":{"style":"tabs","active":null,"storage":true,"lazyload":false,"nav":null},"algolia":{"hits":{"per_page":10},"labels":{"input_placeholder":"Search for Posts","hits_empty":"We didn't find any results for the search: ${query}","hits_stats":"${hits} results found in ${time} ms"}},"localsearch":{"enable":false,"trigger":"auto","top_n_per_article":1,"unescape":false,"preload":false},"motion":{"enable":true,"async":false,"transition":{"post_block":"fadeIn","post_header":"slideDownIn","post_body":"slideDownIn","coll_header":"slideLeftIn","sidebar":"slideUpIn"}}};
+  </script>
+
+  <meta name="description" content="安装AFEPack软件包，需要提前安好的软件有gcc、g++、doxygen、automake(1.11版本)、dx、emacs、vim。 准备：我会有一个用户名，比如为qixinbo。在home&#x2F;qixinbo下建立files，include，lib三个目录。其中include目录是用于存放程序编译时调用的.h头文件，lib目录是用于存放动态链接库.so文件 然后将boost_1_37_0.ta">
+<meta property="og:type" content="article">
+<meta property="og:title" content="自适应有限元包AFEPack安装过程">
+<meta property="og:url" content="http://qixinbo.github.io/2016/03/05/afepack-install/index.html">
+<meta property="og:site_name" content="亓欣波">
+<meta property="og:description" content="安装AFEPack软件包，需要提前安好的软件有gcc、g++、doxygen、automake(1.11版本)、dx、emacs、vim。 准备：我会有一个用户名，比如为qixinbo。在home&#x2F;qixinbo下建立files，include，lib三个目录。其中include目录是用于存放程序编译时调用的.h头文件，lib目录是用于存放动态链接库.so文件 然后将boost_1_37_0.ta">
+<meta property="og:locale" content="en_US">
+<meta property="article:published_time" content="2016-03-04T16:00:00.000Z">
+<meta property="article:modified_time" content="2021-03-25T07:20:30.447Z">
+<meta property="article:author" content="Xin-Bo Qi(亓欣波)">
+<meta property="article:tag" content="linux">
+<meta property="article:tag" content="AFEPack">
+<meta name="twitter:card" content="summary">
+
+<link rel="canonical" href="http://qixinbo.github.io/2016/03/05/afepack-install/">
+
+
+<script id="page-configurations">
+  // https://hexo.io/docs/variables.html
+  CONFIG.page = {
+    sidebar: "",
+    isHome : false,
+    isPost : true,
+    lang   : 'en'
+  };
+</script>
+
+  <title>自适应有限元包AFEPack安装过程 | 亓欣波</title>
+  
+
+
+
+
+
+
+  <noscript>
+  <style>
+  .use-motion .brand,
+  .use-motion .menu-item,
+  .sidebar-inner,
+  .use-motion .post-block,
+  .use-motion .pagination,
+  .use-motion .comments,
+  .use-motion .post-header,
+  .use-motion .post-body,
+  .use-motion .collection-header { opacity: initial; }
+
+  .use-motion .site-title,
+  .use-motion .site-subtitle {
+    opacity: initial;
+    top: initial;
+  }
+
+  .use-motion .logo-line-before i { left: initial; }
+  .use-motion .logo-line-after i { right: initial; }
+  </style>
+</noscript>
+
+</head>
+
+<body itemscope itemtype="http://schema.org/WebPage">
+  <div class="container use-motion">
+    <div class="headband"></div>
+
+    <header class="header" itemscope itemtype="http://schema.org/WPHeader">
+      <div class="header-inner"><div class="site-brand-container">
+  <div class="site-nav-toggle">
+    <div class="toggle" aria-label="Toggle navigation bar">
+      <span class="toggle-line toggle-line-first"></span>
+      <span class="toggle-line toggle-line-middle"></span>
+      <span class="toggle-line toggle-line-last"></span>
+    </div>
+  </div>
+
+  <div class="site-meta">
+
+    <a href="/" class="brand" rel="start">
+      <span class="logo-line-before"><i></i></span>
+      <h1 class="site-title">亓欣波</h1>
+      <span class="logo-line-after"><i></i></span>
+    </a>
+      <p class="site-subtitle" itemprop="description">Hi, I am Xin-Bo Qi (亓欣波)</p>
+  </div>
+
+  <div class="site-nav-right">
+    <div class="toggle popup-trigger">
+    </div>
+  </div>
+</div>
+
+
+
+
+<nav class="site-nav">
+  <ul id="menu" class="main-menu menu">
+        <li class="menu-item menu-item-home">
+
+    <a href="/" rel="section"><i class="home fa-fw"></i>Home</a>
+
+  </li>
+        <li class="menu-item menu-item-categories">
+
+    <a href="/categories/" rel="section"><i class="th fa-fw"></i>Categories</a>
+
+  </li>
+        <li class="menu-item menu-item-archives">
+
+    <a href="/archives/" rel="section"><i class="archive fa-fw"></i>Archives</a>
+
+  </li>
+        <li class="menu-item menu-item-tags">
+
+    <a href="/tags/" rel="section"><i class="tags fa-fw"></i>Tags</a>
+
+  </li>
+        <li class="menu-item menu-item-scholar">
+
+    <a href="/scholar/" rel="section"><i class="bar-chart fa-fw"></i>scholar</a>
+
+  </li>
+        <li class="menu-item menu-item-sources">
+
+    <a href="/sources/" rel="section"><i class="rss fa-fw"></i>sources</a>
+
+  </li>
+        <li class="menu-item menu-item-gallery">
+
+    <a href="/gallery/" rel="section"><i class="file-image-o fa-fw"></i>gallery</a>
+
+  </li>
+        <li class="menu-item menu-item-about">
+
+    <a href="/about/" rel="section"><i class="user fa-fw"></i>About</a>
+
+  </li>
+        <li class="menu-item menu-item-commonweal">
+
+    <a href="/404.html" rel="section"><i class="heartbeat fa-fw"></i>Commonweal 404</a>
+
+  </li>
+  </ul>
+</nav>
+
+
+
+
+</div>
+    </header>
+
+    
+  <div class="back-to-top">
+    <i class="fa fa-arrow-up"></i>
+    <span>0%</span>
+  </div>
+
+
+    <main class="main">
+      <div class="main-inner">
+        <div class="content-wrap">
+          
+
+          <div class="content post posts-expand">
+            
+
+    
+  
+  
+  <article itemscope itemtype="http://schema.org/Article" class="post-block" lang="en">
+    <link itemprop="mainEntityOfPage" href="http://qixinbo.github.io/2016/03/05/afepack-install/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="image" content="/images/avatar.jpg">
+      <meta itemprop="name" content="Xin-Bo Qi(亓欣波)">
+      <meta itemprop="description" content="Be interesting!">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="亓欣波">
+    </span>
+      <header class="post-header">
+        <h1 class="post-title" itemprop="name headline">
+          自适应有限元包AFEPack安装过程
+        </h1>
+
+        <div class="post-meta">
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="far fa-calendar"></i>
+              </span>
+              <span class="post-meta-item-text">Posted on</span>
+
+              <time title="Created: 2016-03-05 00:00:00" itemprop="dateCreated datePublished" datetime="2016-03-05T00:00:00+08:00">2016-03-05</time>
+            </span>
+              <span class="post-meta-item">
+                <span class="post-meta-item-icon">
+                  <i class="far fa-calendar-check"></i>
+                </span>
+                <span class="post-meta-item-text">Edited on</span>
+                <time title="Modified: 2021-03-25 15:20:30" itemprop="dateModified" datetime="2021-03-25T15:20:30+08:00">2021-03-25</time>
+              </span>
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="far fa-folder"></i>
+              </span>
+              <span class="post-meta-item-text">In</span>
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+                  <a href="/categories/programming/" itemprop="url" rel="index"><span itemprop="name">programming</span></a>
+                </span>
+            </span>
+
+          
+  
+  <span class="post-meta-item">
+    
+      <span class="post-meta-item-icon">
+        <i class="far fa-comment"></i>
+      </span>
+      <span class="post-meta-item-text">Disqus: </span>
+    
+    <a title="disqus" href="/2016/03/05/afepack-install/#disqus_thread" itemprop="discussionUrl">
+      <span class="post-comments-count disqus-comment-count" data-disqus-identifier="2016/03/05/afepack-install/" itemprop="commentCount"></span>
+    </a>
+  </span>
+  
+  
+
+        </div>
+      </header>
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+        <p>安装AFEPack软件包，需要提前安好的软件有gcc、g++、doxygen、automake(1.11版本)、dx、emacs、vim。</p>
+<h1 id="准备："><a href="#准备：" class="headerlink" title="准备："></a>准备：</h1><p>我会有一个用户名，比如为qixinbo。在home/qixinbo下建立files，include，lib三个目录。其中include目录是用于存放程序编译时调用的.h头文件，lib目录是用于存放动态链接库.so文件</p>
+<p>然后将<br>boost_1_37_0.tar.bz2,<br>deal.nodoc-6.3.1.tar.gz,<br>AFEPack-snapshot.tar.gz,<br>easymesh.c.gz<br>四个文件放在files里。</p>
+<h1 id="安装boost："><a href="#安装boost：" class="headerlink" title="安装boost："></a>安装boost：</h1><p>安装boost头文件。将boost_1_37_0.tar.bz2解压到files里，即运行tar jxvf boost_1_37_0.tar.bz2命令。解压后会得到一个boost_1_37_0目录，该目录下有一个boost目录，将该目录拷贝到include文件夹里，即</p>
+<p>cp -r boost /home/qixinbo/include</p>
+<h1 id="安装deal-II。"><a href="#安装deal-II。" class="headerlink" title="安装deal.II。"></a>安装deal.II。</h1><p>注：个人建议不要下载太高版本，过高版本可能会报Point歧义，原因是由于部分版本deal.II修改了底层网格的一些架构。现deal.II 7.0.0及之前版本已测试可以使用。</p>
+<p>(1) 将deal.nodoc-6.3.1.tar.gz解压到files里，即运行tar zxvf deal.nodoc-6.3.1.tar.gz命令。解压后会得到一个deal.II目录。进入该目录，运行</p>
+<p>./configure<br>如果configure通过，就运行<br>make base lac</p>
+<p>在configure过程如果出现提示不存在doxygen，表示它没有被安装在系统里面，请在网上google搜索下载，把这个安装上。</p>
+<p>(2) 进入/home/qixinbo/include文件夹，链接头文件。即运行</p>
+<p>ln -sf /home/qixinbo/files/deal.II/base/include/base .<br>ln -sf /home/qixinbo/files/deal.II/lac/include/lac .<br>ln -sf /home/qixinbo/files/deal.II/contrib/tbb/tbb22_20090809oss/include/tbb .</p>
+<p>请注意最后一个点前面有一个空格。</p>
+<p>(3) 进入/home/qixinbo/lib文件夹，链接库文件。即运行</p>
+<p>ln -sf /home/qixinbo/files/deal.II/lib/lib* .</p>
+<p>请注意最后一个点前面有一个空格。</p>
+<p>这三步做完以后应该在/home/qixinbo/include目录下存在deal.II 的头文件lac、base和tbb链接头文件，在/home/qixinbo/lib下至少存在libbase.so 和liblac.so动态链接库文件。</p>
+<p>将/home/qixinbo/lib加入到缺省的共享链接库路径中，即</p>
+<p>在/etc/ld.so.conf中加入一行/home/qixinbo/lib，</p>
+<p>然后运行/sbin/ldconfig。</p>
+<h1 id="安装AFEPack包。"><a href="#安装AFEPack包。" class="headerlink" title="安装AFEPack包。"></a>安装AFEPack包。</h1><p>(1) 将AFEPack-snapshot.tar.gz解压缩到files里，即运行tar zxvf AFEPack-snapshot.tar.gz命令。解压后会得到一个AFEPack目录。进入该目录后，首先给定configure找到II的头文件和链接库文件的环境变量。</p>
+<p>需要修改一下参数（这一步实际不做也行）：</p>
+<p>deal.II 编译参数：</p>
+<p>第一种方法：在终端里输入：</p>
+<p>gcc -lbase</p>
+<p>如果返回：</p>
+<p>/usr/lib/gcc/x86_64-linux-gnu/4.6/../../../x86_64-linux-gnu/crt1.o: In function <code>_start’: (.text+0x20): undefined reference to </code>main’</p>
+<p>则把 configure.in 文件中 -lbase -llac 修改为 -lbase -llac -ltbb</p>
+<p>如果返回：</p>
+<p>/usr/bin/ld: cannot find -lbase</p>
+<p>则把 configure.in 文件中 -lbase -llac 修改为 -ldeal_II -ltbb</p>
+<p>第二种方法：直接查看/Installation/of/deal.II/lib 下的文件</p>
+<p>如果有libbase.so, liblac.so 则把 configure.in 文件中 -lbase -llac 修改为 -lbase -llac -ltbb<br>否则，如果有libdeal_II.so, 则把 configure.in 文件中 -lbase -llac 修改为 -ldeal_II -ltbb<br>如果上面两个都没有，只能是 deal.II 没装好</p>
+<p>gcc 编译参数：</p>
+<p>在终端里输入：<br>gcc -v<br>会返回 gcc 的版本。</p>
+<p>如果版本高于 4.6.0（但小于4.8）， 则修改configure.in文件，一定是这个文件，不能是Make.global_options，因为还牵扯并行mpi下的Makefile。<br>把 CPPFLAGS=“$EXTRA_INCDIR” 改为 CPPFLAGS=“$EXTRA_INCDIR -std=c++0x”，同理CFLAGS和CXXFLAGS也要加上 -std=c++0x.<br>注：暂时是需要这样子的，但随着gcc版本升高，可能会有所不同（已证实4.8版本的gcc不适用，会在编译deal.II出现错误。如果已经使用了较新版本的Linux系统，如Ubuntu 14.04LTS，可以手动安装4.6版本的gcc，具体安装过程见文末）。这与deal.II版本和gcc版本及AFEPack的版本有关。</p>
+<p>注意：后续的Makefile中的gcc、g++、mpicc、mpicxx等也要注意这个问题。同时还要注意加入并指定base、lac、tbb的库文件路径。</p>
+<p>(2)运行</p>
+<p>export EXTRA_INCDIR=-I/home/qixinbo/include<br>export EXTRA_LIBDIR=-L/home/qixinbo/lib</p>
+<p>(3)运行</p>
+<p>aclocal</p>
+<p>autoconf</p>
+<p>automake</p>
+<p>后产生configure 文件。</p>
+<p>可能出现的问题：</p>
+<p>如果aclocal时出现提示：</p>
+<p>aclocal: main::scan_file() called too early to check prototype</p>
+<p>则忽略此信息，继续即可。</p>
+<p>(4)运行</p>
+<p>./configure</p>
+<p>在多个机器上测试发现，在单机版ubuntu下，这样直接configure不会存在问题，而在Redhat Enterprise 服务器上，却是经常提示找不到deal.II的链接库文件</p>
+<p>如果能够顺利configure，那么就可以直接执行；<br>如果configure不通过，就修改configure 对deal.II对链接库文件的检测，让其检测通过，即运行</p>
+<p>vi configure</p>
+<p>编辑该文件，直接指定lib动态链接库所在的路径，将里面的两行<br>“-llac -lbase $LIB”<br>改为<br>“-llac -lbase $LIB -L/home/qixinbo/lib”</p>
+<p>deal_II_library=no<br>改成<br>deal_II_library=yes</p>
+<p>再运行</p>
+<p>./configure</p>
+<p>产生makefile后再进入第(5)小步做make编译。</p>
+<p>(5) make</p>
+<p>make成功后应该在AFEPack/library/lib/目录下产生文件libAFEPack.so</p>
+<p>包里面的mpi部分编译会报错，但不影响其它部分的编译，如果要安装，需要修改makefile，由于暂时用不到这一部分，所以可以不予安装。<br>make也可以分开进行，分别在library、template、example下进行。<br>即使不分开make，也要在template下make一下，生成需要的模版文件动态库。</p>
+<p>(6)进入/home/qixinbo/include文件夹， 链接AFEPack的头文件，运行</p>
+<p>ln -sf /home/qixinbo/files/AFEPack/library/include AFEPack</p>
+<p>(7)进入/home/qixinbo/lib文件夹， 链接AFEPack的动态链接库文件，运行</p>
+<p>ln -sf /home/qixinbo/files/AFEPack/library/lib/libAFEPack.so .<br>ln -sf /home/qixinbo/files/AFEPack/library/lib/libAFEPack.so libAFEPack.g.so</p>
+<p>这时再运行一下/sbin/ldconfig，更新一下ld的缓冲。</p>
+<h1 id="安装easymesh。"><a href="#安装easymesh。" class="headerlink" title="安装easymesh。"></a>安装easymesh。</h1><p>将easymesh.c.gz解压缩到files里，即运行gunzip easymesh.c.gz命令，然后运行gcc -o /home/qixinbo/files/easymesh easymesh.c -lm</p>
+<p>这样，四个安装包全部安装好了。</p>
+<p>———————————————————————————————–</p>
+<h1 id="关于并行部分的安装："><a href="#关于并行部分的安装：" class="headerlink" title="关于并行部分的安装："></a>关于并行部分的安装：</h1><p>AFEPack、openmpi与hypre的相互连接与调用：</p>
+<h2 id="安装openmpi。"><a href="#安装openmpi。" class="headerlink" title="安装openmpi。"></a>安装openmpi。</h2><p>(1) configure过程中，–prefix=/path/指定安装路径：</p>
+<p>./configure –prefix=/usr/local/openmpi</p>
+<p>然后编译（需要root权限时加上sudo）：</p>
+<p>make all install</p>
+<p>(2)打开家目录下的.bashrc文件，配置openmpi的动态链接库路径和可执行路径：</p>
+<p>vim ~/.bashrc</p>
+<p>然后将光标定位到文件末尾，写入:</p>
+<p>export LD_LIBRARY_PATH=$LD_LIBRARY_PATH:/usr/local/openmpi/lib<br>export PATH=$PATH:/usr/local/openmpi/bin</p>
+<p>然后source一下，使配置生效：</p>
+<p>source ~/.bashrc</p>
+<p>(3)测试openmpi是否安装正确。</p>
+<p>进入openmpi安装文件的examples文件夹下，直接编译：</p>
+<p>make</p>
+<p>然后：</p>
+<p>mpirun -np 2 ./hello_c</p>
+<p>测试一下。</p>
+<p>如果执行正确的话，会输出两行hello,world。<br>如果有问题，如</p>
+<p>./hello_c : error while loading shared libraries:libmpi.so.0:<br>cannot open shared object file: No such file or directory</p>
+<p>则要检查一下是否$LD_LIBRARY_PATH是空的：</p>
+<p>echo $LD_LIBRARY_PATH</p>
+<p>如果为空，则回到第（2）步，在.bashrc文件中将openmpi的lib路径加入到LD_LIBRARY_PATH中。</p>
+<h2 id="安装hypre"><a href="#安装hypre" class="headerlink" title="安装hypre"></a>安装hypre</h2><p>(1) hypre在configure时使用–prefix指定安装路径（注意路径前不能有空格），需要加上参数–enable-shared以使用动态链接库，还需要让Hypre找到openmpi，故加入参数–with-MPI-include=DIRS、–with-MPI-libs=LIBS、–with-MPI-lib-dirs=DIRS，具体命令为（configure文件在src文件夹中）：</p>
+<p>./configure –prefix=/usr/local/hypre -enable-shared<br>-with-MPI-include=/usr/local/openmpi/include<br>-with-MPI-libs=”mpi_cxx mpi”<br>-with-MPI-lib-dirs=/usr/local/openmpi/lib</p>
+<p>（有时需要fortran的编译器，如果电脑中没有fortran编译器，此时可以在configure时将这一项忽视，即加上–enable-fortran=no）</p>
+<p>然后编译：</p>
+<p>sudo make install</p>
+<p>此时，有时会出现mpicc未找到的情况，这是因为在root账户的环境变量中没有将mpicc的bin路径加入。解决方法：</p>
+<p>切换到root账户下：</p>
+<p>su</p>
+<p>在root的.bashrc中将PATH变量加入/usr/local/openmpi/bin:</p>
+<p>vim /root/.bashrc<br>export PATH=$PATH:/usr/local/openmpi/bin</p>
+<p>然后source一下使其生效：</p>
+<p>source /root/.bashrc</p>
+<p>然后编译：</p>
+<p>make install</p>
+<p>(2)将hypre的库文件和头文件加入路径中，两种方法（用第一种即可）：</p>
+<p>(2.1)将hypre下的lib文件夹中的两个库文件复制到总的lib文件夹下:</p>
+<p>cp /usr/local/hypre/lib/lib* ~/lib/</p>
+<p>将hypre的include文件夹同样拷到总的include文件夹中:</p>
+<p>cp /usr/local/hypre/include/* ~/include/</p>
+<p>(2.2)在实际程序编译时，在Make.global_options中直接指明hypre的头文件和库文件路径，即在Makefile.options文件中指定</p>
+<p>HYPRE_LIBS=-L/usr/local/hypre/lib -lHYPRE<br>HYPRE_INC=-I/usr/local/hypre/include</p>
+<h2 id="连接"><a href="#连接" class="headerlink" title="连接"></a>连接</h2><p>(1)AFEPack包的mpi部分编译需要将mpi的include链接到AFEPack下的include文件下，并改名为mpi。</p>
+<p>首先进入AFEPack的include路径下：</p>
+<p>cd ~/files/AFEPack/library/include</p>
+<p>然后做mpi的链接：</p>
+<p>ln -sf ~/files/AFEPack/library/mpi/include mpi</p>
+<p>(2)加入openmpi的头文件路径，这里有两种方法（推荐第一种）：</p>
+<p>(2.1)将AFEPack下Make.global_options(此文件在configure后产生)里的CFLAGS、CPPFLAGS、CXXFLAGS添加上openmpi的头文件路径：</p>
+<p>vim ~/files/AFEPack/Make.global_options</p>
+<p>找到CFLAGS、CPPFLAGS、CXXFLAGS，并在原值末尾加上-I/usr/local/openmpi/include，如：</p>
+<p>CPPFLAGS = -I/home/qixinbo/include -std=c++0x</p>
+<p>变为：</p>
+<p>CPPFLAGS = -I/home/qixinbo/include -std=c++0x -I/usr/local/openmpi/include</p>
+<p>(2.2)修改gcc的头文件的默认搜索路径C_INCLUDE_PATH和CPLUS_INCLUDE_PATH.</p>
+<p>即在.bashrc中添加:</p>
+<p>export C_INCLUDE_PATH=$C_INCLUDE_PATH:/path/to/openmpi/include</p>
+<p>同理对CPLUS_INCLUDE_PATH修改。</p>
+<p>如果之前AFEPack没有编译过，则在AFEPack目录下进行make，并链接AFEPack的头文件和库文件。</p>
+<p>如果之前make过，则只需要在/library/mpi下make即可：</p>
+<p>cd ~/files/AFEPack/library/mpi</p>
+<p>make</p>
+<p>(3)make后在AFEPack的lib文件夹下得到libAFEPack_mpi.so，再将它连接到总的lib文件夹下:</p>
+<p>ln -sf ~/files/AFEPack/library/lib/libAFEPack_mpi.so ~/lib/<br>(4)并行计算需要boost的序列化存储的动态链接库，故需要编译boost。编译时最好指定安装目录：</p>
+<p>cd ~/files/boost_1_37_0</p>
+<p>./configure –prefix=/usr/local/boost</p>
+<p>make</p>
+<p>sudo make install</p>
+<p>将boost编译成功生成的lib文件夹下两个动态链接库拷到AFEPack安装时的总的lib文件夹下，并更名为libboost_serialization-gcc.so和libboost_program_options-gcc.so：</p>
+<p>cp /usr/local/boost/lib/libboost_program_options-gcc46-mt-1_37.so.1.37.0 ~/lib/ libboost_program_options-gcc.so<br>cp /usr/local/boost/lib/libboost_serialization-gcc46-mt-1_37.so.1.37.0 ~/lib/ libboost_serialization-gcc.so</p>
+<p>至此，并行库也安装完成了。</p>
+<p>——————————————–</p>
+<h1 id="一些附加注意点："><a href="#一些附加注意点：" class="headerlink" title="一些附加注意点："></a>一些附加注意点：</h1><p>当将新的库文件加入到默认的库文件搜索路径时，如更改了.bashrc的LD_LIBRARY_PATH及更改了/etc/ld.so.conf中的文件路径下的库文件时，要分别使用source命令及/sbin/ldconfig命令来更新缓冲。</p>
+<p>可以在.bashrc文件中写上环境变量：</p>
+<p>export MPIDIR=/path/of/openmpi<br>export PATH=$PATH:$MPIDIR/bin<br>export LD_LIBRARY_PATH=$MPIDIR/lib:$LD_LIBRARY_PATH：/path/to/totallib<br>export INCLUDE=$INCLUDE:$MPIDIR/include<br>export MANPATH=$MPIDIR/share/man:$MANPATH</p>
+<p>export AFEPACK_PATH=”/home/qixinbo/files/AFEPack”<br>export AFEPACK_TEMPLATE_PATH=”$AFEPACK_PATH/template/tetrahedron:$AFEPACK_PATH/template/twin_tetrahedron:$AFEPACK_PATH/template/four_tetrahedron:$AFEPACK_PATH/template/triangle:$AFEPACK_PATH/template/twin_triangle:$AFEPACK_PATH/template/interval”<br>注意路径作为变量时不能加上空格等正确性。</p>
+<p>注意直接从word中拷贝粘贴到vim编辑器中会出现空格的错误，应该先删除空格，再自己加上空格，这个错误比较隐蔽！</p>
+
+    </div>
+
+    
+    
+    
+        <div class="reward-container">
+  <div></div>
+  <button onclick="var qr = document.getElementById('qr'); qr.style.display = (qr.style.display === 'none') ? 'block' : 'none';">
+    Donate
+  </button>
+  <div id="qr" style="display: none;">
+      
+      <div style="display: inline-block;">
+        <img src="/images/wechat_reward.png" alt="Xin-Bo Qi(亓欣波) WeChat Pay">
+        <p>WeChat Pay</p>
+      </div>
+
+  </div>
+</div>
+
+
+      <footer class="post-footer">
+          <div class="post-tags">
+              <a href="/tags/linux/" rel="tag"># linux</a>
+              <a href="/tags/AFEPack/" rel="tag"># AFEPack</a>
+          </div>
+
+        
+
+
+        
+    <div class="post-nav">
+      <div class="post-nav-item">
+    <a href="/2016/03/05/opencalphad-examples/" rel="prev" title="开源计算相图软件OpenCalphad四个算例">
+      <i class="fa fa-chevron-left"></i> 开源计算相图软件OpenCalphad四个算例
+    </a></div>
+      <div class="post-nav-item">
+    <a href="/2016/03/08/appolaire-2008/" rel="next" title="枝晶生长的宏微观模型">
+      枝晶生长的宏微观模型 <i class="fa fa-chevron-right"></i>
+    </a></div>
+    </div>
+      </footer>
+    
+  </article>
+  
+  
+  
+
+
+
+          </div>
+          
+    
+  <div class="comments">
+    <div id="disqus_thread">
+      <noscript>Please enable JavaScript to view the comments powered by Disqus.</noscript>
+    </div>
+  </div>
+  
+
+<script>
+  window.addEventListener('tabs:register', () => {
+    let { activeClass } = CONFIG.comments;
+    if (CONFIG.comments.storage) {
+      activeClass = localStorage.getItem('comments_active') || activeClass;
+    }
+    if (activeClass) {
+      let activeTab = document.querySelector(`a[href="#comment-${activeClass}"]`);
+      if (activeTab) {
+        activeTab.click();
+      }
+    }
+  });
+  if (CONFIG.comments.storage) {
+    window.addEventListener('tabs:click', event => {
+      if (!event.target.matches('.tabs-comment .tab-content .tab-pane')) return;
+      let commentClass = event.target.classList[1];
+      localStorage.setItem('comments_active', commentClass);
+    });
+  }
+</script>
+
+        </div>
+          
+  
+  <div class="toggle sidebar-toggle">
+    <span class="toggle-line toggle-line-first"></span>
+    <span class="toggle-line toggle-line-middle"></span>
+    <span class="toggle-line toggle-line-last"></span>
+  </div>
+
+  <aside class="sidebar">
+    <div class="sidebar-inner">
+
+      <ul class="sidebar-nav motion-element">
+        <li class="sidebar-nav-toc">
+          Table of Contents
+        </li>
+        <li class="sidebar-nav-overview">
+          Overview
+        </li>
+      </ul>
+
+      <!--noindex-->
+      <div class="post-toc-wrap sidebar-panel">
+          <div class="post-toc motion-element"><ol class="nav"><li class="nav-item nav-level-1"><a class="nav-link" href="#%E5%87%86%E5%A4%87%EF%BC%9A"><span class="nav-number">1.</span> <span class="nav-text">准备：</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#%E5%AE%89%E8%A3%85boost%EF%BC%9A"><span class="nav-number">2.</span> <span class="nav-text">安装boost：</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#%E5%AE%89%E8%A3%85deal-II%E3%80%82"><span class="nav-number">3.</span> <span class="nav-text">安装deal.II。</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#%E5%AE%89%E8%A3%85AFEPack%E5%8C%85%E3%80%82"><span class="nav-number">4.</span> <span class="nav-text">安装AFEPack包。</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#%E5%AE%89%E8%A3%85easymesh%E3%80%82"><span class="nav-number">5.</span> <span class="nav-text">安装easymesh。</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#%E5%85%B3%E4%BA%8E%E5%B9%B6%E8%A1%8C%E9%83%A8%E5%88%86%E7%9A%84%E5%AE%89%E8%A3%85%EF%BC%9A"><span class="nav-number">6.</span> <span class="nav-text">关于并行部分的安装：</span></a><ol class="nav-child"><li class="nav-item nav-level-2"><a class="nav-link" href="#%E5%AE%89%E8%A3%85openmpi%E3%80%82"><span class="nav-number">6.1.</span> <span class="nav-text">安装openmpi。</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E5%AE%89%E8%A3%85hypre"><span class="nav-number">6.2.</span> <span class="nav-text">安装hypre</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E8%BF%9E%E6%8E%A5"><span class="nav-number">6.3.</span> <span class="nav-text">连接</span></a></li></ol></li><li class="nav-item nav-level-1"><a class="nav-link" href="#%E4%B8%80%E4%BA%9B%E9%99%84%E5%8A%A0%E6%B3%A8%E6%84%8F%E7%82%B9%EF%BC%9A"><span class="nav-number">7.</span> <span class="nav-text">一些附加注意点：</span></a></li></ol></div>
+      </div>
+      <!--/noindex-->
+
+      <div class="site-overview-wrap sidebar-panel">
+        <div class="site-author motion-element" itemprop="author" itemscope itemtype="http://schema.org/Person">
+    <img class="site-author-image" itemprop="image" alt="Xin-Bo Qi(亓欣波)"
+      src="/images/avatar.jpg">
+  <p class="site-author-name" itemprop="name">Xin-Bo Qi(亓欣波)</p>
+  <div class="site-description" itemprop="description">Be interesting!</div>
+</div>
+<div class="site-state-wrap motion-element">
+  <nav class="site-state">
+      <div class="site-state-item site-state-posts">
+          <a href="/archives/">
+        
+          <span class="site-state-item-count">120</span>
+          <span class="site-state-item-name">posts</span>
+        </a>
+      </div>
+      <div class="site-state-item site-state-categories">
+            <a href="/categories/">
+          
+        <span class="site-state-item-count">5</span>
+        <span class="site-state-item-name">categories</span></a>
+      </div>
+      <div class="site-state-item site-state-tags">
+            <a href="/tags/">
+          
+        <span class="site-state-item-count">41</span>
+        <span class="site-state-item-name">tags</span></a>
+      </div>
+  </nav>
+</div>
+  <div class="links-of-author motion-element">
+      <span class="links-of-author-item">
+        <a href="https://github.com/qixinbo" title="GitHub → https:&#x2F;&#x2F;github.com&#x2F;qixinbo" rel="noopener" target="_blank"><i class="github fa-fw"></i>GitHub</a>
+      </span>
+      <span class="links-of-author-item">
+        <a href="mailto:qixinbo@gmail.com" title="E-Mail → mailto:qixinbo@gmail.com" rel="noopener" target="_blank"><i class="envelope fa-fw"></i>E-Mail</a>
+      </span>
+  </div>
+
+
+  <div class="links-of-blogroll motion-element">
+    <div class="links-of-blogroll-title"><i class="fa fa-link fa-fw"></i>
+      Links
+    </div>
+    <ul class="links-of-blogroll-list">
+        <li class="links-of-blogroll-item">
+          <a href="https://www.tsinghua.edu.cn/" title="https:&#x2F;&#x2F;www.tsinghua.edu.cn" rel="noopener" target="_blank">THU</a>
+        </li>
+        <li class="links-of-blogroll-item">
+          <a href="http://www.imr.cas.cn/" title="http:&#x2F;&#x2F;www.imr.cas.cn" rel="noopener" target="_blank">IMR</a>
+        </li>
+        <li class="links-of-blogroll-item">
+          <a href="http://www.sdu.edu.cn/" title="http:&#x2F;&#x2F;www.sdu.edu.cn" rel="noopener" target="_blank">SDU</a>
+        </li>
+        <li class="links-of-blogroll-item">
+          <a href="http://liam0205.me/" title="http:&#x2F;&#x2F;liam0205.me&#x2F;" rel="noopener" target="_blank">黄晨成</a>
+        </li>
+    </ul>
+  </div>
+
+      </div>
+
+    </div>
+  </aside>
+  <div id="sidebar-dimmer"></div>
+
+
+      </div>
+    </main>
+
+    <footer class="footer">
+      <div class="footer-inner">
+        
+
+        
+
+<div class="copyright">
+  
+  &copy; 
+  <span itemprop="copyrightYear">2021</span>
+  <span class="with-love">
+    <i class="fa fa-heart"></i>
+  </span>
+  <span class="author" itemprop="copyrightHolder">Xin-Bo Qi(亓欣波)</span>
+</div>
+  <div class="powered-by">Powered by <a href="https://hexo.io/" class="theme-link" rel="noopener" target="_blank">Hexo</a> & <a href="https://theme-next.org/" class="theme-link" rel="noopener" target="_blank">NexT.Gemini</a>
+  </div>
+
+        
+
+
+
+
+
+
+
+
+      </div>
+    </footer>
+  </div>
+
+  
+  <script src="/lib/anime.min.js"></script>
+  <script src="/lib/velocity/velocity.min.js"></script>
+  <script src="/lib/velocity/velocity.ui.min.js"></script>
+
+<script src="/js/utils.js"></script>
+
+<script src="/js/motion.js"></script>
+
+
+<script src="/js/schemes/pisces.js"></script>
+
+
+<script src="/js/next-boot.js"></script>
+
+
+
+
+  
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+  
+
+  
+
+  
+
+<script>
+  function loadCount() {
+    var d = document, s = d.createElement('script');
+    s.src = 'https://qixinbo.disqus.com/count.js';
+    s.id = 'dsq-count-scr';
+    (d.head || d.body).appendChild(s);
+  }
+  // defer loading until the whole page loading is completed
+  window.addEventListener('load', loadCount, false);
+</script>
+<script>
+  var disqus_config = function() {
+    this.page.url = "http://qixinbo.github.io/2016/03/05/afepack-install/";
+    this.page.identifier = "2016/03/05/afepack-install/";
+    this.page.title = "自适应有限元包AFEPack安装过程";
+    };
+  NexT.utils.loadComments(document.querySelector('#disqus_thread'), () => {
+    if (window.DISQUS) {
+      DISQUS.reset({
+        reload: true,
+        config: disqus_config
+      });
+    } else {
+      var d = document, s = d.createElement('script');
+      s.src = 'https://qixinbo.disqus.com/embed.js';
+      s.setAttribute('data-timestamp', '' + +new Date());
+      (d.head || d.body).appendChild(s);
+    }
+  });
+</script>
+
+</body>
+</html>

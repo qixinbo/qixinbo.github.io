@@ -1,0 +1,665 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=2">
+<meta name="theme-color" content="#222">
+<meta name="generator" content="Hexo 5.4.0">
+  <link rel="apple-touch-icon" sizes="180x180" href="/images/apple-touch-icon-next.png">
+  <link rel="icon" type="image/png" sizes="32x32" href="/favicon.ico">
+  <link rel="icon" type="image/png" sizes="16x16" href="/favicon.ico">
+  <link rel="mask-icon" href="/images/logo.svg" color="#222">
+
+<link rel="stylesheet" href="/css/main.css">
+
+
+<link rel="stylesheet" href="/lib/font-awesome/css/all.min.css">
+
+<script id="hexo-configurations">
+    var NexT = window.NexT || {};
+    var CONFIG = {"hostname":"qixinbo.github.io","root":"/","scheme":"Gemini","version":"7.8.0","exturl":false,"sidebar":{"position":"left","display":"post","padding":18,"offset":12,"onmobile":false},"copycode":{"enable":false,"show_result":false,"style":null},"back2top":{"enable":true,"sidebar":false,"scrollpercent":false},"bookmark":{"enable":false,"color":"#222","save":"auto"},"fancybox":false,"mediumzoom":false,"lazyload":false,"pangu":false,"comments":{"style":"tabs","active":null,"storage":true,"lazyload":false,"nav":null},"algolia":{"hits":{"per_page":10},"labels":{"input_placeholder":"Search for Posts","hits_empty":"We didn't find any results for the search: ${query}","hits_stats":"${hits} results found in ${time} ms"}},"localsearch":{"enable":false,"trigger":"auto","top_n_per_article":1,"unescape":false,"preload":false},"motion":{"enable":true,"async":false,"transition":{"post_block":"fadeIn","post_header":"slideDownIn","post_body":"slideDownIn","coll_header":"slideLeftIn","sidebar":"slideUpIn"}}};
+  </script>
+
+  <meta name="description" content="引子MOOSE，全名是Multiphysics Object Oriented Simulation Environment，是一套求解多物理场耦合的工程问题的框架。其设计规范，采用面向对象的编程范式，非常易于扩展和维护，而且尽可能地隐藏问题背后的计算数学问题，比如自适应网格算法、并行计算技术等，使得用户能够着眼于自己所要研究的科学问题。 特点其有如下特点：  与维度无关的编程，用户代码不需要考虑">
+<meta property="og:type" content="article">
+<meta property="og:title" content="多物理场面向对象模拟环境MOOSE学习手册">
+<meta property="og:url" content="http://qixinbo.github.io/2017/01/15/moose-tutorials/index.html">
+<meta property="og:site_name" content="亓欣波">
+<meta property="og:description" content="引子MOOSE，全名是Multiphysics Object Oriented Simulation Environment，是一套求解多物理场耦合的工程问题的框架。其设计规范，采用面向对象的编程范式，非常易于扩展和维护，而且尽可能地隐藏问题背后的计算数学问题，比如自适应网格算法、并行计算技术等，使得用户能够着眼于自己所要研究的科学问题。 特点其有如下特点：  与维度无关的编程，用户代码不需要考虑">
+<meta property="og:locale" content="en_US">
+<meta property="article:published_time" content="2017-01-14T16:00:00.000Z">
+<meta property="article:modified_time" content="2021-03-25T07:20:30.785Z">
+<meta property="article:author" content="Xin-Bo Qi(亓欣波)">
+<meta property="article:tag" content="MOOSE">
+<meta name="twitter:card" content="summary">
+
+<link rel="canonical" href="http://qixinbo.github.io/2017/01/15/moose-tutorials/">
+
+
+<script id="page-configurations">
+  // https://hexo.io/docs/variables.html
+  CONFIG.page = {
+    sidebar: "",
+    isHome : false,
+    isPost : true,
+    lang   : 'en'
+  };
+</script>
+
+  <title>多物理场面向对象模拟环境MOOSE学习手册 | 亓欣波</title>
+  
+
+
+
+
+
+
+  <noscript>
+  <style>
+  .use-motion .brand,
+  .use-motion .menu-item,
+  .sidebar-inner,
+  .use-motion .post-block,
+  .use-motion .pagination,
+  .use-motion .comments,
+  .use-motion .post-header,
+  .use-motion .post-body,
+  .use-motion .collection-header { opacity: initial; }
+
+  .use-motion .site-title,
+  .use-motion .site-subtitle {
+    opacity: initial;
+    top: initial;
+  }
+
+  .use-motion .logo-line-before i { left: initial; }
+  .use-motion .logo-line-after i { right: initial; }
+  </style>
+</noscript>
+
+</head>
+
+<body itemscope itemtype="http://schema.org/WebPage">
+  <div class="container use-motion">
+    <div class="headband"></div>
+
+    <header class="header" itemscope itemtype="http://schema.org/WPHeader">
+      <div class="header-inner"><div class="site-brand-container">
+  <div class="site-nav-toggle">
+    <div class="toggle" aria-label="Toggle navigation bar">
+      <span class="toggle-line toggle-line-first"></span>
+      <span class="toggle-line toggle-line-middle"></span>
+      <span class="toggle-line toggle-line-last"></span>
+    </div>
+  </div>
+
+  <div class="site-meta">
+
+    <a href="/" class="brand" rel="start">
+      <span class="logo-line-before"><i></i></span>
+      <h1 class="site-title">亓欣波</h1>
+      <span class="logo-line-after"><i></i></span>
+    </a>
+      <p class="site-subtitle" itemprop="description">Hi, I am Xin-Bo Qi (亓欣波)</p>
+  </div>
+
+  <div class="site-nav-right">
+    <div class="toggle popup-trigger">
+    </div>
+  </div>
+</div>
+
+
+
+
+<nav class="site-nav">
+  <ul id="menu" class="main-menu menu">
+        <li class="menu-item menu-item-home">
+
+    <a href="/" rel="section"><i class="home fa-fw"></i>Home</a>
+
+  </li>
+        <li class="menu-item menu-item-categories">
+
+    <a href="/categories/" rel="section"><i class="th fa-fw"></i>Categories</a>
+
+  </li>
+        <li class="menu-item menu-item-archives">
+
+    <a href="/archives/" rel="section"><i class="archive fa-fw"></i>Archives</a>
+
+  </li>
+        <li class="menu-item menu-item-tags">
+
+    <a href="/tags/" rel="section"><i class="tags fa-fw"></i>Tags</a>
+
+  </li>
+        <li class="menu-item menu-item-scholar">
+
+    <a href="/scholar/" rel="section"><i class="bar-chart fa-fw"></i>scholar</a>
+
+  </li>
+        <li class="menu-item menu-item-sources">
+
+    <a href="/sources/" rel="section"><i class="rss fa-fw"></i>sources</a>
+
+  </li>
+        <li class="menu-item menu-item-gallery">
+
+    <a href="/gallery/" rel="section"><i class="file-image-o fa-fw"></i>gallery</a>
+
+  </li>
+        <li class="menu-item menu-item-about">
+
+    <a href="/about/" rel="section"><i class="user fa-fw"></i>About</a>
+
+  </li>
+        <li class="menu-item menu-item-commonweal">
+
+    <a href="/404.html" rel="section"><i class="heartbeat fa-fw"></i>Commonweal 404</a>
+
+  </li>
+  </ul>
+</nav>
+
+
+
+
+</div>
+    </header>
+
+    
+  <div class="back-to-top">
+    <i class="fa fa-arrow-up"></i>
+    <span>0%</span>
+  </div>
+
+
+    <main class="main">
+      <div class="main-inner">
+        <div class="content-wrap">
+          
+
+          <div class="content post posts-expand">
+            
+
+    
+  
+  
+  <article itemscope itemtype="http://schema.org/Article" class="post-block" lang="en">
+    <link itemprop="mainEntityOfPage" href="http://qixinbo.github.io/2017/01/15/moose-tutorials/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="image" content="/images/avatar.jpg">
+      <meta itemprop="name" content="Xin-Bo Qi(亓欣波)">
+      <meta itemprop="description" content="Be interesting!">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="亓欣波">
+    </span>
+      <header class="post-header">
+        <h1 class="post-title" itemprop="name headline">
+          多物理场面向对象模拟环境MOOSE学习手册
+        </h1>
+
+        <div class="post-meta">
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="far fa-calendar"></i>
+              </span>
+              <span class="post-meta-item-text">Posted on</span>
+
+              <time title="Created: 2017-01-15 00:00:00" itemprop="dateCreated datePublished" datetime="2017-01-15T00:00:00+08:00">2017-01-15</time>
+            </span>
+              <span class="post-meta-item">
+                <span class="post-meta-item-icon">
+                  <i class="far fa-calendar-check"></i>
+                </span>
+                <span class="post-meta-item-text">Edited on</span>
+                <time title="Modified: 2021-03-25 15:20:30" itemprop="dateModified" datetime="2021-03-25T15:20:30+08:00">2021-03-25</time>
+              </span>
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="far fa-folder"></i>
+              </span>
+              <span class="post-meta-item-text">In</span>
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+                  <a href="/categories/computational-material-science/" itemprop="url" rel="index"><span itemprop="name">computational material science</span></a>
+                </span>
+            </span>
+
+          
+  
+  <span class="post-meta-item">
+    
+      <span class="post-meta-item-icon">
+        <i class="far fa-comment"></i>
+      </span>
+      <span class="post-meta-item-text">Disqus: </span>
+    
+    <a title="disqus" href="/2017/01/15/moose-tutorials/#disqus_thread" itemprop="discussionUrl">
+      <span class="post-comments-count disqus-comment-count" data-disqus-identifier="2017/01/15/moose-tutorials/" itemprop="commentCount"></span>
+    </a>
+  </span>
+  
+  
+
+        </div>
+      </header>
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+        <h1 id="引子"><a href="#引子" class="headerlink" title="引子"></a>引子</h1><p>MOOSE，全名是Multiphysics Object Oriented Simulation Environment，是一套求解多物理场耦合的工程问题的框架。其设计规范，采用面向对象的编程范式，非常易于扩展和维护，而且尽可能地隐藏问题背后的计算数学问题，比如自适应网格算法、并行计算技术等，使得用户能够着眼于自己所要研究的科学问题。</p>
+<h1 id="特点"><a href="#特点" class="headerlink" title="特点"></a>特点</h1><p>其有如下特点：</p>
+<ol>
+<li>与维度无关的编程，用户代码不需要考虑维度问题</li>
+<li>基于有限元，可以是连续有限元，也可以是间断有限元</li>
+<li>多物理场耦合，隐藏编程细节</li>
+<li>非规则网格，有多种形状：三角形、四边形、六边形、六面体、八面体等，可读入和输出多种形式。</li>
+<li>自适应网格</li>
+<li>并行计算</li>
+<li>高次插值</li>
+<li>内置后处理<br>等等。</li>
+</ol>
+<h1 id="安装"><a href="#安装" class="headerlink" title="安装"></a>安装</h1><p>提前安装好的软件：</p>
+<ul>
+<li>gcc4.8(系统默认自带)</li>
+<li>g++4.8(可以直接命令行安装，也可以使用新立得，如果默认源不匹配，要注意更新源和切换源，如果必要，也要安装build-essential)</li>
+<li>gfortran4.8 (moose中有fortran程序，如waterStreamEos模块)</li>
+<li>python相关库：python-dev、python-numpy、python-yaml、python-matplotlib、python-vtk</li>
+<li>git</li>
+<li>mpich3.2，不推荐openmpi，会出现以下问题：<figure class="highlight cpp"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"><span class="function">no underlying compiler was specified in the wrapper compiler data <span class="title">file</span> <span class="params">(e.g. mpicc-wrapper-data.txt)</span></span></span><br></pre></td></tr></table></figure></li>
+<li>hypre 最好是装上，不装也可以，程序也能运行，但会出现以下问题：<figure class="highlight cpp"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">Unable to find requested PC type hypre</span><br></pre></td></tr></table></figure></li>
+<li>PETSc3.7.4(注意记录安装完成后产生的路径和架构信息)，其参数可为：<figure class="highlight cpp"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">--download-fblaslapack --with-mpi-dir=/usr/local/mpich --download-hypre</span><br></pre></td></tr></table></figure></li>
+</ul>
+<p>然后，按照官网教程来：</p>
+<ol>
+<li>克隆源码库<figure class="highlight cpp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line">mkdir ~/projects</span><br><span class="line">cd ~/projects</span><br><span class="line">git clone https:<span class="comment">//github.com/idaholab/moose.git</span></span><br><span class="line">cd ~/projects/moose</span><br><span class="line">git checkout master</span><br></pre></td></tr></table></figure></li>
+<li>编译libMesh<figure class="highlight cpp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">cd ~/projects/moose</span><br><span class="line">scripts/update_and_rebuild_libmesh.sh</span><br></pre></td></tr></table></figure></li>
+<li>测试<figure class="highlight cpp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">cd ~/projects/moose/test</span><br><span class="line">make -j8</span><br><span class="line">./run_tests -j8</span><br></pre></td></tr></table></figure></li>
+</ol>
+<h1 id="创建程序"><a href="#创建程序" class="headerlink" title="创建程序"></a>创建程序</h1><p>要创建自己的程序，先去github上克隆官方给出的一个stork库，然后在自己的github里重命名该库，官方建议用动物名命名，然后再将自己的库克隆下来：</p>
+<figure class="highlight cpp"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">git clone https:<span class="comment">//github.com/&lt;username&gt;/&lt;app_name&gt;.git</span></span><br></pre></td></tr></table></figure>
+<p>注意，克隆下来的库的位置要与moose库同级，原因可以查看后面生成的Makefile文件，其会在与当前库相同的路径下寻找moose库，就是下面这句话：</p>
+<figure class="highlight cpp"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">MOOSE_DIR        ?= $(shell dirname `pwd`)/moose</span><br></pre></td></tr></table></figure>
+<p>从上面的“问号等于”赋值语句来看，也可以任意放置该库位置，只需手动指定一下MOOSEDIR这个环境变量即可。<br>这时候克隆下来的库还是很凌乱的，不知道其组织结构是什么，再运行“创建新程序”这个脚本：</p>
+<figure class="highlight cpp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">cd &lt;app_name&gt;</span><br><span class="line">./make_new_application.py</span><br></pre></td></tr></table></figure>
+<p>这时候整个代码结构就焕然一新，通过查看git状态就可以知道该脚本干了什么：</p>
+<figure class="highlight cpp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">#	renamed:    Makefile.app -&gt; Makefile</span></span><br><span class="line"><span class="meta">#	deleted:    Makefile.module</span></span><br><span class="line"><span class="meta">#	modified:   README.md</span></span><br><span class="line"><span class="meta">#	modified:   doc/doxygen/Doxyfile</span></span><br><span class="line"><span class="meta">#	new file:   <span class="meta-keyword">include</span>/base/StarfishApp.h</span></span><br><span class="line"><span class="meta">#	deleted:    <span class="meta-keyword">include</span>/base/StorkApp.h</span></span><br><span class="line"><span class="meta">#	deleted:    make_new_application.py</span></span><br><span class="line"><span class="meta">#	deleted:    make_new_module.py</span></span><br><span class="line"><span class="meta">#	renamed:    run_tests.app -&gt; run_tests</span></span><br><span class="line"><span class="meta">#	deleted:    run_tests.module</span></span><br><span class="line"><span class="meta">#	new file:   src/base/StarfishApp.C</span></span><br><span class="line"><span class="meta">#	new file:   src/base/StarfishApp.C.module</span></span><br><span class="line"><span class="meta">#	deleted:    src/base/StorkApp.C.app</span></span><br><span class="line"><span class="meta">#	deleted:    src/base/StorkApp.C.module</span></span><br><span class="line"><span class="meta">#	modified:   src/main.C</span></span><br><span class="line"><span class="meta">#	modified:   unit/Makefile</span></span><br><span class="line"><span class="meta">#	modified:   unit/run_tests</span></span><br><span class="line"><span class="meta">#	modified:   unit/src/main.C</span></span><br></pre></td></tr></table></figure>
+<p>然后，再make一下，就可以得到可执行文件。用tests中的输入文件测试一下：</p>
+<figure class="highlight cpp"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">./starfish-opt -i /home/qixinbo/MyProjects/starfish/tests/kernels/simple_diffusion/simple_diffusion.i</span><br></pre></td></tr></table></figure>
+<p>后续就是创建自己的输入文件。</p>
+<h1 id="输入文件"><a href="#输入文件" class="headerlink" title="输入文件"></a>输入文件</h1><p>输入文件是“分级块状”形式，比如：</p>
+<figure class="highlight cpp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br></pre></td><td class="code"><pre><span class="line">[Variables]</span><br><span class="line">  active = <span class="string">&#x27;u&#x27;</span></span><br><span class="line">  [./u]</span><br><span class="line">    order = FIRST</span><br><span class="line">    family = LAGRANGE</span><br><span class="line">  [../]</span><br><span class="line">  [./v]</span><br><span class="line">    order = FIRST</span><br><span class="line">    family = LAGRANGE</span><br><span class="line">  [../]</span><br><span class="line">[]</span><br><span class="line">[Kernels]</span><br><span class="line">  ...</span><br><span class="line">[]</span><br></pre></td></tr></table></figure>
+<p>可以看出，方括号括起来的就是一个块，且块里还可以包含块，这就是分级块状结构。<br>在moose的<a target="_blank" rel="noopener" href="http://mooseframework.com/docs/syntax/moose/">帮助文档</a>中，已经很直观地列出了各种块的结构。需要注意的是其颜色和符号表示：加粗的名称表示其是一个块，红色参数表示该参数必须人为指定。输入文件可以手动书写，也可以在Peacock孔雀中设定。Peacock是一个图形前端，使用户可以创建或修改输入文件，执行计算和可视化计算结果。Peacock中黑色字体的块可以双击以编辑，蓝色字体的块可以右键单击进行添加，出来编辑对话框后，最上面可以选择总的类型选择，Peacock中必须设定的字段是橘黄色填充，对应moose帮助文档中的红色参数。</p>
+<p>重要的“块”有网格、变量、内核模型、边界条件、求解器、输出等。通常，用户程序需要自己创建网格，设定自己的变量及其有限元插值方式，编写自己的内核模型，当然对简单问题也可以直接调用moose的内核模型，设定边界条件，选择求解器，设置输出格式等。</p>
+<h1 id="创建私有对象"><a href="#创建私有对象" class="headerlink" title="创建私有对象"></a>创建私有对象</h1><p>若想创建自己的程序，比如编写自己的物理模型或边界条件等，只需继承一个已有的moose对象，然后对其进行扩展。比如编写自己的内核模型，需要在本地程序中在头文件和源文件路径中都创建kernals路径，并分别创建相应的头文件和源文件，然后需要在这两个文件中做以下事情：</p>
+<h2 id="定义有效参数和继承已有的moose对象："><a href="#定义有效参数和继承已有的moose对象：" class="headerlink" title="定义有效参数和继承已有的moose对象："></a>定义有效参数和继承已有的moose对象：</h2><p>在头文件中：</p>
+<figure class="highlight cpp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><span class="line"><span class="class"><span class="keyword">class</span> <span class="title">Convection</span>;</span></span><br><span class="line"></span><br><span class="line"><span class="keyword">template</span>&lt;&gt;</span><br><span class="line">InputParameters validParams&lt;Convection&gt;();</span><br><span class="line"></span><br><span class="line"><span class="class"><span class="keyword">class</span> <span class="title">Convection</span> :</span> <span class="keyword">public</span> Kernel</span><br><span class="line">...</span><br></pre></td></tr></table></figure>
+<p>这里的Convection就是新定义的内核，其父类是moose的Kernel类。<br>每一个moose派生的对象都必须指定一个validParams函数，它必须先取出父类中的参数，然后再增加额外的参数。即在源文件中：</p>
+<figure class="highlight cpp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">template</span>&lt;&gt;</span><br><span class="line">InputParameters validParams&lt;Convection&gt;()</span><br><span class="line">&#123;</span><br><span class="line">  InputParameters params = validParams&lt;Kernel&gt;();  <span class="comment">// Must get from parent</span></span><br><span class="line">  params.addRequiredParam&lt;RealVectorValue&gt;(<span class="string">&quot;velocity&quot;</span>, <span class="string">&quot;Velocity Vector&quot;</span>);</span><br><span class="line">  params.addParam&lt;Real&gt;(<span class="string">&quot;coefficient&quot;</span>, <span class="string">&quot;Diffusion coefficient&quot;</span>);</span><br><span class="line">  <span class="keyword">return</span> params;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p>这样，在输入文件中就需要指定该对象所需要的参数。可以用</p>
+<figure class="highlight cpp"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">./ex02-opt --dump [optional search string]</span><br></pre></td></tr></table></figure>
+<p>来具体查看所需参数。</p>
+<p>添加函数的语法为：</p>
+<figure class="highlight cpp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line">addRequiredParam&lt;Real&gt;(<span class="string">&quot;required_const&quot;</span>, <span class="string">&quot;doc&quot;</span>);</span><br><span class="line">addParam&lt;<span class="keyword">int</span>&gt;(<span class="string">&quot;count&quot;</span>, <span class="number">1</span>, <span class="string">&quot;doc&quot;</span>); <span class="comment">// default supplied</span></span><br><span class="line">addParam&lt;<span class="keyword">unsigned</span> <span class="keyword">int</span>&gt;(<span class="string">&quot;another_num&quot;</span>, <span class="string">&quot;doc&quot;</span>);</span><br><span class="line">addRequiredParam&lt;std::vector&lt;<span class="keyword">int</span>&gt; &gt;(<span class="string">&quot;vec&quot;</span>, <span class="string">&quot;doc&quot;</span>);</span><br></pre></td></tr></table></figure>
+<p>第一个参数是参数名，输入文件中要跟其相同，最后一个参数是注释。<br>对于非required的参数，可以设置其缺省值或取值范围，如：</p>
+<figure class="highlight cpp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">addParam&lt;RealVectorValue&gt;(<span class="string">&quot;direction&quot;</span>, <span class="built_in">RealVectorValue</span>(<span class="number">0</span>,<span class="number">1</span>,<span class="number">0</span>), <span class="string">&quot;doc&quot;</span>);</span><br><span class="line">addRangeCheckedParam&lt;Real&gt;(<span class="string">&quot;temp&quot;</span>, <span class="string">&quot;temp&gt;=300 &amp; temp&lt;=330&quot;</span>, <span class="string">&quot;doc&quot;</span>);</span><br></pre></td></tr></table></figure>
+
+<h2 id="注册该对象"><a href="#注册该对象" class="headerlink" title="注册该对象"></a>注册该对象</h2><p>即在具体问题的app源文件中注册一下：</p>
+<figure class="highlight cpp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">#<span class="meta-keyword">include</span> <span class="meta-string">&quot;ExampleConvection.h&quot;</span> </span></span><br><span class="line"><span class="keyword">void</span></span><br><span class="line">ExampleApp::<span class="built_in">registerObjects</span>(Factory &amp; factory)</span><br><span class="line">&#123;</span><br><span class="line"><span class="comment">// Register any custom objects you have built on the MOOSE Framework</span></span><br><span class="line"><span class="built_in">registerKernel</span>(ExampleConvection); <span class="comment">// &lt;- registration</span></span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<h2 id="使用该对象"><a href="#使用该对象" class="headerlink" title="使用该对象"></a>使用该对象</h2><p>在输入文件中使用该对象，比如这里的内核模型：</p>
+<figure class="highlight cpp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br></pre></td><td class="code"><pre><span class="line">[Kernels]</span><br><span class="line">  [./diff]</span><br><span class="line">    type = Diffusion</span><br><span class="line">    variable = convected</span><br><span class="line">  [../]</span><br><span class="line">  [./conv]</span><br><span class="line">    type = ExampleConvection</span><br><span class="line">    variable = convected</span><br><span class="line">    velocity = &#x27;0.0 0.0 1.0&#x27;</span><br><span class="line">  [../]</span><br><span class="line">[]</span><br></pre></td></tr></table></figure>
+
+<h1 id="网格"><a href="#网格" class="headerlink" title="网格"></a>网格</h1><p>网格块默认是读入网格文件，即默认：</p>
+<figure class="highlight cpp"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">type = FileMesh</span><br></pre></td></tr></table></figure>
+<p>可以读入很多种格式的网格文件，比如libMesh、Tecplot、GMSH、Abaqus等。所以对于复杂形状的几何体，可以使用专业的网格生成软件，再由moose读入。</p>
+<p>使用GMSH画网格时，注意按照“点-线-面-体”的步骤生成几何体，不要漏了某一步骤。<br>同时，Attention：还要生成”Physical Groups”，将面加上标识，用以设置边界条件，同时还要将体加上标识，否则在peacock中不能正确识别整个三维结构。</p>
+<p>还可以是内置生成的网格，即：</p>
+<figure class="highlight cpp"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">type = GeneratedMesh</span><br></pre></td></tr></table></figure>
+<p>可以用来创建一些简单的形状，如立方体等。<br>边界标识为：</p>
+<figure class="highlight cpp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">In <span class="number">1</span>D, left = <span class="number">0</span>, right = <span class="number">1</span></span><br><span class="line">In <span class="number">2</span>D, bottom = <span class="number">0</span>, right = <span class="number">1</span>, top = <span class="number">2</span>, left = <span class="number">3</span></span><br><span class="line">In <span class="number">3</span>D, back = <span class="number">0</span>, bottom = <span class="number">1</span>, right = <span class="number">2</span>, top = <span class="number">3</span>, left = <span class="number">4</span>, front = <span class="number">5</span></span><br></pre></td></tr></table></figure>
+<p>计算域的维度、长高宽、每个方向上单元个数等都可以人为指定：</p>
+<figure class="highlight cpp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><span class="line">[Mesh]</span><br><span class="line">  type = GeneratedMesh</span><br><span class="line">  dim = <span class="number">2</span></span><br><span class="line">  nx = <span class="number">100</span></span><br><span class="line">  ny = <span class="number">100</span></span><br><span class="line">  xmax = <span class="number">60</span></span><br><span class="line">  ymax = <span class="number">60</span></span><br><span class="line">[]</span><br></pre></td></tr></table></figure>
+<p>还有其他的网格类型，比如EBSDMesh、ImageMesh等。</p>
+<h1 id="内核模型对象"><a href="#内核模型对象" class="headerlink" title="内核模型对象"></a>内核模型对象</h1><p>一个内核Kernel是一个物理模型，表示偏微分方程中的一个或多个算子。<br>一个内核必须重载computeQpResidual函数，可以视情况重载computeQpJacobian和computeQpOffDiagJacobian函数。<br>内核的常用数据成员：</p>
+<figure class="highlight cpp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><span class="line">_u,_grad_u: 该kernel所操作的变量的值和梯度</span><br><span class="line">_phi,_grad_phi: 基函数在积分点上的值和梯度</span><br><span class="line">_test,_grad_test: 试探函数在积分点上的值和梯度 </span><br><span class="line">_q_point: 当前积分点的xyz坐标</span><br><span class="line">_i,_j: 分别是试探函数和有限元插值函数的当前形函数</span><br><span class="line">_qp: 当前积分点标识</span><br><span class="line">_current_elem: 指向当前单元的指针</span><br></pre></td></tr></table></figure>
+<p>在伽辽金有限元法中，试探函数和有限元函数的基函数相同。<br>MOOSE中默认把控制方程写成右端项为0，即将所有项都移到左端，称为残差向量Residual Vector。</p>
+<p>对于时间发展方程，moose的内核是TimeDerivative。常用的数据成员是：</p>
+<figure class="highlight cpp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">_u_dot: u对时间的导数</span><br><span class="line">_du_dot_du: u对时间的导数对u的导数，用于计算雅各比矩阵</span><br></pre></td></tr></table></figure>
+
+<h1 id="初始条件对象"><a href="#初始条件对象" class="headerlink" title="初始条件对象"></a>初始条件对象</h1><p>时间相关的问题需要设置初始条件，如果使用ExodusII网格，还可以将之前模拟中的变量的值作为初始条件。<br>首先在头文件中创建有效参数和继承已有moose对象：</p>
+<figure class="highlight cpp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">#<span class="meta-keyword">ifndef</span> EXAMPLEIC_H</span></span><br><span class="line"><span class="meta">#<span class="meta-keyword">define</span> EXAMPLEIC_H</span></span><br><span class="line"></span><br><span class="line"><span class="meta">#<span class="meta-keyword">include</span> <span class="meta-string">&quot;InitialCondition.h&quot;</span></span></span><br><span class="line"></span><br><span class="line"><span class="class"><span class="keyword">class</span> <span class="title">ExampleIC</span>;</span></span><br><span class="line"><span class="keyword">template</span>&lt;&gt;</span><br><span class="line"># InputParameters validParams&lt;ExampleIC&gt;();</span><br><span class="line"></span><br><span class="line"><span class="class"><span class="keyword">class</span> <span class="title">ExampleIC</span> :</span> <span class="keyword">public</span> InitialCondition</span><br><span class="line">&#123;</span><br><span class="line"><span class="keyword">public</span>:</span><br><span class="line"># <span class="built_in">ExampleIC</span>(<span class="keyword">const</span> std::string | name,</span><br><span class="line">          InputParameters parameters);</span><br><span class="line"></span><br><span class="line"><span class="function"><span class="keyword">virtual</span> Real <span class="title">value</span><span class="params">(<span class="keyword">const</span> Point | p)</span></span>;</span><br><span class="line"></span><br><span class="line"><span class="keyword">private</span>:</span><br><span class="line">  Real _coefficient;</span><br><span class="line">&#125;;</span><br><span class="line"></span><br><span class="line"><span class="meta">#<span class="meta-keyword">endif</span> <span class="comment">//EXAMPLEIC_H</span></span></span><br></pre></td></tr></table></figure>
+<p>父类是moose的InitialCondition类，派生类必须重载value函数，可以选择性重载gradient函数。<br>然后在源文件中：</p>
+<figure class="highlight cpp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">#<span class="meta-keyword">include</span> <span class="meta-string">&quot;ExampleIC.h&quot;</span></span></span><br><span class="line"></span><br><span class="line"><span class="keyword">template</span>&lt;&gt;</span><br><span class="line"># InputParameters validParams&lt;ExampleIC&gt;()</span><br><span class="line">&#123;</span><br><span class="line">  InputParameters params = validParams&lt;InitialCondition&gt;();</span><br><span class="line">  params.addRequiredParam&lt;Real&gt;(<span class="string">&quot;coefficient&quot;</span>, <span class="string">&quot;A coef&quot;</span>);</span><br><span class="line">  <span class="keyword">return</span> params;</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"># ExampleIC::<span class="built_in">ExampleIC</span>(<span class="keyword">const</span> std::string | name,</span><br><span class="line">                     InputParameters parameters):</span><br><span class="line">  <span class="built_in">InitialCondition</span>(name, parameters),</span><br><span class="line">  _coefficient(getParam&lt;Real&gt;(<span class="string">&quot;coefficient&quot;</span>))</span><br><span class="line">&#123;&#125;</span><br><span class="line"></span><br><span class="line"># Real</span><br><span class="line"># ExampleIC::<span class="built_in">value</span>(<span class="keyword">const</span> Point | p)</span><br><span class="line">&#123;</span><br><span class="line">  <span class="comment">// 2.0 * c * |x|</span></span><br><span class="line">  <span class="keyword">return</span> <span class="number">2.0</span>*_coefficient*std::<span class="built_in">abs</span>(<span class="built_in">p</span>(<span class="number">0</span>));</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p>然后，注册该初始条件对象：</p>
+<figure class="highlight cpp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">#<span class="meta-keyword">include</span> <span class="meta-string">&quot;ExampleIC.h&quot;</span></span></span><br><span class="line">...</span><br><span class="line"><span class="built_in">registerInitialCondition</span>(ExampleIC);</span><br></pre></td></tr></table></figure>
+<p>在输入文件中使用时可以有多种形式：<br>第一种：直接使用ICs块：</p>
+<figure class="highlight cpp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br></pre></td><td class="code"><pre><span class="line">[ICs]</span><br><span class="line">  [./mat_1]</span><br><span class="line">    type = ExampleIC</span><br><span class="line">    variable = u</span><br><span class="line">    coefficient = <span class="number">2.0</span></span><br><span class="line">    block = <span class="number">1</span></span><br><span class="line">  [../]</span><br><span class="line"></span><br><span class="line">  [./mat_2]</span><br><span class="line">    type = ExampleIC</span><br><span class="line">    variable = u</span><br><span class="line">    coefficient = <span class="number">10.0</span></span><br><span class="line">    block = <span class="number">2</span></span><br><span class="line">  [../]</span><br></pre></td></tr></table></figure>
+<p>第二种：在variable块下使用：</p>
+<figure class="highlight cpp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br></pre></td><td class="code"><pre><span class="line">[Variables]</span><br><span class="line">  [./diffused]</span><br><span class="line">    order = FIRST</span><br><span class="line">    family = LAGRANGE</span><br><span class="line">    # Use the initial Condition block underneath the variable</span><br><span class="line">    <span class="meta"># for which we want to apply this initial condition</span></span><br><span class="line">    [./InitialCondition]</span><br><span class="line">      type = ExampleIC</span><br><span class="line">      coefficient = <span class="number">2.0</span>;</span><br><span class="line">    [../]</span><br><span class="line">  [../]</span><br><span class="line">[]</span><br></pre></td></tr></table></figure>
+<p>如果是简单的初始条件，设置不需要额外创建该对象，直接：</p>
+<figure class="highlight cpp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br></pre></td><td class="code"><pre><span class="line">[Variables]</span><br><span class="line">  active = <span class="string">&#x27;u&#x27;</span></span><br><span class="line"></span><br><span class="line">  [./u]</span><br><span class="line">    order = FIRST</span><br><span class="line">    family = LAGRANGE</span><br><span class="line">    # For simple constant ICs</span><br><span class="line">    initial_condition = <span class="number">10</span></span><br><span class="line">  [../]</span><br></pre></td></tr></table></figure>
+<p>第三种：导入之前求解的解：</p>
+<figure class="highlight cpp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br></pre></td><td class="code"><pre><span class="line">[Variables]</span><br><span class="line">  active = <span class="string">&#x27;u&#x27;</span></span><br><span class="line"></span><br><span class="line">  [./u]</span><br><span class="line">    order = FIRST</span><br><span class="line">    family = LAGRANGE</span><br><span class="line">    # For reading a solution</span><br><span class="line">    <span class="meta"># from an ExodusII file</span></span><br><span class="line">    initial_from_file_var = diffused&#125;</span><br><span class="line">    initial_from_file_timestep = <span class="number">2</span></span><br><span class="line">  [../]</span><br></pre></td></tr></table></figure>
+
+<h1 id="边界条件对象"><a href="#边界条件对象" class="headerlink" title="边界条件对象"></a>边界条件对象</h1><p>边界条件的结构与内核模型类似，不同是，有些边界条件在边界上积分，其继承moose的IntegratedBC类，而有些边界条件不在边界上积分，即Dirichlet边界条件，其继承NodalBC类。<br>对于边界条件可以使用的内部函数有：<br>对于积分的边界条件：</p>
+<figure class="highlight cpp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br></pre></td><td class="code"><pre><span class="line">_u, _grad_u: 此边界条件所操作的值和梯度</span><br><span class="line">_phi, _grad_phi: 基函数的值和梯度</span><br><span class="line">_test, _grad_test: 试探函数的值和梯度</span><br><span class="line">_q_point: XYZ坐标</span><br><span class="line">_i, _j: 形函数索引</span><br><span class="line">_qp: 当前积分点索引</span><br><span class="line">_normals: 法向量</span><br><span class="line">_boundary_id: 边界标识</span><br><span class="line">_current_elem: 指向当前单元的指针</span><br><span class="line">_current_side: 当前单元的边的标识</span><br></pre></td></tr></table></figure>
+<p>对于非积分的边界条件：</p>
+<figure class="highlight cpp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line">_u</span><br><span class="line">_qp</span><br><span class="line">_boundary_id</span><br><span class="line">_current_node: 指向当前节点的指针</span><br></pre></td></tr></table></figure>
+<p>不同的边界可以有不同的边界条件，所以相互之间可以耦合使用：</p>
+<figure class="highlight cpp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><span class="line"><span class="built_in">coupledValue</span>()</span><br><span class="line"><span class="built_in">coupledValueOld</span>()</span><br><span class="line"><span class="built_in">coupledValueOlder</span>()</span><br><span class="line"><span class="built_in">coupledGradient</span>()</span><br><span class="line"><span class="built_in">coupledGradientOld</span>()</span><br><span class="line"><span class="built_in">coupledGradientOlder</span>()</span><br><span class="line"><span class="built_in">coupledDot</span>()</span><br></pre></td></tr></table></figure>
+
+<p>周期性边界条件对于守恒物理量在近似无限大的计算域中的演化非常有用。moose对于边界条件有非常强大的支持：可以设置不同维度、网格自适应、对于特定变量施加、设置任意变换矢量来设定周期性(可以与坐标系平行也可以成角度)。</p>
+<h1 id="材料属性对象"><a href="#材料属性对象" class="headerlink" title="材料属性对象"></a>材料属性对象</h1><p>首先还是创建有效参数和继承moose对象：</p>
+<figure class="highlight cpp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">template</span>&lt;&gt;</span><br><span class="line">InputParameters validParams&lt;ExampleMaterial&gt;();</span><br><span class="line"><span class="class"><span class="keyword">class</span> <span class="title">ExampleMaterial</span> :</span> <span class="keyword">public</span> Material</span><br><span class="line">&#123;</span><br><span class="line"><span class="keyword">public</span>:</span><br><span class="line">  <span class="built_in">ExampleMaterial</span>(<span class="keyword">const</span> InputParameters &amp; parameters);</span><br><span class="line"><span class="keyword">protected</span>:</span><br><span class="line">  <span class="function"><span class="keyword">virtual</span> <span class="keyword">void</span> <span class="title">computeQpProperties</span><span class="params">()</span> <span class="keyword">override</span></span>;</span><br><span class="line">...</span><br><span class="line">&#125;</span><br><span class="line">这里的父类是moose的Material类，必须重载computeQpProperties函数。</span><br><span class="line">Material类定义了材料属性后，其他对象通过getMaterialProperty函数来获取它们：</span><br><span class="line">```cpp</span><br><span class="line">ExampleConvection::<span class="built_in">ExampleConvection</span>(<span class="keyword">const</span> InputParameters &amp; parameters) :</span><br><span class="line"><span class="built_in">Kernel</span>(parameters),</span><br><span class="line"><span class="comment">// Retrieve a gradient material property to use for the convection</span></span><br><span class="line"><span class="comment">// velocity</span></span><br><span class="line">_velocity(getMaterialProperty&lt;RealGradient&gt;(<span class="string">&quot;convection_velocity&quot;</span>))</span><br><span class="line">&#123;&#125;</span><br></pre></td></tr></table></figure>
+
+<h1 id="后处理对象"><a href="#后处理对象" class="headerlink" title="后处理对象"></a>后处理对象</h1><p>一个后处理对象是对所得的解进行加工再处理的过程，比如得到每条边上的平均通量，结果是一个标量值。<br>其何时计算取决于这个参数：</p>
+<figure class="highlight cpp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line">execute_on = timestep_end</span><br><span class="line">execute_on = linear</span><br><span class="line">execute_on = nonlinear</span><br><span class="line">execute_on = timestep_begin</span><br><span class="line">execute_on = custom</span><br></pre></td></tr></table></figure>
+<p>其可以限制在计算域的特定区域、边或节点的特定集合上:</p>
+<ol>
+<li>作用在单元上：可以是整个计算域上的单元，也可是通过设定一个或多个block标识来限制子区域，继承自ElementPostprocessor类;</li>
+<li>作用在节点上：可以是整个计算域上的节点，也可通过设定一个或多个boundary标识来限制点集，继承自NodalPostprocessor类;</li>
+<li>作用在边上：必须设定一个或多个boundary标识来决定在哪个边上计算，继承自SidePostprocessor类;</li>
+<li>通用设置：根据自己需求设置，继承自GeneralPostprocessor。</li>
+</ol>
+<p>一些内置的后处理模块有：</p>
+<figure class="highlight cpp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line">ElementIntegral 单元积分, ElementAverageValue 单元平均值</span><br><span class="line">SideIntegral 边积分, SideAverageValue 边平均值</span><br><span class="line">ElementL2Error 单元L2误差, ElementH1Error 单元H1误差</span><br><span class="line">NumDOFs 自由度个数, NumNodes 节点个数, NumVars 变量个数</span><br></pre></td></tr></table></figure>
+<p>上述这些都可以继承并扩展。<br>后处理结果可以输出在屏幕上，也能写入一个CSV或Tecplot文件中，或者作为全局数据输出到Exodus文件中</p>
+<h1 id="求解器对象"><a href="#求解器对象" class="headerlink" title="求解器对象"></a>求解器对象</h1><p>有两种主要的求解器类型：稳态和瞬态。moose提供很多内置求解器，也可以自己创建。<br>控制求解器的常用参数：</p>
+<figure class="highlight cpp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line">l_tol 	   线性忍量</span><br><span class="line">l_max_its  最大线性迭代次数</span><br><span class="line">nl_rel_tol 非线性相对忍量</span><br><span class="line">nl_max_its 最大非线性迭代次数</span><br></pre></td></tr></table></figure>
+<p>对于瞬态问题，还有一些与时间相关的设置：</p>
+<figure class="highlight cpp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line">dt          起始时间步长(后续可以变时间步长)</span><br><span class="line">num_steps   时间步数</span><br><span class="line">start_time  起始时间</span><br><span class="line">end_time    终止时间</span><br><span class="line">scheme      时间积分算法</span><br></pre></td></tr></table></figure>
+<p>moose提供了多种时间积分算法，包括下面的隐式时间积分算法：</p>
+<figure class="highlight"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line"><span class="function">Backward <span class="title">Euler</span> <span class="params">(缺省值)</span></span></span><br><span class="line"><span class="function">BDF2</span></span><br><span class="line">Crank-Nicolson</span><br><span class="line">Implicit-Euler</span><br><span class="line"><span class="function">Implicit <span class="title">Midpoint</span> <span class="params">(implemented as two-stage RK method)</span></span></span><br><span class="line">Diagonally-Implicit Runge-Kutta (DIRK) methods of order 2 and 3.</span><br></pre></td></tr></table></figure>
+<p>以及显式时间积分算法：</p>
+<figure class="highlight cpp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">Explicit-Euler</span><br><span class="line">Various two-stage <span class="keyword">explicit</span> Runge-<span class="function">Kutta <span class="title">methods</span> <span class="params">(Midpoint, Heun, Ralston, TVD)</span></span></span><br></pre></td></tr></table></figure>
+<p>以上算法都支持自适应时间步进。</p>
+
+    </div>
+
+    
+    
+    
+        <div class="reward-container">
+  <div></div>
+  <button onclick="var qr = document.getElementById('qr'); qr.style.display = (qr.style.display === 'none') ? 'block' : 'none';">
+    Donate
+  </button>
+  <div id="qr" style="display: none;">
+      
+      <div style="display: inline-block;">
+        <img src="/images/wechat_reward.png" alt="Xin-Bo Qi(亓欣波) WeChat Pay">
+        <p>WeChat Pay</p>
+      </div>
+
+  </div>
+</div>
+
+
+      <footer class="post-footer">
+          <div class="post-tags">
+              <a href="/tags/MOOSE/" rel="tag"># MOOSE</a>
+          </div>
+
+        
+
+
+        
+    <div class="post-nav">
+      <div class="post-nav-item">
+    <a href="/2017/01/11/moose-phase-field-kernel/" rel="prev" title="MOOSE相场模块的内核模型">
+      <i class="fa fa-chevron-left"></i> MOOSE相场模块的内核模型
+    </a></div>
+      <div class="post-nav-item">
+    <a href="/2017/02/14/moose-run/" rel="next" title="多物理场面向对象模拟环境MOOSE运行过程分析">
+      多物理场面向对象模拟环境MOOSE运行过程分析 <i class="fa fa-chevron-right"></i>
+    </a></div>
+    </div>
+      </footer>
+    
+  </article>
+  
+  
+  
+
+
+
+          </div>
+          
+    
+  <div class="comments">
+    <div id="disqus_thread">
+      <noscript>Please enable JavaScript to view the comments powered by Disqus.</noscript>
+    </div>
+  </div>
+  
+
+<script>
+  window.addEventListener('tabs:register', () => {
+    let { activeClass } = CONFIG.comments;
+    if (CONFIG.comments.storage) {
+      activeClass = localStorage.getItem('comments_active') || activeClass;
+    }
+    if (activeClass) {
+      let activeTab = document.querySelector(`a[href="#comment-${activeClass}"]`);
+      if (activeTab) {
+        activeTab.click();
+      }
+    }
+  });
+  if (CONFIG.comments.storage) {
+    window.addEventListener('tabs:click', event => {
+      if (!event.target.matches('.tabs-comment .tab-content .tab-pane')) return;
+      let commentClass = event.target.classList[1];
+      localStorage.setItem('comments_active', commentClass);
+    });
+  }
+</script>
+
+        </div>
+          
+  
+  <div class="toggle sidebar-toggle">
+    <span class="toggle-line toggle-line-first"></span>
+    <span class="toggle-line toggle-line-middle"></span>
+    <span class="toggle-line toggle-line-last"></span>
+  </div>
+
+  <aside class="sidebar">
+    <div class="sidebar-inner">
+
+      <ul class="sidebar-nav motion-element">
+        <li class="sidebar-nav-toc">
+          Table of Contents
+        </li>
+        <li class="sidebar-nav-overview">
+          Overview
+        </li>
+      </ul>
+
+      <!--noindex-->
+      <div class="post-toc-wrap sidebar-panel">
+          <div class="post-toc motion-element"><ol class="nav"><li class="nav-item nav-level-1"><a class="nav-link" href="#%E5%BC%95%E5%AD%90"><span class="nav-number">1.</span> <span class="nav-text">引子</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#%E7%89%B9%E7%82%B9"><span class="nav-number">2.</span> <span class="nav-text">特点</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#%E5%AE%89%E8%A3%85"><span class="nav-number">3.</span> <span class="nav-text">安装</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#%E5%88%9B%E5%BB%BA%E7%A8%8B%E5%BA%8F"><span class="nav-number">4.</span> <span class="nav-text">创建程序</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#%E8%BE%93%E5%85%A5%E6%96%87%E4%BB%B6"><span class="nav-number">5.</span> <span class="nav-text">输入文件</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#%E5%88%9B%E5%BB%BA%E7%A7%81%E6%9C%89%E5%AF%B9%E8%B1%A1"><span class="nav-number">6.</span> <span class="nav-text">创建私有对象</span></a><ol class="nav-child"><li class="nav-item nav-level-2"><a class="nav-link" href="#%E5%AE%9A%E4%B9%89%E6%9C%89%E6%95%88%E5%8F%82%E6%95%B0%E5%92%8C%E7%BB%A7%E6%89%BF%E5%B7%B2%E6%9C%89%E7%9A%84moose%E5%AF%B9%E8%B1%A1%EF%BC%9A"><span class="nav-number">6.1.</span> <span class="nav-text">定义有效参数和继承已有的moose对象：</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E6%B3%A8%E5%86%8C%E8%AF%A5%E5%AF%B9%E8%B1%A1"><span class="nav-number">6.2.</span> <span class="nav-text">注册该对象</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E4%BD%BF%E7%94%A8%E8%AF%A5%E5%AF%B9%E8%B1%A1"><span class="nav-number">6.3.</span> <span class="nav-text">使用该对象</span></a></li></ol></li><li class="nav-item nav-level-1"><a class="nav-link" href="#%E7%BD%91%E6%A0%BC"><span class="nav-number">7.</span> <span class="nav-text">网格</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#%E5%86%85%E6%A0%B8%E6%A8%A1%E5%9E%8B%E5%AF%B9%E8%B1%A1"><span class="nav-number">8.</span> <span class="nav-text">内核模型对象</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#%E5%88%9D%E5%A7%8B%E6%9D%A1%E4%BB%B6%E5%AF%B9%E8%B1%A1"><span class="nav-number">9.</span> <span class="nav-text">初始条件对象</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#%E8%BE%B9%E7%95%8C%E6%9D%A1%E4%BB%B6%E5%AF%B9%E8%B1%A1"><span class="nav-number">10.</span> <span class="nav-text">边界条件对象</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#%E6%9D%90%E6%96%99%E5%B1%9E%E6%80%A7%E5%AF%B9%E8%B1%A1"><span class="nav-number">11.</span> <span class="nav-text">材料属性对象</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#%E5%90%8E%E5%A4%84%E7%90%86%E5%AF%B9%E8%B1%A1"><span class="nav-number">12.</span> <span class="nav-text">后处理对象</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#%E6%B1%82%E8%A7%A3%E5%99%A8%E5%AF%B9%E8%B1%A1"><span class="nav-number">13.</span> <span class="nav-text">求解器对象</span></a></li></ol></div>
+      </div>
+      <!--/noindex-->
+
+      <div class="site-overview-wrap sidebar-panel">
+        <div class="site-author motion-element" itemprop="author" itemscope itemtype="http://schema.org/Person">
+    <img class="site-author-image" itemprop="image" alt="Xin-Bo Qi(亓欣波)"
+      src="/images/avatar.jpg">
+  <p class="site-author-name" itemprop="name">Xin-Bo Qi(亓欣波)</p>
+  <div class="site-description" itemprop="description">Be interesting!</div>
+</div>
+<div class="site-state-wrap motion-element">
+  <nav class="site-state">
+      <div class="site-state-item site-state-posts">
+          <a href="/archives/">
+        
+          <span class="site-state-item-count">120</span>
+          <span class="site-state-item-name">posts</span>
+        </a>
+      </div>
+      <div class="site-state-item site-state-categories">
+            <a href="/categories/">
+          
+        <span class="site-state-item-count">5</span>
+        <span class="site-state-item-name">categories</span></a>
+      </div>
+      <div class="site-state-item site-state-tags">
+            <a href="/tags/">
+          
+        <span class="site-state-item-count">41</span>
+        <span class="site-state-item-name">tags</span></a>
+      </div>
+  </nav>
+</div>
+  <div class="links-of-author motion-element">
+      <span class="links-of-author-item">
+        <a href="https://github.com/qixinbo" title="GitHub → https:&#x2F;&#x2F;github.com&#x2F;qixinbo" rel="noopener" target="_blank"><i class="github fa-fw"></i>GitHub</a>
+      </span>
+      <span class="links-of-author-item">
+        <a href="mailto:qixinbo@gmail.com" title="E-Mail → mailto:qixinbo@gmail.com" rel="noopener" target="_blank"><i class="envelope fa-fw"></i>E-Mail</a>
+      </span>
+  </div>
+
+
+  <div class="links-of-blogroll motion-element">
+    <div class="links-of-blogroll-title"><i class="fa fa-link fa-fw"></i>
+      Links
+    </div>
+    <ul class="links-of-blogroll-list">
+        <li class="links-of-blogroll-item">
+          <a href="https://www.tsinghua.edu.cn/" title="https:&#x2F;&#x2F;www.tsinghua.edu.cn" rel="noopener" target="_blank">THU</a>
+        </li>
+        <li class="links-of-blogroll-item">
+          <a href="http://www.imr.cas.cn/" title="http:&#x2F;&#x2F;www.imr.cas.cn" rel="noopener" target="_blank">IMR</a>
+        </li>
+        <li class="links-of-blogroll-item">
+          <a href="http://www.sdu.edu.cn/" title="http:&#x2F;&#x2F;www.sdu.edu.cn" rel="noopener" target="_blank">SDU</a>
+        </li>
+        <li class="links-of-blogroll-item">
+          <a href="http://liam0205.me/" title="http:&#x2F;&#x2F;liam0205.me&#x2F;" rel="noopener" target="_blank">黄晨成</a>
+        </li>
+    </ul>
+  </div>
+
+      </div>
+
+    </div>
+  </aside>
+  <div id="sidebar-dimmer"></div>
+
+
+      </div>
+    </main>
+
+    <footer class="footer">
+      <div class="footer-inner">
+        
+
+        
+
+<div class="copyright">
+  
+  &copy; 
+  <span itemprop="copyrightYear">2021</span>
+  <span class="with-love">
+    <i class="fa fa-heart"></i>
+  </span>
+  <span class="author" itemprop="copyrightHolder">Xin-Bo Qi(亓欣波)</span>
+</div>
+  <div class="powered-by">Powered by <a href="https://hexo.io/" class="theme-link" rel="noopener" target="_blank">Hexo</a> & <a href="https://theme-next.org/" class="theme-link" rel="noopener" target="_blank">NexT.Gemini</a>
+  </div>
+
+        
+
+
+
+
+
+
+
+
+      </div>
+    </footer>
+  </div>
+
+  
+  <script src="/lib/anime.min.js"></script>
+  <script src="/lib/velocity/velocity.min.js"></script>
+  <script src="/lib/velocity/velocity.ui.min.js"></script>
+
+<script src="/js/utils.js"></script>
+
+<script src="/js/motion.js"></script>
+
+
+<script src="/js/schemes/pisces.js"></script>
+
+
+<script src="/js/next-boot.js"></script>
+
+
+
+
+  
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+  
+
+  
+
+  
+
+<script>
+  function loadCount() {
+    var d = document, s = d.createElement('script');
+    s.src = 'https://qixinbo.disqus.com/count.js';
+    s.id = 'dsq-count-scr';
+    (d.head || d.body).appendChild(s);
+  }
+  // defer loading until the whole page loading is completed
+  window.addEventListener('load', loadCount, false);
+</script>
+<script>
+  var disqus_config = function() {
+    this.page.url = "http://qixinbo.github.io/2017/01/15/moose-tutorials/";
+    this.page.identifier = "2017/01/15/moose-tutorials/";
+    this.page.title = "多物理场面向对象模拟环境MOOSE学习手册";
+    };
+  NexT.utils.loadComments(document.querySelector('#disqus_thread'), () => {
+    if (window.DISQUS) {
+      DISQUS.reset({
+        reload: true,
+        config: disqus_config
+      });
+    } else {
+      var d = document, s = d.createElement('script');
+      s.src = 'https://qixinbo.disqus.com/embed.js';
+      s.setAttribute('data-timestamp', '' + +new Date());
+      (d.head || d.body).appendChild(s);
+    }
+  });
+</script>
+
+</body>
+</html>

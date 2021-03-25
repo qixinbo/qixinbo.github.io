@@ -1,0 +1,568 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=2">
+<meta name="theme-color" content="#222">
+<meta name="generator" content="Hexo 5.4.0">
+  <link rel="apple-touch-icon" sizes="180x180" href="/images/apple-touch-icon-next.png">
+  <link rel="icon" type="image/png" sizes="32x32" href="/favicon.ico">
+  <link rel="icon" type="image/png" sizes="16x16" href="/favicon.ico">
+  <link rel="mask-icon" href="/images/logo.svg" color="#222">
+
+<link rel="stylesheet" href="/css/main.css">
+
+
+<link rel="stylesheet" href="/lib/font-awesome/css/all.min.css">
+
+<script id="hexo-configurations">
+    var NexT = window.NexT || {};
+    var CONFIG = {"hostname":"qixinbo.github.io","root":"/","scheme":"Gemini","version":"7.8.0","exturl":false,"sidebar":{"position":"left","display":"post","padding":18,"offset":12,"onmobile":false},"copycode":{"enable":false,"show_result":false,"style":null},"back2top":{"enable":true,"sidebar":false,"scrollpercent":false},"bookmark":{"enable":false,"color":"#222","save":"auto"},"fancybox":false,"mediumzoom":false,"lazyload":false,"pangu":false,"comments":{"style":"tabs","active":null,"storage":true,"lazyload":false,"nav":null},"algolia":{"hits":{"per_page":10},"labels":{"input_placeholder":"Search for Posts","hits_empty":"We didn't find any results for the search: ${query}","hits_stats":"${hits} results found in ${time} ms"}},"localsearch":{"enable":false,"trigger":"auto","top_n_per_article":1,"unescape":false,"preload":false},"motion":{"enable":true,"async":false,"transition":{"post_block":"fadeIn","post_header":"slideDownIn","post_body":"slideDownIn","coll_header":"slideLeftIn","sidebar":"slideUpIn"}}};
+  </script>
+
+  <meta name="description" content="Update2016-11-16更新：在Ubuntu10.10上安装gcc4.8.0时，出现错误： 1‘CHAR_BIT’ was not declared in this scope 解决方法： 1unset LIBRARY_PATH CPATH C_INCLUDE_PATH PKG_CONFIG_PATH CPLUS_INCLUDE_PATH INCLUDE 如果在&#x2F;etc&#x2F;profile 或">
+<meta property="og:type" content="article">
+<meta property="og:title" content="手动安装特定版本的gcc编译器">
+<meta property="og:url" content="http://qixinbo.github.io/2016/03/23/gcc-install/index.html">
+<meta property="og:site_name" content="亓欣波">
+<meta property="og:description" content="Update2016-11-16更新：在Ubuntu10.10上安装gcc4.8.0时，出现错误： 1‘CHAR_BIT’ was not declared in this scope 解决方法： 1unset LIBRARY_PATH CPATH C_INCLUDE_PATH PKG_CONFIG_PATH CPLUS_INCLUDE_PATH INCLUDE 如果在&#x2F;etc&#x2F;profile 或">
+<meta property="og:locale" content="en_US">
+<meta property="article:published_time" content="2016-03-22T16:00:00.000Z">
+<meta property="article:modified_time" content="2021-03-25T07:20:30.616Z">
+<meta property="article:author" content="Xin-Bo Qi(亓欣波)">
+<meta property="article:tag" content="linux">
+<meta property="article:tag" content="gcc">
+<meta name="twitter:card" content="summary">
+
+<link rel="canonical" href="http://qixinbo.github.io/2016/03/23/gcc-install/">
+
+
+<script id="page-configurations">
+  // https://hexo.io/docs/variables.html
+  CONFIG.page = {
+    sidebar: "",
+    isHome : false,
+    isPost : true,
+    lang   : 'en'
+  };
+</script>
+
+  <title>手动安装特定版本的gcc编译器 | 亓欣波</title>
+  
+
+
+
+
+
+
+  <noscript>
+  <style>
+  .use-motion .brand,
+  .use-motion .menu-item,
+  .sidebar-inner,
+  .use-motion .post-block,
+  .use-motion .pagination,
+  .use-motion .comments,
+  .use-motion .post-header,
+  .use-motion .post-body,
+  .use-motion .collection-header { opacity: initial; }
+
+  .use-motion .site-title,
+  .use-motion .site-subtitle {
+    opacity: initial;
+    top: initial;
+  }
+
+  .use-motion .logo-line-before i { left: initial; }
+  .use-motion .logo-line-after i { right: initial; }
+  </style>
+</noscript>
+
+</head>
+
+<body itemscope itemtype="http://schema.org/WebPage">
+  <div class="container use-motion">
+    <div class="headband"></div>
+
+    <header class="header" itemscope itemtype="http://schema.org/WPHeader">
+      <div class="header-inner"><div class="site-brand-container">
+  <div class="site-nav-toggle">
+    <div class="toggle" aria-label="Toggle navigation bar">
+      <span class="toggle-line toggle-line-first"></span>
+      <span class="toggle-line toggle-line-middle"></span>
+      <span class="toggle-line toggle-line-last"></span>
+    </div>
+  </div>
+
+  <div class="site-meta">
+
+    <a href="/" class="brand" rel="start">
+      <span class="logo-line-before"><i></i></span>
+      <h1 class="site-title">亓欣波</h1>
+      <span class="logo-line-after"><i></i></span>
+    </a>
+      <p class="site-subtitle" itemprop="description">Hi, I am Xin-Bo Qi (亓欣波)</p>
+  </div>
+
+  <div class="site-nav-right">
+    <div class="toggle popup-trigger">
+    </div>
+  </div>
+</div>
+
+
+
+
+<nav class="site-nav">
+  <ul id="menu" class="main-menu menu">
+        <li class="menu-item menu-item-home">
+
+    <a href="/" rel="section"><i class="home fa-fw"></i>Home</a>
+
+  </li>
+        <li class="menu-item menu-item-categories">
+
+    <a href="/categories/" rel="section"><i class="th fa-fw"></i>Categories</a>
+
+  </li>
+        <li class="menu-item menu-item-archives">
+
+    <a href="/archives/" rel="section"><i class="archive fa-fw"></i>Archives</a>
+
+  </li>
+        <li class="menu-item menu-item-tags">
+
+    <a href="/tags/" rel="section"><i class="tags fa-fw"></i>Tags</a>
+
+  </li>
+        <li class="menu-item menu-item-scholar">
+
+    <a href="/scholar/" rel="section"><i class="bar-chart fa-fw"></i>scholar</a>
+
+  </li>
+        <li class="menu-item menu-item-sources">
+
+    <a href="/sources/" rel="section"><i class="rss fa-fw"></i>sources</a>
+
+  </li>
+        <li class="menu-item menu-item-gallery">
+
+    <a href="/gallery/" rel="section"><i class="file-image-o fa-fw"></i>gallery</a>
+
+  </li>
+        <li class="menu-item menu-item-about">
+
+    <a href="/about/" rel="section"><i class="user fa-fw"></i>About</a>
+
+  </li>
+        <li class="menu-item menu-item-commonweal">
+
+    <a href="/404.html" rel="section"><i class="heartbeat fa-fw"></i>Commonweal 404</a>
+
+  </li>
+  </ul>
+</nav>
+
+
+
+
+</div>
+    </header>
+
+    
+  <div class="back-to-top">
+    <i class="fa fa-arrow-up"></i>
+    <span>0%</span>
+  </div>
+
+
+    <main class="main">
+      <div class="main-inner">
+        <div class="content-wrap">
+          
+
+          <div class="content post posts-expand">
+            
+
+    
+  
+  
+  <article itemscope itemtype="http://schema.org/Article" class="post-block" lang="en">
+    <link itemprop="mainEntityOfPage" href="http://qixinbo.github.io/2016/03/23/gcc-install/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="image" content="/images/avatar.jpg">
+      <meta itemprop="name" content="Xin-Bo Qi(亓欣波)">
+      <meta itemprop="description" content="Be interesting!">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="亓欣波">
+    </span>
+      <header class="post-header">
+        <h1 class="post-title" itemprop="name headline">
+          手动安装特定版本的gcc编译器
+        </h1>
+
+        <div class="post-meta">
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="far fa-calendar"></i>
+              </span>
+              <span class="post-meta-item-text">Posted on</span>
+
+              <time title="Created: 2016-03-23 00:00:00" itemprop="dateCreated datePublished" datetime="2016-03-23T00:00:00+08:00">2016-03-23</time>
+            </span>
+              <span class="post-meta-item">
+                <span class="post-meta-item-icon">
+                  <i class="far fa-calendar-check"></i>
+                </span>
+                <span class="post-meta-item-text">Edited on</span>
+                <time title="Modified: 2021-03-25 15:20:30" itemprop="dateModified" datetime="2021-03-25T15:20:30+08:00">2021-03-25</time>
+              </span>
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="far fa-folder"></i>
+              </span>
+              <span class="post-meta-item-text">In</span>
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+                  <a href="/categories/programming/" itemprop="url" rel="index"><span itemprop="name">programming</span></a>
+                </span>
+            </span>
+
+          
+  
+  <span class="post-meta-item">
+    
+      <span class="post-meta-item-icon">
+        <i class="far fa-comment"></i>
+      </span>
+      <span class="post-meta-item-text">Disqus: </span>
+    
+    <a title="disqus" href="/2016/03/23/gcc-install/#disqus_thread" itemprop="discussionUrl">
+      <span class="post-comments-count disqus-comment-count" data-disqus-identifier="2016/03/23/gcc-install/" itemprop="commentCount"></span>
+    </a>
+  </span>
+  
+  
+
+        </div>
+      </header>
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+        <h1 id="Update"><a href="#Update" class="headerlink" title="Update"></a>Update</h1><p>2016-11-16更新：<br>在Ubuntu10.10上安装gcc4.8.0时，出现错误：</p>
+<figure class="highlight cpp"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">‘CHAR_BIT’ was <span class="keyword">not</span> declared in <span class="keyword">this</span> scope</span><br></pre></td></tr></table></figure>
+<p>解决方法：</p>
+<figure class="highlight cpp"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">unset LIBRARY_PATH CPATH C_INCLUDE_PATH PKG_CONFIG_PATH CPLUS_INCLUDE_PATH INCLUDE</span><br></pre></td></tr></table></figure>
+<p>如果在/etc/profile 或者 ~/.bashrc中设置了ccache的话,也暂时去掉ccache的设置.</p>
+<p>参考自<a target="_blank" rel="noopener" href="http://www.cnblogs.com/shakin/p/4276434.html">这里</a>。</p>
+<p>另外：<br>单纯修改gcc的指向后，会造成其他编译器的不匹配，比如gcc虽然指向了4.8，但gfortran还是4.6，两者就不匹配，就会造成如下错误：</p>
+<figure class="highlight cpp"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">/usr/bin/ld: cannot find “-lgfortran”</span><br></pre></td></tr></table></figure>
+<p>这时可以先搜索到4.6版本的gfortran的静态链接库，比如：</p>
+<figure class="highlight cpp"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">/usr/lib/gcc/x86_64-linux-gnu/<span class="number">4.6</span>/libgfortran.a</span><br></pre></td></tr></table></figure>
+<p>然后将它软链接到默认链接库的路径中：</p>
+<figure class="highlight cpp"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">sudo ln -sf /usr/lib/gcc/x86_64-linux-gnu/<span class="number">4.6</span>/libgfortran.a /usr/lib/libgfortran.a</span><br></pre></td></tr></table></figure>
+<p>这样问题就解决了。</p>
+<h1 id="引子"><a href="#引子" class="headerlink" title="引子"></a>引子</h1><p>Linux发行版中一般预装了gcc编译器，版本随系统不同而不同，有时候不想用（或者是不能用）系统默认的gcc编译器，就需要自己编译特定版本的gcc编译器。</p>
+<p>这里以在Ubuntu14.04环境（默认gcc为4.8.2）安装gcc4.6.3为例，记录一下安装过程。<br>整个安装过程很繁琐且漫长，计入发现坑以及填坑的时间，至少需要两个小时（也与机器有关），总之耐心。。。</p>
+<p>期间参考了以下网站：<br><a target="_blank" rel="noopener" href="http://blog.csdn.net/wtfmonking/article/details/17577925">http://blog.csdn.net/wtfmonking/article/details/17577925</a><br><a target="_blank" rel="noopener" href="http://www.oschina.net/question/12_49423">http://www.oschina.net/question/12_49423</a><br><a target="_blank" rel="noopener" href="http://askubuntu.com/questions/251978/cannot-find-crti-o-no-such-file-or-directory">http://askubuntu.com/questions/251978/cannot-find-crti-o-no-such-file-or-directory</a><br><a target="_blank" rel="noopener" href="http://blog.csdn.net/gengshenghong/article/details/7498085">http://blog.csdn.net/gengshenghong/article/details/7498085</a><br><a target="_blank" rel="noopener" href="https://github.com/couchbase/couchbase-lite-java-native/issues/11">https://github.com/couchbase/couchbase-lite-java-native/issues/11</a></p>
+<p>需要提前准备好的软件有：系统自带的gcc（如果没有，需要从软件库中通过apt-get安装）、m4、gmp、mpfr、mpc。<br>gcc-4.6.3源码和gmp、mpfr、mpc的源码都可以在gcc官网中找到，gcc在release文件夹中，其他的在infrastructure文件夹中。<br>因为这几个软件之间相互有依赖关系，故它们的安装顺序不要打乱。</p>
+<h1 id="安装m4"><a href="#安装m4" class="headerlink" title="安装m4"></a>安装m4</h1><p>sudo apt-get install m4<br>（上面命令可能提示找不到m4，此时可以更换软件源试试，也可以使用新立得软件包管理器synpatic安装）</p>
+<h1 id="安装gmp"><a href="#安装gmp" class="headerlink" title="安装gmp"></a>安装gmp</h1><p>tar -xjvf gmp-4.3.2.tar.bz2<br>cd gmp-4.3.2<br>./configure –prefix=/usr/local/gmp<br>make<br>sudo make install</p>
+<h1 id="安装mpfr"><a href="#安装mpfr" class="headerlink" title="安装mpfr"></a>安装mpfr</h1><p>tar -xjvf mpfr-2.4.2.tar.bz2<br>cd mpfr-2.4.2<br>./configure –prefix=/usr/local/mpfr –with-gmp=/usr/local/gmp<br>make<br>sudo make install</p>
+<h1 id="安装mpc"><a href="#安装mpc" class="headerlink" title="安装mpc"></a>安装mpc</h1><p>tar -xzvf mpc-0.8.1.tar.gz<br>cd mpc-0.8.1<br>./configure –prefix=/usr/local/mpc –with-gmp=/usr/local/gmp –with-mpfr=/usr/local/mpfr<br>make<br>sudo make install</p>
+<h1 id="配置库路径"><a href="#配置库路径" class="headerlink" title="配置库路径"></a>配置库路径</h1><p>将三个软件的库文件加入动态链接库中：<br>vim ~/.bashrc<br>export LD_LIBRARY_PATH=$LD_LIBRARY_PATH:/usr/local/gmp/lib:/usr/local/mpfr/lib:/usr/local/mpc/lib<br>保存以后：<br>source ~/.bashrc<br>将三个软件的库文件加入共享链接库中：<br>vim /etc/ld.so.conf<br>/usr/local/mpc/lib<br>/usr/local/gmp/lib<br>/usr/local/mpfr/lib<br>保存以后：<br>sudo /sbin/ldconfig  </p>
+<h1 id="安装gcc-4-6-3"><a href="#安装gcc-4-6-3" class="headerlink" title="安装gcc-4.6.3"></a>安装gcc-4.6.3</h1><p>cd gcc-4.6.3<br>./configure –prefix=/usr/local/gcc-4.6.3 –enable-threads=posix –disable-checking<br>–disable-multilib   –enable-languages=c,c++ –with-gmp=/usr/local/gmp<br>–with-mpfr=/usr/local/mpfr –with-mpc=/usr/local/mpc<br>make<br>sudo make install</p>
+<p>在make中有可能出现以下错误：</p>
+<p>（1）/usr/include/features.h:374:25: fatalerror: sys/cdefs.h: 没有那个文件或目录<br>这是因为在64位机器上生成32位的编译代码，因此需要安装32位的库：<br>sudo apt-get install gcc-multilib<br>sudo apt-get install g++-multilib</p>
+<p>（2）/usr/bin/ld: cannot find crti.o: No suchfile or directory<br>此时需要修改LD_LIBRARY_PATH变量，即在.bashrc中设置：<br>export LD_LIBRARY_PATH=$LD_LIBRARY_PATH:/usr/lib/x86_64-linux-gnu<br>并且做一个链接：<br>sudo ln -s /usr/lib/x86_64-linux-gnu /usr/lib64<br>这里的路径与机器位数有关，64位为x86_64，32位为i386。</p>
+<h1 id="配置gcc"><a href="#配置gcc" class="headerlink" title="配置gcc"></a>配置gcc</h1><p>用gcc-4.6.3替换原来的gcc，需要将原来的gcc屏蔽掉：<br>sudo mv/usr/bin/gcc /usr/bin/gcc-4.8.2<br>sudo mv/usr/bin/g++ /usr/bin/g++-4.8.2<br>然后将gcc-4.6.3的bin路径加入到环境变量中：<br>vim ~/.bashrc<br>export PATH=$PATH:/usr/local/gcc-4.6.3/bin</p>
+
+    </div>
+
+    
+    
+    
+        <div class="reward-container">
+  <div></div>
+  <button onclick="var qr = document.getElementById('qr'); qr.style.display = (qr.style.display === 'none') ? 'block' : 'none';">
+    Donate
+  </button>
+  <div id="qr" style="display: none;">
+      
+      <div style="display: inline-block;">
+        <img src="/images/wechat_reward.png" alt="Xin-Bo Qi(亓欣波) WeChat Pay">
+        <p>WeChat Pay</p>
+      </div>
+
+  </div>
+</div>
+
+
+      <footer class="post-footer">
+          <div class="post-tags">
+              <a href="/tags/linux/" rel="tag"># linux</a>
+              <a href="/tags/gcc/" rel="tag"># gcc</a>
+          </div>
+
+        
+
+
+        
+    <div class="post-nav">
+      <div class="post-nav-item">
+    <a href="/2016/03/11/afepack-tutorials/" rel="prev" title="自适应有限元包AFEPack教学系列">
+      <i class="fa fa-chevron-left"></i> 自适应有限元包AFEPack教学系列
+    </a></div>
+      <div class="post-nav-item">
+    <a href="/2016/03/29/gdb-tutorial/" rel="next" title="gdb调试c++程序知识点">
+      gdb调试c++程序知识点 <i class="fa fa-chevron-right"></i>
+    </a></div>
+    </div>
+      </footer>
+    
+  </article>
+  
+  
+  
+
+
+
+          </div>
+          
+    
+  <div class="comments">
+    <div id="disqus_thread">
+      <noscript>Please enable JavaScript to view the comments powered by Disqus.</noscript>
+    </div>
+  </div>
+  
+
+<script>
+  window.addEventListener('tabs:register', () => {
+    let { activeClass } = CONFIG.comments;
+    if (CONFIG.comments.storage) {
+      activeClass = localStorage.getItem('comments_active') || activeClass;
+    }
+    if (activeClass) {
+      let activeTab = document.querySelector(`a[href="#comment-${activeClass}"]`);
+      if (activeTab) {
+        activeTab.click();
+      }
+    }
+  });
+  if (CONFIG.comments.storage) {
+    window.addEventListener('tabs:click', event => {
+      if (!event.target.matches('.tabs-comment .tab-content .tab-pane')) return;
+      let commentClass = event.target.classList[1];
+      localStorage.setItem('comments_active', commentClass);
+    });
+  }
+</script>
+
+        </div>
+          
+  
+  <div class="toggle sidebar-toggle">
+    <span class="toggle-line toggle-line-first"></span>
+    <span class="toggle-line toggle-line-middle"></span>
+    <span class="toggle-line toggle-line-last"></span>
+  </div>
+
+  <aside class="sidebar">
+    <div class="sidebar-inner">
+
+      <ul class="sidebar-nav motion-element">
+        <li class="sidebar-nav-toc">
+          Table of Contents
+        </li>
+        <li class="sidebar-nav-overview">
+          Overview
+        </li>
+      </ul>
+
+      <!--noindex-->
+      <div class="post-toc-wrap sidebar-panel">
+          <div class="post-toc motion-element"><ol class="nav"><li class="nav-item nav-level-1"><a class="nav-link" href="#Update"><span class="nav-number">1.</span> <span class="nav-text">Update</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#%E5%BC%95%E5%AD%90"><span class="nav-number">2.</span> <span class="nav-text">引子</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#%E5%AE%89%E8%A3%85m4"><span class="nav-number">3.</span> <span class="nav-text">安装m4</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#%E5%AE%89%E8%A3%85gmp"><span class="nav-number">4.</span> <span class="nav-text">安装gmp</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#%E5%AE%89%E8%A3%85mpfr"><span class="nav-number">5.</span> <span class="nav-text">安装mpfr</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#%E5%AE%89%E8%A3%85mpc"><span class="nav-number">6.</span> <span class="nav-text">安装mpc</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#%E9%85%8D%E7%BD%AE%E5%BA%93%E8%B7%AF%E5%BE%84"><span class="nav-number">7.</span> <span class="nav-text">配置库路径</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#%E5%AE%89%E8%A3%85gcc-4-6-3"><span class="nav-number">8.</span> <span class="nav-text">安装gcc-4.6.3</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#%E9%85%8D%E7%BD%AEgcc"><span class="nav-number">9.</span> <span class="nav-text">配置gcc</span></a></li></ol></div>
+      </div>
+      <!--/noindex-->
+
+      <div class="site-overview-wrap sidebar-panel">
+        <div class="site-author motion-element" itemprop="author" itemscope itemtype="http://schema.org/Person">
+    <img class="site-author-image" itemprop="image" alt="Xin-Bo Qi(亓欣波)"
+      src="/images/avatar.jpg">
+  <p class="site-author-name" itemprop="name">Xin-Bo Qi(亓欣波)</p>
+  <div class="site-description" itemprop="description">Be interesting!</div>
+</div>
+<div class="site-state-wrap motion-element">
+  <nav class="site-state">
+      <div class="site-state-item site-state-posts">
+          <a href="/archives/">
+        
+          <span class="site-state-item-count">120</span>
+          <span class="site-state-item-name">posts</span>
+        </a>
+      </div>
+      <div class="site-state-item site-state-categories">
+            <a href="/categories/">
+          
+        <span class="site-state-item-count">5</span>
+        <span class="site-state-item-name">categories</span></a>
+      </div>
+      <div class="site-state-item site-state-tags">
+            <a href="/tags/">
+          
+        <span class="site-state-item-count">41</span>
+        <span class="site-state-item-name">tags</span></a>
+      </div>
+  </nav>
+</div>
+  <div class="links-of-author motion-element">
+      <span class="links-of-author-item">
+        <a href="https://github.com/qixinbo" title="GitHub → https:&#x2F;&#x2F;github.com&#x2F;qixinbo" rel="noopener" target="_blank"><i class="github fa-fw"></i>GitHub</a>
+      </span>
+      <span class="links-of-author-item">
+        <a href="mailto:qixinbo@gmail.com" title="E-Mail → mailto:qixinbo@gmail.com" rel="noopener" target="_blank"><i class="envelope fa-fw"></i>E-Mail</a>
+      </span>
+  </div>
+
+
+  <div class="links-of-blogroll motion-element">
+    <div class="links-of-blogroll-title"><i class="fa fa-link fa-fw"></i>
+      Links
+    </div>
+    <ul class="links-of-blogroll-list">
+        <li class="links-of-blogroll-item">
+          <a href="https://www.tsinghua.edu.cn/" title="https:&#x2F;&#x2F;www.tsinghua.edu.cn" rel="noopener" target="_blank">THU</a>
+        </li>
+        <li class="links-of-blogroll-item">
+          <a href="http://www.imr.cas.cn/" title="http:&#x2F;&#x2F;www.imr.cas.cn" rel="noopener" target="_blank">IMR</a>
+        </li>
+        <li class="links-of-blogroll-item">
+          <a href="http://www.sdu.edu.cn/" title="http:&#x2F;&#x2F;www.sdu.edu.cn" rel="noopener" target="_blank">SDU</a>
+        </li>
+        <li class="links-of-blogroll-item">
+          <a href="http://liam0205.me/" title="http:&#x2F;&#x2F;liam0205.me&#x2F;" rel="noopener" target="_blank">黄晨成</a>
+        </li>
+    </ul>
+  </div>
+
+      </div>
+
+    </div>
+  </aside>
+  <div id="sidebar-dimmer"></div>
+
+
+      </div>
+    </main>
+
+    <footer class="footer">
+      <div class="footer-inner">
+        
+
+        
+
+<div class="copyright">
+  
+  &copy; 
+  <span itemprop="copyrightYear">2021</span>
+  <span class="with-love">
+    <i class="fa fa-heart"></i>
+  </span>
+  <span class="author" itemprop="copyrightHolder">Xin-Bo Qi(亓欣波)</span>
+</div>
+  <div class="powered-by">Powered by <a href="https://hexo.io/" class="theme-link" rel="noopener" target="_blank">Hexo</a> & <a href="https://theme-next.org/" class="theme-link" rel="noopener" target="_blank">NexT.Gemini</a>
+  </div>
+
+        
+
+
+
+
+
+
+
+
+      </div>
+    </footer>
+  </div>
+
+  
+  <script src="/lib/anime.min.js"></script>
+  <script src="/lib/velocity/velocity.min.js"></script>
+  <script src="/lib/velocity/velocity.ui.min.js"></script>
+
+<script src="/js/utils.js"></script>
+
+<script src="/js/motion.js"></script>
+
+
+<script src="/js/schemes/pisces.js"></script>
+
+
+<script src="/js/next-boot.js"></script>
+
+
+
+
+  
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+  
+
+  
+
+  
+
+<script>
+  function loadCount() {
+    var d = document, s = d.createElement('script');
+    s.src = 'https://qixinbo.disqus.com/count.js';
+    s.id = 'dsq-count-scr';
+    (d.head || d.body).appendChild(s);
+  }
+  // defer loading until the whole page loading is completed
+  window.addEventListener('load', loadCount, false);
+</script>
+<script>
+  var disqus_config = function() {
+    this.page.url = "http://qixinbo.github.io/2016/03/23/gcc-install/";
+    this.page.identifier = "2016/03/23/gcc-install/";
+    this.page.title = "手动安装特定版本的gcc编译器";
+    };
+  NexT.utils.loadComments(document.querySelector('#disqus_thread'), () => {
+    if (window.DISQUS) {
+      DISQUS.reset({
+        reload: true,
+        config: disqus_config
+      });
+    } else {
+      var d = document, s = d.createElement('script');
+      s.src = 'https://qixinbo.disqus.com/embed.js';
+      s.setAttribute('data-timestamp', '' + +new Date());
+      (d.head || d.body).appendChild(s);
+    }
+  });
+</script>
+
+</body>
+</html>

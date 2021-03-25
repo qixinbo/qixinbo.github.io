@@ -1,0 +1,573 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=2">
+<meta name="theme-color" content="#222">
+<meta name="generator" content="Hexo 5.4.0">
+  <link rel="apple-touch-icon" sizes="180x180" href="/images/apple-touch-icon-next.png">
+  <link rel="icon" type="image/png" sizes="32x32" href="/favicon.ico">
+  <link rel="icon" type="image/png" sizes="16x16" href="/favicon.ico">
+  <link rel="mask-icon" href="/images/logo.svg" color="#222">
+
+<link rel="stylesheet" href="/css/main.css">
+
+
+<link rel="stylesheet" href="/lib/font-awesome/css/all.min.css">
+
+<script id="hexo-configurations">
+    var NexT = window.NexT || {};
+    var CONFIG = {"hostname":"qixinbo.github.io","root":"/","scheme":"Gemini","version":"7.8.0","exturl":false,"sidebar":{"position":"left","display":"post","padding":18,"offset":12,"onmobile":false},"copycode":{"enable":false,"show_result":false,"style":null},"back2top":{"enable":true,"sidebar":false,"scrollpercent":false},"bookmark":{"enable":false,"color":"#222","save":"auto"},"fancybox":false,"mediumzoom":false,"lazyload":false,"pangu":false,"comments":{"style":"tabs","active":null,"storage":true,"lazyload":false,"nav":null},"algolia":{"hits":{"per_page":10},"labels":{"input_placeholder":"Search for Posts","hits_empty":"We didn't find any results for the search: ${query}","hits_stats":"${hits} results found in ${time} ms"}},"localsearch":{"enable":false,"trigger":"auto","top_n_per_article":1,"unescape":false,"preload":false},"motion":{"enable":true,"async":false,"transition":{"post_block":"fadeIn","post_header":"slideDownIn","post_body":"slideDownIn","coll_header":"slideLeftIn","sidebar":"slideUpIn"}}};
+  </script>
+
+  <meta name="description" content="ImagePy中的管理器分两类：Source里的管理器维护全局静态数据，比如读写器、配置文件等， App里面的管理器维护运行时数据，比如图像、表格。 静态管理器创建管理器这里创建一个money管理器，里面可以添加美元USD、欧元EUR、人民币RMB，比如： 123Source.manager(&amp;#x27;money&amp;#x27;).add(&amp;#x27;USD&amp;#x27;, MoneyReader,">
+<meta property="og:type" content="article">
+<meta property="og:title" content="ImagePy解析：21 -- 管理器">
+<meta property="og:url" content="http://qixinbo.github.io/2020/06/19/ImagePy_21/index.html">
+<meta property="og:site_name" content="亓欣波">
+<meta property="og:description" content="ImagePy中的管理器分两类：Source里的管理器维护全局静态数据，比如读写器、配置文件等， App里面的管理器维护运行时数据，比如图像、表格。 静态管理器创建管理器这里创建一个money管理器，里面可以添加美元USD、欧元EUR、人民币RMB，比如： 123Source.manager(&amp;#x27;money&amp;#x27;).add(&amp;#x27;USD&amp;#x27;, MoneyReader,">
+<meta property="og:locale" content="en_US">
+<meta property="article:published_time" content="2020-06-18T16:00:00.000Z">
+<meta property="article:modified_time" content="2021-03-25T07:20:30.400Z">
+<meta property="article:author" content="Xin-Bo Qi(亓欣波)">
+<meta property="article:tag" content="ImagePy">
+<meta name="twitter:card" content="summary">
+
+<link rel="canonical" href="http://qixinbo.github.io/2020/06/19/ImagePy_21/">
+
+
+<script id="page-configurations">
+  // https://hexo.io/docs/variables.html
+  CONFIG.page = {
+    sidebar: "",
+    isHome : false,
+    isPost : true,
+    lang   : 'en'
+  };
+</script>
+
+  <title>ImagePy解析：21 -- 管理器 | 亓欣波</title>
+  
+
+
+
+
+
+
+  <noscript>
+  <style>
+  .use-motion .brand,
+  .use-motion .menu-item,
+  .sidebar-inner,
+  .use-motion .post-block,
+  .use-motion .pagination,
+  .use-motion .comments,
+  .use-motion .post-header,
+  .use-motion .post-body,
+  .use-motion .collection-header { opacity: initial; }
+
+  .use-motion .site-title,
+  .use-motion .site-subtitle {
+    opacity: initial;
+    top: initial;
+  }
+
+  .use-motion .logo-line-before i { left: initial; }
+  .use-motion .logo-line-after i { right: initial; }
+  </style>
+</noscript>
+
+</head>
+
+<body itemscope itemtype="http://schema.org/WebPage">
+  <div class="container use-motion">
+    <div class="headband"></div>
+
+    <header class="header" itemscope itemtype="http://schema.org/WPHeader">
+      <div class="header-inner"><div class="site-brand-container">
+  <div class="site-nav-toggle">
+    <div class="toggle" aria-label="Toggle navigation bar">
+      <span class="toggle-line toggle-line-first"></span>
+      <span class="toggle-line toggle-line-middle"></span>
+      <span class="toggle-line toggle-line-last"></span>
+    </div>
+  </div>
+
+  <div class="site-meta">
+
+    <a href="/" class="brand" rel="start">
+      <span class="logo-line-before"><i></i></span>
+      <h1 class="site-title">亓欣波</h1>
+      <span class="logo-line-after"><i></i></span>
+    </a>
+      <p class="site-subtitle" itemprop="description">Hi, I am Xin-Bo Qi (亓欣波)</p>
+  </div>
+
+  <div class="site-nav-right">
+    <div class="toggle popup-trigger">
+    </div>
+  </div>
+</div>
+
+
+
+
+<nav class="site-nav">
+  <ul id="menu" class="main-menu menu">
+        <li class="menu-item menu-item-home">
+
+    <a href="/" rel="section"><i class="home fa-fw"></i>Home</a>
+
+  </li>
+        <li class="menu-item menu-item-categories">
+
+    <a href="/categories/" rel="section"><i class="th fa-fw"></i>Categories</a>
+
+  </li>
+        <li class="menu-item menu-item-archives">
+
+    <a href="/archives/" rel="section"><i class="archive fa-fw"></i>Archives</a>
+
+  </li>
+        <li class="menu-item menu-item-tags">
+
+    <a href="/tags/" rel="section"><i class="tags fa-fw"></i>Tags</a>
+
+  </li>
+        <li class="menu-item menu-item-scholar">
+
+    <a href="/scholar/" rel="section"><i class="bar-chart fa-fw"></i>scholar</a>
+
+  </li>
+        <li class="menu-item menu-item-sources">
+
+    <a href="/sources/" rel="section"><i class="rss fa-fw"></i>sources</a>
+
+  </li>
+        <li class="menu-item menu-item-gallery">
+
+    <a href="/gallery/" rel="section"><i class="file-image-o fa-fw"></i>gallery</a>
+
+  </li>
+        <li class="menu-item menu-item-about">
+
+    <a href="/about/" rel="section"><i class="user fa-fw"></i>About</a>
+
+  </li>
+        <li class="menu-item menu-item-commonweal">
+
+    <a href="/404.html" rel="section"><i class="heartbeat fa-fw"></i>Commonweal 404</a>
+
+  </li>
+  </ul>
+</nav>
+
+
+
+
+</div>
+    </header>
+
+    
+  <div class="back-to-top">
+    <i class="fa fa-arrow-up"></i>
+    <span>0%</span>
+  </div>
+
+
+    <main class="main">
+      <div class="main-inner">
+        <div class="content-wrap">
+          
+
+          <div class="content post posts-expand">
+            
+
+    
+  
+  
+  <article itemscope itemtype="http://schema.org/Article" class="post-block" lang="en">
+    <link itemprop="mainEntityOfPage" href="http://qixinbo.github.io/2020/06/19/ImagePy_21/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="image" content="/images/avatar.jpg">
+      <meta itemprop="name" content="Xin-Bo Qi(亓欣波)">
+      <meta itemprop="description" content="Be interesting!">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="亓欣波">
+    </span>
+      <header class="post-header">
+        <h1 class="post-title" itemprop="name headline">
+          ImagePy解析：21 -- 管理器
+        </h1>
+
+        <div class="post-meta">
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="far fa-calendar"></i>
+              </span>
+              <span class="post-meta-item-text">Posted on</span>
+
+              <time title="Created: 2020-06-19 00:00:00" itemprop="dateCreated datePublished" datetime="2020-06-19T00:00:00+08:00">2020-06-19</time>
+            </span>
+              <span class="post-meta-item">
+                <span class="post-meta-item-icon">
+                  <i class="far fa-calendar-check"></i>
+                </span>
+                <span class="post-meta-item-text">Edited on</span>
+                <time title="Modified: 2021-03-25 15:20:30" itemprop="dateModified" datetime="2021-03-25T15:20:30+08:00">2021-03-25</time>
+              </span>
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="far fa-folder"></i>
+              </span>
+              <span class="post-meta-item-text">In</span>
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+                  <a href="/categories/computational-material-science/" itemprop="url" rel="index"><span itemprop="name">computational material science</span></a>
+                </span>
+            </span>
+
+          
+  
+  <span class="post-meta-item">
+    
+      <span class="post-meta-item-icon">
+        <i class="far fa-comment"></i>
+      </span>
+      <span class="post-meta-item-text">Disqus: </span>
+    
+    <a title="disqus" href="/2020/06/19/ImagePy_21/#disqus_thread" itemprop="discussionUrl">
+      <span class="post-comments-count disqus-comment-count" data-disqus-identifier="2020/06/19/ImagePy_21/" itemprop="commentCount"></span>
+    </a>
+  </span>
+  
+  
+
+        </div>
+      </header>
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+        <p>ImagePy中的管理器分两类：Source里的管理器维护全局静态数据，比如读写器、配置文件等， App里面的管理器维护运行时数据，比如图像、表格。</p>
+<h1 id="静态管理器"><a href="#静态管理器" class="headerlink" title="静态管理器"></a>静态管理器</h1><h2 id="创建管理器"><a href="#创建管理器" class="headerlink" title="创建管理器"></a>创建管理器</h2><p>这里创建一个money管理器，里面可以添加美元USD、欧元EUR、人民币RMB，比如：</p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">Source.manager(<span class="string">&#x27;money&#x27;</span>).add(<span class="string">&#x27;USD&#x27;</span>, MoneyReader, <span class="string">&#x27;MoneyDisplay&#x27;</span>)</span><br><span class="line">Source.manager(<span class="string">&#x27;money&#x27;</span>).add(<span class="string">&#x27;EUR&#x27;</span>, MoneyReader, <span class="string">&#x27;MoneyDisplay&#x27;</span>)</span><br><span class="line">Source.manager(<span class="string">&#x27;money&#x27;</span>).add(<span class="string">&#x27;RMB&#x27;</span>, MoneyReader, <span class="string">&#x27;MoneyDisplay&#x27;</span>)</span><br></pre></td></tr></table></figure>
+<p>意思就是管理器名为money，添加的成员有USD、EUR、RMB，处理方式是MoneyReader，显示方式是MoneyDisplay。<br>add方法的这三个参数分别对应的形参为name、obj和tag，可以这样统一理解：name表示对象名，obj表示处理方式，MoneyDisplay是显示方式。可以这样来感性认识，也可以认为这三个参数的地位是平齐的，因为有这三个参数可以用于索引，所以可表示的范围会非常大，导致manager的用处也非常广。</p>
+<h2 id="读取管理器"><a href="#读取管理器" class="headerlink" title="读取管理器"></a>读取管理器</h2><p>money管理器中添加元素以后，可以再在全局读取出来。<br>最重要的读取方式就是Manager类的gets()方法，即：</p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="keyword">def</span> <span class="title">gets</span>(<span class="params">self, name=<span class="literal">None</span>, tag=<span class="literal">None</span>, obj=<span class="literal">None</span></span>):</span></span><br><span class="line">    rst = [i <span class="keyword">for</span> i <span class="keyword">in</span> self.objs <span class="keyword">if</span> name <span class="keyword">is</span> <span class="literal">None</span> <span class="keyword">or</span> name == i[<span class="number">0</span>]]</span><br><span class="line">    rst = [i <span class="keyword">for</span> i <span class="keyword">in</span> rst <span class="keyword">if</span> obj <span class="keyword">is</span> <span class="literal">None</span> <span class="keyword">or</span> obj <span class="keyword">is</span> i[<span class="number">1</span>]]</span><br><span class="line">    <span class="keyword">return</span> [i <span class="keyword">for</span> i <span class="keyword">in</span> rst <span class="keyword">if</span> tag <span class="keyword">is</span> <span class="literal">None</span> <span class="keyword">or</span> tag == i[<span class="number">2</span>]]</span><br></pre></td></tr></table></figure>
+<p>可以看出，可以根据name、tag和obj来读取。从上面代码可以看出，如果不明确指定某一参数的话，就认为该参数不做过滤条件。<br>以tag过滤为例，假设读取设置为：</p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"><span class="built_in">print</span>(<span class="string">&quot;gets = &quot;</span>, Source.manager(<span class="string">&#x27;money&#x27;</span>).gets(tag=<span class="string">&#x27;MoneyDisplay&#x27;</span>))</span><br></pre></td></tr></table></figure>
+<p>那么返回结果就是：</p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">gets =  [(<span class="string">&#x27;RMB&#x27;</span>, &lt;function MoneyReader at <span class="number">0x000002E0C3C6F510</span>&gt;, <span class="string">&#x27;MoneyDisplay&#x27;</span>), (<span class="string">&#x27;EUR&#x27;</span>, &lt;function MoneyReader at <span class="number">0x000002E0C3C6F510</span>&gt;, <span class="string">&#x27;MoneyDisplay&#x27;</span>), (<span class="string">&#x27;USD&#x27;</span>, &lt;function MoneyReader at <span class="number">0x000002E0C3C6F510</span>&gt;, <span class="string">&#x27;MoneyDisplay&#x27;</span>)]</span><br></pre></td></tr></table></figure>
+<p>即将tag为MoneyDisplay的所有对象都返回。<br>还有一个直接获取管理器中的对象名称的快捷方式，即：</p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"><span class="built_in">print</span>(<span class="string">&quot;names = &quot;</span>, Source.manager(<span class="string">&#x27;money&#x27;</span>).names())</span><br></pre></td></tr></table></figure>
+<p>返回结果为：</p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">names =  [<span class="string">&#x27;RMB&#x27;</span>, <span class="string">&#x27;EUR&#x27;</span>, <span class="string">&#x27;USD&#x27;</span>]</span><br></pre></td></tr></table></figure>
+
+<h2 id="管理器持久化"><a href="#管理器持久化" class="headerlink" title="管理器持久化"></a>管理器持久化</h2><p>管理器中的对象可以通过持久化将内存中的数据存储到磁盘上，该功能对于配置类文件非常重要，因为可以及时存储软件设置。<br>管理器的持久化使用的是write函数，如下：</p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">Source.manager(<span class="string">&#x27;money&#x27;</span>).write(<span class="string">&quot;1.txt&quot;</span>)</span><br></pre></td></tr></table></figure>
+<p>这里需要注意的是上面我们设定的MoneyReader是一个函数，所以无法json化，所以我们这里将其设为None，才能正确存储。<br>这样该txt文件中的内容就是：</p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">[[<span class="string">&quot;RMB&quot;</span>, null, <span class="string">&quot;MoneyDisplay&quot;</span>], [<span class="string">&quot;EUR&quot;</span>, null, <span class="string">&quot;MoneyDisplay&quot;</span>], [<span class="string">&quot;USD&quot;</span>, null, <span class="string">&quot;MoneyDisplay&quot;</span>]]</span><br></pre></td></tr></table></figure>
+<p>持久化以后还可以读取回来：</p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">Source.manager(<span class="string">&#x27;money&#x27;</span>).read(<span class="string">&quot;1.txt&quot;</span>)</span><br></pre></td></tr></table></figure>
+
+<h2 id="App中的静态管理器"><a href="#App中的静态管理器" class="headerlink" title="App中的静态管理器"></a>App中的静态管理器</h2><p>App类中也有一个与Source类似的静态管理器，用来管理color和roi，即颜色管理器和roi管理器，这样就能在全局来调用颜色和roi。<br>具体用法见上面的静态管理器。</p>
+<h1 id="动态管理器"><a href="#动态管理器" class="headerlink" title="动态管理器"></a>动态管理器</h1><p>App类中的动态管理器用来管理ImagePy所打开的图像、图像窗口（即画布）、表格、表格窗口、网格、网格窗口和任务，即：</p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br></pre></td><td class="code"><pre><span class="line"><span class="class"><span class="keyword">class</span> <span class="title">App</span>():</span></span><br><span class="line">    <span class="function"><span class="keyword">def</span> <span class="title">__init__</span>(<span class="params">self</span>):</span></span><br><span class="line">        self.img_manager = Manager()</span><br><span class="line">        self.wimg_manager = Manager()</span><br><span class="line">        self.tab_manager = Manager()</span><br><span class="line">        self.wtab_manager = Manager()</span><br><span class="line">        self.mesh_manager = Manager()</span><br><span class="line">        self.wmesh_manager = Manager()</span><br><span class="line">        self.task_manager = Manager()</span><br><span class="line">        self.managers = &#123;&#125;</span><br></pre></td></tr></table></figure>
+<p>下面以图像管理器为例，看一下动态管理器的运行机制。</p>
+<h2 id="创建管理器并添加元素"><a href="#创建管理器并添加元素" class="headerlink" title="创建管理器并添加元素"></a>创建管理器并添加元素</h2><p>动态管理器的创建实际在App类创建时就在初始化时创建。<br>下面是添加图像。</p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><span class="line">app = wx.App(<span class="literal">False</span>)</span><br><span class="line">frame = ImagePy(<span class="literal">None</span>)</span><br><span class="line">frame.Show()</span><br><span class="line">frame.show_img([np.zeros((<span class="number">512</span>, <span class="number">512</span>), dtype=np.uint8)], <span class="string">&#x27;zeros&#x27;</span>)</span><br><span class="line">frame.show_img([np.ones((<span class="number">512</span>, <span class="number">512</span>), dtype=np.uint8)], <span class="string">&#x27;ones&#x27;</span>)</span><br><span class="line"></span><br><span class="line">app.MainLoop()</span><br></pre></td></tr></table></figure>
+<p>这里我们通过ImagePy框架中的show_img添加了两张图像，一张名为zeros，一张名为ones。<br>实际查看该函数的源码：</p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="keyword">def</span> <span class="title">_show_img</span>(<span class="params">self, img, title=<span class="literal">None</span></span>):</span></span><br><span class="line">    canvas = self.canvasnb.add_canvas()</span><br><span class="line">    self.remove_img(canvas.image)</span><br><span class="line">    self.remove_img_win(canvas)</span><br><span class="line">    <span class="keyword">if</span> <span class="keyword">not</span> title <span class="keyword">is</span> <span class="literal">None</span>:</span><br><span class="line">        canvas.set_imgs(img)</span><br><span class="line">        canvas.image.name = title</span><br><span class="line">    <span class="keyword">else</span>: canvas.set_img(img)</span><br><span class="line">    self.add_img(canvas.image)</span><br><span class="line">    self.add_img_win(canvas)</span><br><span class="line"></span><br><span class="line"><span class="function"><span class="keyword">def</span> <span class="title">show_img</span>(<span class="params">self, img, title=<span class="literal">None</span></span>):</span></span><br><span class="line">    wx.CallAfter(self._show_img, img, title)</span><br></pre></td></tr></table></figure>
+<p>可以看出，它是调用了App类的add_img和add_img_win来添加图像及图像窗口（画布）。<br>注意，这里之所以frame能调用App类中的这两个方法，因为frame是ImagePy类的实例对象，而ImagePy类既继承了wx.Frame类，也继承了App类。</p>
+<h2 id="读取管理器-1"><a href="#读取管理器-1" class="headerlink" title="读取管理器"></a>读取管理器</h2><p>在插件中如果需要获取图像或其窗口，则可以使用：</p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">self.app.get_img_win()</span><br><span class="line">self.app.get_img()</span><br></pre></td></tr></table></figure>
+<p>这里之所以这样调用，是因为App类的实例化对象app是贯穿全局的，任何一个tool或menu在start()启动的时候都需要传入app，所以app能统领全局。</p>
+
+    </div>
+
+    
+    
+    
+        <div class="reward-container">
+  <div></div>
+  <button onclick="var qr = document.getElementById('qr'); qr.style.display = (qr.style.display === 'none') ? 'block' : 'none';">
+    Donate
+  </button>
+  <div id="qr" style="display: none;">
+      
+      <div style="display: inline-block;">
+        <img src="/images/wechat_reward.png" alt="Xin-Bo Qi(亓欣波) WeChat Pay">
+        <p>WeChat Pay</p>
+      </div>
+
+  </div>
+</div>
+
+
+      <footer class="post-footer">
+          <div class="post-tags">
+              <a href="/tags/ImagePy/" rel="tag"># ImagePy</a>
+          </div>
+
+        
+
+
+        
+    <div class="post-nav">
+      <div class="post-nav-item">
+    <a href="/2020/06/14/ImagePy_20/" rel="prev" title="ImagePy解析：20 -- 几何矢量Shape">
+      <i class="fa fa-chevron-left"></i> ImagePy解析：20 -- 几何矢量Shape
+    </a></div>
+      <div class="post-nav-item">
+    <a href="/2020/06/20/ImagePy_22/" rel="next" title="ImagePy解析：22 -- 从零搭建一个图像处理软件">
+      ImagePy解析：22 -- 从零搭建一个图像处理软件 <i class="fa fa-chevron-right"></i>
+    </a></div>
+    </div>
+      </footer>
+    
+  </article>
+  
+  
+  
+
+
+
+          </div>
+          
+    
+  <div class="comments">
+    <div id="disqus_thread">
+      <noscript>Please enable JavaScript to view the comments powered by Disqus.</noscript>
+    </div>
+  </div>
+  
+
+<script>
+  window.addEventListener('tabs:register', () => {
+    let { activeClass } = CONFIG.comments;
+    if (CONFIG.comments.storage) {
+      activeClass = localStorage.getItem('comments_active') || activeClass;
+    }
+    if (activeClass) {
+      let activeTab = document.querySelector(`a[href="#comment-${activeClass}"]`);
+      if (activeTab) {
+        activeTab.click();
+      }
+    }
+  });
+  if (CONFIG.comments.storage) {
+    window.addEventListener('tabs:click', event => {
+      if (!event.target.matches('.tabs-comment .tab-content .tab-pane')) return;
+      let commentClass = event.target.classList[1];
+      localStorage.setItem('comments_active', commentClass);
+    });
+  }
+</script>
+
+        </div>
+          
+  
+  <div class="toggle sidebar-toggle">
+    <span class="toggle-line toggle-line-first"></span>
+    <span class="toggle-line toggle-line-middle"></span>
+    <span class="toggle-line toggle-line-last"></span>
+  </div>
+
+  <aside class="sidebar">
+    <div class="sidebar-inner">
+
+      <ul class="sidebar-nav motion-element">
+        <li class="sidebar-nav-toc">
+          Table of Contents
+        </li>
+        <li class="sidebar-nav-overview">
+          Overview
+        </li>
+      </ul>
+
+      <!--noindex-->
+      <div class="post-toc-wrap sidebar-panel">
+          <div class="post-toc motion-element"><ol class="nav"><li class="nav-item nav-level-1"><a class="nav-link" href="#%E9%9D%99%E6%80%81%E7%AE%A1%E7%90%86%E5%99%A8"><span class="nav-number">1.</span> <span class="nav-text">静态管理器</span></a><ol class="nav-child"><li class="nav-item nav-level-2"><a class="nav-link" href="#%E5%88%9B%E5%BB%BA%E7%AE%A1%E7%90%86%E5%99%A8"><span class="nav-number">1.1.</span> <span class="nav-text">创建管理器</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E8%AF%BB%E5%8F%96%E7%AE%A1%E7%90%86%E5%99%A8"><span class="nav-number">1.2.</span> <span class="nav-text">读取管理器</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E7%AE%A1%E7%90%86%E5%99%A8%E6%8C%81%E4%B9%85%E5%8C%96"><span class="nav-number">1.3.</span> <span class="nav-text">管理器持久化</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#App%E4%B8%AD%E7%9A%84%E9%9D%99%E6%80%81%E7%AE%A1%E7%90%86%E5%99%A8"><span class="nav-number">1.4.</span> <span class="nav-text">App中的静态管理器</span></a></li></ol></li><li class="nav-item nav-level-1"><a class="nav-link" href="#%E5%8A%A8%E6%80%81%E7%AE%A1%E7%90%86%E5%99%A8"><span class="nav-number">2.</span> <span class="nav-text">动态管理器</span></a><ol class="nav-child"><li class="nav-item nav-level-2"><a class="nav-link" href="#%E5%88%9B%E5%BB%BA%E7%AE%A1%E7%90%86%E5%99%A8%E5%B9%B6%E6%B7%BB%E5%8A%A0%E5%85%83%E7%B4%A0"><span class="nav-number">2.1.</span> <span class="nav-text">创建管理器并添加元素</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E8%AF%BB%E5%8F%96%E7%AE%A1%E7%90%86%E5%99%A8-1"><span class="nav-number">2.2.</span> <span class="nav-text">读取管理器</span></a></li></ol></li></ol></div>
+      </div>
+      <!--/noindex-->
+
+      <div class="site-overview-wrap sidebar-panel">
+        <div class="site-author motion-element" itemprop="author" itemscope itemtype="http://schema.org/Person">
+    <img class="site-author-image" itemprop="image" alt="Xin-Bo Qi(亓欣波)"
+      src="/images/avatar.jpg">
+  <p class="site-author-name" itemprop="name">Xin-Bo Qi(亓欣波)</p>
+  <div class="site-description" itemprop="description">Be interesting!</div>
+</div>
+<div class="site-state-wrap motion-element">
+  <nav class="site-state">
+      <div class="site-state-item site-state-posts">
+          <a href="/archives/">
+        
+          <span class="site-state-item-count">120</span>
+          <span class="site-state-item-name">posts</span>
+        </a>
+      </div>
+      <div class="site-state-item site-state-categories">
+            <a href="/categories/">
+          
+        <span class="site-state-item-count">5</span>
+        <span class="site-state-item-name">categories</span></a>
+      </div>
+      <div class="site-state-item site-state-tags">
+            <a href="/tags/">
+          
+        <span class="site-state-item-count">41</span>
+        <span class="site-state-item-name">tags</span></a>
+      </div>
+  </nav>
+</div>
+  <div class="links-of-author motion-element">
+      <span class="links-of-author-item">
+        <a href="https://github.com/qixinbo" title="GitHub → https:&#x2F;&#x2F;github.com&#x2F;qixinbo" rel="noopener" target="_blank"><i class="github fa-fw"></i>GitHub</a>
+      </span>
+      <span class="links-of-author-item">
+        <a href="mailto:qixinbo@gmail.com" title="E-Mail → mailto:qixinbo@gmail.com" rel="noopener" target="_blank"><i class="envelope fa-fw"></i>E-Mail</a>
+      </span>
+  </div>
+
+
+  <div class="links-of-blogroll motion-element">
+    <div class="links-of-blogroll-title"><i class="fa fa-link fa-fw"></i>
+      Links
+    </div>
+    <ul class="links-of-blogroll-list">
+        <li class="links-of-blogroll-item">
+          <a href="https://www.tsinghua.edu.cn/" title="https:&#x2F;&#x2F;www.tsinghua.edu.cn" rel="noopener" target="_blank">THU</a>
+        </li>
+        <li class="links-of-blogroll-item">
+          <a href="http://www.imr.cas.cn/" title="http:&#x2F;&#x2F;www.imr.cas.cn" rel="noopener" target="_blank">IMR</a>
+        </li>
+        <li class="links-of-blogroll-item">
+          <a href="http://www.sdu.edu.cn/" title="http:&#x2F;&#x2F;www.sdu.edu.cn" rel="noopener" target="_blank">SDU</a>
+        </li>
+        <li class="links-of-blogroll-item">
+          <a href="http://liam0205.me/" title="http:&#x2F;&#x2F;liam0205.me&#x2F;" rel="noopener" target="_blank">黄晨成</a>
+        </li>
+    </ul>
+  </div>
+
+      </div>
+
+    </div>
+  </aside>
+  <div id="sidebar-dimmer"></div>
+
+
+      </div>
+    </main>
+
+    <footer class="footer">
+      <div class="footer-inner">
+        
+
+        
+
+<div class="copyright">
+  
+  &copy; 
+  <span itemprop="copyrightYear">2021</span>
+  <span class="with-love">
+    <i class="fa fa-heart"></i>
+  </span>
+  <span class="author" itemprop="copyrightHolder">Xin-Bo Qi(亓欣波)</span>
+</div>
+  <div class="powered-by">Powered by <a href="https://hexo.io/" class="theme-link" rel="noopener" target="_blank">Hexo</a> & <a href="https://theme-next.org/" class="theme-link" rel="noopener" target="_blank">NexT.Gemini</a>
+  </div>
+
+        
+
+
+
+
+
+
+
+
+      </div>
+    </footer>
+  </div>
+
+  
+  <script src="/lib/anime.min.js"></script>
+  <script src="/lib/velocity/velocity.min.js"></script>
+  <script src="/lib/velocity/velocity.ui.min.js"></script>
+
+<script src="/js/utils.js"></script>
+
+<script src="/js/motion.js"></script>
+
+
+<script src="/js/schemes/pisces.js"></script>
+
+
+<script src="/js/next-boot.js"></script>
+
+
+
+
+  
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+  
+
+  
+
+  
+
+<script>
+  function loadCount() {
+    var d = document, s = d.createElement('script');
+    s.src = 'https://qixinbo.disqus.com/count.js';
+    s.id = 'dsq-count-scr';
+    (d.head || d.body).appendChild(s);
+  }
+  // defer loading until the whole page loading is completed
+  window.addEventListener('load', loadCount, false);
+</script>
+<script>
+  var disqus_config = function() {
+    this.page.url = "http://qixinbo.github.io/2020/06/19/ImagePy_21/";
+    this.page.identifier = "2020/06/19/ImagePy_21/";
+    this.page.title = "ImagePy解析：21 -- 管理器";
+    };
+  NexT.utils.loadComments(document.querySelector('#disqus_thread'), () => {
+    if (window.DISQUS) {
+      DISQUS.reset({
+        reload: true,
+        config: disqus_config
+      });
+    } else {
+      var d = document, s = d.createElement('script');
+      s.src = 'https://qixinbo.disqus.com/embed.js';
+      s.setAttribute('data-timestamp', '' + +new Date());
+      (d.head || d.body).appendChild(s);
+    }
+  });
+</script>
+
+</body>
+</html>

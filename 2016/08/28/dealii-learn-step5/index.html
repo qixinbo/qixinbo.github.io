@@ -1,0 +1,593 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=2">
+<meta name="theme-color" content="#222">
+<meta name="generator" content="Hexo 5.4.0">
+  <link rel="apple-touch-icon" sizes="180x180" href="/images/apple-touch-icon-next.png">
+  <link rel="icon" type="image/png" sizes="32x32" href="/favicon.ico">
+  <link rel="icon" type="image/png" sizes="16x16" href="/favicon.ico">
+  <link rel="mask-icon" href="/images/logo.svg" color="#222">
+
+<link rel="stylesheet" href="/css/main.css">
+
+
+<link rel="stylesheet" href="/lib/font-awesome/css/all.min.css">
+
+<script id="hexo-configurations">
+    var NexT = window.NexT || {};
+    var CONFIG = {"hostname":"qixinbo.github.io","root":"/","scheme":"Gemini","version":"7.8.0","exturl":false,"sidebar":{"position":"left","display":"post","padding":18,"offset":12,"onmobile":false},"copycode":{"enable":false,"show_result":false,"style":null},"back2top":{"enable":true,"sidebar":false,"scrollpercent":false},"bookmark":{"enable":false,"color":"#222","save":"auto"},"fancybox":false,"mediumzoom":false,"lazyload":false,"pangu":false,"comments":{"style":"tabs","active":null,"storage":true,"lazyload":false,"nav":null},"algolia":{"hits":{"per_page":10},"labels":{"input_placeholder":"Search for Posts","hits_empty":"We didn't find any results for the search: ${query}","hits_stats":"${hits} results found in ${time} ms"}},"localsearch":{"enable":false,"trigger":"auto","top_n_per_article":1,"unescape":false,"preload":false},"motion":{"enable":true,"async":false,"transition":{"post_block":"fadeIn","post_header":"slideDownIn","post_body":"slideDownIn","coll_header":"slideLeftIn","sidebar":"slideUpIn"}}};
+  </script>
+
+  <meta name="description" content="引子此例没有介绍革命性的功能，但有很多对前面例子的“微创新”，包括：  在不断细化的网格上的计算。数值计算通常要在不同的网格上进行，这样才能感受到精度。而且deal.II支持自适应网格，虽然这个例子中没有用到，但基础在这 读入非规则网格数据 计算优化 debug模式，使用Assert宏 变系数Possion方程，使用预条件迭代求解器  这里要求解的方程是：$$\begin{equation}\be">
+<meta property="og:type" content="article">
+<meta property="og:title" content="求解偏微分方程开源有限元软件deal.II学习--Step 5">
+<meta property="og:url" content="http://qixinbo.github.io/2016/08/28/dealii-learn-step5/index.html">
+<meta property="og:site_name" content="亓欣波">
+<meta property="og:description" content="引子此例没有介绍革命性的功能，但有很多对前面例子的“微创新”，包括：  在不断细化的网格上的计算。数值计算通常要在不同的网格上进行，这样才能感受到精度。而且deal.II支持自适应网格，虽然这个例子中没有用到，但基础在这 读入非规则网格数据 计算优化 debug模式，使用Assert宏 变系数Possion方程，使用预条件迭代求解器  这里要求解的方程是：$$\begin{equation}\be">
+<meta property="og:locale" content="en_US">
+<meta property="og:image" content="https://ws1.sinaimg.cn/large/0072Lfvtly1fvjkgydl3lj308d06ldgs.jpg">
+<meta property="og:image" content="https://ws1.sinaimg.cn/large/0072Lfvtly1fvjkh9l2r6j308d06uac6.jpg">
+<meta property="og:image" content="https://ws1.sinaimg.cn/large/0072Lfvtly1fvjkhu0robj308d06u0vs.jpg">
+<meta property="og:image" content="https://ws1.sinaimg.cn/large/0072Lfvtly1fvjki7mzf5j308d06u0wd.jpg">
+<meta property="og:image" content="https://ws1.sinaimg.cn/large/0072Lfvtly1fvjkifcrm6j308d06uadz.jpg">
+<meta property="og:image" content="https://ws1.sinaimg.cn/large/0072Lfvtly1fvjkisk167j308d06u41z.jpg">
+<meta property="article:published_time" content="2016-08-27T16:00:00.000Z">
+<meta property="article:modified_time" content="2021-03-25T07:20:30.569Z">
+<meta property="article:author" content="Xin-Bo Qi(亓欣波)">
+<meta property="article:tag" content="deal.II">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:image" content="https://ws1.sinaimg.cn/large/0072Lfvtly1fvjkgydl3lj308d06ldgs.jpg">
+
+<link rel="canonical" href="http://qixinbo.github.io/2016/08/28/dealii-learn-step5/">
+
+
+<script id="page-configurations">
+  // https://hexo.io/docs/variables.html
+  CONFIG.page = {
+    sidebar: "",
+    isHome : false,
+    isPost : true,
+    lang   : 'en'
+  };
+</script>
+
+  <title>求解偏微分方程开源有限元软件deal.II学习--Step 5 | 亓欣波</title>
+  
+
+
+
+
+
+
+  <noscript>
+  <style>
+  .use-motion .brand,
+  .use-motion .menu-item,
+  .sidebar-inner,
+  .use-motion .post-block,
+  .use-motion .pagination,
+  .use-motion .comments,
+  .use-motion .post-header,
+  .use-motion .post-body,
+  .use-motion .collection-header { opacity: initial; }
+
+  .use-motion .site-title,
+  .use-motion .site-subtitle {
+    opacity: initial;
+    top: initial;
+  }
+
+  .use-motion .logo-line-before i { left: initial; }
+  .use-motion .logo-line-after i { right: initial; }
+  </style>
+</noscript>
+
+</head>
+
+<body itemscope itemtype="http://schema.org/WebPage">
+  <div class="container use-motion">
+    <div class="headband"></div>
+
+    <header class="header" itemscope itemtype="http://schema.org/WPHeader">
+      <div class="header-inner"><div class="site-brand-container">
+  <div class="site-nav-toggle">
+    <div class="toggle" aria-label="Toggle navigation bar">
+      <span class="toggle-line toggle-line-first"></span>
+      <span class="toggle-line toggle-line-middle"></span>
+      <span class="toggle-line toggle-line-last"></span>
+    </div>
+  </div>
+
+  <div class="site-meta">
+
+    <a href="/" class="brand" rel="start">
+      <span class="logo-line-before"><i></i></span>
+      <h1 class="site-title">亓欣波</h1>
+      <span class="logo-line-after"><i></i></span>
+    </a>
+      <p class="site-subtitle" itemprop="description">Hi, I am Xin-Bo Qi (亓欣波)</p>
+  </div>
+
+  <div class="site-nav-right">
+    <div class="toggle popup-trigger">
+    </div>
+  </div>
+</div>
+
+
+
+
+<nav class="site-nav">
+  <ul id="menu" class="main-menu menu">
+        <li class="menu-item menu-item-home">
+
+    <a href="/" rel="section"><i class="home fa-fw"></i>Home</a>
+
+  </li>
+        <li class="menu-item menu-item-categories">
+
+    <a href="/categories/" rel="section"><i class="th fa-fw"></i>Categories</a>
+
+  </li>
+        <li class="menu-item menu-item-archives">
+
+    <a href="/archives/" rel="section"><i class="archive fa-fw"></i>Archives</a>
+
+  </li>
+        <li class="menu-item menu-item-tags">
+
+    <a href="/tags/" rel="section"><i class="tags fa-fw"></i>Tags</a>
+
+  </li>
+        <li class="menu-item menu-item-scholar">
+
+    <a href="/scholar/" rel="section"><i class="bar-chart fa-fw"></i>scholar</a>
+
+  </li>
+        <li class="menu-item menu-item-sources">
+
+    <a href="/sources/" rel="section"><i class="rss fa-fw"></i>sources</a>
+
+  </li>
+        <li class="menu-item menu-item-gallery">
+
+    <a href="/gallery/" rel="section"><i class="file-image-o fa-fw"></i>gallery</a>
+
+  </li>
+        <li class="menu-item menu-item-about">
+
+    <a href="/about/" rel="section"><i class="user fa-fw"></i>About</a>
+
+  </li>
+        <li class="menu-item menu-item-commonweal">
+
+    <a href="/404.html" rel="section"><i class="heartbeat fa-fw"></i>Commonweal 404</a>
+
+  </li>
+  </ul>
+</nav>
+
+
+
+
+</div>
+    </header>
+
+    
+  <div class="back-to-top">
+    <i class="fa fa-arrow-up"></i>
+    <span>0%</span>
+  </div>
+
+
+    <main class="main">
+      <div class="main-inner">
+        <div class="content-wrap">
+          
+
+          <div class="content post posts-expand">
+            
+
+    
+  
+  
+  <article itemscope itemtype="http://schema.org/Article" class="post-block" lang="en">
+    <link itemprop="mainEntityOfPage" href="http://qixinbo.github.io/2016/08/28/dealii-learn-step5/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="image" content="/images/avatar.jpg">
+      <meta itemprop="name" content="Xin-Bo Qi(亓欣波)">
+      <meta itemprop="description" content="Be interesting!">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="亓欣波">
+    </span>
+      <header class="post-header">
+        <h1 class="post-title" itemprop="name headline">
+          求解偏微分方程开源有限元软件deal.II学习--Step 5
+        </h1>
+
+        <div class="post-meta">
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="far fa-calendar"></i>
+              </span>
+              <span class="post-meta-item-text">Posted on</span>
+
+              <time title="Created: 2016-08-28 00:00:00" itemprop="dateCreated datePublished" datetime="2016-08-28T00:00:00+08:00">2016-08-28</time>
+            </span>
+              <span class="post-meta-item">
+                <span class="post-meta-item-icon">
+                  <i class="far fa-calendar-check"></i>
+                </span>
+                <span class="post-meta-item-text">Edited on</span>
+                <time title="Modified: 2021-03-25 15:20:30" itemprop="dateModified" datetime="2021-03-25T15:20:30+08:00">2021-03-25</time>
+              </span>
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="far fa-folder"></i>
+              </span>
+              <span class="post-meta-item-text">In</span>
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+                  <a href="/categories/computational-material-science/" itemprop="url" rel="index"><span itemprop="name">computational material science</span></a>
+                </span>
+            </span>
+
+          
+  
+  <span class="post-meta-item">
+    
+      <span class="post-meta-item-icon">
+        <i class="far fa-comment"></i>
+      </span>
+      <span class="post-meta-item-text">Disqus: </span>
+    
+    <a title="disqus" href="/2016/08/28/dealii-learn-step5/#disqus_thread" itemprop="discussionUrl">
+      <span class="post-comments-count disqus-comment-count" data-disqus-identifier="2016/08/28/dealii-learn-step5/" itemprop="commentCount"></span>
+    </a>
+  </span>
+  
+  
+
+        </div>
+      </header>
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+        <h1 id="引子"><a href="#引子" class="headerlink" title="引子"></a>引子</h1><p>此例没有介绍革命性的功能，但有很多对前面例子的“微创新”，包括：</p>
+<ul>
+<li>在不断细化的网格上的计算。数值计算通常要在不同的网格上进行，这样才能感受到精度。而且deal.II支持自适应网格，虽然这个例子中没有用到，但基础在这</li>
+<li>读入非规则网格数据</li>
+<li>计算优化</li>
+<li>debug模式，使用Assert宏</li>
+<li>变系数Possion方程，使用预条件迭代求解器</li>
+</ul>
+<p>这里要求解的方程是：<br>$$<br>\begin{equation}<br>\begin{split}<br>-\nabla\cdot a(x)\nabla u(x) &amp;=1  \qquad in \Omega, \<br>u &amp;=0 \qquad on \partial\Omega<br>\end{split}<br>\end{equation}<br>$$<br>如果$a(x)$是常系数，那么就成了Possion方程，如果它是空间相关的变系数，方程就复杂一些了。<br>还是得先写出方程的弱形式：<br>$$<br>(a \nabla \phi, \nabla u) = (\phi, 1) \qquad \forall \phi<br>$$</p>
+<h1 id="程序解析"><a href="#程序解析" class="headerlink" title="程序解析"></a>程序解析</h1><p>以下是头文件们：</p>
+<figure class="highlight cpp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">#<span class="meta-keyword">include</span> <span class="meta-string">&lt;deal.II/base/quadrature_lib.h&gt;</span></span></span><br><span class="line"><span class="meta">#<span class="meta-keyword">include</span> <span class="meta-string">&lt;deal.II/base/function.h&gt;</span></span></span><br><span class="line"><span class="meta">#<span class="meta-keyword">include</span> <span class="meta-string">&lt;deal.II/base/logstream.h&gt;</span></span></span><br><span class="line"><span class="meta">#<span class="meta-keyword">include</span> <span class="meta-string">&lt;deal.II/lac/vector.h&gt;</span></span></span><br><span class="line"><span class="meta">#<span class="meta-keyword">include</span> <span class="meta-string">&lt;deal.II/lac/full_matrix.h&gt;</span></span></span><br><span class="line"><span class="meta">#<span class="meta-keyword">include</span> <span class="meta-string">&lt;deal.II/lac/sparse_matrix.h&gt;</span></span></span><br><span class="line"><span class="meta">#<span class="meta-keyword">include</span> <span class="meta-string">&lt;deal.II/lac/dynamic_sparsity_pattern.h&gt;</span></span></span><br><span class="line"><span class="meta">#<span class="meta-keyword">include</span> <span class="meta-string">&lt;deal.II/lac/solver_cg.h&gt;</span></span></span><br><span class="line"><span class="meta">#<span class="meta-keyword">include</span> <span class="meta-string">&lt;deal.II/lac/precondition.h&gt;</span></span></span><br><span class="line"><span class="meta">#<span class="meta-keyword">include</span> <span class="meta-string">&lt;deal.II/grid/tria.h&gt;</span></span></span><br><span class="line"><span class="meta">#<span class="meta-keyword">include</span> <span class="meta-string">&lt;deal.II/dofs/dof_handler.h&gt;</span></span></span><br><span class="line"><span class="meta">#<span class="meta-keyword">include</span> <span class="meta-string">&lt;deal.II/grid/tria_accessor.h&gt;</span></span></span><br><span class="line"><span class="meta">#<span class="meta-keyword">include</span> <span class="meta-string">&lt;deal.II/grid/tria_iterator.h&gt;</span></span></span><br><span class="line"><span class="meta">#<span class="meta-keyword">include</span> <span class="meta-string">&lt;deal.II/dofs/dof_accessor.h&gt;</span></span></span><br><span class="line"><span class="meta">#<span class="meta-keyword">include</span> <span class="meta-string">&lt;deal.II/dofs/dof_tools.h&gt;</span></span></span><br><span class="line"><span class="meta">#<span class="meta-keyword">include</span> <span class="meta-string">&lt;deal.II/fe/fe_q.h&gt;</span></span></span><br><span class="line"><span class="meta">#<span class="meta-keyword">include</span> <span class="meta-string">&lt;deal.II/fe/fe_values.h&gt;</span></span></span><br><span class="line"><span class="meta">#<span class="meta-keyword">include</span> <span class="meta-string">&lt;deal.II/numerics/vector_tools.h&gt;</span></span></span><br><span class="line"><span class="meta">#<span class="meta-keyword">include</span> <span class="meta-string">&lt;deal.II/numerics/matrix_tools.h&gt;</span></span></span><br><span class="line"><span class="meta">#<span class="meta-keyword">include</span> <span class="meta-string">&lt;deal.II/numerics/data_out.h&gt;</span></span></span><br><span class="line"><span class="meta">#<span class="meta-keyword">include</span> <span class="meta-string">&lt;deal.II/grid/grid_in.h&gt;</span></span></span><br><span class="line"><span class="meta">#<span class="meta-keyword">include</span> <span class="meta-string">&lt;deal.II/grid/manifold_lib.h&gt;</span></span></span><br><span class="line"><span class="meta">#<span class="meta-keyword">include</span> <span class="meta-string">&lt;fstream&gt;</span></span></span><br><span class="line"><span class="meta">#<span class="meta-keyword">include</span> <span class="meta-string">&lt;iostream&gt;</span></span></span><br><span class="line"><span class="meta">#<span class="meta-keyword">include</span> <span class="meta-string">&lt;sstream&gt;</span></span></span><br><span class="line"><span class="keyword">using</span> <span class="keyword">namespace</span> dealii;</span><br></pre></td></tr></table></figure>
+<p>新增的是grid_in.h，是为了从硬盘中读入一个网格文件。manifold_lib.h是为了描述环形边界上的对象。</p>
+<p>step5类模板：</p>
+<figure class="highlight cpp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">template</span> &lt;<span class="keyword">int</span> dim&gt;</span><br><span class="line"><span class="class"><span class="keyword">class</span> <span class="title">Step5</span></span></span><br><span class="line"><span class="class">&#123;</span></span><br><span class="line">    <span class="keyword">public</span>:</span><br><span class="line">        <span class="built_in">Step5</span> ();</span><br><span class="line">        <span class="function"><span class="keyword">void</span> <span class="title">run</span> <span class="params">()</span></span>;</span><br><span class="line">    <span class="keyword">private</span>:</span><br><span class="line">        <span class="function"><span class="keyword">void</span> <span class="title">setup_system</span> <span class="params">()</span></span>;</span><br><span class="line">        <span class="function"><span class="keyword">void</span> <span class="title">assemble_system</span> <span class="params">()</span></span>;</span><br><span class="line">        <span class="function"><span class="keyword">void</span> <span class="title">solve</span> <span class="params">()</span></span>;</span><br><span class="line">        <span class="function"><span class="keyword">void</span> <span class="title">output_results</span> <span class="params">(<span class="keyword">const</span> <span class="keyword">unsigned</span> <span class="keyword">int</span> cycle)</span> <span class="keyword">const</span></span>;</span><br><span class="line">        Triangulation&lt;dim&gt; triangulation;</span><br><span class="line">        FE_Q&lt;dim&gt; fe;</span><br><span class="line">        DoFHandler&lt;dim&gt; dof_handler;</span><br><span class="line">        SparsityPattern sparsity_pattern;</span><br><span class="line">        SparseMatrix&lt;<span class="keyword">double</span>&gt; system_matrix;</span><br><span class="line">        Vector&lt;<span class="keyword">double</span>&gt; solution;</span><br><span class="line">        Vector&lt;<span class="keyword">double</span>&gt; system_rhs;</span><br><span class="line">&#125;;</span><br></pre></td></tr></table></figure>
+<p>因为这里处理的是变系数椭圆问题，使用的对象类型还是Function，不过这里没用value，而是用的value_list，它不再接收单个点，而是接收一系列的点，然后返回这些点上的函数值：</p>
+<figure class="highlight cpp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">template</span> &lt;<span class="keyword">int</span> dim&gt;</span><br><span class="line"><span class="class"><span class="keyword">class</span> <span class="title">Coefficient</span> :</span> <span class="keyword">public</span> Function&lt;dim&gt;</span><br><span class="line">&#123;</span><br><span class="line">    <span class="keyword">public</span>:</span><br><span class="line">        <span class="built_in">Coefficient</span> () : Function&lt;dim&gt;() &#123;&#125;</span><br><span class="line">        <span class="function"><span class="keyword">virtual</span> <span class="keyword">double</span> <span class="title">value</span> <span class="params">(<span class="keyword">const</span> Point&lt;dim&gt; &amp;p,</span></span></span><br><span class="line"><span class="function"><span class="params">                <span class="keyword">const</span> <span class="keyword">unsigned</span> <span class="keyword">int</span> component = <span class="number">0</span>)</span> <span class="keyword">const</span></span>;</span><br><span class="line">        <span class="function"><span class="keyword">virtual</span> <span class="keyword">void</span> <span class="title">value_list</span> <span class="params">(<span class="keyword">const</span> std::vector&lt;Point&lt;dim&gt; &gt; &amp;points,</span></span></span><br><span class="line"><span class="function"><span class="params">                std::vector&lt;<span class="keyword">double</span>&gt; &amp;values,</span></span></span><br><span class="line"><span class="function"><span class="params">                <span class="keyword">const</span> <span class="keyword">unsigned</span> <span class="keyword">int</span> component = <span class="number">0</span>)</span> <span class="keyword">const</span></span>;</span><br><span class="line">&#125;;</span><br></pre></td></tr></table></figure>
+<p>下面是单个点上的函数值：</p>
+<figure class="highlight cpp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">template</span> &lt;<span class="keyword">int</span> dim&gt;</span><br><span class="line"><span class="keyword">double</span> Coefficient&lt;dim&gt;::<span class="built_in">value</span> (<span class="keyword">const</span> Point&lt;dim&gt; &amp;p,</span><br><span class="line">        <span class="keyword">const</span> <span class="keyword">unsigned</span> <span class="keyword">int</span> / *component* /) <span class="keyword">const</span></span><br><span class="line">&#123;</span><br><span class="line">    <span class="keyword">if</span> (p.<span class="built_in">square</span>() &lt; <span class="number">0.5</span>*<span class="number">0.5</span>)</span><br><span class="line">        <span class="keyword">return</span> <span class="number">20</span>;</span><br><span class="line">    <span class="keyword">else</span></span><br><span class="line">        <span class="keyword">return</span> <span class="number">1</span>;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p>那么下面就是一下计算很多点的函数值：</p>
+<figure class="highlight cpp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">template</span> &lt;<span class="keyword">int</span> dim&gt;</span><br><span class="line"><span class="keyword">void</span> Coefficient&lt;dim&gt;::<span class="built_in">value_list</span> (<span class="keyword">const</span> std::vector&lt;Point&lt;dim&gt; &gt; &amp;points,</span><br><span class="line">        std::vector&lt;<span class="keyword">double</span>&gt; &amp;values,</span><br><span class="line">        <span class="keyword">const</span> <span class="keyword">unsigned</span> <span class="keyword">int</span> component) <span class="keyword">const</span></span><br><span class="line">&#123;</span><br><span class="line">    <span class="built_in">Assert</span> (values.<span class="built_in">size</span>() == points.<span class="built_in">size</span>(),</span><br><span class="line">            <span class="built_in">ExcDimensionMismatch</span> (values.<span class="built_in">size</span>(), points.<span class="built_in">size</span>()));</span><br><span class="line"></span><br></pre></td></tr></table></figure>
+<p>这个函数接收三个参数：一个是坐标点的列表，一个是存储这些点上的函数值的列表，一个是矢量component，这里应该是0,因为此处是标量函数。<br>很明显，输出列表values的大小跟输入列表points应该相同，但事实上90%的编程错误都是输入了无效参数，因此应该保证输入参数是valid的。此处，Assert宏是个好方法，因为它保证它的第一个参数，即条件，是有效的，如果无效，就抛出一个exception，即它的第二个参数，通常是终止程序。这将极快地定位错误，方便调试。另一方面，这些检查也不会明显地拖慢程序，而且，Assert宏可仅存在于debug模式，在优化模式中可以将其完全去掉。<br>事实上，如果将deal.II中的所有check都关掉，可以提速4倍，但同时有引入大量调试错误的问题。<br>所以，最好是程序稳定后，再将debug关闭。<br>上面代码就是Assert一下两者的尺寸是否相同，第一个参数是是否相同的条件，第二个参数是调用内置的一个函数来输出两者维度不匹配的信息。该算例的最后就是给出了一个触发这种不匹配的情形，可以发现很快就能定位错误，同时，如果程序是在一个调试器中运行，可以通过调用堆栈直接跳转到出错位置。</p>
+<figure class="highlight cpp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line"><span class="built_in">Assert</span> (component == <span class="number">0</span>,</span><br><span class="line">        <span class="built_in">ExcIndexRange</span> (component, <span class="number">0</span>, <span class="number">1</span>));</span><br></pre></td></tr></table></figure>
+<p>这里还检查了是不是标量函数，因为标量可视为只有一个分量的矢量，所以Assert一下是否component=0,如果越界了，就调用ExcIndexRange函数。<br>下面就是具体赋值代码：</p>
+<figure class="highlight cpp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">const</span> <span class="keyword">unsigned</span> <span class="keyword">int</span> n_points = points.<span class="built_in">size</span>();</span><br><span class="line"><span class="keyword">for</span> (<span class="keyword">unsigned</span> <span class="keyword">int</span> i=<span class="number">0</span>; i&lt;n_points; ++i)</span><br><span class="line">&#123;</span><br><span class="line">    <span class="keyword">if</span> (points[i].<span class="built_in">square</span>() &lt; <span class="number">0.5</span>*<span class="number">0.5</span>)</span><br><span class="line">        values[i] = <span class="number">20</span>;</span><br><span class="line">    <span class="keyword">else</span></span><br><span class="line">        values[i] = <span class="number">1</span>;</span><br><span class="line">&#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p>构造函数：</p>
+<figure class="highlight cpp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">template</span> &lt;<span class="keyword">int</span> dim&gt;</span><br><span class="line">Step5&lt;dim&gt;::<span class="built_in">Step5</span> () :</span><br><span class="line">    <span class="built_in">fe</span> (<span class="number">1</span>),</span><br><span class="line">    <span class="built_in">dof_handler</span> (triangulation)</span><br><span class="line">&#123;&#125;</span><br></pre></td></tr></table></figure>
+<p>建立系统，跟之前不同的是没有生成网格这一步：</p>
+<figure class="highlight cpp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">template</span> &lt;<span class="keyword">int</span> dim&gt;</span><br><span class="line"><span class="keyword">void</span> Step5&lt;dim&gt;::<span class="built_in">setup_system</span> ()</span><br><span class="line">&#123;</span><br><span class="line">    dof_handler.<span class="built_in">distribute_dofs</span> (fe);</span><br><span class="line">    std::cout &lt;&lt; <span class="string">&quot; Number of degrees of freedom: &quot;</span></span><br><span class="line">        &lt;&lt; dof_handler.<span class="built_in">n_dofs</span>()</span><br><span class="line">        &lt;&lt; std::endl;</span><br><span class="line">    <span class="function">DynamicSparsityPattern <span class="title">dsp</span><span class="params">(dof_handler.n_dofs())</span></span>;</span><br><span class="line">    DoFTools::<span class="built_in">make_sparsity_pattern</span> (dof_handler, dsp);</span><br><span class="line">    sparsity_pattern.<span class="built_in">copy_from</span>(dsp);</span><br><span class="line">    system_matrix.<span class="built_in">reinit</span> (sparsity_pattern);</span><br><span class="line">    solution.<span class="built_in">reinit</span> (dof_handler.<span class="built_in">n_dofs</span>());</span><br><span class="line">    system_rhs.<span class="built_in">reinit</span> (dof_handler.<span class="built_in">n_dofs</span>());</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p>组装系统：</p>
+<figure class="highlight cpp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">template</span> &lt;<span class="keyword">int</span> dim&gt;</span><br><span class="line"><span class="keyword">void</span> Step5&lt;dim&gt;::<span class="built_in">assemble_system</span> ()</span><br><span class="line">&#123;</span><br><span class="line">    <span class="function">QGauss&lt;dim&gt; <span class="title">quadrature_formula</span><span class="params">(<span class="number">2</span>)</span></span>;</span><br><span class="line">    <span class="function">FEValues&lt;dim&gt; <span class="title">fe_values</span> <span class="params">(fe, quadrature_formula,</span></span></span><br><span class="line"><span class="function"><span class="params">            update_values | update_gradients |</span></span></span><br><span class="line"><span class="function"><span class="params">            update_quadrature_points | update_JxW_values)</span></span>;</span><br><span class="line">    <span class="keyword">const</span> <span class="keyword">unsigned</span> <span class="keyword">int</span> dofs_per_cell = fe.dofs_per_cell;</span><br><span class="line">    <span class="keyword">const</span> <span class="keyword">unsigned</span> <span class="keyword">int</span> n_q_points = quadrature_formula.<span class="built_in">size</span>();</span><br><span class="line">    <span class="function">FullMatrix&lt;<span class="keyword">double</span>&gt; <span class="title">cell_matrix</span> <span class="params">(dofs_per_cell, dofs_per_cell)</span></span>;</span><br><span class="line">    <span class="function">Vector&lt;<span class="keyword">double</span>&gt; <span class="title">cell_rhs</span> <span class="params">(dofs_per_cell)</span></span>;</span><br><span class="line">    <span class="function">std::vector&lt;types::global_dof_index&gt; <span class="title">local_dof_indices</span> <span class="params">(dofs_per_cell)</span></span>;</span><br></pre></td></tr></table></figure>
+<p>这一步的前面部分跟之前的相同，不解释。<br>下面不同之处在于这里用的是变系数，所以先根据之前的系数模板创建这么一个对象：</p>
+<figure class="highlight cpp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">const</span> Coefficient&lt;dim&gt; coefficient;</span><br><span class="line"><span class="function">std::vector&lt;<span class="keyword">double</span>&gt; <span class="title">coefficient_values</span> <span class="params">(n_q_points)</span></span>;</span><br><span class="line"><span class="keyword">typename</span> DoFHandler&lt;dim&gt;::active_cell_iterator</span><br><span class="line">cell = dof_handler.<span class="built_in">begin_active</span>(),</span><br><span class="line">     endc = dof_handler.<span class="built_in">end</span>();</span><br><span class="line"><span class="keyword">for</span> (; cell!=endc; ++cell)</span><br><span class="line">&#123;</span><br><span class="line">    cell_matrix = <span class="number">0</span>;</span><br><span class="line">    cell_rhs = <span class="number">0</span>;</span><br><span class="line">    fe_values.<span class="built_in">reinit</span> (cell);</span><br><span class="line">    coefficient.<span class="built_in">value_list</span> (fe_values.<span class="built_in">get_quadrature_points</span>(),</span><br><span class="line">            coefficient_values);</span><br><span class="line">    <span class="keyword">for</span> (<span class="keyword">unsigned</span> <span class="keyword">int</span> q_index=<span class="number">0</span>; q_index&lt;n_q_points; ++q_index)</span><br><span class="line">        <span class="keyword">for</span> (<span class="keyword">unsigned</span> <span class="keyword">int</span> i=<span class="number">0</span>; i&lt;dofs_per_cell; ++i)</span><br><span class="line">        &#123;</span><br><span class="line">            <span class="keyword">for</span> (<span class="keyword">unsigned</span> <span class="keyword">int</span> j=<span class="number">0</span>; j&lt;dofs_per_cell; ++j)</span><br><span class="line">                <span class="built_in">cell_matrix</span>(i,j) += (coefficient_values[q_index] *</span><br><span class="line">                        fe_values.<span class="built_in">shape_grad</span>(i,q_index) *</span><br><span class="line">                        fe_values.<span class="built_in">shape_grad</span>(j,q_index) *</span><br><span class="line">                        fe_values.<span class="built_in">JxW</span>(q_index));</span><br><span class="line">            <span class="built_in">cell_rhs</span>(i) += (fe_values.<span class="built_in">shape_value</span>(i,q_index) *</span><br><span class="line">                    <span class="number">1.0</span> *</span><br><span class="line">                    fe_values.<span class="built_in">JxW</span>(q_index));</span><br><span class="line">        &#125;</span><br><span class="line">    cell-&gt;<span class="built_in">get_dof_indices</span> (local_dof_indices);</span><br><span class="line">    <span class="keyword">for</span> (<span class="keyword">unsigned</span> <span class="keyword">int</span> i=<span class="number">0</span>; i&lt;dofs_per_cell; ++i)</span><br><span class="line">    &#123;</span><br><span class="line">        <span class="keyword">for</span> (<span class="keyword">unsigned</span> <span class="keyword">int</span> j=<span class="number">0</span>; j&lt;dofs_per_cell; ++j)</span><br><span class="line">            system_matrix.<span class="built_in">add</span> (local_dof_indices[i],</span><br><span class="line">                    local_dof_indices[j],</span><br><span class="line">                    <span class="built_in">cell_matrix</span>(i,j));</span><br><span class="line">        <span class="built_in">system_rhs</span>(local_dof_indices[i]) += <span class="built_in">cell_rhs</span>(i);</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br><span class="line">std::map&lt;types::global_dof_index,<span class="keyword">double</span>&gt; boundary_values;</span><br><span class="line">VectorTools::<span class="built_in">interpolate_boundary_values</span> (dof_handler,</span><br><span class="line">        <span class="number">0</span>,</span><br><span class="line">        ZeroFunction&lt;dim&gt;(),</span><br><span class="line">        boundary_values);</span><br><span class="line">MatrixTools::<span class="built_in">apply_boundary_values</span> (boundary_values,</span><br><span class="line">        system_matrix,</span><br><span class="line">        solution,</span><br><span class="line">        system_rhs);</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p>比起step4做的优化是：在计算系数函数的值时，是在每个单位上一下计算了所有积分点上的值。因为从step4可以看出，在那里计算右端项时，计算了$dofs_per_cell<em>n_q_points times$次，如果还是这样计算，对应到这里计算系数时，就需要计算$dofs_per_cell</em>dofs_per_cell*n_q_points$次，但实际上相同积分点对应的这些函数值相同，没必要在自由度的循环中重复计算，同时这里还涉及虚函数调用，开销很大。综上，一次性计算完毕，优化了计算效率。<br>求解步如下：</p>
+<figure class="highlight cpp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">template</span> &lt;<span class="keyword">int</span> dim&gt;</span><br><span class="line"><span class="keyword">void</span> Step5&lt;dim&gt;::<span class="built_in">solve</span> ()</span><br><span class="line">&#123;</span><br><span class="line">    <span class="function">SolverControl <span class="title">solver_control</span> <span class="params">(<span class="number">1000</span>, <span class="number">1e-12</span>)</span></span>;</span><br><span class="line">    SolverCG&lt;&gt; <span class="built_in">solver</span> (solver_control);</span><br><span class="line">    PreconditionSSOR&lt;&gt; preconditioner;</span><br><span class="line">    preconditioner.<span class="built_in">initialize</span>(system_matrix, <span class="number">1.2</span>);</span><br><span class="line">    solver.<span class="built_in">solve</span> (system_matrix, solution, system_rhs,</span><br><span class="line">            preconditioner);</span><br><span class="line">    std::cout &lt;&lt; <span class="string">&quot; &quot;</span> &lt;&lt; solver_control.<span class="built_in">last_step</span>()</span><br><span class="line">        &lt;&lt; <span class="string">&quot; CG iterations needed to obtain convergence.&quot;</span></span><br><span class="line">        &lt;&lt; std::endl;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p>这里使用了对称超松弛迭代算法作为预条件子。<br>输出部分如下：</p>
+<figure class="highlight cpp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">template</span> &lt;<span class="keyword">int</span> dim&gt;</span><br><span class="line"><span class="keyword">void</span> Step5&lt;dim&gt;::<span class="built_in">output_results</span> (<span class="keyword">const</span> <span class="keyword">unsigned</span> <span class="keyword">int</span> cycle) <span class="keyword">const</span></span><br><span class="line">&#123;</span><br><span class="line">    DataOut&lt;dim&gt; data_out;</span><br><span class="line">    data_out.<span class="built_in">attach_dof_handler</span> (dof_handler);</span><br><span class="line">    data_out.<span class="built_in">add_data_vector</span> (solution, <span class="string">&quot;solution&quot;</span>);</span><br><span class="line">    data_out.<span class="built_in">build_patches</span> ();</span><br><span class="line">    DataOutBase::EpsFlags eps_flags;</span><br><span class="line">    eps_flags.z_scaling = <span class="number">4</span>;</span><br><span class="line">    eps_flags.azimut_angle = <span class="number">40</span>;</span><br><span class="line">    eps_flags.turn_angle = <span class="number">10</span>;</span><br><span class="line">    data_out.<span class="built_in">set_flags</span> (eps_flags);</span><br><span class="line">    std::ostringstream filename;</span><br><span class="line">    filename &lt;&lt; <span class="string">&quot;solution-&quot;</span></span><br><span class="line">        &lt;&lt; cycle</span><br><span class="line">        &lt;&lt; <span class="string">&quot;.eps&quot;</span>;</span><br><span class="line">    <span class="function">std::ofstream <span class="title">output</span> <span class="params">(filename.str().c_str())</span></span>;</span><br><span class="line">    data_out.<span class="built_in">write_eps</span> (output);</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p>这里将输出格式改成了EPS。因为EPS是一个打印格式，它不像其他格式的数据那样能输入到图像工具进行编辑，所以需要事先定义好，源码中就定义了多种flag，不详述。</p>
+<figure class="highlight cpp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">template</span> &lt;<span class="keyword">int</span> dim&gt;</span><br><span class="line"><span class="keyword">void</span> Step5&lt;dim&gt;::<span class="built_in">run</span> ()</span><br><span class="line">&#123;</span><br><span class="line">    GridIn&lt;dim&gt; grid_in;</span><br><span class="line">    grid_in.<span class="built_in">attach_triangulation</span> (triangulation);</span><br><span class="line">    <span class="function">std::ifstream <span class="title">input_file</span><span class="params">(<span class="string">&quot;circle-grid.inp&quot;</span>)</span></span>;</span><br></pre></td></tr></table></figure>
+<p>run函数中直接读入网格文件，这里是个inp后缀的。因为该网格是二维的，所以Assert一下如果不是二维的，就抛出一个异常：</p>
+<figure class="highlight cpp"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"><span class="built_in">Assert</span> (dim==<span class="number">2</span>, <span class="built_in">ExcInternalError</span>());</span><br></pre></td></tr></table></figure>
+<p>这是一个非规则网格文件UCD：</p>
+<figure class="highlight cpp"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">grid_in.<span class="built_in">read_ucd</span> (input_file);</span><br></pre></td></tr></table></figure>
+<figure class="highlight cpp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">static</span> <span class="keyword">const</span> SphericalManifold&lt;dim&gt; boundary;</span><br><span class="line">triangulation.<span class="built_in">set_all_manifold_ids_on_boundary</span>(<span class="number">0</span>);</span><br><span class="line">triangulation.<span class="built_in">set_manifold</span> (<span class="number">0</span>, boundary);</span><br><span class="line"><span class="keyword">for</span> (<span class="keyword">unsigned</span> <span class="keyword">int</span> cycle=<span class="number">0</span>; cycle&lt;<span class="number">6</span>; ++cycle)</span><br><span class="line">&#123;</span><br><span class="line">    std::cout &lt;&lt; <span class="string">&quot;Cycle &quot;</span> &lt;&lt; cycle &lt;&lt; <span class="string">&#x27;:&#x27;</span> &lt;&lt; std::endl;</span><br><span class="line">    <span class="keyword">if</span> (cycle != <span class="number">0</span>)</span><br><span class="line">        triangulation.<span class="built_in">refine_global</span> (<span class="number">1</span>);</span><br><span class="line">    std::cout &lt;&lt; <span class="string">&quot; Number of active cells: &quot;</span></span><br><span class="line">        &lt;&lt; triangulation.<span class="built_in">n_active_cells</span>()</span><br><span class="line">        &lt;&lt; std::endl</span><br><span class="line">        &lt;&lt; <span class="string">&quot; Total number of cells: &quot;</span></span><br><span class="line">        &lt;&lt; triangulation.<span class="built_in">n_cells</span>()</span><br><span class="line">        &lt;&lt; std::endl;</span><br><span class="line">    <span class="built_in">setup_system</span> ();</span><br><span class="line">    <span class="built_in">assemble_system</span> ();</span><br><span class="line">    <span class="built_in">solve</span> ();</span><br><span class="line">    <span class="built_in">output_results</span> (cycle);</span><br><span class="line">&#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p>然后创建一个流形，来告诉triangulation在网格细化后如何在边界上加点。<br>然后是main函数：</p>
+<figure class="highlight cpp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="keyword">int</span> <span class="title">main</span> <span class="params">()</span></span></span><br><span class="line"><span class="function"></span>&#123;</span><br><span class="line">    Step5&lt;<span class="number">2</span>&gt; laplace_problem_2d;</span><br><span class="line">    laplace_problem_2d.<span class="built_in">run</span> ();</span><br><span class="line">    <span class="comment">/*</span></span><br><span class="line"><span class="comment">       Coefficient&lt;2&gt; coefficient;</span></span><br><span class="line"><span class="comment">       std::vector&lt;Point&lt;2&gt; &gt; points (2);</span></span><br><span class="line"><span class="comment">       std::vector&lt;double&gt; coefficient_values (1);</span></span><br><span class="line"><span class="comment">       coefficient.value_list (points, coefficient_values);</span></span><br><span class="line"><span class="comment">       */</span></span><br><span class="line">    <span class="keyword">return</span> <span class="number">0</span>;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p>注释起来的代码是为了得到Assert的异常信息。</p>
+<h1 id="计算结果"><a href="#计算结果" class="headerlink" title="计算结果"></a>计算结果</h1><p>每次细化结果为：<br><img src="https://ws1.sinaimg.cn/large/0072Lfvtly1fvjkgydl3lj308d06ldgs.jpg"><br><img src="https://ws1.sinaimg.cn/large/0072Lfvtly1fvjkh9l2r6j308d06uac6.jpg"><br><img src="https://ws1.sinaimg.cn/large/0072Lfvtly1fvjkhu0robj308d06u0vs.jpg"><br><img src="https://ws1.sinaimg.cn/large/0072Lfvtly1fvjki7mzf5j308d06u0wd.jpg"><br><img src="https://ws1.sinaimg.cn/large/0072Lfvtly1fvjkifcrm6j308d06uadz.jpg"><br><img src="https://ws1.sinaimg.cn/large/0072Lfvtly1fvjkisk167j308d06u41z.jpg"></p>
+
+    </div>
+
+    
+    
+    
+        <div class="reward-container">
+  <div></div>
+  <button onclick="var qr = document.getElementById('qr'); qr.style.display = (qr.style.display === 'none') ? 'block' : 'none';">
+    Donate
+  </button>
+  <div id="qr" style="display: none;">
+      
+      <div style="display: inline-block;">
+        <img src="/images/wechat_reward.png" alt="Xin-Bo Qi(亓欣波) WeChat Pay">
+        <p>WeChat Pay</p>
+      </div>
+
+  </div>
+</div>
+
+
+      <footer class="post-footer">
+          <div class="post-tags">
+              <a href="/tags/deal-II/" rel="tag"># deal.II</a>
+          </div>
+
+        
+
+
+        
+    <div class="post-nav">
+      <div class="post-nav-item">
+    <a href="/2016/08/27/dealii-learn-step4/" rel="prev" title="求解偏微分方程开源有限元软件deal.II学习--Step 4">
+      <i class="fa fa-chevron-left"></i> 求解偏微分方程开源有限元软件deal.II学习--Step 4
+    </a></div>
+      <div class="post-nav-item">
+    <a href="/2016/08/30/dealii-learn-step6/" rel="next" title="求解偏微分方程开源有限元软件deal.II学习--Step 6">
+      求解偏微分方程开源有限元软件deal.II学习--Step 6 <i class="fa fa-chevron-right"></i>
+    </a></div>
+    </div>
+      </footer>
+    
+  </article>
+  
+  
+  
+
+
+
+          </div>
+          
+    
+  <div class="comments">
+    <div id="disqus_thread">
+      <noscript>Please enable JavaScript to view the comments powered by Disqus.</noscript>
+    </div>
+  </div>
+  
+
+<script>
+  window.addEventListener('tabs:register', () => {
+    let { activeClass } = CONFIG.comments;
+    if (CONFIG.comments.storage) {
+      activeClass = localStorage.getItem('comments_active') || activeClass;
+    }
+    if (activeClass) {
+      let activeTab = document.querySelector(`a[href="#comment-${activeClass}"]`);
+      if (activeTab) {
+        activeTab.click();
+      }
+    }
+  });
+  if (CONFIG.comments.storage) {
+    window.addEventListener('tabs:click', event => {
+      if (!event.target.matches('.tabs-comment .tab-content .tab-pane')) return;
+      let commentClass = event.target.classList[1];
+      localStorage.setItem('comments_active', commentClass);
+    });
+  }
+</script>
+
+        </div>
+          
+  
+  <div class="toggle sidebar-toggle">
+    <span class="toggle-line toggle-line-first"></span>
+    <span class="toggle-line toggle-line-middle"></span>
+    <span class="toggle-line toggle-line-last"></span>
+  </div>
+
+  <aside class="sidebar">
+    <div class="sidebar-inner">
+
+      <ul class="sidebar-nav motion-element">
+        <li class="sidebar-nav-toc">
+          Table of Contents
+        </li>
+        <li class="sidebar-nav-overview">
+          Overview
+        </li>
+      </ul>
+
+      <!--noindex-->
+      <div class="post-toc-wrap sidebar-panel">
+          <div class="post-toc motion-element"><ol class="nav"><li class="nav-item nav-level-1"><a class="nav-link" href="#%E5%BC%95%E5%AD%90"><span class="nav-number">1.</span> <span class="nav-text">引子</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#%E7%A8%8B%E5%BA%8F%E8%A7%A3%E6%9E%90"><span class="nav-number">2.</span> <span class="nav-text">程序解析</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#%E8%AE%A1%E7%AE%97%E7%BB%93%E6%9E%9C"><span class="nav-number">3.</span> <span class="nav-text">计算结果</span></a></li></ol></div>
+      </div>
+      <!--/noindex-->
+
+      <div class="site-overview-wrap sidebar-panel">
+        <div class="site-author motion-element" itemprop="author" itemscope itemtype="http://schema.org/Person">
+    <img class="site-author-image" itemprop="image" alt="Xin-Bo Qi(亓欣波)"
+      src="/images/avatar.jpg">
+  <p class="site-author-name" itemprop="name">Xin-Bo Qi(亓欣波)</p>
+  <div class="site-description" itemprop="description">Be interesting!</div>
+</div>
+<div class="site-state-wrap motion-element">
+  <nav class="site-state">
+      <div class="site-state-item site-state-posts">
+          <a href="/archives/">
+        
+          <span class="site-state-item-count">120</span>
+          <span class="site-state-item-name">posts</span>
+        </a>
+      </div>
+      <div class="site-state-item site-state-categories">
+            <a href="/categories/">
+          
+        <span class="site-state-item-count">5</span>
+        <span class="site-state-item-name">categories</span></a>
+      </div>
+      <div class="site-state-item site-state-tags">
+            <a href="/tags/">
+          
+        <span class="site-state-item-count">41</span>
+        <span class="site-state-item-name">tags</span></a>
+      </div>
+  </nav>
+</div>
+  <div class="links-of-author motion-element">
+      <span class="links-of-author-item">
+        <a href="https://github.com/qixinbo" title="GitHub → https:&#x2F;&#x2F;github.com&#x2F;qixinbo" rel="noopener" target="_blank"><i class="github fa-fw"></i>GitHub</a>
+      </span>
+      <span class="links-of-author-item">
+        <a href="mailto:qixinbo@gmail.com" title="E-Mail → mailto:qixinbo@gmail.com" rel="noopener" target="_blank"><i class="envelope fa-fw"></i>E-Mail</a>
+      </span>
+  </div>
+
+
+  <div class="links-of-blogroll motion-element">
+    <div class="links-of-blogroll-title"><i class="fa fa-link fa-fw"></i>
+      Links
+    </div>
+    <ul class="links-of-blogroll-list">
+        <li class="links-of-blogroll-item">
+          <a href="https://www.tsinghua.edu.cn/" title="https:&#x2F;&#x2F;www.tsinghua.edu.cn" rel="noopener" target="_blank">THU</a>
+        </li>
+        <li class="links-of-blogroll-item">
+          <a href="http://www.imr.cas.cn/" title="http:&#x2F;&#x2F;www.imr.cas.cn" rel="noopener" target="_blank">IMR</a>
+        </li>
+        <li class="links-of-blogroll-item">
+          <a href="http://www.sdu.edu.cn/" title="http:&#x2F;&#x2F;www.sdu.edu.cn" rel="noopener" target="_blank">SDU</a>
+        </li>
+        <li class="links-of-blogroll-item">
+          <a href="http://liam0205.me/" title="http:&#x2F;&#x2F;liam0205.me&#x2F;" rel="noopener" target="_blank">黄晨成</a>
+        </li>
+    </ul>
+  </div>
+
+      </div>
+
+    </div>
+  </aside>
+  <div id="sidebar-dimmer"></div>
+
+
+      </div>
+    </main>
+
+    <footer class="footer">
+      <div class="footer-inner">
+        
+
+        
+
+<div class="copyright">
+  
+  &copy; 
+  <span itemprop="copyrightYear">2021</span>
+  <span class="with-love">
+    <i class="fa fa-heart"></i>
+  </span>
+  <span class="author" itemprop="copyrightHolder">Xin-Bo Qi(亓欣波)</span>
+</div>
+  <div class="powered-by">Powered by <a href="https://hexo.io/" class="theme-link" rel="noopener" target="_blank">Hexo</a> & <a href="https://theme-next.org/" class="theme-link" rel="noopener" target="_blank">NexT.Gemini</a>
+  </div>
+
+        
+
+
+
+
+
+
+
+
+      </div>
+    </footer>
+  </div>
+
+  
+  <script src="/lib/anime.min.js"></script>
+  <script src="/lib/velocity/velocity.min.js"></script>
+  <script src="/lib/velocity/velocity.ui.min.js"></script>
+
+<script src="/js/utils.js"></script>
+
+<script src="/js/motion.js"></script>
+
+
+<script src="/js/schemes/pisces.js"></script>
+
+
+<script src="/js/next-boot.js"></script>
+
+
+
+
+  
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+  
+
+  
+
+  
+
+<script>
+  function loadCount() {
+    var d = document, s = d.createElement('script');
+    s.src = 'https://qixinbo.disqus.com/count.js';
+    s.id = 'dsq-count-scr';
+    (d.head || d.body).appendChild(s);
+  }
+  // defer loading until the whole page loading is completed
+  window.addEventListener('load', loadCount, false);
+</script>
+<script>
+  var disqus_config = function() {
+    this.page.url = "http://qixinbo.github.io/2016/08/28/dealii-learn-step5/";
+    this.page.identifier = "2016/08/28/dealii-learn-step5/";
+    this.page.title = "求解偏微分方程开源有限元软件deal.II学习--Step 5";
+    };
+  NexT.utils.loadComments(document.querySelector('#disqus_thread'), () => {
+    if (window.DISQUS) {
+      DISQUS.reset({
+        reload: true,
+        config: disqus_config
+      });
+    } else {
+      var d = document, s = d.createElement('script');
+      s.src = 'https://qixinbo.disqus.com/embed.js';
+      s.setAttribute('data-timestamp', '' + +new Date());
+      (d.head || d.body).appendChild(s);
+    }
+  });
+</script>
+
+</body>
+</html>

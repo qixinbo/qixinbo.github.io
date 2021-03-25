@@ -1,0 +1,669 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=2">
+<meta name="theme-color" content="#222">
+<meta name="generator" content="Hexo 5.4.0">
+  <link rel="apple-touch-icon" sizes="180x180" href="/images/apple-touch-icon-next.png">
+  <link rel="icon" type="image/png" sizes="32x32" href="/favicon.ico">
+  <link rel="icon" type="image/png" sizes="16x16" href="/favicon.ico">
+  <link rel="mask-icon" href="/images/logo.svg" color="#222">
+
+<link rel="stylesheet" href="/css/main.css">
+
+
+<link rel="stylesheet" href="/lib/font-awesome/css/all.min.css">
+
+<script id="hexo-configurations">
+    var NexT = window.NexT || {};
+    var CONFIG = {"hostname":"qixinbo.github.io","root":"/","scheme":"Gemini","version":"7.8.0","exturl":false,"sidebar":{"position":"left","display":"post","padding":18,"offset":12,"onmobile":false},"copycode":{"enable":false,"show_result":false,"style":null},"back2top":{"enable":true,"sidebar":false,"scrollpercent":false},"bookmark":{"enable":false,"color":"#222","save":"auto"},"fancybox":false,"mediumzoom":false,"lazyload":false,"pangu":false,"comments":{"style":"tabs","active":null,"storage":true,"lazyload":false,"nav":null},"algolia":{"hits":{"per_page":10},"labels":{"input_placeholder":"Search for Posts","hits_empty":"We didn't find any results for the search: ${query}","hits_stats":"${hits} results found in ${time} ms"}},"localsearch":{"enable":false,"trigger":"auto","top_n_per_article":1,"unescape":false,"preload":false},"motion":{"enable":true,"async":false,"transition":{"post_block":"fadeIn","post_header":"slideDownIn","post_body":"slideDownIn","coll_header":"slideLeftIn","sidebar":"slideUpIn"}}};
+  </script>
+
+  <meta name="description" content="简介本文的目的是介绍霄龙新开发的用于cellpose后处理加速的算法。前面已写了两篇文章介绍了cellpose，它是一个非常强大的用于胞状物体分割的算法，具体见：胞状物体通用分割算法Cellpose解析：使用篇胞状物体通用分割算法Cellpose解析：开发篇总体而言，cellpose由两部分组成：第一部分是Unet网络，建立了原图与其流场图flow之间的关系；第二部分是将上一步流场图复原为掩膜ma">
+<meta property="og:type" content="article">
+<meta property="og:title" content="Cellpose后处理加速算法解析">
+<meta property="og:url" content="http://qixinbo.github.io/2021/03/03/cellpose-3/index.html">
+<meta property="og:site_name" content="亓欣波">
+<meta property="og:description" content="简介本文的目的是介绍霄龙新开发的用于cellpose后处理加速的算法。前面已写了两篇文章介绍了cellpose，它是一个非常强大的用于胞状物体分割的算法，具体见：胞状物体通用分割算法Cellpose解析：使用篇胞状物体通用分割算法Cellpose解析：开发篇总体而言，cellpose由两部分组成：第一部分是Unet网络，建立了原图与其流场图flow之间的关系；第二部分是将上一步流场图复原为掩膜ma">
+<meta property="og:locale" content="en_US">
+<meta property="og:image" content="https://user-images.githubusercontent.com/6218739/109473155-eb448800-7aad-11eb-8690-27873f9018f9.png">
+<meta property="og:image" content="https://user-images.githubusercontent.com/6218739/109582208-b2052a00-7b38-11eb-8c85-66dd5f5e23ee.png">
+<meta property="og:image" content="https://user-images.githubusercontent.com/6218739/109622997-af75f500-7b77-11eb-80cf-2cef16b86aaf.png">
+<meta property="og:image" content="https://user-images.githubusercontent.com/6218739/109625035-cd445980-7b79-11eb-9c0a-30ecb52ba007.png">
+<meta property="og:image" content="https://user-images.githubusercontent.com/6218739/109745683-34601d80-7c0f-11eb-96bd-cd273f4cefed.png">
+<meta property="og:image" content="https://user-images.githubusercontent.com/6218739/109754873-cd973000-7c1f-11eb-85c6-9e15eef5f535.png">
+<meta property="og:image" content="https://user-images.githubusercontent.com/6218739/109755154-675edd00-7c20-11eb-8dea-2849cbfa908a.png">
+<meta property="og:image" content="https://user-images.githubusercontent.com/6218739/109755277-ae4cd280-7c20-11eb-9391-1fd87ce2768d.png">
+<meta property="og:image" content="https://user-images.githubusercontent.com/6218739/109767652-d5ac9b00-7c32-11eb-9b86-142233eb47f3.png">
+<meta property="og:image" content="https://user-images.githubusercontent.com/6218739/109767709-ebba5b80-7c32-11eb-84ff-d74d4b8067f3.png">
+<meta property="og:image" content="https://user-images.githubusercontent.com/6218739/109767749-f96fe100-7c32-11eb-8509-7180cc6e059b.png">
+<meta property="og:image" content="https://user-images.githubusercontent.com/6218739/109767862-215f4480-7c33-11eb-8359-3d9ef9706f9a.png">
+<meta property="og:image" content="https://user-images.githubusercontent.com/6218739/109767921-31772400-7c33-11eb-99e0-3b5ca3c81aa1.png">
+<meta property="og:image" content="https://user-images.githubusercontent.com/6218739/109767862-215f4480-7c33-11eb-8359-3d9ef9706f9a.png">
+<meta property="og:image" content="https://user-images.githubusercontent.com/6218739/109768719-3c7e8400-7c34-11eb-9af5-8bc965efb6d2.png">
+<meta property="article:published_time" content="2021-03-02T16:00:00.000Z">
+<meta property="article:modified_time" content="2021-03-25T07:20:30.500Z">
+<meta property="article:author" content="Xin-Bo Qi(亓欣波)">
+<meta property="article:tag" content="cellpose">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:image" content="https://user-images.githubusercontent.com/6218739/109473155-eb448800-7aad-11eb-8690-27873f9018f9.png">
+
+<link rel="canonical" href="http://qixinbo.github.io/2021/03/03/cellpose-3/">
+
+
+<script id="page-configurations">
+  // https://hexo.io/docs/variables.html
+  CONFIG.page = {
+    sidebar: "",
+    isHome : false,
+    isPost : true,
+    lang   : 'en'
+  };
+</script>
+
+  <title>Cellpose后处理加速算法解析 | 亓欣波</title>
+  
+
+
+
+
+
+
+  <noscript>
+  <style>
+  .use-motion .brand,
+  .use-motion .menu-item,
+  .sidebar-inner,
+  .use-motion .post-block,
+  .use-motion .pagination,
+  .use-motion .comments,
+  .use-motion .post-header,
+  .use-motion .post-body,
+  .use-motion .collection-header { opacity: initial; }
+
+  .use-motion .site-title,
+  .use-motion .site-subtitle {
+    opacity: initial;
+    top: initial;
+  }
+
+  .use-motion .logo-line-before i { left: initial; }
+  .use-motion .logo-line-after i { right: initial; }
+  </style>
+</noscript>
+
+</head>
+
+<body itemscope itemtype="http://schema.org/WebPage">
+  <div class="container use-motion">
+    <div class="headband"></div>
+
+    <header class="header" itemscope itemtype="http://schema.org/WPHeader">
+      <div class="header-inner"><div class="site-brand-container">
+  <div class="site-nav-toggle">
+    <div class="toggle" aria-label="Toggle navigation bar">
+      <span class="toggle-line toggle-line-first"></span>
+      <span class="toggle-line toggle-line-middle"></span>
+      <span class="toggle-line toggle-line-last"></span>
+    </div>
+  </div>
+
+  <div class="site-meta">
+
+    <a href="/" class="brand" rel="start">
+      <span class="logo-line-before"><i></i></span>
+      <h1 class="site-title">亓欣波</h1>
+      <span class="logo-line-after"><i></i></span>
+    </a>
+      <p class="site-subtitle" itemprop="description">Hi, I am Xin-Bo Qi (亓欣波)</p>
+  </div>
+
+  <div class="site-nav-right">
+    <div class="toggle popup-trigger">
+    </div>
+  </div>
+</div>
+
+
+
+
+<nav class="site-nav">
+  <ul id="menu" class="main-menu menu">
+        <li class="menu-item menu-item-home">
+
+    <a href="/" rel="section"><i class="home fa-fw"></i>Home</a>
+
+  </li>
+        <li class="menu-item menu-item-categories">
+
+    <a href="/categories/" rel="section"><i class="th fa-fw"></i>Categories</a>
+
+  </li>
+        <li class="menu-item menu-item-archives">
+
+    <a href="/archives/" rel="section"><i class="archive fa-fw"></i>Archives</a>
+
+  </li>
+        <li class="menu-item menu-item-tags">
+
+    <a href="/tags/" rel="section"><i class="tags fa-fw"></i>Tags</a>
+
+  </li>
+        <li class="menu-item menu-item-scholar">
+
+    <a href="/scholar/" rel="section"><i class="bar-chart fa-fw"></i>scholar</a>
+
+  </li>
+        <li class="menu-item menu-item-sources">
+
+    <a href="/sources/" rel="section"><i class="rss fa-fw"></i>sources</a>
+
+  </li>
+        <li class="menu-item menu-item-gallery">
+
+    <a href="/gallery/" rel="section"><i class="file-image-o fa-fw"></i>gallery</a>
+
+  </li>
+        <li class="menu-item menu-item-about">
+
+    <a href="/about/" rel="section"><i class="user fa-fw"></i>About</a>
+
+  </li>
+        <li class="menu-item menu-item-commonweal">
+
+    <a href="/404.html" rel="section"><i class="heartbeat fa-fw"></i>Commonweal 404</a>
+
+  </li>
+  </ul>
+</nav>
+
+
+
+
+</div>
+    </header>
+
+    
+  <div class="back-to-top">
+    <i class="fa fa-arrow-up"></i>
+    <span>0%</span>
+  </div>
+
+
+    <main class="main">
+      <div class="main-inner">
+        <div class="content-wrap">
+          
+
+          <div class="content post posts-expand">
+            
+
+    
+  
+  
+  <article itemscope itemtype="http://schema.org/Article" class="post-block" lang="en">
+    <link itemprop="mainEntityOfPage" href="http://qixinbo.github.io/2021/03/03/cellpose-3/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="image" content="/images/avatar.jpg">
+      <meta itemprop="name" content="Xin-Bo Qi(亓欣波)">
+      <meta itemprop="description" content="Be interesting!">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="亓欣波">
+    </span>
+      <header class="post-header">
+        <h1 class="post-title" itemprop="name headline">
+          Cellpose后处理加速算法解析
+        </h1>
+
+        <div class="post-meta">
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="far fa-calendar"></i>
+              </span>
+              <span class="post-meta-item-text">Posted on</span>
+
+              <time title="Created: 2021-03-03 00:00:00" itemprop="dateCreated datePublished" datetime="2021-03-03T00:00:00+08:00">2021-03-03</time>
+            </span>
+              <span class="post-meta-item">
+                <span class="post-meta-item-icon">
+                  <i class="far fa-calendar-check"></i>
+                </span>
+                <span class="post-meta-item-text">Edited on</span>
+                <time title="Modified: 2021-03-25 15:20:30" itemprop="dateModified" datetime="2021-03-25T15:20:30+08:00">2021-03-25</time>
+              </span>
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="far fa-folder"></i>
+              </span>
+              <span class="post-meta-item-text">In</span>
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+                  <a href="/categories/computational-material-science/" itemprop="url" rel="index"><span itemprop="name">computational material science</span></a>
+                </span>
+            </span>
+
+          
+  
+  <span class="post-meta-item">
+    
+      <span class="post-meta-item-icon">
+        <i class="far fa-comment"></i>
+      </span>
+      <span class="post-meta-item-text">Disqus: </span>
+    
+    <a title="disqus" href="/2021/03/03/cellpose-3/#disqus_thread" itemprop="discussionUrl">
+      <span class="post-comments-count disqus-comment-count" data-disqus-identifier="2021/03/03/cellpose-3/" itemprop="commentCount"></span>
+    </a>
+  </span>
+  
+  
+
+        </div>
+      </header>
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+        <h1 id="简介"><a href="#简介" class="headerlink" title="简介"></a>简介</h1><p>本文的目的是介绍霄龙新开发的用于cellpose后处理加速的算法。<br>前面已写了两篇文章介绍了cellpose，它是一个非常强大的用于胞状物体分割的算法，具体见：<br><a target="_blank" rel="noopener" href="https://qixinbo.info/2020/10/24/cellpose-1/">胞状物体通用分割算法Cellpose解析：使用篇</a><br><a target="_blank" rel="noopener" href="https://qixinbo.info/2020/10/24/cellpose-2/">胞状物体通用分割算法Cellpose解析：开发篇</a><br>总体而言，cellpose由两部分组成：第一部分是Unet网络，建立了原图与其流场图flow之间的关系；第二部分是将上一步流场图复原为掩膜mask，即转换为最终的分割结果。<br>第一部分主要是神经网络的训练和推理，可以跑在CPU或GPU上（当然GPU会更快）；第二部分只能由CPU计算。两者的计算用时见cellpose作者的实测结果：<br><img src="https://user-images.githubusercontent.com/6218739/109473155-eb448800-7aad-11eb-8690-27873f9018f9.png" alt="timing"><br>DNN代表第一部分的神经网络推理部分，实际使用时可以只用1个网络1net，也可用4个网络4net，然后取平均；Postprocessing代表第二部分的后处理部分，即通过流场复原掩膜部分。<br>可以看出，对于1024乘1024的图像，如果在GPU上只运算1个网络，即1net，第一部分仅用时0.31s，而第二部分却用了6.1s，是第一部分的20倍时长；即使选择CPU，然后运算4个网络4net，第一部分也只用了9.1s，第二部分基本不变，仍为6.1s。<br>所以，对于cellpose的整体运算，第二部分的由流场复原掩膜的计算成为了速度瓶颈。<br>然后，毫无意外地，“优化狂魔”霄龙对第二部分下手了，由此有了这个cellpose2msk算法:)。<br>上链接！！——<a target="_blank" rel="noopener" href="https://github.com/Image-Py/cellpose2msk">链接</a></p>
+<h1 id="测试用例"><a href="#测试用例" class="headerlink" title="测试用例"></a>测试用例</h1><p>为了研究一下该算法到底干了啥，构建一个15乘15像素大小的示例图像如下：<br><img src="https://user-images.githubusercontent.com/6218739/109582208-b2052a00-7b38-11eb-8c85-66dd5f5e23ee.png" alt="raw"><br>（不能直接下载使用，因为这里是为了显示方便，不再是原来的分辨率）<br>该图的像素矩阵为：</p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br></pre></td><td class="code"><pre><span class="line">[[  <span class="number">0</span>   <span class="number">0</span>   <span class="number">0</span>   <span class="number">0</span>   <span class="number">0</span>   <span class="number">0</span>   <span class="number">0</span>   <span class="number">0</span>   <span class="number">0</span>   <span class="number">0</span>   <span class="number">0</span>   <span class="number">0</span>   <span class="number">0</span>   <span class="number">0</span>   <span class="number">0</span>]</span><br><span class="line">[  <span class="number">0</span>   <span class="number">0</span>   <span class="number">0</span>   <span class="number">0</span>   <span class="number">0</span>   <span class="number">0</span>   <span class="number">0</span>   <span class="number">0</span>   <span class="number">0</span>   <span class="number">0</span>   <span class="number">0</span>   <span class="number">0</span>   <span class="number">0</span>   <span class="number">0</span>   <span class="number">0</span>]</span><br><span class="line">[  <span class="number">0</span>   <span class="number">0</span> <span class="number">255</span> <span class="number">255</span> <span class="number">255</span>   <span class="number">0</span>   <span class="number">0</span>   <span class="number">0</span>   <span class="number">0</span>   <span class="number">0</span> <span class="number">255</span> <span class="number">255</span>   <span class="number">0</span>   <span class="number">0</span>   <span class="number">0</span>]</span><br><span class="line">[  <span class="number">0</span> <span class="number">255</span> <span class="number">255</span> <span class="number">255</span> <span class="number">255</span> <span class="number">255</span>   <span class="number">0</span>   <span class="number">0</span>   <span class="number">0</span>   <span class="number">0</span> <span class="number">255</span> <span class="number">255</span> <span class="number">255</span>   <span class="number">0</span>   <span class="number">0</span>]</span><br><span class="line">[  <span class="number">0</span> <span class="number">255</span> <span class="number">255</span> <span class="number">255</span> <span class="number">255</span> <span class="number">255</span>   <span class="number">0</span>   <span class="number">0</span>   <span class="number">0</span>   <span class="number">0</span>   <span class="number">0</span> <span class="number">255</span> <span class="number">255</span>   <span class="number">0</span>   <span class="number">0</span>]</span><br><span class="line">[  <span class="number">0</span> <span class="number">255</span> <span class="number">255</span> <span class="number">255</span> <span class="number">255</span> <span class="number">255</span>   <span class="number">0</span>   <span class="number">0</span>   <span class="number">0</span>   <span class="number">0</span> <span class="number">255</span> <span class="number">255</span> <span class="number">255</span>   <span class="number">0</span>   <span class="number">0</span>]</span><br><span class="line">[  <span class="number">0</span>   <span class="number">0</span> <span class="number">255</span> <span class="number">255</span> <span class="number">255</span> <span class="number">255</span>   <span class="number">0</span>   <span class="number">0</span>   <span class="number">0</span>   <span class="number">0</span> <span class="number">255</span> <span class="number">255</span> <span class="number">255</span>   <span class="number">0</span>   <span class="number">0</span>]</span><br><span class="line">[  <span class="number">0</span>   <span class="number">0</span>   <span class="number">0</span>   <span class="number">0</span>   <span class="number">0</span>   <span class="number">0</span>   <span class="number">0</span>   <span class="number">0</span>   <span class="number">0</span>   <span class="number">0</span> <span class="number">255</span> <span class="number">255</span> <span class="number">255</span>   <span class="number">0</span>   <span class="number">0</span>]</span><br><span class="line">[  <span class="number">0</span>   <span class="number">0</span>   <span class="number">0</span>   <span class="number">0</span>   <span class="number">0</span>   <span class="number">0</span>   <span class="number">0</span>   <span class="number">0</span>   <span class="number">0</span>   <span class="number">0</span> <span class="number">255</span> <span class="number">255</span> <span class="number">255</span>   <span class="number">0</span>   <span class="number">0</span>]</span><br><span class="line">[  <span class="number">0</span>   <span class="number">0</span>   <span class="number">0</span>   <span class="number">0</span>   <span class="number">0</span>   <span class="number">0</span>   <span class="number">0</span>   <span class="number">0</span>   <span class="number">0</span>   <span class="number">0</span> <span class="number">255</span> <span class="number">255</span> <span class="number">255</span>   <span class="number">0</span>   <span class="number">0</span>]</span><br><span class="line">[  <span class="number">0</span>   <span class="number">0</span>   <span class="number">0</span>   <span class="number">0</span>   <span class="number">0</span>   <span class="number">0</span>   <span class="number">0</span>   <span class="number">0</span>   <span class="number">0</span>   <span class="number">0</span> <span class="number">255</span> <span class="number">255</span> <span class="number">255</span> <span class="number">255</span>   <span class="number">0</span>]</span><br><span class="line">[  <span class="number">0</span>   <span class="number">0</span>   <span class="number">0</span>   <span class="number">0</span>   <span class="number">0</span>   <span class="number">0</span>   <span class="number">0</span>   <span class="number">0</span>   <span class="number">0</span>   <span class="number">0</span> <span class="number">255</span> <span class="number">255</span> <span class="number">255</span> <span class="number">255</span>   <span class="number">0</span>]</span><br><span class="line">[  <span class="number">0</span>   <span class="number">0</span>   <span class="number">0</span>   <span class="number">0</span>   <span class="number">0</span>   <span class="number">0</span>   <span class="number">0</span>   <span class="number">0</span>   <span class="number">0</span>   <span class="number">0</span>   <span class="number">0</span> <span class="number">255</span> <span class="number">255</span> <span class="number">255</span>   <span class="number">0</span>]</span><br><span class="line">[  <span class="number">0</span>   <span class="number">0</span>   <span class="number">0</span>   <span class="number">0</span>   <span class="number">0</span>   <span class="number">0</span>   <span class="number">0</span>   <span class="number">0</span>   <span class="number">0</span>   <span class="number">0</span>   <span class="number">0</span> <span class="number">255</span> <span class="number">255</span>   <span class="number">0</span>   <span class="number">0</span>]</span><br><span class="line">[  <span class="number">0</span>   <span class="number">0</span>   <span class="number">0</span>   <span class="number">0</span>   <span class="number">0</span>   <span class="number">0</span>   <span class="number">0</span>   <span class="number">0</span>   <span class="number">0</span>   <span class="number">0</span>   <span class="number">0</span>   <span class="number">0</span>   <span class="number">0</span>   <span class="number">0</span>   <span class="number">0</span>]]</span><br></pre></td></tr></table></figure>
+
+<p>图中有两个白色区域，算法最终目的是找到这两个区域的边界。</p>
+<h1 id="生成流场图"><a href="#生成流场图" class="headerlink" title="生成流场图"></a>生成流场图</h1><p>如前所述，第一部分的流场仍然是由cellpose计算所得，这是因为cellpose预训练模型的泛化能力很强：</p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">import</span> cv2</span><br><span class="line"><span class="keyword">import</span> cellpose</span><br><span class="line"><span class="keyword">from</span> cellpose <span class="keyword">import</span> models, utils</span><br><span class="line"></span><br><span class="line">img = cv2.imread(<span class="string">&quot;1.png&quot;</span>, <span class="number">0</span>)</span><br><span class="line">use_GPU = models.use_gpu()</span><br><span class="line">model = models.Cellpose(gpu=use_GPU, model_type=<span class="string">&#x27;cyto&#x27;</span>)</span><br><span class="line">channels = [<span class="number">0</span>, <span class="number">0</span>]</span><br><span class="line">_, flow, style, diam = model.<span class="built_in">eval</span>(</span><br><span class="line">    img, diameter=<span class="number">30</span>, rescale=<span class="literal">None</span>, channels=channels)</span><br></pre></td></tr></table></figure>
+
+<p>这里仍然是调用了cellpose的models模块的eval方法。<br>注意，该eval方法其实是对神经网络计算的一个封装，并不是最原始的纯粹的神经网络计算部分，它默认是将上面的两部分计算都执行的，因此，这里如果单纯的这样调用eval方法，速度仍然会很慢。（最纯粹的神经网络计算是由_run_nets方法执行的，但是它不是一个友好的API，直接调用它的话需要做很多预处理，比如判断通道数、2D或3D，很麻烦。）</p>
+<p>好在CellposeModel这个类的eval方法提供了compute_masks这个参数开关，将它置为False的话，就只计算flow，而不计算mask。具体来说，就简单地在<a target="_blank" rel="noopener" href="https://github.com/MouseLand/cellpose/blob/master/cellpose/models.py#L357">这一行</a>改写就行。</p>
+<p>这一部分我们只需要flow流场，同时该变量flow是一个复合变量，包含了将流场转为彩色图的值、原始向量场、判断是物体的概率等，这里只需要它的原始向量场，即：</p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">flow[<span class="number">1</span>]</span><br></pre></td></tr></table></figure>
+<p>它的形状是2乘15乘15，2表示向量场有X和Y两个分量，其中第一个分量是Y方向，第二个分量是X方向上。<br>后面在使用向量场时，会将它的维度调换一下顺序，即：</p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">flow[<span class="number">1</span>].transpose(<span class="number">1</span>,<span class="number">2</span>,<span class="number">0</span>)</span><br></pre></td></tr></table></figure>
+<p>即变为15乘15乘2的矩阵。</p>
+<h1 id="后处理加速算法解析"><a href="#后处理加速算法解析" class="headerlink" title="后处理加速算法解析"></a>后处理加速算法解析</h1><p>下面就是该加速算法的核心：</p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">water, core, msk = flow2msk(flow[<span class="number">1</span>].transpose(<span class="number">1</span>,<span class="number">2</span>,<span class="number">0</span>), <span class="literal">None</span>, <span class="number">0.1</span>, <span class="number">5</span>, <span class="number">10</span>)</span><br></pre></td></tr></table></figure>
+
+<p>即调用flow2msk函数，其全貌为（注意，以下代码只适用于二维图像，此时可以去源码里看看，应该目前的代码是二维和三维通用了）：</p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="keyword">def</span> <span class="title">flow2msk</span>(<span class="params">flow, prob, grad=<span class="number">1.0</span>, area=<span class="number">150</span>, volume=<span class="number">500</span></span>):</span></span><br><span class="line">    l = np.linalg.norm(flow, axis=-<span class="number">1</span>)</span><br><span class="line">    flow /= l[:,:,<span class="literal">None</span>]; flow[l&lt;grad] = <span class="number">0</span></span><br><span class="line">    flow[[<span class="number">0</span>,-<span class="number">1</span>],:,<span class="number">0</span>], flow[:,[<span class="number">0</span>,-<span class="number">1</span>],<span class="number">1</span>] = <span class="number">0</span>, <span class="number">0</span></span><br><span class="line">    sn = np.sign(flow); sn *= <span class="number">0.5</span>; flow += sn;</span><br><span class="line">    dn = flow.astype(np.int32).reshape(-<span class="number">1</span>,<span class="number">2</span>)</span><br><span class="line">    strides = np.cumprod(flow.shape[::-<span class="number">1</span>])//<span class="number">2</span></span><br><span class="line">    dn = (dn * strides[-<span class="number">2</span>::-<span class="number">1</span>]).<span class="built_in">sum</span>(axis=-<span class="number">1</span>)</span><br><span class="line">    rst = np.arange(flow.size//<span class="number">2</span>) + dn</span><br><span class="line">    <span class="keyword">for</span> i <span class="keyword">in</span> <span class="built_in">range</span>(<span class="number">10</span>): rst = rst[rst]</span><br><span class="line">    hist = np.bincount(rst, minlength=<span class="built_in">len</span>(rst))</span><br><span class="line">    hist.shape = rst.shape = flow.shape[:<span class="number">2</span>]</span><br><span class="line">    lab, n = ndimg.label(hist, np.ones((<span class="number">3</span>,<span class="number">3</span>)))</span><br><span class="line">    areas = np.bincount(lab.ravel())</span><br><span class="line">    weight = ndimg.<span class="built_in">sum</span>(hist, lab, np.arange(n+<span class="number">1</span>))</span><br><span class="line">    msk = (areas&lt;area) &amp; (weight&gt;volume)</span><br><span class="line">    lut = np.zeros(n+<span class="number">1</span>, np.int32)</span><br><span class="line">    lut[msk] = np.arange(<span class="number">1</span>, msk.<span class="built_in">sum</span>()+<span class="number">1</span>)</span><br><span class="line">    mask = lut[lab].ravel()[rst]</span><br><span class="line">    <span class="keyword">return</span> hist, lut[lab], mask</span><br></pre></td></tr></table></figure>
+
+<p>下面将对该函数逐行理解，其中涉及的算法示意图均来自霄龙分享的笔记，比心~~<br>（注意，为了方便讲清脉络，下文叙述与源码略有不同，增加了一些冗余代码）</p>
+<h2 id="计算流动方向和距离"><a href="#计算流动方向和距离" class="headerlink" title="计算流动方向和距离"></a>计算流动方向和距离</h2><p>首先对原像素点进行位置编号：</p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">mark = np.arange(flow.size//<span class="number">2</span>) <span class="comment"># 这里除以2是因为flow最后通道有两个向量场</span></span><br></pre></td></tr></table></figure>
+<p>示意图如下：<br><img src="https://user-images.githubusercontent.com/6218739/109622997-af75f500-7b77-11eb-80cf-2cef16b86aaf.png" alt="number"></p>
+<p>然后计算流场这个向量场的绝对强度：</p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">l = np.linalg.norm(flow, axis=-<span class="number">1</span>)</span><br></pre></td></tr></table></figure>
+<p>其中axis指定为-1，即按最后一个axis来计算2范数，因为flow已经将x和y分量放在了最后一维，所以，上面就是计算了如下公式：</p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">sqrt(x^<span class="number">2</span>+y^<span class="number">2</span>)</span><br></pre></td></tr></table></figure>
+<p>附赠一个理解numpy的axis的博文：<br><a target="_blank" rel="noopener" href="https://www.sharpsightlabs.com/blog/numpy-axes-explained/">NUMPY AXES EXPLAINED</a></p>
+<p>对原flow场的x和y分量根据上面的绝对强度进行归一化：</p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">flow /= l[:,:,<span class="literal">None</span>]</span><br></pre></td></tr></table></figure>
+<p>加上None是为了增加一个维度，与原flow进行统一。<br>经过上面的归一化操作，现在的flow的x和y分量满足：</p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">x^<span class="number">2</span>+y^<span class="number">2</span>=<span class="number">1</span></span><br></pre></td></tr></table></figure>
+<p>接下来根据绝对强度对flow场进行梯度阈值分割，这里的梯度阈值是人为设定的，即grad参数：</p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">flow[l&lt;grad] = <span class="number">0</span></span><br></pre></td></tr></table></figure>
+<p>即判断某像素点上的绝对流场强度，如果强度小于梯度阈值，则直接将该处的流场置为0，即不流动。<br>（关于该阈值的设置在最后会说明）</p>
+<p>进一步地，该算法是模拟水流过程，为了防止水流到区域外面，将第一行和最后一行的Y分量设为0，将第一列和最后一列的X分量设为0：</p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">flow[[<span class="number">0</span>,-<span class="number">1</span>],:,<span class="number">0</span>], flow[:,[<span class="number">0</span>,-<span class="number">1</span>],<span class="number">1</span>] = <span class="number">0</span>, <span class="number">0</span></span><br></pre></td></tr></table></figure>
+<p>然后挑选出强度特别大的流场所在位置，判断这里的像素点流动的方向：</p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">dn = flow.<span class="built_in">round</span>().astype(np.int32).reshape(-<span class="number">1</span>,<span class="number">2</span>)</span><br></pre></td></tr></table></figure>
+<p>不过追求速度极致的龙哥嫌numpy的round速度太慢，用以下运算来替代了：</p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">sn = np.sign(flow); sn *= <span class="number">0.5</span>; flow += sn;</span><br><span class="line">dn = flow.astype(np.int32).reshape(-<span class="number">1</span>,<span class="number">2</span>)</span><br></pre></td></tr></table></figure>
+<p>这个dn的数值有很大讲究，首先其数值为-1、0、1三种，然后它的形状为(225, 2)，225是像素点总个数，2表示两个向量场方向，第一个方向是Y方向，即跨行移动，第二个方向是X方向，即跨列移动，所以如果dn中的某元素为[1, -1]，表示向下移动一行，然后再向左移动一列；0则表示不移动。<br>根据dn可以知道某处的水是怎样流动的，示意图如下：<br><img src="https://user-images.githubusercontent.com/6218739/109625035-cd445980-7b79-11eb-9c0a-30ecb52ba007.png" alt="flow"></p>
+<p>具体实操上，还需要更复杂的操作，才能实现示意图中的运算。因为后续会将二维数组压平成一维（这里都压平成一维，是为了适用于任意维度），所以跨行和跨列的移动在内存中的距离是不一样的，比如5乘4的二维矩阵，跨列移动，内存差1，跨行移动则内存差4。<br>所以首先要根据原始矩阵大小获得其某个像素的邻居像素的标识：</p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">strides = np.cumprod(flow.shape[::-<span class="number">1</span>])//<span class="number">2</span></span><br></pre></td></tr></table></figure>
+<p>这里获得邻居标识的过程在find_max和watershed等算法中都用到过，只是这里需要注意因为flow最后一维是2，所以最后除了一个2。<br>（该方法可以用于任意维度的矩阵的邻居标识的获取）<br>这里因为是15乘15的矩阵，所以strides的数值为：</p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">[  <span class="number">1</span>  <span class="number">15</span> <span class="number">225</span>]</span><br></pre></td></tr></table></figure>
+<p>再将dn的移动方向转换为实际的移动距离：</p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">dn = (dn * strides[-<span class="number">2</span>::-<span class="number">1</span>]).<span class="built_in">sum</span>(axis=-<span class="number">1</span>)</span><br></pre></td></tr></table></figure>
+<p>对以上代码要分为两步看，首先：</p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">(dn * strides[-<span class="number">2</span>::-<span class="number">1</span>])</span><br></pre></td></tr></table></figure>
+<p>这是将两个方向上的原来的移动距离转换为真正的移动距离，比如[1, -1]变为了[15, -1]，然后：</p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">(dn * strides[-<span class="number">2</span>::-<span class="number">1</span>]).<span class="built_in">sum</span>(axis=-<span class="number">1</span>)</span><br></pre></td></tr></table></figure>
+<p>这是对两个方向上的移动进行组合，比如上一步的[15, -1]，就变成了14，所以原来的表示向下移动一行，然后再向左移动一列的[1, -1]数组就变成了一维的移动14距离即可。</p>
+<p>有了表征真实移动距离的dn，就可以准确知道水下一刻到达的位置：<br><img src="https://user-images.githubusercontent.com/6218739/109745683-34601d80-7c0f-11eb-96bd-cd273f4cefed.png" alt="dn"><br>该例中，dn的数值为：</p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br></pre></td><td class="code"><pre><span class="line">dn =  [  <span class="number">0</span>   <span class="number">0</span>   <span class="number">0</span>   <span class="number">0</span>   <span class="number">0</span>   <span class="number">0</span>   <span class="number">0</span>   <span class="number">0</span>   <span class="number">0</span>   <span class="number">0</span>   <span class="number">0</span>   <span class="number">0</span>   <span class="number">0</span>   <span class="number">0</span>   <span class="number">0</span>   <span class="number">0</span>   <span class="number">0</span>  <span class="number">15</span></span><br><span class="line">  <span class="number">15</span>  <span class="number">15</span>   <span class="number">0</span>   <span class="number">0</span>   <span class="number">0</span>   <span class="number">0</span>   <span class="number">0</span>  <span class="number">15</span>  <span class="number">15</span>   <span class="number">0</span>   <span class="number">0</span>   <span class="number">0</span>   <span class="number">0</span>  <span class="number">16</span>  <span class="number">15</span>  <span class="number">15</span>  <span class="number">15</span>  <span class="number">15</span></span><br><span class="line">   <span class="number">0</span>   <span class="number">0</span>   <span class="number">0</span>  <span class="number">15</span>  <span class="number">15</span>  <span class="number">15</span>  <span class="number">15</span>   <span class="number">0</span>   <span class="number">0</span>   <span class="number">0</span>   <span class="number">1</span>  <span class="number">16</span>  <span class="number">15</span>  <span class="number">15</span>  <span class="number">14</span>  <span class="number">14</span>   <span class="number">0</span>   <span class="number">0</span></span><br><span class="line">  <span class="number">16</span>  <span class="number">16</span>  <span class="number">15</span>  <span class="number">15</span>  <span class="number">15</span>   <span class="number">0</span>   <span class="number">0</span>   <span class="number">1</span>   <span class="number">1</span>  <span class="number">16</span>  <span class="number">14</span>  -<span class="number">1</span>  -<span class="number">1</span>   <span class="number">0</span>   <span class="number">0</span>  <span class="number">16</span>  <span class="number">16</span>  <span class="number">15</span></span><br><span class="line">  <span class="number">14</span>  <span class="number">15</span>   <span class="number">0</span>   <span class="number">0</span>   <span class="number">1</span> -<span class="number">14</span> -<span class="number">14</span> -<span class="number">16</span>  -<span class="number">1</span>  -<span class="number">1</span>   <span class="number">0</span>   <span class="number">0</span>   <span class="number">1</span>  <span class="number">16</span>  <span class="number">15</span>  <span class="number">14</span>  <span class="number">14</span>   <span class="number">0</span></span><br><span class="line">   <span class="number">0</span> -<span class="number">14</span> -<span class="number">14</span> -<span class="number">15</span> -<span class="number">15</span> -<span class="number">16</span> -<span class="number">16</span>   <span class="number">0</span>   <span class="number">0</span>   <span class="number">1</span>   <span class="number">1</span>  <span class="number">15</span>  <span class="number">14</span>  <span class="number">14</span>   <span class="number">0</span>   <span class="number">0</span>   <span class="number">0</span>   <span class="number">0</span></span><br><span class="line">-<span class="number">15</span> -<span class="number">15</span> -<span class="number">15</span>   <span class="number">0</span>   <span class="number">0</span>   <span class="number">0</span>   <span class="number">1</span>   <span class="number">1</span>   <span class="number">1</span>  -<span class="number">1</span>  -<span class="number">1</span>   <span class="number">0</span>   <span class="number">0</span>   <span class="number">0</span>   <span class="number">0</span>   <span class="number">0</span>   <span class="number">0</span>   <span class="number">0</span></span><br><span class="line">  <span class="number">0</span>   <span class="number">0</span>   <span class="number">0</span>   <span class="number">1</span>   <span class="number">1</span> -<span class="number">14</span>  -<span class="number">1</span>  -<span class="number">1</span>   <span class="number">0</span>   <span class="number">0</span>   <span class="number">0</span>   <span class="number">0</span>   <span class="number">0</span>   <span class="number">0</span>   <span class="number">0</span>   <span class="number">0</span>   <span class="number">0</span>   <span class="number">0</span></span><br><span class="line">   <span class="number">1</span>   <span class="number">1</span> -<span class="number">14</span> -<span class="number">16</span>  -<span class="number">1</span>   <span class="number">0</span>   <span class="number">0</span>   <span class="number">0</span>   <span class="number">0</span>   <span class="number">0</span>   <span class="number">0</span>   <span class="number">0</span>   <span class="number">0</span>   <span class="number">0</span>   <span class="number">0</span> -<span class="number">14</span> -<span class="number">14</span> -<span class="number">15</span></span><br><span class="line">-<span class="number">16</span>  -<span class="number">1</span> -<span class="number">15</span>   <span class="number">0</span>   <span class="number">0</span>   <span class="number">0</span>   <span class="number">0</span>   <span class="number">0</span>   <span class="number">0</span>   <span class="number">0</span>   <span class="number">0</span>   <span class="number">0</span> -<span class="number">14</span> -<span class="number">14</span> -<span class="number">15</span> -<span class="number">15</span> -<span class="number">16</span> -<span class="number">15</span></span><br><span class="line">   <span class="number">0</span>   <span class="number">0</span>   <span class="number">0</span>   <span class="number">0</span>   <span class="number">0</span>   <span class="number">0</span>   <span class="number">0</span>   <span class="number">0</span>   <span class="number">0</span>   <span class="number">0</span> -<span class="number">14</span> -<span class="number">15</span> -<span class="number">15</span> -<span class="number">16</span>   <span class="number">0</span>   <span class="number">0</span>   <span class="number">0</span>   <span class="number">0</span></span><br><span class="line">   <span class="number">0</span>   <span class="number">0</span>   <span class="number">0</span>   <span class="number">0</span>   <span class="number">0</span>   <span class="number">0</span>   <span class="number">0</span>   <span class="number">0</span> -<span class="number">15</span> -<span class="number">15</span> -<span class="number">15</span>   <span class="number">0</span>   <span class="number">0</span>   <span class="number">0</span>   <span class="number">0</span>   <span class="number">0</span>   <span class="number">0</span>   <span class="number">0</span></span><br><span class="line">   <span class="number">0</span>   <span class="number">0</span>   <span class="number">0</span>   <span class="number">0</span>   <span class="number">0</span>   <span class="number">0</span>   <span class="number">0</span>   <span class="number">0</span>   <span class="number">0</span>]</span><br></pre></td></tr></table></figure>
+
+<p>第一次的编号转移如下：</p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">rst = np.arange(flow.size//<span class="number">2</span>) + dn</span><br></pre></td></tr></table></figure>
+<p>转移结果为：</p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br></pre></td><td class="code"><pre><span class="line">rst =  [  <span class="number">0</span>   <span class="number">1</span>   <span class="number">2</span>   <span class="number">3</span>   <span class="number">4</span>   <span class="number">5</span>   <span class="number">6</span>   <span class="number">7</span>   <span class="number">8</span>   <span class="number">9</span>  <span class="number">10</span>  <span class="number">11</span>  <span class="number">12</span>  <span class="number">13</span>  <span class="number">14</span>  <span class="number">15</span>  <span class="number">16</span>  <span class="number">32</span></span><br><span class="line">  <span class="number">33</span>  <span class="number">34</span>  <span class="number">20</span>  <span class="number">21</span>  <span class="number">22</span>  <span class="number">23</span>  <span class="number">24</span>  <span class="number">40</span>  <span class="number">41</span>  <span class="number">27</span>  <span class="number">28</span>  <span class="number">29</span>  <span class="number">30</span>  <span class="number">47</span>  <span class="number">47</span>  <span class="number">48</span>  <span class="number">49</span>  <span class="number">50</span></span><br><span class="line">  <span class="number">36</span>  <span class="number">37</span>  <span class="number">38</span>  <span class="number">54</span>  <span class="number">55</span>  <span class="number">56</span>  <span class="number">57</span>  <span class="number">43</span>  <span class="number">44</span>  <span class="number">45</span>  <span class="number">47</span>  <span class="number">63</span>  <span class="number">63</span>  <span class="number">64</span>  <span class="number">64</span>  <span class="number">65</span>  <span class="number">52</span>  <span class="number">53</span></span><br><span class="line">  <span class="number">70</span>  <span class="number">71</span>  <span class="number">71</span>  <span class="number">72</span>  <span class="number">73</span>  <span class="number">59</span>  <span class="number">60</span>  <span class="number">62</span>  <span class="number">63</span>  <span class="number">79</span>  <span class="number">78</span>  <span class="number">64</span>  <span class="number">65</span>  <span class="number">67</span>  <span class="number">68</span>  <span class="number">85</span>  <span class="number">86</span>  <span class="number">86</span></span><br><span class="line">  <span class="number">86</span>  <span class="number">88</span>  <span class="number">74</span>  <span class="number">75</span>  <span class="number">77</span>  <span class="number">63</span>  <span class="number">64</span>  <span class="number">63</span>  <span class="number">79</span>  <span class="number">80</span>  <span class="number">82</span>  <span class="number">83</span>  <span class="number">85</span> <span class="number">101</span> <span class="number">101</span> <span class="number">101</span> <span class="number">102</span>  <span class="number">89</span></span><br><span class="line">  <span class="number">90</span>  <span class="number">77</span>  <span class="number">78</span>  <span class="number">78</span>  <span class="number">79</span>  <span class="number">79</span>  <span class="number">80</span>  <span class="number">97</span>  <span class="number">98</span> <span class="number">100</span> <span class="number">101</span> <span class="number">116</span> <span class="number">116</span> <span class="number">117</span> <span class="number">104</span> <span class="number">105</span> <span class="number">106</span> <span class="number">107</span></span><br><span class="line">  <span class="number">93</span>  <span class="number">94</span>  <span class="number">95</span> <span class="number">111</span> <span class="number">112</span> <span class="number">113</span> <span class="number">115</span> <span class="number">116</span> <span class="number">117</span> <span class="number">116</span> <span class="number">117</span> <span class="number">119</span> <span class="number">120</span> <span class="number">121</span> <span class="number">122</span> <span class="number">123</span> <span class="number">124</span> <span class="number">125</span></span><br><span class="line"><span class="number">126</span> <span class="number">127</span> <span class="number">128</span> <span class="number">130</span> <span class="number">131</span> <span class="number">117</span> <span class="number">131</span> <span class="number">132</span> <span class="number">134</span> <span class="number">135</span> <span class="number">136</span> <span class="number">137</span> <span class="number">138</span> <span class="number">139</span> <span class="number">140</span> <span class="number">141</span> <span class="number">142</span> <span class="number">143</span></span><br><span class="line"><span class="number">145</span> <span class="number">146</span> <span class="number">132</span> <span class="number">131</span> <span class="number">147</span> <span class="number">149</span> <span class="number">150</span> <span class="number">151</span> <span class="number">152</span> <span class="number">153</span> <span class="number">154</span> <span class="number">155</span> <span class="number">156</span> <span class="number">157</span> <span class="number">158</span> <span class="number">145</span> <span class="number">146</span> <span class="number">146</span></span><br><span class="line"><span class="number">146</span> <span class="number">162</span> <span class="number">149</span> <span class="number">165</span> <span class="number">166</span> <span class="number">167</span> <span class="number">168</span> <span class="number">169</span> <span class="number">170</span> <span class="number">171</span> <span class="number">172</span> <span class="number">173</span> <span class="number">160</span> <span class="number">161</span> <span class="number">161</span> <span class="number">162</span> <span class="number">162</span> <span class="number">164</span></span><br><span class="line"><span class="number">180</span> <span class="number">181</span> <span class="number">182</span> <span class="number">183</span> <span class="number">184</span> <span class="number">185</span> <span class="number">186</span> <span class="number">187</span> <span class="number">188</span> <span class="number">189</span> <span class="number">176</span> <span class="number">176</span> <span class="number">177</span> <span class="number">177</span> <span class="number">194</span> <span class="number">195</span> <span class="number">196</span> <span class="number">197</span></span><br><span class="line"><span class="number">198</span> <span class="number">199</span> <span class="number">200</span> <span class="number">201</span> <span class="number">202</span> <span class="number">203</span> <span class="number">204</span> <span class="number">205</span> <span class="number">191</span> <span class="number">192</span> <span class="number">193</span> <span class="number">209</span> <span class="number">210</span> <span class="number">211</span> <span class="number">212</span> <span class="number">213</span> <span class="number">214</span> <span class="number">215</span></span><br><span class="line"><span class="number">216</span> <span class="number">217</span> <span class="number">218</span> <span class="number">219</span> <span class="number">220</span> <span class="number">221</span> <span class="number">222</span> <span class="number">223</span> <span class="number">224</span>]</span><br></pre></td></tr></table></figure>
+
+<h2 id="位置更新"><a href="#位置更新" class="headerlink" title="位置更新"></a>位置更新</h2><p>在上一节的最后，得到了图中各像素的原始编号及下一步要转移到的编号，这就建立了位置a到位置b的映射。<br>下一步就是要不断迭代，逐步将所有的位置上的编号进行更新。<br>注意，这里的位置a就是最开始的位置编号，里面的数值是np.range()的顺序编号，比如：</p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">a = np.array([<span class="number">0</span>, <span class="number">1</span>, <span class="number">2</span>, <span class="number">3</span>, <span class="number">4</span>, <span class="number">5</span>])</span><br></pre></td></tr></table></figure>
+<p>而位置b这个变量则有两层意思，举一例子：</p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">b = np.array([<span class="number">1</span>, <span class="number">2</span>, <span class="number">3</span>, <span class="number">4</span>, <span class="number">5</span>, <span class="number">5</span>])</span><br></pre></td></tr></table></figure>
+<p>首先是里面的数值，如上所述，是更新后的位置编号，即a中的0要更新到1上，1要更新到2上，2更新到3，3更新到4，4更新到5，5就指向自己，不更新；<br>然后是其本身的索引index，即：</p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">b[<span class="number">0</span>], b[<span class="number">1</span>], b[<span class="number">2</span>], b[<span class="number">3</span>], b[<span class="number">4</span>], b[<span class="number">5</span>]</span><br></pre></td></tr></table></figure>
+<p>里面的0到5就暗含了a中的编号，即b中的位置所对应的本来位置。b对本身的索引就代表了一次更新，比如：</p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">b[b] =</span><br><span class="line">array([<span class="number">2</span>, <span class="number">3</span>, <span class="number">4</span>, <span class="number">5</span>, <span class="number">5</span>, <span class="number">5</span>])</span><br></pre></td></tr></table></figure>
+<p>所以，这种不断对自身的索引就是位置更新的机制。<br>从另外一个角度理解，可以把网格上的编号理解为有向图中的节点（多谢霄龙的指点），比如上面的0号节点指向1号节点，4号指向5号，5号指向自身。这个位置更新的过程就是沿着有向图不断行走的过程。<br>这里有两种更新方式：一种是单步推演，一种是连锁推演。<br>单步推演的示意图如下：<br><img src="https://user-images.githubusercontent.com/6218739/109754873-cd973000-7c1f-11eb-85c6-9e15eef5f535.png" alt="onestep"><br>即某个位置上的位置更新每次都仅执行一次。<br>连锁推演的示意图如下：<br><img src="https://user-images.githubusercontent.com/6218739/109755154-675edd00-7c20-11eb-8dea-2849cbfa908a.png" alt="multistep"><br>即某个位置上的位置更新每次可跨越执行。<br>这两种的原理可通过下面的代码很清楚地理解：<br><img src="https://user-images.githubusercontent.com/6218739/109755277-ae4cd280-7c20-11eb-9391-1fd87ce2768d.png" alt="update"><br>即前一个是以b为被索引对象，而后一个是以不断更新的位置作为被索引对象。可以看出，对于单次推演，本例中需要4次才能稳定；而连锁推演，需要3次即可。<br>单步推演有线性复杂度，而连锁推演，系统具有对数复杂度。理论可知连锁推演10次，可以将半径扩张到1024，通常这已经足够识别常见的任意物体。<br>因此，采用连续推演的代码为：</p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">rst = np.arange(flow.size//<span class="number">2</span>) + dn</span><br><span class="line"><span class="keyword">for</span> i <span class="keyword">in</span> <span class="built_in">range</span>(<span class="number">10</span>):</span><br><span class="line">    rst = rst[rst]</span><br></pre></td></tr></table></figure>
+<p>最终更新的位置编号为：</p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br></pre></td><td class="code"><pre><span class="line">rst =  [  <span class="number">0</span>   <span class="number">1</span>   <span class="number">2</span>   <span class="number">3</span>   <span class="number">4</span>   <span class="number">5</span>   <span class="number">6</span>   <span class="number">7</span>   <span class="number">8</span>   <span class="number">9</span>  <span class="number">10</span>  <span class="number">11</span>  <span class="number">12</span>  <span class="number">13</span>  <span class="number">14</span>  <span class="number">15</span>  <span class="number">16</span>  <span class="number">79</span></span><br><span class="line">  <span class="number">79</span>  <span class="number">78</span>  <span class="number">20</span>  <span class="number">21</span>  <span class="number">22</span>  <span class="number">23</span>  <span class="number">24</span> <span class="number">116</span> <span class="number">116</span>  <span class="number">27</span>  <span class="number">28</span>  <span class="number">29</span>  <span class="number">30</span>  <span class="number">63</span>  <span class="number">63</span>  <span class="number">63</span>  <span class="number">64</span>  <span class="number">64</span></span><br><span class="line">  <span class="number">36</span>  <span class="number">37</span>  <span class="number">38</span> <span class="number">117</span> <span class="number">117</span> <span class="number">117</span> <span class="number">117</span>  <span class="number">43</span>  <span class="number">44</span>  <span class="number">45</span>  <span class="number">63</span>  <span class="number">79</span>  <span class="number">79</span>  <span class="number">78</span>  <span class="number">78</span>  <span class="number">64</span>  <span class="number">52</span>  <span class="number">53</span></span><br><span class="line"><span class="number">116</span> <span class="number">116</span> <span class="number">116</span> <span class="number">116</span> <span class="number">116</span>  <span class="number">59</span>  <span class="number">60</span>  <span class="number">63</span>  <span class="number">79</span>  <span class="number">63</span>  <span class="number">64</span>  <span class="number">78</span>  <span class="number">64</span>  <span class="number">67</span>  <span class="number">68</span> <span class="number">117</span> <span class="number">117</span> <span class="number">117</span></span><br><span class="line"><span class="number">117</span> <span class="number">117</span>  <span class="number">74</span>  <span class="number">75</span>  <span class="number">63</span>  <span class="number">79</span>  <span class="number">78</span>  <span class="number">79</span>  <span class="number">63</span>  <span class="number">79</span>  <span class="number">82</span>  <span class="number">83</span> <span class="number">117</span> <span class="number">116</span> <span class="number">116</span> <span class="number">116</span> <span class="number">116</span>  <span class="number">89</span></span><br><span class="line">  <span class="number">90</span>  <span class="number">63</span>  <span class="number">64</span>  <span class="number">64</span>  <span class="number">63</span>  <span class="number">63</span>  <span class="number">79</span>  <span class="number">97</span>  <span class="number">98</span> <span class="number">117</span> <span class="number">116</span> <span class="number">117</span> <span class="number">117</span> <span class="number">116</span> <span class="number">104</span> <span class="number">105</span> <span class="number">106</span> <span class="number">107</span></span><br><span class="line">  <span class="number">78</span>  <span class="number">79</span>  <span class="number">79</span> <span class="number">111</span> <span class="number">112</span> <span class="number">113</span> <span class="number">116</span> <span class="number">117</span> <span class="number">116</span> <span class="number">117</span> <span class="number">116</span> <span class="number">119</span> <span class="number">120</span> <span class="number">121</span> <span class="number">122</span> <span class="number">123</span> <span class="number">124</span> <span class="number">125</span></span><br><span class="line"><span class="number">126</span> <span class="number">127</span> <span class="number">128</span> <span class="number">116</span> <span class="number">117</span> <span class="number">116</span> <span class="number">117</span> <span class="number">116</span> <span class="number">134</span> <span class="number">135</span> <span class="number">136</span> <span class="number">137</span> <span class="number">138</span> <span class="number">139</span> <span class="number">140</span> <span class="number">141</span> <span class="number">142</span> <span class="number">143</span></span><br><span class="line"><span class="number">116</span> <span class="number">117</span> <span class="number">116</span> <span class="number">117</span> <span class="number">116</span> <span class="number">149</span> <span class="number">150</span> <span class="number">151</span> <span class="number">152</span> <span class="number">153</span> <span class="number">154</span> <span class="number">155</span> <span class="number">156</span> <span class="number">157</span> <span class="number">158</span> <span class="number">116</span> <span class="number">117</span> <span class="number">117</span></span><br><span class="line"><span class="number">117</span> <span class="number">116</span> <span class="number">149</span> <span class="number">165</span> <span class="number">166</span> <span class="number">167</span> <span class="number">168</span> <span class="number">169</span> <span class="number">170</span> <span class="number">171</span> <span class="number">172</span> <span class="number">173</span> <span class="number">116</span> <span class="number">116</span> <span class="number">116</span> <span class="number">116</span> <span class="number">116</span> <span class="number">149</span></span><br><span class="line"><span class="number">180</span> <span class="number">181</span> <span class="number">182</span> <span class="number">183</span> <span class="number">184</span> <span class="number">185</span> <span class="number">186</span> <span class="number">187</span> <span class="number">188</span> <span class="number">189</span> <span class="number">117</span> <span class="number">117</span> <span class="number">117</span> <span class="number">117</span> <span class="number">194</span> <span class="number">195</span> <span class="number">196</span> <span class="number">197</span></span><br><span class="line"><span class="number">198</span> <span class="number">199</span> <span class="number">200</span> <span class="number">201</span> <span class="number">202</span> <span class="number">203</span> <span class="number">204</span> <span class="number">205</span> <span class="number">116</span> <span class="number">116</span> <span class="number">116</span> <span class="number">209</span> <span class="number">210</span> <span class="number">211</span> <span class="number">212</span> <span class="number">213</span> <span class="number">214</span> <span class="number">215</span></span><br><span class="line"><span class="number">216</span> <span class="number">217</span> <span class="number">218</span> <span class="number">219</span> <span class="number">220</span> <span class="number">221</span> <span class="number">222</span> <span class="number">223</span> <span class="number">224</span>]</span><br></pre></td></tr></table></figure>
+
+<h2 id="获得稳定集水区"><a href="#获得稳定集水区" class="headerlink" title="获得稳定集水区"></a>获得稳定集水区</h2><p>经过若干次推演，其实我们是模拟每个网格从最初的位置移动到了新的位置，此时只要对新的位置进行频率统计，就可以得到集水图。<br>还是一步步看代码怎么实现的。<br>首先对上面的最新位置编号进行统计，看每个编号出现的次数：</p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">hist = np.bincount(rst, minlength=<span class="built_in">len</span>(rst))</span><br><span class="line">hist.shape = rst.shape = flow.shape[:<span class="number">2</span>]</span><br></pre></td></tr></table></figure>
+<p>次数统计结果（已经转成了原图像的形状）为：</p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br></pre></td><td class="code"><pre><span class="line">[[ <span class="number">1</span>  <span class="number">1</span>  <span class="number">1</span>  <span class="number">1</span>  <span class="number">1</span>  <span class="number">1</span>  <span class="number">1</span>  <span class="number">1</span>  <span class="number">1</span>  <span class="number">1</span>  <span class="number">1</span>  <span class="number">1</span>  <span class="number">1</span>  <span class="number">1</span>  <span class="number">1</span>]</span><br><span class="line">[ <span class="number">1</span>  <span class="number">1</span>  <span class="number">0</span>  <span class="number">0</span>  <span class="number">0</span>  <span class="number">1</span>  <span class="number">1</span>  <span class="number">1</span>  <span class="number">1</span>  <span class="number">1</span>  <span class="number">0</span>  <span class="number">0</span>  <span class="number">1</span>  <span class="number">1</span>  <span class="number">1</span>]</span><br><span class="line">[ <span class="number">1</span>  <span class="number">0</span>  <span class="number">0</span>  <span class="number">0</span>  <span class="number">0</span>  <span class="number">0</span>  <span class="number">1</span>  <span class="number">1</span>  <span class="number">1</span>  <span class="number">0</span>  <span class="number">0</span>  <span class="number">0</span>  <span class="number">0</span>  <span class="number">1</span>  <span class="number">1</span>]</span><br><span class="line">[ <span class="number">1</span>  <span class="number">0</span>  <span class="number">0</span>  <span class="number">0</span>  <span class="number">0</span>  <span class="number">0</span>  <span class="number">0</span>  <span class="number">1</span>  <span class="number">1</span>  <span class="number">0</span>  <span class="number">0</span>  <span class="number">0</span>  <span class="number">0</span>  <span class="number">0</span>  <span class="number">1</span>]</span><br><span class="line">[ <span class="number">1</span>  <span class="number">0</span>  <span class="number">0</span> <span class="number">11</span>  <span class="number">7</span>  <span class="number">0</span>  <span class="number">0</span>  <span class="number">1</span>  <span class="number">1</span>  <span class="number">0</span>  <span class="number">0</span>  <span class="number">0</span>  <span class="number">0</span>  <span class="number">0</span>  <span class="number">1</span>]</span><br><span class="line">[ <span class="number">1</span>  <span class="number">0</span>  <span class="number">0</span>  <span class="number">6</span> <span class="number">11</span>  <span class="number">0</span>  <span class="number">0</span>  <span class="number">1</span>  <span class="number">1</span>  <span class="number">0</span>  <span class="number">0</span>  <span class="number">0</span>  <span class="number">0</span>  <span class="number">0</span>  <span class="number">1</span>]</span><br><span class="line">[ <span class="number">1</span>  <span class="number">0</span>  <span class="number">0</span>  <span class="number">0</span>  <span class="number">0</span>  <span class="number">0</span>  <span class="number">0</span>  <span class="number">1</span>  <span class="number">1</span>  <span class="number">0</span>  <span class="number">0</span>  <span class="number">0</span>  <span class="number">0</span>  <span class="number">0</span>  <span class="number">1</span>]</span><br><span class="line">[ <span class="number">1</span>  <span class="number">1</span>  <span class="number">1</span>  <span class="number">0</span>  <span class="number">0</span>  <span class="number">0</span>  <span class="number">1</span>  <span class="number">1</span>  <span class="number">1</span>  <span class="number">0</span>  <span class="number">0</span> <span class="number">32</span> <span class="number">26</span>  <span class="number">0</span>  <span class="number">1</span>]</span><br><span class="line">[ <span class="number">1</span>  <span class="number">1</span>  <span class="number">1</span>  <span class="number">1</span>  <span class="number">1</span>  <span class="number">1</span>  <span class="number">1</span>  <span class="number">1</span>  <span class="number">1</span>  <span class="number">0</span>  <span class="number">0</span>  <span class="number">0</span>  <span class="number">0</span>  <span class="number">0</span>  <span class="number">1</span>]</span><br><span class="line">[ <span class="number">1</span>  <span class="number">1</span>  <span class="number">1</span>  <span class="number">1</span>  <span class="number">1</span>  <span class="number">1</span>  <span class="number">1</span>  <span class="number">1</span>  <span class="number">1</span>  <span class="number">0</span>  <span class="number">0</span>  <span class="number">0</span>  <span class="number">0</span>  <span class="number">0</span>  <span class="number">3</span>]</span><br><span class="line">[ <span class="number">1</span>  <span class="number">1</span>  <span class="number">1</span>  <span class="number">1</span>  <span class="number">1</span>  <span class="number">1</span>  <span class="number">1</span>  <span class="number">1</span>  <span class="number">1</span>  <span class="number">0</span>  <span class="number">0</span>  <span class="number">0</span>  <span class="number">0</span>  <span class="number">0</span>  <span class="number">0</span>]</span><br><span class="line">[ <span class="number">1</span>  <span class="number">1</span>  <span class="number">1</span>  <span class="number">1</span>  <span class="number">1</span>  <span class="number">1</span>  <span class="number">1</span>  <span class="number">1</span>  <span class="number">1</span>  <span class="number">0</span>  <span class="number">0</span>  <span class="number">0</span>  <span class="number">0</span>  <span class="number">0</span>  <span class="number">0</span>]</span><br><span class="line">[ <span class="number">1</span>  <span class="number">1</span>  <span class="number">1</span>  <span class="number">1</span>  <span class="number">1</span>  <span class="number">1</span>  <span class="number">1</span>  <span class="number">1</span>  <span class="number">1</span>  <span class="number">1</span>  <span class="number">0</span>  <span class="number">0</span>  <span class="number">0</span>  <span class="number">0</span>  <span class="number">1</span>]</span><br><span class="line">[ <span class="number">1</span>  <span class="number">1</span>  <span class="number">1</span>  <span class="number">1</span>  <span class="number">1</span>  <span class="number">1</span>  <span class="number">1</span>  <span class="number">1</span>  <span class="number">1</span>  <span class="number">1</span>  <span class="number">1</span>  <span class="number">0</span>  <span class="number">0</span>  <span class="number">0</span>  <span class="number">1</span>]</span><br><span class="line">[ <span class="number">1</span>  <span class="number">1</span>  <span class="number">1</span>  <span class="number">1</span>  <span class="number">1</span>  <span class="number">1</span>  <span class="number">1</span>  <span class="number">1</span>  <span class="number">1</span>  <span class="number">1</span>  <span class="number">1</span>  <span class="number">1</span>  <span class="number">1</span>  <span class="number">1</span>  <span class="number">1</span>]]</span><br></pre></td></tr></table></figure>
+<p>这个矩阵的数值就代表了集水区，比如0就是水都流走了，是贫水区，1的地方表示水原地没动，数值大于1的地方表示水都汇集在了此处，数值越大表示集水量越大。</p>
+<p>下面的工作就是获得这些集水区的区域标记。<br>首先进行连通域标记：</p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">lab, n = ndimg.label(hist, np.ones((<span class="number">3</span>,<span class="number">3</span>)))</span><br></pre></td></tr></table></figure>
+<p>标记结果为：</p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br></pre></td><td class="code"><pre><span class="line">lab =</span><br><span class="line">[[<span class="number">1</span> <span class="number">1</span> <span class="number">1</span> <span class="number">1</span> <span class="number">1</span> <span class="number">1</span> <span class="number">1</span> <span class="number">1</span> <span class="number">1</span> <span class="number">1</span> <span class="number">1</span> <span class="number">1</span> <span class="number">1</span> <span class="number">1</span> <span class="number">1</span>]</span><br><span class="line">[<span class="number">1</span> <span class="number">1</span> <span class="number">0</span> <span class="number">0</span> <span class="number">0</span> <span class="number">1</span> <span class="number">1</span> <span class="number">1</span> <span class="number">1</span> <span class="number">1</span> <span class="number">0</span> <span class="number">0</span> <span class="number">1</span> <span class="number">1</span> <span class="number">1</span>]</span><br><span class="line">[<span class="number">1</span> <span class="number">0</span> <span class="number">0</span> <span class="number">0</span> <span class="number">0</span> <span class="number">0</span> <span class="number">1</span> <span class="number">1</span> <span class="number">1</span> <span class="number">0</span> <span class="number">0</span> <span class="number">0</span> <span class="number">0</span> <span class="number">1</span> <span class="number">1</span>]</span><br><span class="line">[<span class="number">1</span> <span class="number">0</span> <span class="number">0</span> <span class="number">0</span> <span class="number">0</span> <span class="number">0</span> <span class="number">0</span> <span class="number">1</span> <span class="number">1</span> <span class="number">0</span> <span class="number">0</span> <span class="number">0</span> <span class="number">0</span> <span class="number">0</span> <span class="number">1</span>]</span><br><span class="line">[<span class="number">1</span> <span class="number">0</span> <span class="number">0</span> <span class="number">2</span> <span class="number">2</span> <span class="number">0</span> <span class="number">0</span> <span class="number">1</span> <span class="number">1</span> <span class="number">0</span> <span class="number">0</span> <span class="number">0</span> <span class="number">0</span> <span class="number">0</span> <span class="number">1</span>]</span><br><span class="line">[<span class="number">1</span> <span class="number">0</span> <span class="number">0</span> <span class="number">2</span> <span class="number">2</span> <span class="number">0</span> <span class="number">0</span> <span class="number">1</span> <span class="number">1</span> <span class="number">0</span> <span class="number">0</span> <span class="number">0</span> <span class="number">0</span> <span class="number">0</span> <span class="number">1</span>]</span><br><span class="line">[<span class="number">1</span> <span class="number">0</span> <span class="number">0</span> <span class="number">0</span> <span class="number">0</span> <span class="number">0</span> <span class="number">0</span> <span class="number">1</span> <span class="number">1</span> <span class="number">0</span> <span class="number">0</span> <span class="number">0</span> <span class="number">0</span> <span class="number">0</span> <span class="number">1</span>]</span><br><span class="line">[<span class="number">1</span> <span class="number">1</span> <span class="number">1</span> <span class="number">0</span> <span class="number">0</span> <span class="number">0</span> <span class="number">1</span> <span class="number">1</span> <span class="number">1</span> <span class="number">0</span> <span class="number">0</span> <span class="number">3</span> <span class="number">3</span> <span class="number">0</span> <span class="number">1</span>]</span><br><span class="line">[<span class="number">1</span> <span class="number">1</span> <span class="number">1</span> <span class="number">1</span> <span class="number">1</span> <span class="number">1</span> <span class="number">1</span> <span class="number">1</span> <span class="number">1</span> <span class="number">0</span> <span class="number">0</span> <span class="number">0</span> <span class="number">0</span> <span class="number">0</span> <span class="number">1</span>]</span><br><span class="line">[<span class="number">1</span> <span class="number">1</span> <span class="number">1</span> <span class="number">1</span> <span class="number">1</span> <span class="number">1</span> <span class="number">1</span> <span class="number">1</span> <span class="number">1</span> <span class="number">0</span> <span class="number">0</span> <span class="number">0</span> <span class="number">0</span> <span class="number">0</span> <span class="number">1</span>]</span><br><span class="line">[<span class="number">1</span> <span class="number">1</span> <span class="number">1</span> <span class="number">1</span> <span class="number">1</span> <span class="number">1</span> <span class="number">1</span> <span class="number">1</span> <span class="number">1</span> <span class="number">0</span> <span class="number">0</span> <span class="number">0</span> <span class="number">0</span> <span class="number">0</span> <span class="number">0</span>]</span><br><span class="line">[<span class="number">1</span> <span class="number">1</span> <span class="number">1</span> <span class="number">1</span> <span class="number">1</span> <span class="number">1</span> <span class="number">1</span> <span class="number">1</span> <span class="number">1</span> <span class="number">0</span> <span class="number">0</span> <span class="number">0</span> <span class="number">0</span> <span class="number">0</span> <span class="number">0</span>]</span><br><span class="line">[<span class="number">1</span> <span class="number">1</span> <span class="number">1</span> <span class="number">1</span> <span class="number">1</span> <span class="number">1</span> <span class="number">1</span> <span class="number">1</span> <span class="number">1</span> <span class="number">1</span> <span class="number">0</span> <span class="number">0</span> <span class="number">0</span> <span class="number">0</span> <span class="number">1</span>]</span><br><span class="line">[<span class="number">1</span> <span class="number">1</span> <span class="number">1</span> <span class="number">1</span> <span class="number">1</span> <span class="number">1</span> <span class="number">1</span> <span class="number">1</span> <span class="number">1</span> <span class="number">1</span> <span class="number">1</span> <span class="number">0</span> <span class="number">0</span> <span class="number">0</span> <span class="number">1</span>]</span><br><span class="line">[<span class="number">1</span> <span class="number">1</span> <span class="number">1</span> <span class="number">1</span> <span class="number">1</span> <span class="number">1</span> <span class="number">1</span> <span class="number">1</span> <span class="number">1</span> <span class="number">1</span> <span class="number">1</span> <span class="number">1</span> <span class="number">1</span> <span class="number">1</span> <span class="number">1</span>]]</span><br></pre></td></tr></table></figure>
+<p>再统计一下这些区域的面积大小，即每个集水区的面积大小：</p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">areas = np.bincount(lab.ravel())</span><br></pre></td></tr></table></figure>
+<p>结果为：</p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">areas =  [ <span class="number">89</span> <span class="number">130</span>   <span class="number">4</span>   <span class="number">2</span>]</span><br></pre></td></tr></table></figure>
+<p>统计这些区域的权重，即每个集水区中集水量的大小，即容积：</p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">weight = ndimg.<span class="built_in">sum</span>(hist, lab, np.arange(n+<span class="number">1</span>))</span><br></pre></td></tr></table></figure>
+<p>结果为：</p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">weight =  [  <span class="number">0.</span> <span class="number">132.</span>  <span class="number">35.</span>  <span class="number">58.</span>]</span><br></pre></td></tr></table></figure>
+<p>因此，集水区的面积和集水量就是衡量这个集水区的两个有效标准。<br>（1）对于集水区的面积，集水区应该面积较小，理想情况下汇集在一点，即周围的水都往一点流，如果本来区域是狭长的，那么就没法汇集于一点，但总归面积不能太大；<br>（2）对于集水区的容积，即集水量，集水量应该比较大，这意味着集水前该集水点所覆盖的面积比较大。</p>
+<p>算法中提供了面积和容积（集水量）这两个阈值的调控接口，即函数的area和volume参数。<br>根据面积阈值和体积阈值设定掩膜，这里设置的阈值分别是5和10：</p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">msk = (areas&lt;area) &amp; (weight&gt;volume)</span><br></pre></td></tr></table></figure>
+<p>结果为：</p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line">(areas&lt;area) =  [<span class="literal">False</span> <span class="literal">False</span>  <span class="literal">True</span>  <span class="literal">True</span>]</span><br><span class="line">(weight&gt;volume) =  [<span class="literal">False</span>  <span class="literal">True</span>  <span class="literal">True</span>  <span class="literal">True</span>]</span><br><span class="line"></span><br><span class="line">msk = [<span class="literal">False</span> <span class="literal">False</span>  <span class="literal">True</span>  <span class="literal">True</span>]</span><br></pre></td></tr></table></figure>
+<p>即，对于面积而言，前两个集水区面积太大了，不满足条件；对于容积而言，后三个都满足容积要求，第一个集水区则不满足。<br>综上，前两个掩膜为False，后两个为True。</p>
+<p>根据上面的掩膜创建一个查找表：</p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">lut = np.zeros(n+<span class="number">1</span>, np.int32)</span><br><span class="line">lut[msk] = np.arange(<span class="number">1</span>, msk.<span class="built_in">sum</span>()+<span class="number">1</span>)</span><br></pre></td></tr></table></figure>
+<p>其值为：</p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">[<span class="number">0</span> <span class="number">0</span> <span class="number">1</span> <span class="number">2</span>]</span><br></pre></td></tr></table></figure>
+<p>有了这个查找表，再将集水区的连通域标记作为索引，就可以得到集水区的区域标记，即：</p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">lut[lab]</span><br></pre></td></tr></table></figure>
+<p>结果为：</p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br></pre></td><td class="code"><pre><span class="line">[[<span class="number">0</span> <span class="number">0</span> <span class="number">0</span> <span class="number">0</span> <span class="number">0</span> <span class="number">0</span> <span class="number">0</span> <span class="number">0</span> <span class="number">0</span> <span class="number">0</span> <span class="number">0</span> <span class="number">0</span> <span class="number">0</span> <span class="number">0</span> <span class="number">0</span>]</span><br><span class="line">[<span class="number">0</span> <span class="number">0</span> <span class="number">0</span> <span class="number">0</span> <span class="number">0</span> <span class="number">0</span> <span class="number">0</span> <span class="number">0</span> <span class="number">0</span> <span class="number">0</span> <span class="number">0</span> <span class="number">0</span> <span class="number">0</span> <span class="number">0</span> <span class="number">0</span>]</span><br><span class="line">[<span class="number">0</span> <span class="number">0</span> <span class="number">0</span> <span class="number">0</span> <span class="number">0</span> <span class="number">0</span> <span class="number">0</span> <span class="number">0</span> <span class="number">0</span> <span class="number">0</span> <span class="number">0</span> <span class="number">0</span> <span class="number">0</span> <span class="number">0</span> <span class="number">0</span>]</span><br><span class="line">[<span class="number">0</span> <span class="number">0</span> <span class="number">0</span> <span class="number">0</span> <span class="number">0</span> <span class="number">0</span> <span class="number">0</span> <span class="number">0</span> <span class="number">0</span> <span class="number">0</span> <span class="number">0</span> <span class="number">0</span> <span class="number">0</span> <span class="number">0</span> <span class="number">0</span>]</span><br><span class="line">[<span class="number">0</span> <span class="number">0</span> <span class="number">0</span> <span class="number">1</span> <span class="number">1</span> <span class="number">0</span> <span class="number">0</span> <span class="number">0</span> <span class="number">0</span> <span class="number">0</span> <span class="number">0</span> <span class="number">0</span> <span class="number">0</span> <span class="number">0</span> <span class="number">0</span>]</span><br><span class="line">[<span class="number">0</span> <span class="number">0</span> <span class="number">0</span> <span class="number">1</span> <span class="number">1</span> <span class="number">0</span> <span class="number">0</span> <span class="number">0</span> <span class="number">0</span> <span class="number">0</span> <span class="number">0</span> <span class="number">0</span> <span class="number">0</span> <span class="number">0</span> <span class="number">0</span>]</span><br><span class="line">[<span class="number">0</span> <span class="number">0</span> <span class="number">0</span> <span class="number">0</span> <span class="number">0</span> <span class="number">0</span> <span class="number">0</span> <span class="number">0</span> <span class="number">0</span> <span class="number">0</span> <span class="number">0</span> <span class="number">0</span> <span class="number">0</span> <span class="number">0</span> <span class="number">0</span>]</span><br><span class="line">[<span class="number">0</span> <span class="number">0</span> <span class="number">0</span> <span class="number">0</span> <span class="number">0</span> <span class="number">0</span> <span class="number">0</span> <span class="number">0</span> <span class="number">0</span> <span class="number">0</span> <span class="number">0</span> <span class="number">2</span> <span class="number">2</span> <span class="number">0</span> <span class="number">0</span>]</span><br><span class="line">[<span class="number">0</span> <span class="number">0</span> <span class="number">0</span> <span class="number">0</span> <span class="number">0</span> <span class="number">0</span> <span class="number">0</span> <span class="number">0</span> <span class="number">0</span> <span class="number">0</span> <span class="number">0</span> <span class="number">0</span> <span class="number">0</span> <span class="number">0</span> <span class="number">0</span>]</span><br><span class="line">[<span class="number">0</span> <span class="number">0</span> <span class="number">0</span> <span class="number">0</span> <span class="number">0</span> <span class="number">0</span> <span class="number">0</span> <span class="number">0</span> <span class="number">0</span> <span class="number">0</span> <span class="number">0</span> <span class="number">0</span> <span class="number">0</span> <span class="number">0</span> <span class="number">0</span>]</span><br><span class="line">[<span class="number">0</span> <span class="number">0</span> <span class="number">0</span> <span class="number">0</span> <span class="number">0</span> <span class="number">0</span> <span class="number">0</span> <span class="number">0</span> <span class="number">0</span> <span class="number">0</span> <span class="number">0</span> <span class="number">0</span> <span class="number">0</span> <span class="number">0</span> <span class="number">0</span>]</span><br><span class="line">[<span class="number">0</span> <span class="number">0</span> <span class="number">0</span> <span class="number">0</span> <span class="number">0</span> <span class="number">0</span> <span class="number">0</span> <span class="number">0</span> <span class="number">0</span> <span class="number">0</span> <span class="number">0</span> <span class="number">0</span> <span class="number">0</span> <span class="number">0</span> <span class="number">0</span>]</span><br><span class="line">[<span class="number">0</span> <span class="number">0</span> <span class="number">0</span> <span class="number">0</span> <span class="number">0</span> <span class="number">0</span> <span class="number">0</span> <span class="number">0</span> <span class="number">0</span> <span class="number">0</span> <span class="number">0</span> <span class="number">0</span> <span class="number">0</span> <span class="number">0</span> <span class="number">0</span>]</span><br><span class="line">[<span class="number">0</span> <span class="number">0</span> <span class="number">0</span> <span class="number">0</span> <span class="number">0</span> <span class="number">0</span> <span class="number">0</span> <span class="number">0</span> <span class="number">0</span> <span class="number">0</span> <span class="number">0</span> <span class="number">0</span> <span class="number">0</span> <span class="number">0</span> <span class="number">0</span>]</span><br><span class="line">[<span class="number">0</span> <span class="number">0</span> <span class="number">0</span> <span class="number">0</span> <span class="number">0</span> <span class="number">0</span> <span class="number">0</span> <span class="number">0</span> <span class="number">0</span> <span class="number">0</span> <span class="number">0</span> <span class="number">0</span> <span class="number">0</span> <span class="number">0</span> <span class="number">0</span>]]</span><br></pre></td></tr></table></figure>
+
+<h2 id="获得集水前区域标记"><a href="#获得集水前区域标记" class="headerlink" title="获得集水前区域标记"></a>获得集水前区域标记</h2><p>上面得到了集水区的区域标记，这些标记标明了水最终汇集到的地方，也就是原始网格更新后的位置。<br>因此，通过集水区的区域标记，再结合之前的位置更新，就可以得到集水前的区域标记（注意是集水“前”）。<br>代码为：</p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">mask = lut[lab].ravel()[rst]</span><br></pre></td></tr></table></figure>
+<p>最终结果为：</p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br></pre></td><td class="code"><pre><span class="line">[[<span class="number">0</span> <span class="number">0</span> <span class="number">0</span> <span class="number">0</span> <span class="number">0</span> <span class="number">0</span> <span class="number">0</span> <span class="number">0</span> <span class="number">0</span> <span class="number">0</span> <span class="number">0</span> <span class="number">0</span> <span class="number">0</span> <span class="number">0</span> <span class="number">0</span>]</span><br><span class="line">[<span class="number">0</span> <span class="number">0</span> <span class="number">1</span> <span class="number">1</span> <span class="number">1</span> <span class="number">0</span> <span class="number">0</span> <span class="number">0</span> <span class="number">0</span> <span class="number">0</span> <span class="number">2</span> <span class="number">2</span> <span class="number">0</span> <span class="number">0</span> <span class="number">0</span>]</span><br><span class="line">[<span class="number">0</span> <span class="number">1</span> <span class="number">1</span> <span class="number">1</span> <span class="number">1</span> <span class="number">1</span> <span class="number">0</span> <span class="number">0</span> <span class="number">0</span> <span class="number">2</span> <span class="number">2</span> <span class="number">2</span> <span class="number">2</span> <span class="number">0</span> <span class="number">0</span>]</span><br><span class="line">[<span class="number">0</span> <span class="number">1</span> <span class="number">1</span> <span class="number">1</span> <span class="number">1</span> <span class="number">1</span> <span class="number">1</span> <span class="number">0</span> <span class="number">0</span> <span class="number">2</span> <span class="number">2</span> <span class="number">2</span> <span class="number">2</span> <span class="number">2</span> <span class="number">0</span>]</span><br><span class="line">[<span class="number">0</span> <span class="number">1</span> <span class="number">1</span> <span class="number">1</span> <span class="number">1</span> <span class="number">1</span> <span class="number">1</span> <span class="number">0</span> <span class="number">0</span> <span class="number">2</span> <span class="number">2</span> <span class="number">2</span> <span class="number">2</span> <span class="number">2</span> <span class="number">0</span>]</span><br><span class="line">[<span class="number">0</span> <span class="number">1</span> <span class="number">1</span> <span class="number">1</span> <span class="number">1</span> <span class="number">1</span> <span class="number">1</span> <span class="number">0</span> <span class="number">0</span> <span class="number">2</span> <span class="number">2</span> <span class="number">2</span> <span class="number">2</span> <span class="number">2</span> <span class="number">0</span>]</span><br><span class="line">[<span class="number">0</span> <span class="number">1</span> <span class="number">1</span> <span class="number">1</span> <span class="number">1</span> <span class="number">1</span> <span class="number">1</span> <span class="number">0</span> <span class="number">0</span> <span class="number">2</span> <span class="number">2</span> <span class="number">2</span> <span class="number">2</span> <span class="number">2</span> <span class="number">0</span>]</span><br><span class="line">[<span class="number">0</span> <span class="number">0</span> <span class="number">0</span> <span class="number">1</span> <span class="number">1</span> <span class="number">1</span> <span class="number">0</span> <span class="number">0</span> <span class="number">0</span> <span class="number">2</span> <span class="number">2</span> <span class="number">2</span> <span class="number">2</span> <span class="number">2</span> <span class="number">0</span>]</span><br><span class="line">[<span class="number">0</span> <span class="number">0</span> <span class="number">0</span> <span class="number">0</span> <span class="number">0</span> <span class="number">0</span> <span class="number">0</span> <span class="number">0</span> <span class="number">0</span> <span class="number">2</span> <span class="number">2</span> <span class="number">2</span> <span class="number">2</span> <span class="number">2</span> <span class="number">0</span>]</span><br><span class="line">[<span class="number">0</span> <span class="number">0</span> <span class="number">0</span> <span class="number">0</span> <span class="number">0</span> <span class="number">0</span> <span class="number">0</span> <span class="number">0</span> <span class="number">0</span> <span class="number">2</span> <span class="number">2</span> <span class="number">2</span> <span class="number">2</span> <span class="number">2</span> <span class="number">0</span>]</span><br><span class="line">[<span class="number">0</span> <span class="number">0</span> <span class="number">0</span> <span class="number">0</span> <span class="number">0</span> <span class="number">0</span> <span class="number">0</span> <span class="number">0</span> <span class="number">0</span> <span class="number">2</span> <span class="number">2</span> <span class="number">2</span> <span class="number">2</span> <span class="number">2</span> <span class="number">0</span>]</span><br><span class="line">[<span class="number">0</span> <span class="number">0</span> <span class="number">0</span> <span class="number">0</span> <span class="number">0</span> <span class="number">0</span> <span class="number">0</span> <span class="number">0</span> <span class="number">0</span> <span class="number">2</span> <span class="number">2</span> <span class="number">2</span> <span class="number">2</span> <span class="number">2</span> <span class="number">0</span>]</span><br><span class="line">[<span class="number">0</span> <span class="number">0</span> <span class="number">0</span> <span class="number">0</span> <span class="number">0</span> <span class="number">0</span> <span class="number">0</span> <span class="number">0</span> <span class="number">0</span> <span class="number">0</span> <span class="number">2</span> <span class="number">2</span> <span class="number">2</span> <span class="number">2</span> <span class="number">0</span>]</span><br><span class="line">[<span class="number">0</span> <span class="number">0</span> <span class="number">0</span> <span class="number">0</span> <span class="number">0</span> <span class="number">0</span> <span class="number">0</span> <span class="number">0</span> <span class="number">0</span> <span class="number">0</span> <span class="number">0</span> <span class="number">2</span> <span class="number">2</span> <span class="number">2</span> <span class="number">0</span>]</span><br><span class="line">[<span class="number">0</span> <span class="number">0</span> <span class="number">0</span> <span class="number">0</span> <span class="number">0</span> <span class="number">0</span> <span class="number">0</span> <span class="number">0</span> <span class="number">0</span> <span class="number">0</span> <span class="number">0</span> <span class="number">0</span> <span class="number">0</span> <span class="number">0</span> <span class="number">0</span>]]</span><br></pre></td></tr></table></figure>
+
+<h1 id="参数调节"><a href="#参数调节" class="headerlink" title="参数调节"></a>参数调节</h1><p>这一节讲一下该加速算法里的三个参数（梯度阈值、面积阈值、容积阈值）的调节原则（所涉图像均为霄龙测试结果）。</p>
+<h2 id="梯度阈值"><a href="#梯度阈值" class="headerlink" title="梯度阈值"></a>梯度阈值</h2><p>梯度阈值决定集水区的稳定状态，如果阈值设定过小，有可能产生细长区域的过分割，增加阈值会让稳定集水区面积增加，不会打碎较弱的漩涡，而设置过大，有可能会让较弱的流场与背景联通，进而无法被检测到。<br><img src="https://user-images.githubusercontent.com/6218739/109767652-d5ac9b00-7c32-11eb-9b86-142233eb47f3.png" alt="grad1"><br><img src="https://user-images.githubusercontent.com/6218739/109767709-ebba5b80-7c32-11eb-84ff-d74d4b8067f3.png" alt="grad2"><br><img src="https://user-images.githubusercontent.com/6218739/109767749-f96fe100-7c32-11eb-8509-7180cc6e059b.png" alt="grad3"><br>梯度阈值0.8时，中间狭长区域汇集成两个核，被分成两份；<br>梯度阈值1.0时，中间下场区域联通成一个核，是一个整体；<br>梯度阈值1.3时，左侧有两个区域与边界联通，进而后续被面积阈值过滤掉了。</p>
+<h2 id="面积阈值"><a href="#面积阈值" class="headerlink" title="面积阈值"></a>面积阈值</h2><p>对于集水区的面积，集水区应该面积较小，理想情况下汇集在一点，即周围的水都往一点流，如果本来区域是狭长的，那么就没法汇集于一点，但总归面积不能太大。<br>因此，稳定集水区面积不得大于给定的阈值。<br><img src="https://user-images.githubusercontent.com/6218739/109767862-215f4480-7c33-11eb-8359-3d9ef9706f9a.png" alt="area1"><br><img src="https://user-images.githubusercontent.com/6218739/109767921-31772400-7c33-11eb-99e0-3b5ca3c81aa1.png" alt="area2"></p>
+<h2 id="容积阈值"><a href="#容积阈值" class="headerlink" title="容积阈值"></a>容积阈值</h2><p>对于集水区的容积，即集水量，集水量应该比较大，这意味着集水前该集水点所覆盖的面积比较大。<br>因此，稳定集水区所对应的集水前的面积应该大于容积阈值。<br><img src="https://user-images.githubusercontent.com/6218739/109767862-215f4480-7c33-11eb-8359-3d9ef9706f9a.png" alt="area1"><br><img src="https://user-images.githubusercontent.com/6218739/109768719-3c7e8400-7c34-11eb-9af5-8bc965efb6d2.png" alt="vol2"></p>
+
+    </div>
+
+    
+    
+    
+        <div class="reward-container">
+  <div></div>
+  <button onclick="var qr = document.getElementById('qr'); qr.style.display = (qr.style.display === 'none') ? 'block' : 'none';">
+    Donate
+  </button>
+  <div id="qr" style="display: none;">
+      
+      <div style="display: inline-block;">
+        <img src="/images/wechat_reward.png" alt="Xin-Bo Qi(亓欣波) WeChat Pay">
+        <p>WeChat Pay</p>
+      </div>
+
+  </div>
+</div>
+
+
+      <footer class="post-footer">
+          <div class="post-tags">
+              <a href="/tags/cellpose/" rel="tag"># cellpose</a>
+          </div>
+
+        
+
+
+        
+    <div class="post-nav">
+      <div class="post-nav-item">
+    <a href="/2021/02/14/kaggle-hubmap/" rel="prev" title="Kaggle肾小球图像分割比赛全解析">
+      <i class="fa fa-chevron-left"></i> Kaggle肾小球图像分割比赛全解析
+    </a></div>
+      <div class="post-nav-item"></div>
+    </div>
+      </footer>
+    
+  </article>
+  
+  
+  
+
+
+
+          </div>
+          
+    
+  <div class="comments">
+    <div id="disqus_thread">
+      <noscript>Please enable JavaScript to view the comments powered by Disqus.</noscript>
+    </div>
+  </div>
+  
+
+<script>
+  window.addEventListener('tabs:register', () => {
+    let { activeClass } = CONFIG.comments;
+    if (CONFIG.comments.storage) {
+      activeClass = localStorage.getItem('comments_active') || activeClass;
+    }
+    if (activeClass) {
+      let activeTab = document.querySelector(`a[href="#comment-${activeClass}"]`);
+      if (activeTab) {
+        activeTab.click();
+      }
+    }
+  });
+  if (CONFIG.comments.storage) {
+    window.addEventListener('tabs:click', event => {
+      if (!event.target.matches('.tabs-comment .tab-content .tab-pane')) return;
+      let commentClass = event.target.classList[1];
+      localStorage.setItem('comments_active', commentClass);
+    });
+  }
+</script>
+
+        </div>
+          
+  
+  <div class="toggle sidebar-toggle">
+    <span class="toggle-line toggle-line-first"></span>
+    <span class="toggle-line toggle-line-middle"></span>
+    <span class="toggle-line toggle-line-last"></span>
+  </div>
+
+  <aside class="sidebar">
+    <div class="sidebar-inner">
+
+      <ul class="sidebar-nav motion-element">
+        <li class="sidebar-nav-toc">
+          Table of Contents
+        </li>
+        <li class="sidebar-nav-overview">
+          Overview
+        </li>
+      </ul>
+
+      <!--noindex-->
+      <div class="post-toc-wrap sidebar-panel">
+          <div class="post-toc motion-element"><ol class="nav"><li class="nav-item nav-level-1"><a class="nav-link" href="#%E7%AE%80%E4%BB%8B"><span class="nav-number">1.</span> <span class="nav-text">简介</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#%E6%B5%8B%E8%AF%95%E7%94%A8%E4%BE%8B"><span class="nav-number">2.</span> <span class="nav-text">测试用例</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#%E7%94%9F%E6%88%90%E6%B5%81%E5%9C%BA%E5%9B%BE"><span class="nav-number">3.</span> <span class="nav-text">生成流场图</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#%E5%90%8E%E5%A4%84%E7%90%86%E5%8A%A0%E9%80%9F%E7%AE%97%E6%B3%95%E8%A7%A3%E6%9E%90"><span class="nav-number">4.</span> <span class="nav-text">后处理加速算法解析</span></a><ol class="nav-child"><li class="nav-item nav-level-2"><a class="nav-link" href="#%E8%AE%A1%E7%AE%97%E6%B5%81%E5%8A%A8%E6%96%B9%E5%90%91%E5%92%8C%E8%B7%9D%E7%A6%BB"><span class="nav-number">4.1.</span> <span class="nav-text">计算流动方向和距离</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E4%BD%8D%E7%BD%AE%E6%9B%B4%E6%96%B0"><span class="nav-number">4.2.</span> <span class="nav-text">位置更新</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E8%8E%B7%E5%BE%97%E7%A8%B3%E5%AE%9A%E9%9B%86%E6%B0%B4%E5%8C%BA"><span class="nav-number">4.3.</span> <span class="nav-text">获得稳定集水区</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E8%8E%B7%E5%BE%97%E9%9B%86%E6%B0%B4%E5%89%8D%E5%8C%BA%E5%9F%9F%E6%A0%87%E8%AE%B0"><span class="nav-number">4.4.</span> <span class="nav-text">获得集水前区域标记</span></a></li></ol></li><li class="nav-item nav-level-1"><a class="nav-link" href="#%E5%8F%82%E6%95%B0%E8%B0%83%E8%8A%82"><span class="nav-number">5.</span> <span class="nav-text">参数调节</span></a><ol class="nav-child"><li class="nav-item nav-level-2"><a class="nav-link" href="#%E6%A2%AF%E5%BA%A6%E9%98%88%E5%80%BC"><span class="nav-number">5.1.</span> <span class="nav-text">梯度阈值</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E9%9D%A2%E7%A7%AF%E9%98%88%E5%80%BC"><span class="nav-number">5.2.</span> <span class="nav-text">面积阈值</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E5%AE%B9%E7%A7%AF%E9%98%88%E5%80%BC"><span class="nav-number">5.3.</span> <span class="nav-text">容积阈值</span></a></li></ol></li></ol></div>
+      </div>
+      <!--/noindex-->
+
+      <div class="site-overview-wrap sidebar-panel">
+        <div class="site-author motion-element" itemprop="author" itemscope itemtype="http://schema.org/Person">
+    <img class="site-author-image" itemprop="image" alt="Xin-Bo Qi(亓欣波)"
+      src="/images/avatar.jpg">
+  <p class="site-author-name" itemprop="name">Xin-Bo Qi(亓欣波)</p>
+  <div class="site-description" itemprop="description">Be interesting!</div>
+</div>
+<div class="site-state-wrap motion-element">
+  <nav class="site-state">
+      <div class="site-state-item site-state-posts">
+          <a href="/archives/">
+        
+          <span class="site-state-item-count">120</span>
+          <span class="site-state-item-name">posts</span>
+        </a>
+      </div>
+      <div class="site-state-item site-state-categories">
+            <a href="/categories/">
+          
+        <span class="site-state-item-count">5</span>
+        <span class="site-state-item-name">categories</span></a>
+      </div>
+      <div class="site-state-item site-state-tags">
+            <a href="/tags/">
+          
+        <span class="site-state-item-count">41</span>
+        <span class="site-state-item-name">tags</span></a>
+      </div>
+  </nav>
+</div>
+  <div class="links-of-author motion-element">
+      <span class="links-of-author-item">
+        <a href="https://github.com/qixinbo" title="GitHub → https:&#x2F;&#x2F;github.com&#x2F;qixinbo" rel="noopener" target="_blank"><i class="github fa-fw"></i>GitHub</a>
+      </span>
+      <span class="links-of-author-item">
+        <a href="mailto:qixinbo@gmail.com" title="E-Mail → mailto:qixinbo@gmail.com" rel="noopener" target="_blank"><i class="envelope fa-fw"></i>E-Mail</a>
+      </span>
+  </div>
+
+
+  <div class="links-of-blogroll motion-element">
+    <div class="links-of-blogroll-title"><i class="fa fa-link fa-fw"></i>
+      Links
+    </div>
+    <ul class="links-of-blogroll-list">
+        <li class="links-of-blogroll-item">
+          <a href="https://www.tsinghua.edu.cn/" title="https:&#x2F;&#x2F;www.tsinghua.edu.cn" rel="noopener" target="_blank">THU</a>
+        </li>
+        <li class="links-of-blogroll-item">
+          <a href="http://www.imr.cas.cn/" title="http:&#x2F;&#x2F;www.imr.cas.cn" rel="noopener" target="_blank">IMR</a>
+        </li>
+        <li class="links-of-blogroll-item">
+          <a href="http://www.sdu.edu.cn/" title="http:&#x2F;&#x2F;www.sdu.edu.cn" rel="noopener" target="_blank">SDU</a>
+        </li>
+        <li class="links-of-blogroll-item">
+          <a href="http://liam0205.me/" title="http:&#x2F;&#x2F;liam0205.me&#x2F;" rel="noopener" target="_blank">黄晨成</a>
+        </li>
+    </ul>
+  </div>
+
+      </div>
+
+    </div>
+  </aside>
+  <div id="sidebar-dimmer"></div>
+
+
+      </div>
+    </main>
+
+    <footer class="footer">
+      <div class="footer-inner">
+        
+
+        
+
+<div class="copyright">
+  
+  &copy; 
+  <span itemprop="copyrightYear">2021</span>
+  <span class="with-love">
+    <i class="fa fa-heart"></i>
+  </span>
+  <span class="author" itemprop="copyrightHolder">Xin-Bo Qi(亓欣波)</span>
+</div>
+  <div class="powered-by">Powered by <a href="https://hexo.io/" class="theme-link" rel="noopener" target="_blank">Hexo</a> & <a href="https://theme-next.org/" class="theme-link" rel="noopener" target="_blank">NexT.Gemini</a>
+  </div>
+
+        
+
+
+
+
+
+
+
+
+      </div>
+    </footer>
+  </div>
+
+  
+  <script src="/lib/anime.min.js"></script>
+  <script src="/lib/velocity/velocity.min.js"></script>
+  <script src="/lib/velocity/velocity.ui.min.js"></script>
+
+<script src="/js/utils.js"></script>
+
+<script src="/js/motion.js"></script>
+
+
+<script src="/js/schemes/pisces.js"></script>
+
+
+<script src="/js/next-boot.js"></script>
+
+
+
+
+  
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+  
+
+  
+
+  
+
+<script>
+  function loadCount() {
+    var d = document, s = d.createElement('script');
+    s.src = 'https://qixinbo.disqus.com/count.js';
+    s.id = 'dsq-count-scr';
+    (d.head || d.body).appendChild(s);
+  }
+  // defer loading until the whole page loading is completed
+  window.addEventListener('load', loadCount, false);
+</script>
+<script>
+  var disqus_config = function() {
+    this.page.url = "http://qixinbo.github.io/2021/03/03/cellpose-3/";
+    this.page.identifier = "2021/03/03/cellpose-3/";
+    this.page.title = "Cellpose后处理加速算法解析";
+    };
+  NexT.utils.loadComments(document.querySelector('#disqus_thread'), () => {
+    if (window.DISQUS) {
+      DISQUS.reset({
+        reload: true,
+        config: disqus_config
+      });
+    } else {
+      var d = document, s = d.createElement('script');
+      s.src = 'https://qixinbo.disqus.com/embed.js';
+      s.setAttribute('data-timestamp', '' + +new Date());
+      (d.head || d.body).appendChild(s);
+    }
+  });
+</script>
+
+</body>
+</html>

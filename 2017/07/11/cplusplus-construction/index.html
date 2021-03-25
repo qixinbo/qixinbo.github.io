@@ -1,0 +1,597 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=2">
+<meta name="theme-color" content="#222">
+<meta name="generator" content="Hexo 5.4.0">
+  <link rel="apple-touch-icon" sizes="180x180" href="/images/apple-touch-icon-next.png">
+  <link rel="icon" type="image/png" sizes="32x32" href="/favicon.ico">
+  <link rel="icon" type="image/png" sizes="16x16" href="/favicon.ico">
+  <link rel="mask-icon" href="/images/logo.svg" color="#222">
+
+<link rel="stylesheet" href="/css/main.css">
+
+
+<link rel="stylesheet" href="/lib/font-awesome/css/all.min.css">
+
+<script id="hexo-configurations">
+    var NexT = window.NexT || {};
+    var CONFIG = {"hostname":"qixinbo.github.io","root":"/","scheme":"Gemini","version":"7.8.0","exturl":false,"sidebar":{"position":"left","display":"post","padding":18,"offset":12,"onmobile":false},"copycode":{"enable":false,"show_result":false,"style":null},"back2top":{"enable":true,"sidebar":false,"scrollpercent":false},"bookmark":{"enable":false,"color":"#222","save":"auto"},"fancybox":false,"mediumzoom":false,"lazyload":false,"pangu":false,"comments":{"style":"tabs","active":null,"storage":true,"lazyload":false,"nav":null},"algolia":{"hits":{"per_page":10},"labels":{"input_placeholder":"Search for Posts","hits_empty":"We didn't find any results for the search: ${query}","hits_stats":"${hits} results found in ${time} ms"}},"localsearch":{"enable":false,"trigger":"auto","top_n_per_article":1,"unescape":false,"preload":false},"motion":{"enable":true,"async":false,"transition":{"post_block":"fadeIn","post_header":"slideDownIn","post_body":"slideDownIn","coll_header":"slideLeftIn","sidebar":"slideUpIn"}}};
+  </script>
+
+  <meta name="description" content="本文转载自这里，修正了一些格式和文字错误。 引子错误认识1：若程序员没有自己定义无参数的构造函数，那么编译器会自动生成默认构造函数，来进行对成员函数的初始化。错误认识2：编译器合成出来的default constructor会明确设定“class内每一个data member的默认值”。但这两种种认识是有误的，不全面的。正确认识：默认的构造函数分为有用的和无用的，所谓无用的默认构造函数就是一个空函">
+<meta property="og:type" content="article">
+<meta property="og:title" content="C++默认构造函数——深入理解 (转载)">
+<meta property="og:url" content="http://qixinbo.github.io/2017/07/11/cplusplus-construction/index.html">
+<meta property="og:site_name" content="亓欣波">
+<meta property="og:description" content="本文转载自这里，修正了一些格式和文字错误。 引子错误认识1：若程序员没有自己定义无参数的构造函数，那么编译器会自动生成默认构造函数，来进行对成员函数的初始化。错误认识2：编译器合成出来的default constructor会明确设定“class内每一个data member的默认值”。但这两种种认识是有误的，不全面的。正确认识：默认的构造函数分为有用的和无用的，所谓无用的默认构造函数就是一个空函">
+<meta property="og:locale" content="en_US">
+<meta property="article:published_time" content="2017-07-10T16:00:00.000Z">
+<meta property="article:modified_time" content="2021-03-25T07:20:30.500Z">
+<meta property="article:author" content="Xin-Bo Qi(亓欣波)">
+<meta property="article:tag" content="c++">
+<meta name="twitter:card" content="summary">
+
+<link rel="canonical" href="http://qixinbo.github.io/2017/07/11/cplusplus-construction/">
+
+
+<script id="page-configurations">
+  // https://hexo.io/docs/variables.html
+  CONFIG.page = {
+    sidebar: "",
+    isHome : false,
+    isPost : true,
+    lang   : 'en'
+  };
+</script>
+
+  <title>C++默认构造函数——深入理解 (转载) | 亓欣波</title>
+  
+
+
+
+
+
+
+  <noscript>
+  <style>
+  .use-motion .brand,
+  .use-motion .menu-item,
+  .sidebar-inner,
+  .use-motion .post-block,
+  .use-motion .pagination,
+  .use-motion .comments,
+  .use-motion .post-header,
+  .use-motion .post-body,
+  .use-motion .collection-header { opacity: initial; }
+
+  .use-motion .site-title,
+  .use-motion .site-subtitle {
+    opacity: initial;
+    top: initial;
+  }
+
+  .use-motion .logo-line-before i { left: initial; }
+  .use-motion .logo-line-after i { right: initial; }
+  </style>
+</noscript>
+
+</head>
+
+<body itemscope itemtype="http://schema.org/WebPage">
+  <div class="container use-motion">
+    <div class="headband"></div>
+
+    <header class="header" itemscope itemtype="http://schema.org/WPHeader">
+      <div class="header-inner"><div class="site-brand-container">
+  <div class="site-nav-toggle">
+    <div class="toggle" aria-label="Toggle navigation bar">
+      <span class="toggle-line toggle-line-first"></span>
+      <span class="toggle-line toggle-line-middle"></span>
+      <span class="toggle-line toggle-line-last"></span>
+    </div>
+  </div>
+
+  <div class="site-meta">
+
+    <a href="/" class="brand" rel="start">
+      <span class="logo-line-before"><i></i></span>
+      <h1 class="site-title">亓欣波</h1>
+      <span class="logo-line-after"><i></i></span>
+    </a>
+      <p class="site-subtitle" itemprop="description">Hi, I am Xin-Bo Qi (亓欣波)</p>
+  </div>
+
+  <div class="site-nav-right">
+    <div class="toggle popup-trigger">
+    </div>
+  </div>
+</div>
+
+
+
+
+<nav class="site-nav">
+  <ul id="menu" class="main-menu menu">
+        <li class="menu-item menu-item-home">
+
+    <a href="/" rel="section"><i class="home fa-fw"></i>Home</a>
+
+  </li>
+        <li class="menu-item menu-item-categories">
+
+    <a href="/categories/" rel="section"><i class="th fa-fw"></i>Categories</a>
+
+  </li>
+        <li class="menu-item menu-item-archives">
+
+    <a href="/archives/" rel="section"><i class="archive fa-fw"></i>Archives</a>
+
+  </li>
+        <li class="menu-item menu-item-tags">
+
+    <a href="/tags/" rel="section"><i class="tags fa-fw"></i>Tags</a>
+
+  </li>
+        <li class="menu-item menu-item-scholar">
+
+    <a href="/scholar/" rel="section"><i class="bar-chart fa-fw"></i>scholar</a>
+
+  </li>
+        <li class="menu-item menu-item-sources">
+
+    <a href="/sources/" rel="section"><i class="rss fa-fw"></i>sources</a>
+
+  </li>
+        <li class="menu-item menu-item-gallery">
+
+    <a href="/gallery/" rel="section"><i class="file-image-o fa-fw"></i>gallery</a>
+
+  </li>
+        <li class="menu-item menu-item-about">
+
+    <a href="/about/" rel="section"><i class="user fa-fw"></i>About</a>
+
+  </li>
+        <li class="menu-item menu-item-commonweal">
+
+    <a href="/404.html" rel="section"><i class="heartbeat fa-fw"></i>Commonweal 404</a>
+
+  </li>
+  </ul>
+</nav>
+
+
+
+
+</div>
+    </header>
+
+    
+  <div class="back-to-top">
+    <i class="fa fa-arrow-up"></i>
+    <span>0%</span>
+  </div>
+
+
+    <main class="main">
+      <div class="main-inner">
+        <div class="content-wrap">
+          
+
+          <div class="content post posts-expand">
+            
+
+    
+  
+  
+  <article itemscope itemtype="http://schema.org/Article" class="post-block" lang="en">
+    <link itemprop="mainEntityOfPage" href="http://qixinbo.github.io/2017/07/11/cplusplus-construction/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="image" content="/images/avatar.jpg">
+      <meta itemprop="name" content="Xin-Bo Qi(亓欣波)">
+      <meta itemprop="description" content="Be interesting!">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="亓欣波">
+    </span>
+      <header class="post-header">
+        <h1 class="post-title" itemprop="name headline">
+          C++默认构造函数——深入理解 (转载)
+        </h1>
+
+        <div class="post-meta">
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="far fa-calendar"></i>
+              </span>
+              <span class="post-meta-item-text">Posted on</span>
+
+              <time title="Created: 2017-07-11 00:00:00" itemprop="dateCreated datePublished" datetime="2017-07-11T00:00:00+08:00">2017-07-11</time>
+            </span>
+              <span class="post-meta-item">
+                <span class="post-meta-item-icon">
+                  <i class="far fa-calendar-check"></i>
+                </span>
+                <span class="post-meta-item-text">Edited on</span>
+                <time title="Modified: 2021-03-25 15:20:30" itemprop="dateModified" datetime="2021-03-25T15:20:30+08:00">2021-03-25</time>
+              </span>
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="far fa-folder"></i>
+              </span>
+              <span class="post-meta-item-text">In</span>
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+                  <a href="/categories/programming/" itemprop="url" rel="index"><span itemprop="name">programming</span></a>
+                </span>
+            </span>
+
+          
+  
+  <span class="post-meta-item">
+    
+      <span class="post-meta-item-icon">
+        <i class="far fa-comment"></i>
+      </span>
+      <span class="post-meta-item-text">Disqus: </span>
+    
+    <a title="disqus" href="/2017/07/11/cplusplus-construction/#disqus_thread" itemprop="discussionUrl">
+      <span class="post-comments-count disqus-comment-count" data-disqus-identifier="2017/07/11/cplusplus-construction/" itemprop="commentCount"></span>
+    </a>
+  </span>
+  
+  
+
+        </div>
+      </header>
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+        <p>本文转载自<a target="_blank" rel="noopener" href="http://blog.csdn.net/hankai1024/article/details/7947989">这里</a>，修正了一些格式和文字错误。</p>
+<h1 id="引子"><a href="#引子" class="headerlink" title="引子"></a>引子</h1><p>错误认识1：若程序员没有自己定义无参数的构造函数，那么编译器会自动生成默认构造函数，来进行对成员函数的初始化。<br>错误认识2：编译器合成出来的default constructor会明确设定“class内每一个data member的默认值”。但这两种种认识是有误的，不全面的。<br>正确认识：<br>默认的构造函数分为有用的和无用的，所谓无用的默认构造函数就是一个空函数、什么操作也不做，而有用的默认构造函数是可以初始化成员的函数。<br>对构造函数的需求也是分为两类：一类是编辑器需求，一类是程序的需求。<br>程序的需求：若程序需求构造函数时，就是要程序员自定义构造函数来显示的初始化类的数据成员。<br>编辑器的需求：编辑器的需求也分为两类：一类是无用的空的构造函数(trivial)，一类是编辑器自己合成的有用的构造函数(non-trivival)。<br>在用户没有自定义构造函数的情况下：<br>一、由于编辑器的需求，编辑器会调用空的无用的默认构造函数。如：类中没有显式定义任何构造函数。<br>二、但在某些情况下,编辑器就一定会合成有用的默认构造函数。</p>
+<h1 id="无关紧要（trivial）的默认构造函数【无用构造函数】"><a href="#无关紧要（trivial）的默认构造函数【无用构造函数】" class="headerlink" title="无关紧要（trivial）的默认构造函数【无用构造函数】"></a>无关紧要（trivial）的默认构造函数【无用构造函数】</h1><p>用户并没有显式地定义默认构造函数，编译器会为它自动生成一个无关紧要（trivial）的默认构造函数，生成的默认构造函数什么也不做，既不会将其成员变量置零，也不会做其他的任何事情，只是为了保证程序能够正确运行而已，这就是所谓的“需要”，如果还需要给初始化成员变量，这件事情还是交给程序员做吧！</p>
+<figure class="highlight cpp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">#<span class="meta-keyword">include</span><span class="meta-string">&lt;iostream&gt;</span>  </span></span><br><span class="line"><span class="keyword">using</span> <span class="keyword">namespace</span> std;  </span><br><span class="line"><span class="class"><span class="keyword">class</span> <span class="title">Foo</span>  </span></span><br><span class="line"><span class="class">&#123;</span>   </span><br><span class="line"><span class="keyword">public</span>:   </span><br><span class="line">  <span class="keyword">int</span> val;   </span><br><span class="line">  Foo *pnext;  </span><br><span class="line">&#125;;  </span><br><span class="line"><span class="function"><span class="keyword">void</span> <span class="title">foo_fo</span><span class="params">()</span></span>&#123;  </span><br><span class="line"> Foo fo;   </span><br><span class="line"><span class="keyword">if</span> (fo.val || fo.pnext)   </span><br><span class="line">   &#123;   </span><br><span class="line">      cout &lt;&lt; fo.val &lt;&lt; endl;   </span><br><span class="line">     cout &lt;&lt; fo.pnext &lt;&lt; endl;   </span><br><span class="line">   &#125;  </span><br><span class="line">&#125;  </span><br><span class="line"><span class="function"><span class="keyword">int</span> <span class="title">main</span><span class="params">()</span>  </span></span><br><span class="line"><span class="function"></span>&#123;   </span><br><span class="line"><span class="built_in">foo_fo</span>();   </span><br><span class="line">&#125;  </span><br></pre></td></tr></table></figure>
+<p>输出为：</p>
+<figure class="highlight cpp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line"><span class="number">4196608</span></span><br><span class="line"><span class="number">0x400750</span></span><br></pre></td></tr></table></figure>
+<p>这两个值是无意义的垃圾值。</p>
+<p>如果基类和继承类都没有自定义的构造函数。那么，都会生成trival的默认构造函数。例：</p>
+<figure class="highlight cpp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">#<span class="meta-keyword">include</span><span class="meta-string">&lt;iostream&gt;</span>   </span></span><br><span class="line"><span class="keyword">using</span> <span class="keyword">namespace</span> std;   </span><br><span class="line"><span class="class"><span class="keyword">class</span> <span class="title">Foo</span>   </span></span><br><span class="line"><span class="class">&#123;</span>   </span><br><span class="line">  <span class="keyword">private</span>:   </span><br><span class="line">  <span class="keyword">int</span> val;   </span><br><span class="line">&#125;;   </span><br><span class="line"><span class="class"><span class="keyword">class</span> <span class="title">Bar</span>:</span><span class="keyword">public</span> Foo   </span><br><span class="line">&#123;   </span><br><span class="line"><span class="keyword">public</span>:   </span><br><span class="line">  <span class="keyword">char</span> *str;   </span><br><span class="line">  <span class="keyword">int</span> i;   </span><br><span class="line">&#125;;   </span><br><span class="line"><span class="function"><span class="keyword">void</span> <span class="title">foo_bar</span><span class="params">()</span>   </span></span><br><span class="line"><span class="function"></span>&#123;   </span><br><span class="line">   Bar bar;   </span><br><span class="line">   cout&lt;&lt;bar.i&lt;&lt;endl;   </span><br><span class="line"><span class="keyword">if</span> (bar.str )   </span><br><span class="line">&#123;   </span><br><span class="line">   cout &lt;&lt; <span class="string">&quot;Print the content !&quot;</span> &lt;&lt; endl; &#125;  </span><br><span class="line">&#125;   </span><br><span class="line"><span class="function"><span class="keyword">int</span> <span class="title">main</span><span class="params">()</span>   </span></span><br><span class="line"><span class="function"></span>&#123;   </span><br><span class="line">  <span class="built_in">foo_bar</span>();   </span><br><span class="line">  <span class="keyword">return</span> <span class="number">0</span>;   </span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p>输出为：</p>
+<figure class="highlight cpp"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"><span class="number">4196656</span></span><br></pre></td></tr></table></figure>
+<h1 id="非平凡（non-trivival）默认构造函数【有用构造函数】"><a href="#非平凡（non-trivival）默认构造函数【有用构造函数】" class="headerlink" title="非平凡（non-trivival）默认构造函数【有用构造函数】"></a>非平凡（non-trivival）默认构造函数【有用构造函数】</h1><p>C++标准描述了哪些情况下这样的隐式默认构造函数是无关紧要的。一个非平凡（non-trivival）的默认构造函数是ARM中所说的被实现所“需要”，并在必要的时候被编译器自动生成。下面来看看默认构造函数是非平凡的四种情况：</p>
+<h2 id="含有包含默认构造函数的成员类对象"><a href="#含有包含默认构造函数的成员类对象" class="headerlink" title="含有包含默认构造函数的成员类对象"></a>含有包含默认构造函数的成员类对象</h2><p>如果该类包含一个成员类对象，它有默认的构造函数，那么这个类的隐式构造函数是非平凡的，并且编译器需要为包含的这个成员类对象生成一个默认构造函数。然后，这个编译器生成的默认构造函数只有在实际上被调用时才会被真正的生成。如下例中编译器为Bar类生成一个默认构造函数。<br>如果一个class中含有成员对象，而且这个对象有default constructor（如Foo foo,Foo类中有default constructor）, 那么编译器就会给这个class（Bar）合成一个default constructor, 但是这个合成动作只有在调用需要时才会产生。也就是说，在需要时才会合成。</p>
+<figure class="highlight cpp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">#<span class="meta-keyword">include</span><span class="meta-string">&lt;iostream&gt;</span>   </span></span><br><span class="line"><span class="keyword">using</span> <span class="keyword">namespace</span> std;   </span><br><span class="line"><span class="class"><span class="keyword">class</span> <span class="title">Foo</span>   </span></span><br><span class="line"><span class="class">&#123;</span>   </span><br><span class="line"><span class="keyword">public</span>:   </span><br><span class="line">  <span class="built_in">Foo</span>();   </span><br><span class="line">  <span class="built_in">Foo</span>( <span class="keyword">int</span> );  </span><br><span class="line"><span class="keyword">private</span>:    </span><br><span class="line">  <span class="keyword">int</span> val;   </span><br><span class="line">&#125;;   </span><br><span class="line">Foo::<span class="built_in">Foo</span>()   </span><br><span class="line">&#123;   </span><br><span class="line">  cout &lt;&lt; <span class="string">&quot;Call Foo::Foo() Constructor !&quot;</span>&lt;&lt; endl;   </span><br><span class="line">  val = <span class="number">0</span>;   </span><br><span class="line">&#125;   </span><br><span class="line">Foo::<span class="built_in">Foo</span>(<span class="keyword">int</span> i)   </span><br><span class="line">&#123;   </span><br><span class="line">  cout &lt;&lt; <span class="string">&quot;Call Foo::Foo(int i) Constructor !&quot;</span>&lt;&lt; endl;   </span><br><span class="line">  val = i;   </span><br><span class="line">&#125;   </span><br><span class="line"><span class="class"><span class="keyword">class</span> <span class="title">Bar</span>   </span></span><br><span class="line"><span class="class">&#123;</span>   </span><br><span class="line"><span class="keyword">public</span>:  </span><br><span class="line">  Foo foo;   </span><br><span class="line">  <span class="keyword">char</span> *str;   </span><br><span class="line">&#125;;  </span><br><span class="line"><span class="function"><span class="keyword">void</span> <span class="title">foo_bar</span><span class="params">()</span>   </span></span><br><span class="line"><span class="function"></span>&#123;   </span><br><span class="line">  Bar bar; <span class="comment">// Bar::foo must be initialized here </span></span><br><span class="line">  <span class="keyword">if</span> (bar.str )   </span><br><span class="line">  &#123; cout &lt;&lt; <span class="string">&quot;Print the content !&quot;</span> &lt;&lt; endl; &#125;   </span><br><span class="line">&#125;   </span><br><span class="line"><span class="function"><span class="keyword">int</span> <span class="title">main</span><span class="params">()</span>   </span></span><br><span class="line"><span class="function"></span>&#123;   </span><br><span class="line">  <span class="built_in">foo_bar</span>();   </span><br><span class="line">  <span class="keyword">return</span> <span class="number">0</span>;   </span><br><span class="line">&#125;  </span><br></pre></td></tr></table></figure>
+<p>输出为：</p>
+<figure class="highlight cpp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">Call Foo::Foo() Constructor !</span><br><span class="line">Print the content !</span><br></pre></td></tr></table></figure>
+<p>在这个程序片段中Bar的成员foo含有默认构造函数，它初始化自己的类成员val为0而Bar本身并没有定义默认的构造函数，这个构造函数的目的是为了初始化它的成员变量foo，实际上就是调用Bar::foo的默认构造函数，但它并不会做一丁点关于另外一个变量str的初始化和赋值工作，初始化Bar::foo是编译器的责任，而初始化str是程序员的责任。<br>我们可以用以下代码来大致描述一下编译器的工作：</p>
+<figure class="highlight cpp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="keyword">inline</span> <span class="title">Bar::Bar</span><span class="params">()</span> </span></span><br><span class="line"><span class="function"></span>&#123; <span class="comment">// Pseudo C++ Code </span></span><br><span class="line">  foo.Foo::<span class="built_in">Foo</span>(); </span><br><span class="line">&#125;  </span><br></pre></td></tr></table></figure>
+<p>结论：如果class中内含一个以上的含有default constructor的object,那在为class合成的default constructor中，会按照object的声明次序调用object 的 default constructor。<br>如果Bar中用户自定义的默认构造函数（用户有定义，则编译器不会再自动生成）：</p>
+<figure class="highlight cpp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">#<span class="meta-keyword">include</span><span class="meta-string">&lt;iostream&gt;</span>   </span></span><br><span class="line"><span class="keyword">using</span> <span class="keyword">namespace</span> std;  </span><br><span class="line"><span class="class"><span class="keyword">class</span> <span class="title">Foo</span>   </span></span><br><span class="line"><span class="class">&#123;</span>   </span><br><span class="line"><span class="keyword">public</span>:   </span><br><span class="line">  <span class="built_in">Foo</span>();   </span><br><span class="line">  <span class="built_in">Foo</span>( <span class="keyword">int</span> );   </span><br><span class="line"><span class="keyword">private</span>:   </span><br><span class="line">  <span class="keyword">int</span> val;   </span><br><span class="line">&#125;;  </span><br><span class="line">Foo::<span class="built_in">Foo</span>()   </span><br><span class="line">&#123;   </span><br><span class="line">  cout &lt;&lt; <span class="string">&quot;Call Foo::Foo() Constructor !&quot;</span>&lt;&lt; endl;   </span><br><span class="line">  val = <span class="number">0</span>;   </span><br><span class="line">&#125;   </span><br><span class="line">Foo::<span class="built_in">Foo</span>(<span class="keyword">int</span> i)   </span><br><span class="line">&#123;   </span><br><span class="line">  cout &lt;&lt; <span class="string">&quot;Call Foo::Foo(int i) Constructor !&quot;</span>&lt;&lt; endl;   </span><br><span class="line">  val = i;   </span><br><span class="line">&#125;   </span><br><span class="line"><span class="class"><span class="keyword">class</span> <span class="title">Bar</span>   </span></span><br><span class="line"><span class="class">&#123;</span>   </span><br><span class="line"><span class="keyword">public</span>:   </span><br><span class="line">  Foo foo;   </span><br><span class="line">  <span class="keyword">char</span> *str;   </span><br><span class="line">  <span class="built_in">Bar</span>()&#123;&#125;<span class="comment">//默认构造函数   </span></span><br><span class="line">&#125;;   </span><br><span class="line"><span class="function"><span class="keyword">void</span> <span class="title">foo_bar</span><span class="params">()</span>   </span></span><br><span class="line"><span class="function"></span>&#123;   </span><br><span class="line">  Bar bar;   </span><br><span class="line"><span class="keyword">if</span> (bar.str ) &#123;  </span><br><span class="line">  cout &lt;&lt; <span class="string">&quot;Print the content !&quot;</span> &lt;&lt; endl;   </span><br><span class="line">&#125;   </span><br><span class="line">&#125;   </span><br><span class="line"><span class="function"><span class="keyword">int</span> <span class="title">main</span><span class="params">()</span>   </span></span><br><span class="line"><span class="function"></span>&#123;   </span><br><span class="line">  <span class="built_in">foo_bar</span>();   </span><br><span class="line">  <span class="keyword">return</span> <span class="number">0</span>;   </span><br><span class="line">&#125; </span><br></pre></td></tr></table></figure>
+<p>结果一样。</p>
+<p>对比，以下代码不符合上述要求，会报错：</p>
+<figure class="highlight cpp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br><span class="line">52</span><br><span class="line">53</span><br><span class="line">54</span><br><span class="line">55</span><br><span class="line">56</span><br><span class="line">57</span><br><span class="line">58</span><br><span class="line">59</span><br><span class="line">60</span><br><span class="line">61</span><br><span class="line">62</span><br><span class="line">63</span><br><span class="line">64</span><br><span class="line">65</span><br><span class="line">66</span><br><span class="line">67</span><br><span class="line">68</span><br><span class="line">69</span><br><span class="line">70</span><br><span class="line">71</span><br><span class="line">72</span><br><span class="line">73</span><br><span class="line">74</span><br><span class="line">75</span><br><span class="line">76</span><br><span class="line">77</span><br><span class="line">78</span><br><span class="line">79</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">#<span class="meta-keyword">include</span><span class="meta-string">&lt;iostream&gt;</span>   </span></span><br><span class="line"><span class="keyword">using</span> <span class="keyword">namespace</span> std;   </span><br><span class="line"><span class="class"><span class="keyword">class</span> <span class="title">Foo</span>   </span></span><br><span class="line"><span class="class">&#123;</span>   </span><br><span class="line"><span class="keyword">public</span>:   </span><br><span class="line">  <span class="built_in">Foo</span>(); <span class="comment">//去掉默认构造函数会报错   </span></span><br><span class="line">  <span class="built_in">Foo</span>( <span class="keyword">int</span> );   </span><br><span class="line"><span class="keyword">private</span>:   </span><br><span class="line">  <span class="keyword">int</span> val;  </span><br><span class="line">&#125;;   </span><br><span class="line">Foo::<span class="built_in">Foo</span>()   </span><br><span class="line">&#123;   </span><br><span class="line">  cout &lt;&lt; <span class="string">&quot;Call Foo::Foo() Constructor !&quot;</span>&lt;&lt; endl;   </span><br><span class="line">  val = <span class="number">0</span>;   </span><br><span class="line">&#125;   </span><br><span class="line">Foo::<span class="built_in">Foo</span>(<span class="keyword">int</span> i)   </span><br><span class="line">&#123;   </span><br><span class="line">  cout &lt;&lt; <span class="string">&quot;Call Foo::Foo(int i) Constructor !&quot;</span>&lt;&lt; endl;   </span><br><span class="line">  val = i;   </span><br><span class="line">&#125;   </span><br><span class="line"><span class="class"><span class="keyword">class</span> <span class="title">Bar</span>   </span></span><br><span class="line"><span class="class">&#123;</span>   </span><br><span class="line"><span class="keyword">public</span>:   </span><br><span class="line">  <span class="function">Foo <span class="title">foo</span><span class="params">(<span class="number">1</span>)</span></span>; <span class="comment">//不是默认构造函数产生的成员，也会报错。expected `;&#x27; before &#x27;(&#x27; token char *str;   </span></span><br><span class="line">&#125;;   </span><br><span class="line"><span class="function"><span class="keyword">void</span> <span class="title">foo_bar</span><span class="params">()</span>   </span></span><br><span class="line"><span class="function"></span>&#123;   </span><br><span class="line">  Bar bar; <span class="comment">// Bar::foo must be initialized here   </span></span><br><span class="line"><span class="keyword">if</span> (bar.str )   </span><br><span class="line">&#123;   </span><br><span class="line">  cout &lt;&lt; <span class="string">&quot;Print the content !&quot;</span> &lt;&lt; endl; &#125;   </span><br><span class="line">&#125;   </span><br><span class="line"><span class="function"><span class="keyword">int</span> <span class="title">main</span><span class="params">()</span>   </span></span><br><span class="line"><span class="function"></span>&#123;   </span><br><span class="line">  <span class="built_in">foo_bar</span>();   </span><br><span class="line">  <span class="keyword">return</span> <span class="number">0</span>;   </span><br><span class="line">&#125; </span><br><span class="line">```  </span><br><span class="line"></span><br><span class="line">## 一个类的父类自定义的无参构造函数(有non-trival的默认构造函数)。</span><br><span class="line">父类有自定义的默认构造函数，子类无任何自定义构造函数。</span><br><span class="line">```cpp</span><br><span class="line"><span class="meta">#<span class="meta-keyword">include</span><span class="meta-string">&lt;iostream&gt;</span>   </span></span><br><span class="line"><span class="keyword">using</span> <span class="keyword">namespace</span> std;   </span><br><span class="line"><span class="class"><span class="keyword">class</span> <span class="title">Foo</span>   </span></span><br><span class="line"><span class="class">&#123;</span>   </span><br><span class="line"><span class="keyword">public</span>:   </span><br><span class="line">  <span class="built_in">Foo</span>()   </span><br><span class="line">  &#123;   </span><br><span class="line">    cout &lt;&lt; <span class="string">&quot;Call Foo::Foo() Constructor !&quot;</span>&lt;&lt; endl;   </span><br><span class="line">    val = <span class="number">0</span>;   </span><br><span class="line">  &#125;   </span><br><span class="line">  <span class="built_in">Foo</span>(<span class="keyword">int</span> i)   </span><br><span class="line">  &#123;   </span><br><span class="line">    cout &lt;&lt; <span class="string">&quot;Call Foo::Foo(int i) Constructor !&quot;</span>&lt;&lt; endl;   </span><br><span class="line">    val = i;   </span><br><span class="line">   &#125;   </span><br><span class="line"><span class="keyword">private</span>:   </span><br><span class="line">  <span class="keyword">int</span> val;   </span><br><span class="line">&#125;;   </span><br><span class="line"><span class="class"><span class="keyword">class</span> <span class="title">Bar</span>:</span><span class="keyword">public</span> Foo   </span><br><span class="line">&#123;   </span><br><span class="line"><span class="keyword">public</span>: </span><br><span class="line"><span class="comment">//Foo foo;   </span></span><br><span class="line"><span class="keyword">char</span> *str;   </span><br><span class="line">&#125;;   </span><br><span class="line"><span class="function"><span class="keyword">void</span> <span class="title">foo_bar</span><span class="params">()</span>   </span></span><br><span class="line"><span class="function"></span>&#123;   </span><br><span class="line">  Bar bar;   </span><br><span class="line">  <span class="keyword">if</span> (bar.str )   </span><br><span class="line">  &#123;   </span><br><span class="line">  cout &lt;&lt; <span class="string">&quot;Print the content !&quot;</span> &lt;&lt; endl;   </span><br><span class="line">  &#125;   </span><br><span class="line">&#125;   </span><br><span class="line"><span class="function"><span class="keyword">int</span> <span class="title">main</span><span class="params">()</span>   </span></span><br><span class="line"><span class="function"></span>&#123;   </span><br><span class="line">  <span class="built_in">foo_bar</span>();   </span><br><span class="line">  <span class="keyword">return</span> <span class="number">0</span>;   </span><br><span class="line">&#125;  </span><br></pre></td></tr></table></figure>
+<p>输出为：</p>
+<figure class="highlight cpp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">Call Foo::Foo() Constructor !</span><br><span class="line">Print the content !</span><br></pre></td></tr></table></figure>
+<p>如果一个没有任何constructor的派生类继承自一个带有default constructor(用户定义的)的base class, 那么这个派生类的default constructor被认为是nontrivial，而对于nontrivial的default constructor, 编译器会为他合成出来。在合成出的default constructor中调用base class的default constuctor。<br>如果设计者提供了多个constructor,但未提供default constuctor,那编译器不会合成新的default constructor,而是会扩展所有的现有的constructor，安插进去default constructor所必须的代码。如果此类中仍存在第一种情况，也就是说存在有member object, 而且object含有default constructor, 那这些default constructor 也会被调用，在base class的default constructor被调用后。<br>如果把//Foo foo这句也加上，结果为：</p>
+<figure class="highlight cpp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">Call Foo::Foo() Constructor !</span><br><span class="line">Call Foo::Foo() Constructor !</span><br><span class="line">Print the content !</span><br></pre></td></tr></table></figure>
+<p>因为在创建子类对象时需要调用父类的构造函数，同时，由于子类包含父类成员对象，初始化成员对象时也需要调用父类构造函数。</p>
+<h2 id="一个类里隐式的含有Virtual-tabel-Vtbl-或者pointer-member-vptr-，并且其基类无任何构造函数或者有用户自定义的默认构造函数。"><a href="#一个类里隐式的含有Virtual-tabel-Vtbl-或者pointer-member-vptr-，并且其基类无任何构造函数或者有用户自定义的默认构造函数。" class="headerlink" title="一个类里隐式的含有Virtual tabel(Vtbl)或者pointer member(vptr)，并且其基类无任何构造函数或者有用户自定义的默认构造函数。"></a>一个类里隐式的含有Virtual tabel(Vtbl)或者pointer member(vptr)，并且其基类无任何构造函数或者有用户自定义的默认构造函数。</h2><p>vtbl或vptr需要编辑器隐式地合成出来，那么编辑器就把合成动作放在了默认构造函数里，所以编辑器必需自己产生一个构造函数来完成这些动作。所以你的类里只要含有virtual function，那么编辑器就会生成默认的构造函数。<br>无论一个class是声明（或继承）了一个virtual function, 还是派生自一个继承串联，其中有一个或多个virtual base class.不管上述哪种情况，由于缺乏由user声明的constructor, 编译器会详细记录合成一个default constructor的详细信息。<br> 在编译期间，会做以下的扩张工作：<br>(1) 一个virtual function table会被编译器产生出来，内含virtual functions的地址。<br>(2) 编译器会合成一个vptr, 插入每一个object中。<br>而合成出来的default constructor，当然会为每一个object 设定vptr的初值。但不会为类的成员变量初始化。<br>例，基类有虚函数，并且无构造函数或者有用户自定义的默认构造函数：</p>
+<figure class="highlight cpp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">#<span class="meta-keyword">include</span><span class="meta-string">&lt;iostream&gt;</span>   </span></span><br><span class="line"><span class="keyword">using</span> <span class="keyword">namespace</span> std;   </span><br><span class="line"><span class="class"><span class="keyword">class</span> <span class="title">Base</span></span></span><br><span class="line"><span class="class">&#123;</span> </span><br><span class="line">  <span class="keyword">public</span>: </span><br><span class="line">    <span class="keyword">int</span> x; </span><br><span class="line">    <span class="comment">// Base()&#123;&#125; 有没有这句效果都是一样的 </span></span><br><span class="line">    <span class="function"><span class="keyword">virtual</span> <span class="keyword">void</span> <span class="title">set</span><span class="params">()</span> </span></span><br><span class="line"><span class="function">    </span>&#123; cout&lt;&lt;<span class="string">&quot;Base set&quot;</span>&lt;&lt;endl; cout&lt;&lt;x&lt;&lt;endl; &#125; </span><br><span class="line">&#125;;</span><br><span class="line"><span class="class"><span class="keyword">class</span> <span class="title">Derived</span>:</span><span class="keyword">public</span> Base</span><br><span class="line">&#123; </span><br><span class="line">  <span class="keyword">public</span>: </span><br><span class="line">    <span class="keyword">int</span> y; </span><br><span class="line">    <span class="function"><span class="keyword">void</span> <span class="title">set</span><span class="params">()</span> </span></span><br><span class="line"><span class="function">    </span>&#123; cout&lt;&lt;<span class="string">&quot;Derived set&quot;</span>&lt;&lt;endl; cout&lt;&lt;y&lt;&lt;endl; &#125; </span><br><span class="line">&#125;;</span><br><span class="line"><span class="function"><span class="keyword">void</span> <span class="title">func</span><span class="params">(Base &amp;b)</span></span></span><br><span class="line"><span class="function"></span>&#123; </span><br><span class="line">  b.<span class="built_in">set</span>(); </span><br><span class="line">&#125;</span><br><span class="line"><span class="function"><span class="keyword">int</span> <span class="title">main</span><span class="params">()</span></span></span><br><span class="line"><span class="function"></span>&#123; </span><br><span class="line">  Base b; </span><br><span class="line">  Derived d; </span><br><span class="line">  <span class="built_in">func</span>(b); </span><br><span class="line">  <span class="built_in">func</span>(d); </span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p>输出为：</p>
+<figure class="highlight cpp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line">Base set</span><br><span class="line"><span class="number">0</span></span><br><span class="line">Derived set</span><br><span class="line"><span class="number">0</span></span><br></pre></td></tr></table></figure>
+<p>例：基类为抽象类，且无构造函数。</p>
+<figure class="highlight cpp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">#<span class="meta-keyword">include</span><span class="meta-string">&lt;iostream&gt;</span>  </span></span><br><span class="line"><span class="keyword">using</span> <span class="keyword">namespace</span> std;  </span><br><span class="line"><span class="class"><span class="keyword">class</span> <span class="title">Widget</span>  </span></span><br><span class="line"><span class="class">&#123;</span>  </span><br><span class="line"><span class="keyword">public</span>:   </span><br><span class="line">    <span class="function"><span class="keyword">virtual</span> <span class="keyword">void</span> <span class="title">flip</span><span class="params">()</span> </span>= <span class="number">0</span>;  </span><br><span class="line">&#125;;  </span><br><span class="line"><span class="class"><span class="keyword">class</span> <span class="title">Bell</span>:</span> <span class="keyword">public</span> Widget  </span><br><span class="line">&#123;  </span><br><span class="line"><span class="keyword">public</span>:   </span><br><span class="line">  <span class="function"><span class="keyword">void</span> <span class="title">flip</span><span class="params">()</span>  </span></span><br><span class="line"><span class="function">  </span>&#123;   </span><br><span class="line">    cout &lt;&lt;<span class="string">&quot;Bell.&quot;</span> &lt;&lt; endl;   </span><br><span class="line">   &#125;  </span><br><span class="line">&#125;;  </span><br><span class="line"><span class="class"><span class="keyword">class</span> <span class="title">Whistle</span>:</span> <span class="keyword">public</span> Widget  </span><br><span class="line">&#123;  </span><br><span class="line"><span class="keyword">public</span>:   </span><br><span class="line">  <span class="function"><span class="keyword">void</span> <span class="title">flip</span><span class="params">()</span>  </span></span><br><span class="line"><span class="function">  </span>&#123;   </span><br><span class="line">   cout &lt;&lt;<span class="string">&quot;Whistle.&quot;</span> &lt;&lt; endl; &#125;  </span><br><span class="line">  &#125;;  </span><br><span class="line"><span class="function"><span class="keyword">void</span> <span class="title">flip</span><span class="params">(Widget &amp;widget)</span>  </span></span><br><span class="line"><span class="function"></span>&#123;   </span><br><span class="line">   widget.<span class="built_in">flip</span>();  </span><br><span class="line">&#125;  </span><br><span class="line"><span class="function"><span class="keyword">void</span> <span class="title">foo</span><span class="params">()</span>  </span></span><br><span class="line"><span class="function"></span>&#123;   </span><br><span class="line">  Bell b;   </span><br><span class="line">  Whistle w;   </span><br><span class="line">  <span class="built_in">flip</span>(b);   </span><br><span class="line">  <span class="built_in">flip</span>(w);  </span><br><span class="line">&#125;  </span><br><span class="line"><span class="function"><span class="keyword">int</span> <span class="title">main</span><span class="params">()</span>  </span></span><br><span class="line"><span class="function"></span>&#123;  </span><br><span class="line"> <span class="built_in">foo</span>();   </span><br><span class="line">&#125;  </span><br></pre></td></tr></table></figure>
+<p>输出为：</p>
+<figure class="highlight cpp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">Bell.</span><br><span class="line">Whistle.</span><br></pre></td></tr></table></figure>
+<h2 id="如果一个类虚继承与其他类"><a href="#如果一个类虚继承与其他类" class="headerlink" title="如果一个类虚继承与其他类"></a>如果一个类虚继承与其他类</h2><p>理由和上一个一样，虚基类也需要vtbl和vptr管理，那么这些管理就需要合成构造函数来实现管理，则需要生成默认的构造函数。<br>例：</p>
+<figure class="highlight cpp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">#<span class="meta-keyword">include</span><span class="meta-string">&lt;iostream&gt;</span>  </span></span><br><span class="line"><span class="keyword">using</span> <span class="keyword">namespace</span> std;  </span><br><span class="line"><span class="class"><span class="keyword">class</span> <span class="title">Base</span>  </span></span><br><span class="line"><span class="class">&#123;</span>   </span><br><span class="line"><span class="keyword">public</span>:   </span><br><span class="line">  <span class="keyword">int</span> x;   </span><br><span class="line"><span class="function"><span class="keyword">void</span> <span class="title">set</span><span class="params">()</span>   </span></span><br><span class="line"><span class="function"></span>&#123;   </span><br><span class="line">  cout&lt;&lt;<span class="string">&quot;Base set&quot;</span>&lt;&lt;endl;   </span><br><span class="line">  cout&lt;&lt;x&lt;&lt;endl;   </span><br><span class="line">&#125;   </span><br><span class="line">&#125;;  </span><br><span class="line"><span class="class"><span class="keyword">class</span> <span class="title">Derived1</span>:</span><span class="keyword">virtual</span> <span class="keyword">public</span> Base  </span><br><span class="line">&#123;   </span><br><span class="line"><span class="keyword">public</span>:   </span><br><span class="line">  <span class="keyword">int</span> y;   </span><br><span class="line"><span class="function"><span class="keyword">void</span> <span class="title">set</span><span class="params">()</span>   </span></span><br><span class="line"><span class="function"></span>&#123;   </span><br><span class="line">  cout&lt;&lt;<span class="string">&quot;Derived1 set&quot;</span>&lt;&lt;endl;   </span><br><span class="line">  cout&lt;&lt;y&lt;&lt;endl;   </span><br><span class="line">&#125;   </span><br><span class="line">&#125;;  </span><br><span class="line"><span class="class"><span class="keyword">class</span> <span class="title">Derived2</span>:</span><span class="keyword">virtual</span> <span class="keyword">public</span> Base  </span><br><span class="line">&#123;   </span><br><span class="line"><span class="keyword">public</span>:   </span><br><span class="line"><span class="keyword">int</span> z;   </span><br><span class="line"><span class="function"><span class="keyword">void</span> <span class="title">set</span><span class="params">()</span>   </span></span><br><span class="line"><span class="function"></span>&#123;   </span><br><span class="line">cout&lt;&lt;<span class="string">&quot;Derived2 set&quot;</span>&lt;&lt;endl;   </span><br><span class="line">cout&lt;&lt;z&lt;&lt;endl;   </span><br><span class="line">&#125;   </span><br><span class="line">&#125;;  </span><br><span class="line"><span class="function"><span class="keyword">int</span> <span class="title">main</span><span class="params">()</span>  </span></span><br><span class="line"><span class="function"></span>&#123;   </span><br><span class="line">Base b;   </span><br><span class="line">b.<span class="built_in">set</span>();   </span><br><span class="line">Derived1 d1;   </span><br><span class="line">d1.<span class="built_in">set</span>();   </span><br><span class="line">Derived2 d2;   </span><br><span class="line">d2.<span class="built_in">set</span>();   </span><br><span class="line">&#125;  </span><br></pre></td></tr></table></figure>
+<p>输出为：</p>
+<figure class="highlight cpp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line">Base set</span><br><span class="line"><span class="number">-1913988864</span></span><br><span class="line">Derived1 set</span><br><span class="line"><span class="number">4196432</span></span><br><span class="line">Derived2 set</span><br><span class="line"><span class="number">0</span></span><br></pre></td></tr></table></figure>
+<p>与如下代码效果一样:</p>
+<figure class="highlight cpp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">#<span class="meta-keyword">include</span><span class="meta-string">&lt;iostream&gt;</span>  </span></span><br><span class="line"><span class="keyword">using</span> <span class="keyword">namespace</span> std;  </span><br><span class="line"><span class="class"><span class="keyword">class</span> <span class="title">Base</span>  </span></span><br><span class="line"><span class="class">&#123;</span>   </span><br><span class="line"><span class="keyword">public</span>:   </span><br><span class="line"><span class="keyword">int</span> x;   </span><br><span class="line"><span class="built_in">Base</span>()&#123;&#125;;<span class="comment">//用户定义的默认构造函数   </span></span><br><span class="line"><span class="built_in">Base</span>(<span class="keyword">int</span> i)<span class="comment">//用用户定义的含参构造函数   </span></span><br><span class="line">&#123; x=i; &#125;   </span><br><span class="line"><span class="function"><span class="keyword">void</span> <span class="title">set</span><span class="params">()</span>   </span></span><br><span class="line"><span class="function"></span>&#123;   </span><br><span class="line">cout&lt;&lt;<span class="string">&quot;Base set&quot;</span>&lt;&lt;endl;   </span><br><span class="line">cout&lt;&lt;x&lt;&lt;endl;   </span><br><span class="line">&#125;   </span><br><span class="line">&#125;;  </span><br><span class="line"><span class="class"><span class="keyword">class</span> <span class="title">Derived1</span>:</span><span class="keyword">virtual</span> <span class="keyword">public</span> Base  </span><br><span class="line">&#123;   </span><br><span class="line"><span class="keyword">public</span>:   </span><br><span class="line"><span class="keyword">int</span> y;  </span><br><span class="line"><span class="function"><span class="keyword">void</span> <span class="title">set</span><span class="params">()</span>   </span></span><br><span class="line"><span class="function"></span>&#123;   </span><br><span class="line">cout&lt;&lt;<span class="string">&quot;Derived1 set&quot;</span>&lt;&lt;endl;   </span><br><span class="line">cout&lt;&lt;y&lt;&lt;endl;   </span><br><span class="line">&#125;   </span><br><span class="line">&#125;;  </span><br><span class="line"><span class="class"><span class="keyword">class</span> <span class="title">Derived2</span>:</span><span class="keyword">virtual</span> <span class="keyword">public</span> Base  </span><br><span class="line">&#123;   </span><br><span class="line"><span class="keyword">public</span>:   </span><br><span class="line"><span class="keyword">int</span> z;   </span><br><span class="line"><span class="function"><span class="keyword">void</span> <span class="title">set</span><span class="params">()</span>   </span></span><br><span class="line"><span class="function"></span>&#123;   </span><br><span class="line">cout&lt;&lt;<span class="string">&quot;Derived2 set&quot;</span>&lt;&lt;endl;   </span><br><span class="line">cout&lt;&lt;z&lt;&lt;endl;   </span><br><span class="line">&#125;   </span><br><span class="line">&#125;;  </span><br><span class="line"><span class="function"><span class="keyword">int</span> <span class="title">main</span><span class="params">()</span>  </span></span><br><span class="line"><span class="function"></span>&#123;   </span><br><span class="line">Base b;   </span><br><span class="line">b.<span class="built_in">set</span>();   </span><br><span class="line">Derived1 d1;   </span><br><span class="line">d1.<span class="built_in">set</span>();   </span><br><span class="line">Derived2 d2;   </span><br><span class="line">d2.<span class="built_in">set</span>();   </span><br><span class="line">&#125;  </span><br></pre></td></tr></table></figure>
+<h1 id="当用带有默认参数的构造函数进行初始化的时候，可以用类似默认参数初始化类的对象的方式来进行初始化。"><a href="#当用带有默认参数的构造函数进行初始化的时候，可以用类似默认参数初始化类的对象的方式来进行初始化。" class="headerlink" title="当用带有默认参数的构造函数进行初始化的时候，可以用类似默认参数初始化类的对象的方式来进行初始化。"></a>当用带有默认参数的构造函数进行初始化的时候，可以用类似默认参数初始化类的对象的方式来进行初始化。</h1><p>特别注意：以下所有情况均为把有参构造函数用默认值初始化的特例(长得像，但并不是默认构造函数)，并非有默认构造函数。创建对象方式与默认构造函数相同，但意义不一样。以下是在声明时成成员初始化为0，则调用形式与默认构造函数相同。其</p>
+<h2 id="例1：父类无构造函数（有编译器自己创建的trival型的），子类已经有有参构造函数。生成对象的时候实际调用的是用参构造函数，只不过参数都是0，可以省略不写。"><a href="#例1：父类无构造函数（有编译器自己创建的trival型的），子类已经有有参构造函数。生成对象的时候实际调用的是用参构造函数，只不过参数都是0，可以省略不写。" class="headerlink" title="例1：父类无构造函数（有编译器自己创建的trival型的），子类已经有有参构造函数。生成对象的时候实际调用的是用参构造函数，只不过参数都是0，可以省略不写。"></a>例1：父类无构造函数（有编译器自己创建的trival型的），子类已经有有参构造函数。生成对象的时候实际调用的是用参构造函数，只不过参数都是0，可以省略不写。</h2><figure class="highlight cpp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">#<span class="meta-keyword">include</span><span class="meta-string">&lt;iostream&gt;</span>  </span></span><br><span class="line"><span class="keyword">using</span> <span class="keyword">namespace</span> std;  </span><br><span class="line"><span class="class"><span class="keyword">class</span> <span class="title">Point</span>  </span></span><br><span class="line"><span class="class">&#123;</span>   </span><br><span class="line"><span class="keyword">protected</span>:   </span><br><span class="line"><span class="keyword">int</span> x0,y0;   </span><br><span class="line"><span class="keyword">public</span>:   </span><br><span class="line"><span class="function"><span class="keyword">void</span> <span class="title">set</span><span class="params">()</span><span class="comment">//或者virtual void set()   </span></span></span><br><span class="line"><span class="function"></span>&#123; cout&lt;&lt;<span class="string">&quot;Base&quot;</span>&lt;&lt;endl; &#125;   </span><br><span class="line">&#125;;   </span><br><span class="line"><span class="class"><span class="keyword">class</span> <span class="title">Derived</span>:</span><span class="keyword">public</span> Point   </span><br><span class="line">&#123; <span class="keyword">protected</span>:   </span><br><span class="line"><span class="keyword">int</span> x1,y1;   </span><br><span class="line"><span class="keyword">public</span>:   </span><br><span class="line"><span class="built_in">Derived</span>(<span class="keyword">int</span> m=<span class="number">0</span>,<span class="keyword">int</span> n=<span class="number">0</span>)   </span><br><span class="line">&#123; x1=m; y1=n; &#125;   </span><br><span class="line"><span class="function"><span class="keyword">void</span> <span class="title">set</span><span class="params">()</span>  </span></span><br><span class="line"><span class="function"></span>&#123;cout&lt;&lt;<span class="string">&quot;Derived_set()&quot;</span>&lt;&lt;endl;&#125;   </span><br><span class="line"><span class="function"><span class="keyword">void</span> <span class="title">draw</span><span class="params">()</span></span>&#123;cout&lt;&lt;<span class="string">&quot;Derived_draw()&quot;</span>&lt;&lt;endl;&#125;   </span><br><span class="line">&#125;;  </span><br><span class="line"><span class="function"><span class="keyword">void</span> <span class="title">test</span><span class="params">(Point *b)</span></span>&#123; b-&gt;<span class="built_in">set</span>(); &#125;  </span><br><span class="line"><span class="function"><span class="keyword">int</span> <span class="title">main</span><span class="params">()</span>  </span></span><br><span class="line"><span class="function"></span>&#123;   </span><br><span class="line">Derived *dr=<span class="keyword">new</span> Derived;   </span><br><span class="line"><span class="built_in">test</span>(dr);   </span><br><span class="line">Derived drr;   </span><br><span class="line"><span class="built_in">test</span>(&amp;drr);  </span><br><span class="line"> <span class="built_in">system</span>(<span class="string">&quot;pause&quot;</span>);   </span><br><span class="line">&#125;  </span><br></pre></td></tr></table></figure>
+<p>输出为：</p>
+<figure class="highlight cpp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">Base</span><br><span class="line">Base</span><br></pre></td></tr></table></figure>
+<p>如果是<br>virtual void set()<br>则结果为：</p>
+<figure class="highlight cpp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line"><span class="built_in">Derived_set</span>()</span><br><span class="line"><span class="built_in">Derived_set</span>()</span><br></pre></td></tr></table></figure>
+
+<h2 id="例2：基类含无参构造函数，子类已经有有参构造函数。"><a href="#例2：基类含无参构造函数，子类已经有有参构造函数。" class="headerlink" title="例2：基类含无参构造函数，子类已经有有参构造函数。"></a>例2：基类含无参构造函数，子类已经有有参构造函数。</h2><figure class="highlight cpp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">#<span class="meta-keyword">include</span><span class="meta-string">&lt;iostream&gt;</span>  </span></span><br><span class="line"><span class="keyword">using</span> <span class="keyword">namespace</span> std;  </span><br><span class="line"><span class="class"><span class="keyword">class</span> <span class="title">Point</span>  </span></span><br><span class="line"><span class="class">&#123;</span>   </span><br><span class="line"><span class="keyword">protected</span>:   </span><br><span class="line"><span class="keyword">int</span> x0,y0;   </span><br><span class="line"><span class="keyword">public</span>:   </span><br><span class="line"><span class="function"><span class="keyword">void</span> <span class="title">set</span><span class="params">()</span>   </span></span><br><span class="line"><span class="function"></span>&#123; cout&lt;&lt;<span class="string">&quot;Base&quot;</span>&lt;&lt;endl;   </span><br><span class="line">&#125;   </span><br><span class="line"><span class="built_in">Point</span>()&#123;<span class="comment">//基类无参构造函数  </span></span><br><span class="line"> &#125;  </span><br><span class="line">&#125;;   </span><br><span class="line"><span class="class"><span class="keyword">class</span> <span class="title">Derived</span>:</span><span class="keyword">public</span> Point   </span><br><span class="line">&#123;   </span><br><span class="line"><span class="keyword">protected</span>:   </span><br><span class="line"><span class="keyword">int</span> x1,y1;   </span><br><span class="line"><span class="keyword">public</span>:   </span><br><span class="line"><span class="built_in">Derived</span>(<span class="keyword">int</span> m=<span class="number">0</span>,<span class="keyword">int</span> n=<span class="number">0</span>)   </span><br><span class="line">&#123; x1=m; y1=n; &#125;   </span><br><span class="line"><span class="function"><span class="keyword">void</span> <span class="title">set</span><span class="params">()</span></span>&#123;cout&lt;&lt;<span class="string">&quot;Derived_set()&quot;</span>&lt;&lt;endl;&#125;   </span><br><span class="line"><span class="function"><span class="keyword">void</span> <span class="title">draw</span><span class="params">()</span></span>&#123;cout&lt;&lt;<span class="string">&quot;Derived_draw()&quot;</span>&lt;&lt;endl;&#125;   </span><br><span class="line">&#125;;  </span><br><span class="line"><span class="function"><span class="keyword">void</span> <span class="title">test</span><span class="params">(Point *b)</span>  </span></span><br><span class="line"><span class="function"></span>&#123;   </span><br><span class="line">b-&gt;<span class="built_in">set</span>();   </span><br><span class="line">&#125;  </span><br><span class="line"><span class="function"><span class="keyword">int</span> <span class="title">main</span><span class="params">()</span>  </span></span><br><span class="line"><span class="function"></span>&#123;   </span><br><span class="line">Derived *dr=<span class="keyword">new</span> Derived;   </span><br><span class="line"><span class="built_in">test</span>(dr);   </span><br><span class="line">Derived drr;   </span><br><span class="line"><span class="built_in">test</span>(&amp;drr);   </span><br><span class="line"><span class="built_in">system</span>(<span class="string">&quot;pause&quot;</span>);   </span><br><span class="line">&#125;  </span><br></pre></td></tr></table></figure>
+<p>结果：</p>
+<figure class="highlight cpp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">Base</span><br><span class="line">Base</span><br></pre></td></tr></table></figure>
+<h2 id="例3：基类含有参构造函数"><a href="#例3：基类含有参构造函数" class="headerlink" title="例3：基类含有参构造函数"></a>例3：基类含有参构造函数</h2><figure class="highlight cpp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">#<span class="meta-keyword">include</span><span class="meta-string">&lt;iostream&gt;</span>  </span></span><br><span class="line"><span class="keyword">using</span> <span class="keyword">namespace</span> std;  </span><br><span class="line"><span class="class"><span class="keyword">class</span> <span class="title">Point</span>  </span></span><br><span class="line"><span class="class">&#123;</span>   </span><br><span class="line"><span class="keyword">protected</span>:   </span><br><span class="line"><span class="keyword">int</span> x0,y0;   </span><br><span class="line"><span class="keyword">public</span>:   </span><br><span class="line"><span class="function"><span class="keyword">void</span> <span class="title">set</span><span class="params">()</span>   </span></span><br><span class="line"><span class="function"></span>&#123; cout&lt;&lt;<span class="string">&quot;Base&quot;</span>&lt;&lt;endl; &#125;   </span><br><span class="line"><span class="built_in">Point</span>(<span class="keyword">int</span> i,<span class="keyword">int</span> j)  </span><br><span class="line">&#123; x0=i; y0=j; &#125;   </span><br><span class="line">&#125;;   </span><br><span class="line"><span class="class"><span class="keyword">class</span> <span class="title">Derived</span>:</span><span class="keyword">public</span> Point   </span><br><span class="line">&#123;   </span><br><span class="line"><span class="keyword">protected</span>: <span class="keyword">int</span> x1,y1;   </span><br><span class="line"><span class="keyword">public</span>:   </span><br><span class="line"><span class="built_in">Derived</span>(<span class="keyword">int</span> m=<span class="number">0</span>,<span class="keyword">int</span> n=<span class="number">0</span>,<span class="keyword">int</span> i=<span class="number">0</span>,<span class="keyword">int</span> j=<span class="number">0</span>):<span class="built_in">Point</span>(i,j)   </span><br><span class="line">&#123; x1=m; y1=n; &#125;   </span><br><span class="line"><span class="function"><span class="keyword">void</span> <span class="title">set</span><span class="params">()</span>  </span></span><br><span class="line"><span class="function"></span>&#123;cout&lt;&lt;<span class="string">&quot;Derived_set()&quot;</span>&lt;&lt;endl;&#125;   </span><br><span class="line"><span class="function"><span class="keyword">void</span> <span class="title">draw</span><span class="params">()</span>  </span></span><br><span class="line"><span class="function"></span>&#123;cout&lt;&lt;<span class="string">&quot;Derived_draw()&quot;</span>&lt;&lt;endl;&#125;   </span><br><span class="line">&#125;;  </span><br><span class="line"><span class="function"><span class="keyword">void</span> <span class="title">test</span><span class="params">(Point *b)</span>  </span></span><br><span class="line"><span class="function"></span>&#123; b-&gt;<span class="built_in">set</span>(); &#125;  </span><br><span class="line"><span class="function"><span class="keyword">int</span> <span class="title">main</span><span class="params">()</span>  </span></span><br><span class="line"><span class="function"></span>&#123;   </span><br><span class="line">Derived *dr=<span class="keyword">new</span> Derived;   </span><br><span class="line"><span class="built_in">test</span>(dr);   </span><br><span class="line">Derived drr;   </span><br><span class="line"><span class="built_in">test</span>(&amp;drr);   </span><br><span class="line"><span class="built_in">system</span>(<span class="string">&quot;pause&quot;</span>);   </span><br><span class="line">&#125;  </span><br></pre></td></tr></table></figure>
+<p>结果：</p>
+<figure class="highlight cpp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">Base</span><br><span class="line">Base</span><br></pre></td></tr></table></figure>
+<h2 id="例4：对于基类含有虚函数和抽象类也和上面所说的情况一致。"><a href="#例4：对于基类含有虚函数和抽象类也和上面所说的情况一致。" class="headerlink" title="例4：对于基类含有虚函数和抽象类也和上面所说的情况一致。"></a>例4：对于基类含有虚函数和抽象类也和上面所说的情况一致。</h2><figure class="highlight cpp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br><span class="line">52</span><br><span class="line">53</span><br><span class="line">54</span><br><span class="line">55</span><br><span class="line">56</span><br><span class="line">57</span><br><span class="line">58</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">#<span class="meta-keyword">include</span><span class="meta-string">&lt;iostream&gt;</span>  </span></span><br><span class="line"><span class="keyword">using</span> <span class="keyword">namespace</span> std;  </span><br><span class="line"><span class="class"><span class="keyword">class</span> <span class="title">Point</span>  </span></span><br><span class="line"><span class="class">&#123;</span>   </span><br><span class="line"><span class="keyword">protected</span>:   </span><br><span class="line"><span class="keyword">int</span> x0,y0;   </span><br><span class="line"><span class="keyword">public</span>:   </span><br><span class="line"><span class="built_in">Point</span>(<span class="keyword">int</span> i,<span class="keyword">int</span> j)   </span><br><span class="line">&#123; x0=i; y0=j; &#125;   </span><br><span class="line"><span class="function"><span class="keyword">virtual</span> <span class="keyword">void</span> <span class="title">set</span><span class="params">()</span></span>=<span class="number">0</span>;   </span><br><span class="line"><span class="function"><span class="keyword">virtual</span> <span class="keyword">void</span> <span class="title">draw</span><span class="params">()</span></span>=<span class="number">0</span>;   </span><br><span class="line">&#125;;  </span><br><span class="line"><span class="class"><span class="keyword">class</span> <span class="title">Line</span>:</span><span class="keyword">public</span> Point  </span><br><span class="line">&#123;   </span><br><span class="line"><span class="keyword">protected</span>: <span class="keyword">int</span> x1,y1;   </span><br><span class="line"><span class="keyword">public</span>: <span class="built_in">Line</span>(<span class="keyword">int</span> i=<span class="number">0</span>,<span class="keyword">int</span> j=<span class="number">0</span>,<span class="keyword">int</span> m=<span class="number">0</span>,<span class="keyword">int</span> n=<span class="number">0</span>):<span class="built_in">Point</span>(i,j)   </span><br><span class="line">&#123; x1=m; y1=n; &#125;   </span><br><span class="line"><span class="function"><span class="keyword">void</span> <span class="title">set</span><span class="params">()</span>  </span></span><br><span class="line"><span class="function"></span>&#123;cout&lt;&lt;<span class="string">&quot;Line_set()&quot;</span>&lt;&lt;endl;&#125;   </span><br><span class="line"><span class="function"><span class="keyword">void</span> <span class="title">draw</span><span class="params">()</span></span>&#123;cout&lt;&lt;<span class="string">&quot;Line_draw()&quot;</span>&lt;&lt;endl;&#125;   </span><br><span class="line">&#125;;  </span><br><span class="line"><span class="class"><span class="keyword">class</span> <span class="title">Ellipse</span>:</span><span class="keyword">public</span> Point  </span><br><span class="line">&#123;   </span><br><span class="line"><span class="keyword">protected</span>:   </span><br><span class="line"><span class="keyword">int</span> x2,y2;   </span><br><span class="line"><span class="keyword">public</span>:   </span><br><span class="line"><span class="built_in">Ellipse</span>(<span class="keyword">int</span> i=<span class="number">0</span>,<span class="keyword">int</span> j=<span class="number">0</span>,<span class="keyword">int</span> p=<span class="number">0</span>,<span class="keyword">int</span> q=<span class="number">0</span>):<span class="built_in">Point</span>(i,j)   </span><br><span class="line">&#123; x2=p; y2=q; &#125;   </span><br><span class="line"><span class="function"><span class="keyword">void</span> <span class="title">set</span><span class="params">()</span>  </span></span><br><span class="line"><span class="function"></span>&#123;cout&lt;&lt;<span class="string">&quot;Ellipse_set()&quot;</span>&lt;&lt;endl;&#125;   </span><br><span class="line"><span class="function"><span class="keyword">void</span> <span class="title">draw</span><span class="params">()</span>  </span></span><br><span class="line"><span class="function"></span>&#123;cout&lt;&lt;<span class="string">&quot;Ellipse_draw()&quot;</span>&lt;&lt;endl;&#125;   </span><br><span class="line">&#125;;  </span><br><span class="line"><span class="function"><span class="keyword">void</span> <span class="title">drawobj</span><span class="params">(Point *p)</span>  </span></span><br><span class="line"><span class="function"></span>&#123;   </span><br><span class="line">p-&gt;<span class="built_in">draw</span>();   </span><br><span class="line">&#125;  </span><br><span class="line"><span class="function"><span class="keyword">void</span> <span class="title">setobj</span><span class="params">(Point *p)</span>  </span></span><br><span class="line"><span class="function"></span>&#123; p-&gt;<span class="built_in">set</span>(); &#125;  </span><br><span class="line"><span class="function"><span class="keyword">int</span> <span class="title">main</span><span class="params">()</span>  </span></span><br><span class="line"><span class="function"></span>&#123;   </span><br><span class="line">Line *li=<span class="keyword">new</span> <span class="built_in">Line</span>();<span class="comment">//new Line;   </span></span><br><span class="line"><span class="built_in">drawobj</span>(li);   </span><br><span class="line"><span class="built_in">setobj</span>(li);   </span><br><span class="line">cout&lt;&lt;endl;   </span><br><span class="line">Ellipse *el=<span class="keyword">new</span> <span class="built_in">Ellipse</span>();<span class="comment">//new Ellipse;   </span></span><br><span class="line"><span class="built_in">drawobj</span>(el);   </span><br><span class="line"><span class="built_in">setobj</span>(el);   </span><br><span class="line">cout&lt;&lt;endl;   </span><br><span class="line">Line *li2=<span class="keyword">new</span> Line;   </span><br><span class="line"><span class="built_in">drawobj</span>(li2);   </span><br><span class="line"><span class="built_in">setobj</span>(li2);   </span><br><span class="line">cout&lt;&lt;endl;   </span><br><span class="line">Ellipse elp;   </span><br><span class="line"><span class="built_in">drawobj</span>(&amp;elp);   </span><br><span class="line"><span class="built_in">setobj</span>(&amp;elp);   </span><br><span class="line">cout&lt;&lt;endl;   </span><br><span class="line">&#125;  </span><br></pre></td></tr></table></figure>
+<p>输出为：</p>
+<figure class="highlight cpp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br></pre></td><td class="code"><pre><span class="line"><span class="built_in">Line_draw</span>()</span><br><span class="line"><span class="built_in">Line_set</span>()</span><br><span class="line"></span><br><span class="line"><span class="built_in">Ellipse_draw</span>()</span><br><span class="line"><span class="built_in">Ellipse_set</span>()</span><br><span class="line"></span><br><span class="line"><span class="built_in">Line_draw</span>()</span><br><span class="line"><span class="built_in">Line_set</span>()</span><br><span class="line"></span><br><span class="line"><span class="built_in">Ellipse_draw</span>()</span><br><span class="line"><span class="built_in">Ellipse_set</span>()</span><br></pre></td></tr></table></figure>
+
+    </div>
+
+    
+    
+    
+        <div class="reward-container">
+  <div></div>
+  <button onclick="var qr = document.getElementById('qr'); qr.style.display = (qr.style.display === 'none') ? 'block' : 'none';">
+    Donate
+  </button>
+  <div id="qr" style="display: none;">
+      
+      <div style="display: inline-block;">
+        <img src="/images/wechat_reward.png" alt="Xin-Bo Qi(亓欣波) WeChat Pay">
+        <p>WeChat Pay</p>
+      </div>
+
+  </div>
+</div>
+
+
+      <footer class="post-footer">
+          <div class="post-tags">
+              <a href="/tags/c/" rel="tag"># c++</a>
+          </div>
+
+        
+
+
+        
+    <div class="post-nav">
+      <div class="post-nav-item">
+    <a href="/2017/07/09/cplusplus-template/" rel="prev" title="C++模板深度解析 (转载)">
+      <i class="fa fa-chevron-left"></i> C++模板深度解析 (转载)
+    </a></div>
+      <div class="post-nav-item">
+    <a href="/2017/07/28/moose-run-details/" rel="next" title="MOOSE运行过程再分析">
+      MOOSE运行过程再分析 <i class="fa fa-chevron-right"></i>
+    </a></div>
+    </div>
+      </footer>
+    
+  </article>
+  
+  
+  
+
+
+
+          </div>
+          
+    
+  <div class="comments">
+    <div id="disqus_thread">
+      <noscript>Please enable JavaScript to view the comments powered by Disqus.</noscript>
+    </div>
+  </div>
+  
+
+<script>
+  window.addEventListener('tabs:register', () => {
+    let { activeClass } = CONFIG.comments;
+    if (CONFIG.comments.storage) {
+      activeClass = localStorage.getItem('comments_active') || activeClass;
+    }
+    if (activeClass) {
+      let activeTab = document.querySelector(`a[href="#comment-${activeClass}"]`);
+      if (activeTab) {
+        activeTab.click();
+      }
+    }
+  });
+  if (CONFIG.comments.storage) {
+    window.addEventListener('tabs:click', event => {
+      if (!event.target.matches('.tabs-comment .tab-content .tab-pane')) return;
+      let commentClass = event.target.classList[1];
+      localStorage.setItem('comments_active', commentClass);
+    });
+  }
+</script>
+
+        </div>
+          
+  
+  <div class="toggle sidebar-toggle">
+    <span class="toggle-line toggle-line-first"></span>
+    <span class="toggle-line toggle-line-middle"></span>
+    <span class="toggle-line toggle-line-last"></span>
+  </div>
+
+  <aside class="sidebar">
+    <div class="sidebar-inner">
+
+      <ul class="sidebar-nav motion-element">
+        <li class="sidebar-nav-toc">
+          Table of Contents
+        </li>
+        <li class="sidebar-nav-overview">
+          Overview
+        </li>
+      </ul>
+
+      <!--noindex-->
+      <div class="post-toc-wrap sidebar-panel">
+          <div class="post-toc motion-element"><ol class="nav"><li class="nav-item nav-level-1"><a class="nav-link" href="#%E5%BC%95%E5%AD%90"><span class="nav-number">1.</span> <span class="nav-text">引子</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#%E6%97%A0%E5%85%B3%E7%B4%A7%E8%A6%81%EF%BC%88trivial%EF%BC%89%E7%9A%84%E9%BB%98%E8%AE%A4%E6%9E%84%E9%80%A0%E5%87%BD%E6%95%B0%E3%80%90%E6%97%A0%E7%94%A8%E6%9E%84%E9%80%A0%E5%87%BD%E6%95%B0%E3%80%91"><span class="nav-number">2.</span> <span class="nav-text">无关紧要（trivial）的默认构造函数【无用构造函数】</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#%E9%9D%9E%E5%B9%B3%E5%87%A1%EF%BC%88non-trivival%EF%BC%89%E9%BB%98%E8%AE%A4%E6%9E%84%E9%80%A0%E5%87%BD%E6%95%B0%E3%80%90%E6%9C%89%E7%94%A8%E6%9E%84%E9%80%A0%E5%87%BD%E6%95%B0%E3%80%91"><span class="nav-number">3.</span> <span class="nav-text">非平凡（non-trivival）默认构造函数【有用构造函数】</span></a><ol class="nav-child"><li class="nav-item nav-level-2"><a class="nav-link" href="#%E5%90%AB%E6%9C%89%E5%8C%85%E5%90%AB%E9%BB%98%E8%AE%A4%E6%9E%84%E9%80%A0%E5%87%BD%E6%95%B0%E7%9A%84%E6%88%90%E5%91%98%E7%B1%BB%E5%AF%B9%E8%B1%A1"><span class="nav-number">3.1.</span> <span class="nav-text">含有包含默认构造函数的成员类对象</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E4%B8%80%E4%B8%AA%E7%B1%BB%E9%87%8C%E9%9A%90%E5%BC%8F%E7%9A%84%E5%90%AB%E6%9C%89Virtual-tabel-Vtbl-%E6%88%96%E8%80%85pointer-member-vptr-%EF%BC%8C%E5%B9%B6%E4%B8%94%E5%85%B6%E5%9F%BA%E7%B1%BB%E6%97%A0%E4%BB%BB%E4%BD%95%E6%9E%84%E9%80%A0%E5%87%BD%E6%95%B0%E6%88%96%E8%80%85%E6%9C%89%E7%94%A8%E6%88%B7%E8%87%AA%E5%AE%9A%E4%B9%89%E7%9A%84%E9%BB%98%E8%AE%A4%E6%9E%84%E9%80%A0%E5%87%BD%E6%95%B0%E3%80%82"><span class="nav-number">3.2.</span> <span class="nav-text">一个类里隐式的含有Virtual tabel(Vtbl)或者pointer member(vptr)，并且其基类无任何构造函数或者有用户自定义的默认构造函数。</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E5%A6%82%E6%9E%9C%E4%B8%80%E4%B8%AA%E7%B1%BB%E8%99%9A%E7%BB%A7%E6%89%BF%E4%B8%8E%E5%85%B6%E4%BB%96%E7%B1%BB"><span class="nav-number">3.3.</span> <span class="nav-text">如果一个类虚继承与其他类</span></a></li></ol></li><li class="nav-item nav-level-1"><a class="nav-link" href="#%E5%BD%93%E7%94%A8%E5%B8%A6%E6%9C%89%E9%BB%98%E8%AE%A4%E5%8F%82%E6%95%B0%E7%9A%84%E6%9E%84%E9%80%A0%E5%87%BD%E6%95%B0%E8%BF%9B%E8%A1%8C%E5%88%9D%E5%A7%8B%E5%8C%96%E7%9A%84%E6%97%B6%E5%80%99%EF%BC%8C%E5%8F%AF%E4%BB%A5%E7%94%A8%E7%B1%BB%E4%BC%BC%E9%BB%98%E8%AE%A4%E5%8F%82%E6%95%B0%E5%88%9D%E5%A7%8B%E5%8C%96%E7%B1%BB%E7%9A%84%E5%AF%B9%E8%B1%A1%E7%9A%84%E6%96%B9%E5%BC%8F%E6%9D%A5%E8%BF%9B%E8%A1%8C%E5%88%9D%E5%A7%8B%E5%8C%96%E3%80%82"><span class="nav-number">4.</span> <span class="nav-text">当用带有默认参数的构造函数进行初始化的时候，可以用类似默认参数初始化类的对象的方式来进行初始化。</span></a><ol class="nav-child"><li class="nav-item nav-level-2"><a class="nav-link" href="#%E4%BE%8B1%EF%BC%9A%E7%88%B6%E7%B1%BB%E6%97%A0%E6%9E%84%E9%80%A0%E5%87%BD%E6%95%B0%EF%BC%88%E6%9C%89%E7%BC%96%E8%AF%91%E5%99%A8%E8%87%AA%E5%B7%B1%E5%88%9B%E5%BB%BA%E7%9A%84trival%E5%9E%8B%E7%9A%84%EF%BC%89%EF%BC%8C%E5%AD%90%E7%B1%BB%E5%B7%B2%E7%BB%8F%E6%9C%89%E6%9C%89%E5%8F%82%E6%9E%84%E9%80%A0%E5%87%BD%E6%95%B0%E3%80%82%E7%94%9F%E6%88%90%E5%AF%B9%E8%B1%A1%E7%9A%84%E6%97%B6%E5%80%99%E5%AE%9E%E9%99%85%E8%B0%83%E7%94%A8%E7%9A%84%E6%98%AF%E7%94%A8%E5%8F%82%E6%9E%84%E9%80%A0%E5%87%BD%E6%95%B0%EF%BC%8C%E5%8F%AA%E4%B8%8D%E8%BF%87%E5%8F%82%E6%95%B0%E9%83%BD%E6%98%AF0%EF%BC%8C%E5%8F%AF%E4%BB%A5%E7%9C%81%E7%95%A5%E4%B8%8D%E5%86%99%E3%80%82"><span class="nav-number">4.1.</span> <span class="nav-text">例1：父类无构造函数（有编译器自己创建的trival型的），子类已经有有参构造函数。生成对象的时候实际调用的是用参构造函数，只不过参数都是0，可以省略不写。</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E4%BE%8B2%EF%BC%9A%E5%9F%BA%E7%B1%BB%E5%90%AB%E6%97%A0%E5%8F%82%E6%9E%84%E9%80%A0%E5%87%BD%E6%95%B0%EF%BC%8C%E5%AD%90%E7%B1%BB%E5%B7%B2%E7%BB%8F%E6%9C%89%E6%9C%89%E5%8F%82%E6%9E%84%E9%80%A0%E5%87%BD%E6%95%B0%E3%80%82"><span class="nav-number">4.2.</span> <span class="nav-text">例2：基类含无参构造函数，子类已经有有参构造函数。</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E4%BE%8B3%EF%BC%9A%E5%9F%BA%E7%B1%BB%E5%90%AB%E6%9C%89%E5%8F%82%E6%9E%84%E9%80%A0%E5%87%BD%E6%95%B0"><span class="nav-number">4.3.</span> <span class="nav-text">例3：基类含有参构造函数</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E4%BE%8B4%EF%BC%9A%E5%AF%B9%E4%BA%8E%E5%9F%BA%E7%B1%BB%E5%90%AB%E6%9C%89%E8%99%9A%E5%87%BD%E6%95%B0%E5%92%8C%E6%8A%BD%E8%B1%A1%E7%B1%BB%E4%B9%9F%E5%92%8C%E4%B8%8A%E9%9D%A2%E6%89%80%E8%AF%B4%E7%9A%84%E6%83%85%E5%86%B5%E4%B8%80%E8%87%B4%E3%80%82"><span class="nav-number">4.4.</span> <span class="nav-text">例4：对于基类含有虚函数和抽象类也和上面所说的情况一致。</span></a></li></ol></li></ol></div>
+      </div>
+      <!--/noindex-->
+
+      <div class="site-overview-wrap sidebar-panel">
+        <div class="site-author motion-element" itemprop="author" itemscope itemtype="http://schema.org/Person">
+    <img class="site-author-image" itemprop="image" alt="Xin-Bo Qi(亓欣波)"
+      src="/images/avatar.jpg">
+  <p class="site-author-name" itemprop="name">Xin-Bo Qi(亓欣波)</p>
+  <div class="site-description" itemprop="description">Be interesting!</div>
+</div>
+<div class="site-state-wrap motion-element">
+  <nav class="site-state">
+      <div class="site-state-item site-state-posts">
+          <a href="/archives/">
+        
+          <span class="site-state-item-count">120</span>
+          <span class="site-state-item-name">posts</span>
+        </a>
+      </div>
+      <div class="site-state-item site-state-categories">
+            <a href="/categories/">
+          
+        <span class="site-state-item-count">5</span>
+        <span class="site-state-item-name">categories</span></a>
+      </div>
+      <div class="site-state-item site-state-tags">
+            <a href="/tags/">
+          
+        <span class="site-state-item-count">41</span>
+        <span class="site-state-item-name">tags</span></a>
+      </div>
+  </nav>
+</div>
+  <div class="links-of-author motion-element">
+      <span class="links-of-author-item">
+        <a href="https://github.com/qixinbo" title="GitHub → https:&#x2F;&#x2F;github.com&#x2F;qixinbo" rel="noopener" target="_blank"><i class="github fa-fw"></i>GitHub</a>
+      </span>
+      <span class="links-of-author-item">
+        <a href="mailto:qixinbo@gmail.com" title="E-Mail → mailto:qixinbo@gmail.com" rel="noopener" target="_blank"><i class="envelope fa-fw"></i>E-Mail</a>
+      </span>
+  </div>
+
+
+  <div class="links-of-blogroll motion-element">
+    <div class="links-of-blogroll-title"><i class="fa fa-link fa-fw"></i>
+      Links
+    </div>
+    <ul class="links-of-blogroll-list">
+        <li class="links-of-blogroll-item">
+          <a href="https://www.tsinghua.edu.cn/" title="https:&#x2F;&#x2F;www.tsinghua.edu.cn" rel="noopener" target="_blank">THU</a>
+        </li>
+        <li class="links-of-blogroll-item">
+          <a href="http://www.imr.cas.cn/" title="http:&#x2F;&#x2F;www.imr.cas.cn" rel="noopener" target="_blank">IMR</a>
+        </li>
+        <li class="links-of-blogroll-item">
+          <a href="http://www.sdu.edu.cn/" title="http:&#x2F;&#x2F;www.sdu.edu.cn" rel="noopener" target="_blank">SDU</a>
+        </li>
+        <li class="links-of-blogroll-item">
+          <a href="http://liam0205.me/" title="http:&#x2F;&#x2F;liam0205.me&#x2F;" rel="noopener" target="_blank">黄晨成</a>
+        </li>
+    </ul>
+  </div>
+
+      </div>
+
+    </div>
+  </aside>
+  <div id="sidebar-dimmer"></div>
+
+
+      </div>
+    </main>
+
+    <footer class="footer">
+      <div class="footer-inner">
+        
+
+        
+
+<div class="copyright">
+  
+  &copy; 
+  <span itemprop="copyrightYear">2021</span>
+  <span class="with-love">
+    <i class="fa fa-heart"></i>
+  </span>
+  <span class="author" itemprop="copyrightHolder">Xin-Bo Qi(亓欣波)</span>
+</div>
+  <div class="powered-by">Powered by <a href="https://hexo.io/" class="theme-link" rel="noopener" target="_blank">Hexo</a> & <a href="https://theme-next.org/" class="theme-link" rel="noopener" target="_blank">NexT.Gemini</a>
+  </div>
+
+        
+
+
+
+
+
+
+
+
+      </div>
+    </footer>
+  </div>
+
+  
+  <script src="/lib/anime.min.js"></script>
+  <script src="/lib/velocity/velocity.min.js"></script>
+  <script src="/lib/velocity/velocity.ui.min.js"></script>
+
+<script src="/js/utils.js"></script>
+
+<script src="/js/motion.js"></script>
+
+
+<script src="/js/schemes/pisces.js"></script>
+
+
+<script src="/js/next-boot.js"></script>
+
+
+
+
+  
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+  
+
+  
+
+  
+
+<script>
+  function loadCount() {
+    var d = document, s = d.createElement('script');
+    s.src = 'https://qixinbo.disqus.com/count.js';
+    s.id = 'dsq-count-scr';
+    (d.head || d.body).appendChild(s);
+  }
+  // defer loading until the whole page loading is completed
+  window.addEventListener('load', loadCount, false);
+</script>
+<script>
+  var disqus_config = function() {
+    this.page.url = "http://qixinbo.github.io/2017/07/11/cplusplus-construction/";
+    this.page.identifier = "2017/07/11/cplusplus-construction/";
+    this.page.title = "C++默认构造函数——深入理解 (转载)";
+    };
+  NexT.utils.loadComments(document.querySelector('#disqus_thread'), () => {
+    if (window.DISQUS) {
+      DISQUS.reset({
+        reload: true,
+        config: disqus_config
+      });
+    } else {
+      var d = document, s = d.createElement('script');
+      s.src = 'https://qixinbo.disqus.com/embed.js';
+      s.setAttribute('data-timestamp', '' + +new Date());
+      (d.head || d.body).appendChild(s);
+    }
+  });
+</script>
+
+</body>
+</html>

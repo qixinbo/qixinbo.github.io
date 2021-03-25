@@ -1,0 +1,549 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=2">
+<meta name="theme-color" content="#222">
+<meta name="generator" content="Hexo 5.4.0">
+  <link rel="apple-touch-icon" sizes="180x180" href="/images/apple-touch-icon-next.png">
+  <link rel="icon" type="image/png" sizes="32x32" href="/favicon.ico">
+  <link rel="icon" type="image/png" sizes="16x16" href="/favicon.ico">
+  <link rel="mask-icon" href="/images/logo.svg" color="#222">
+
+<link rel="stylesheet" href="/css/main.css">
+
+
+<link rel="stylesheet" href="/lib/font-awesome/css/all.min.css">
+
+<script id="hexo-configurations">
+    var NexT = window.NexT || {};
+    var CONFIG = {"hostname":"qixinbo.github.io","root":"/","scheme":"Gemini","version":"7.8.0","exturl":false,"sidebar":{"position":"left","display":"post","padding":18,"offset":12,"onmobile":false},"copycode":{"enable":false,"show_result":false,"style":null},"back2top":{"enable":true,"sidebar":false,"scrollpercent":false},"bookmark":{"enable":false,"color":"#222","save":"auto"},"fancybox":false,"mediumzoom":false,"lazyload":false,"pangu":false,"comments":{"style":"tabs","active":null,"storage":true,"lazyload":false,"nav":null},"algolia":{"hits":{"per_page":10},"labels":{"input_placeholder":"Search for Posts","hits_empty":"We didn't find any results for the search: ${query}","hits_stats":"${hits} results found in ${time} ms"}},"localsearch":{"enable":false,"trigger":"auto","top_n_per_article":1,"unescape":false,"preload":false},"motion":{"enable":true,"async":false,"transition":{"post_block":"fadeIn","post_header":"slideDownIn","post_body":"slideDownIn","coll_header":"slideLeftIn","sidebar":"slideUpIn"}}};
+  </script>
+
+  <meta name="description" content="什么是ICME在TMS报告中，ICME的定义是“the integration of personnel (e.g., engineers, designers, etc.), computational models, experiments, design, and manufacturing processes across the product development cycle, fo">
+<meta property="og:type" content="article">
+<meta property="og:title" content="对ICME的理解">
+<meta property="og:url" content="http://qixinbo.github.io/2017/11/29/icme/index.html">
+<meta property="og:site_name" content="亓欣波">
+<meta property="og:description" content="什么是ICME在TMS报告中，ICME的定义是“the integration of personnel (e.g., engineers, designers, etc.), computational models, experiments, design, and manufacturing processes across the product development cycle, fo">
+<meta property="og:locale" content="en_US">
+<meta property="article:published_time" content="2017-11-28T16:00:00.000Z">
+<meta property="article:modified_time" content="2021-03-25T07:20:30.632Z">
+<meta property="article:author" content="Xin-Bo Qi(亓欣波)">
+<meta property="article:tag" content="ICME">
+<meta name="twitter:card" content="summary">
+
+<link rel="canonical" href="http://qixinbo.github.io/2017/11/29/icme/">
+
+
+<script id="page-configurations">
+  // https://hexo.io/docs/variables.html
+  CONFIG.page = {
+    sidebar: "",
+    isHome : false,
+    isPost : true,
+    lang   : 'en'
+  };
+</script>
+
+  <title>对ICME的理解 | 亓欣波</title>
+  
+
+
+
+
+
+
+  <noscript>
+  <style>
+  .use-motion .brand,
+  .use-motion .menu-item,
+  .sidebar-inner,
+  .use-motion .post-block,
+  .use-motion .pagination,
+  .use-motion .comments,
+  .use-motion .post-header,
+  .use-motion .post-body,
+  .use-motion .collection-header { opacity: initial; }
+
+  .use-motion .site-title,
+  .use-motion .site-subtitle {
+    opacity: initial;
+    top: initial;
+  }
+
+  .use-motion .logo-line-before i { left: initial; }
+  .use-motion .logo-line-after i { right: initial; }
+  </style>
+</noscript>
+
+</head>
+
+<body itemscope itemtype="http://schema.org/WebPage">
+  <div class="container use-motion">
+    <div class="headband"></div>
+
+    <header class="header" itemscope itemtype="http://schema.org/WPHeader">
+      <div class="header-inner"><div class="site-brand-container">
+  <div class="site-nav-toggle">
+    <div class="toggle" aria-label="Toggle navigation bar">
+      <span class="toggle-line toggle-line-first"></span>
+      <span class="toggle-line toggle-line-middle"></span>
+      <span class="toggle-line toggle-line-last"></span>
+    </div>
+  </div>
+
+  <div class="site-meta">
+
+    <a href="/" class="brand" rel="start">
+      <span class="logo-line-before"><i></i></span>
+      <h1 class="site-title">亓欣波</h1>
+      <span class="logo-line-after"><i></i></span>
+    </a>
+      <p class="site-subtitle" itemprop="description">Hi, I am Xin-Bo Qi (亓欣波)</p>
+  </div>
+
+  <div class="site-nav-right">
+    <div class="toggle popup-trigger">
+    </div>
+  </div>
+</div>
+
+
+
+
+<nav class="site-nav">
+  <ul id="menu" class="main-menu menu">
+        <li class="menu-item menu-item-home">
+
+    <a href="/" rel="section"><i class="home fa-fw"></i>Home</a>
+
+  </li>
+        <li class="menu-item menu-item-categories">
+
+    <a href="/categories/" rel="section"><i class="th fa-fw"></i>Categories</a>
+
+  </li>
+        <li class="menu-item menu-item-archives">
+
+    <a href="/archives/" rel="section"><i class="archive fa-fw"></i>Archives</a>
+
+  </li>
+        <li class="menu-item menu-item-tags">
+
+    <a href="/tags/" rel="section"><i class="tags fa-fw"></i>Tags</a>
+
+  </li>
+        <li class="menu-item menu-item-scholar">
+
+    <a href="/scholar/" rel="section"><i class="bar-chart fa-fw"></i>scholar</a>
+
+  </li>
+        <li class="menu-item menu-item-sources">
+
+    <a href="/sources/" rel="section"><i class="rss fa-fw"></i>sources</a>
+
+  </li>
+        <li class="menu-item menu-item-gallery">
+
+    <a href="/gallery/" rel="section"><i class="file-image-o fa-fw"></i>gallery</a>
+
+  </li>
+        <li class="menu-item menu-item-about">
+
+    <a href="/about/" rel="section"><i class="user fa-fw"></i>About</a>
+
+  </li>
+        <li class="menu-item menu-item-commonweal">
+
+    <a href="/404.html" rel="section"><i class="heartbeat fa-fw"></i>Commonweal 404</a>
+
+  </li>
+  </ul>
+</nav>
+
+
+
+
+</div>
+    </header>
+
+    
+  <div class="back-to-top">
+    <i class="fa fa-arrow-up"></i>
+    <span>0%</span>
+  </div>
+
+
+    <main class="main">
+      <div class="main-inner">
+        <div class="content-wrap">
+          
+
+          <div class="content post posts-expand">
+            
+
+    
+  
+  
+  <article itemscope itemtype="http://schema.org/Article" class="post-block" lang="en">
+    <link itemprop="mainEntityOfPage" href="http://qixinbo.github.io/2017/11/29/icme/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="image" content="/images/avatar.jpg">
+      <meta itemprop="name" content="Xin-Bo Qi(亓欣波)">
+      <meta itemprop="description" content="Be interesting!">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="亓欣波">
+    </span>
+      <header class="post-header">
+        <h1 class="post-title" itemprop="name headline">
+          对ICME的理解
+        </h1>
+
+        <div class="post-meta">
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="far fa-calendar"></i>
+              </span>
+              <span class="post-meta-item-text">Posted on</span>
+
+              <time title="Created: 2017-11-29 00:00:00" itemprop="dateCreated datePublished" datetime="2017-11-29T00:00:00+08:00">2017-11-29</time>
+            </span>
+              <span class="post-meta-item">
+                <span class="post-meta-item-icon">
+                  <i class="far fa-calendar-check"></i>
+                </span>
+                <span class="post-meta-item-text">Edited on</span>
+                <time title="Modified: 2021-03-25 15:20:30" itemprop="dateModified" datetime="2021-03-25T15:20:30+08:00">2021-03-25</time>
+              </span>
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="far fa-folder"></i>
+              </span>
+              <span class="post-meta-item-text">In</span>
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+                  <a href="/categories/computational-material-science/" itemprop="url" rel="index"><span itemprop="name">computational material science</span></a>
+                </span>
+            </span>
+
+          
+  
+  <span class="post-meta-item">
+    
+      <span class="post-meta-item-icon">
+        <i class="far fa-comment"></i>
+      </span>
+      <span class="post-meta-item-text">Disqus: </span>
+    
+    <a title="disqus" href="/2017/11/29/icme/#disqus_thread" itemprop="discussionUrl">
+      <span class="post-comments-count disqus-comment-count" data-disqus-identifier="2017/11/29/icme/" itemprop="commentCount"></span>
+    </a>
+  </span>
+  
+  
+
+        </div>
+      </header>
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+        <h1 id="什么是ICME"><a href="#什么是ICME" class="headerlink" title="什么是ICME"></a>什么是ICME</h1><p>在TMS报告中，ICME的定义是“the integration of personnel (e.g., engineers, designers, etc.), computational models, experiments, design, and manufacturing processes across the product development cycle, for the purpose of accelerating and reducing the cost of development of a materials system or manufacturing process”，个人理解为将整个产品生产流程中的几何设计、材料选择、产品制造、性能测试、实际生产等环节全部连接在一起，缺一不可，并发挥计算机模拟在各个环节的作用，目的是为了节约时间和成本。<br>ICME与其他几个工业中的材料制造的概念有什么区别呢？</p>
+<h2 id="ICME-VS-Digital-Twin"><a href="#ICME-VS-Digital-Twin" class="headerlink" title="ICME VS Digital Twin"></a>ICME VS Digital Twin</h2><p>Digital Twin是“数字化双胞胎”，意在将生产流程做一个数字化的“复制”。但我觉得相对于ICME，Digital Twin反而忽略了材料和测试这一块，而是更加重视设计和制造这两部分。即，它认为制造过程中所用的材料都是满足要求的。比如它用CAD软件画出了产品的几何设计，然后就将其放入服役条件中，分析其受力情形等，其中设置的材料属性也是宏观属性，没有考虑材料中的缺陷等，只是用到了结构力学的知识；另一种情形，使用CFD软件计算了材料制造过程中的流体性能，但是仍然没有下探到材料层面，只是用到了流体力学的知识，而忽略了流动过程中的气孔、共晶相、析出相等。而ICME强调材料这块同样重要。</p>
+<h2 id="ICME-VS-Multiscale-Modeling"><a href="#ICME-VS-Multiscale-Modeling" class="headerlink" title="ICME VS Multiscale Modeling"></a>ICME VS Multiscale Modeling</h2><p>Multiscale Modeling是多尺度模拟，即将宏观、介观、微观模拟全部考虑进去，比如从原子电子尺度的计算，经过晶粒尺度的计算，再到工件尺度的计算。ICME的模拟这块目的是为了实现多尺度模拟，但是限于目前的计算能力，ICME允许模拟“分而治之”，比如材料成分的选择就可以只用第一性原理计算，材料的性能模拟就可以只用有限元等，且为了保证计算效率，有的影响不明显的尺度可以不用模拟。不同尺度的模拟输入输出可以互相作为初始条件和边界条件，以及参数传递等。</p>
+<h1 id="ICME的特点"><a href="#ICME的特点" class="headerlink" title="ICME的特点"></a>ICME的特点</h1><p>ICME有以下几个特点：</p>
+<h2 id="各个环节同等重要，缺一不可"><a href="#各个环节同等重要，缺一不可" class="headerlink" title="各个环节同等重要，缺一不可"></a>各个环节同等重要，缺一不可</h2><p>设计、材料、制造、测试等环节在ICME都同等重要，不能忽视其中某一个，认为其中某一个不重要。因此，ICME需要多个领域小组的协同配合，不能各自为战。</p>
+<h2 id="流程非线性化"><a href="#流程非线性化" class="headerlink" title="流程非线性化"></a>流程非线性化</h2><p>ICME中的整个生产流程不是线性的，即一条龙流水线模式，而是不断反馈和迭代的过程。比如产品原型设计好后，通过Process Modeling和Material Modeling发现设计不合理，那就及时返工，在其他环节也是这样，只要某一环节出现问题，就打断整个流程，返回到前面进行修改。</p>
+<h2 id="计算机模拟与V-amp-V验证"><a href="#计算机模拟与V-amp-V验证" class="headerlink" title="计算机模拟与V&amp;V验证"></a>计算机模拟与V&amp;V验证</h2><p>ICME强调在各个环节中都发挥计算机模拟的重要性，这样能够有效地减少实验成本和时间成本等。比如设计使用CAD软件和各种优化软件，材料使用ThermoCalc等数据库软件，制造使用CFD等软件，性能使用有限元软件等。但是也不盲从计算机模拟结果，而是及时使用Verification和Validation来验证模拟的正确性和准确性。</p>
+<h2 id="定量预测与经验推测"><a href="#定量预测与经验推测" class="headerlink" title="定量预测与经验推测"></a>定量预测与经验推测</h2><p>以前的产品生产流程也都包含以上环节，但很多时候都是停留在经验基础上，但这种模式在变换产品后可能就不适用了，只能重新摸索。但ICME能够给出定量的理论基础，方便问题的排查和经验的迁移。</p>
+<h1 id="ICME目前存在的问题"><a href="#ICME目前存在的问题" class="headerlink" title="ICME目前存在的问题"></a>ICME目前存在的问题</h1><p>ICME目前仅有几个成功的案例，还没有大规模的在工业中应用。比如缺乏软件支持等。</p>
+<h1 id="我的角色"><a href="#我的角色" class="headerlink" title="我的角色"></a>我的角色</h1><p>开发基于材料微观组织的定量预测模型（目前的模拟都没有Microstructure-Based）、协助指定V&amp;V标准、数据库的整合</p>
+
+    </div>
+
+    
+    
+    
+        <div class="reward-container">
+  <div></div>
+  <button onclick="var qr = document.getElementById('qr'); qr.style.display = (qr.style.display === 'none') ? 'block' : 'none';">
+    Donate
+  </button>
+  <div id="qr" style="display: none;">
+      
+      <div style="display: inline-block;">
+        <img src="/images/wechat_reward.png" alt="Xin-Bo Qi(亓欣波) WeChat Pay">
+        <p>WeChat Pay</p>
+      </div>
+
+  </div>
+</div>
+
+
+      <footer class="post-footer">
+          <div class="post-tags">
+              <a href="/tags/ICME/" rel="tag"># ICME</a>
+          </div>
+
+        
+
+
+        
+    <div class="post-nav">
+      <div class="post-nav-item">
+    <a href="/2017/07/28/moose-run-details/" rel="prev" title="MOOSE运行过程再分析">
+      <i class="fa fa-chevron-left"></i> MOOSE运行过程再分析
+    </a></div>
+      <div class="post-nav-item">
+    <a href="/2017/12/02/pyqt4-intro/" rel="next" title="PyQt4教程系列一：基本介绍和入门">
+      PyQt4教程系列一：基本介绍和入门 <i class="fa fa-chevron-right"></i>
+    </a></div>
+    </div>
+      </footer>
+    
+  </article>
+  
+  
+  
+
+
+
+          </div>
+          
+    
+  <div class="comments">
+    <div id="disqus_thread">
+      <noscript>Please enable JavaScript to view the comments powered by Disqus.</noscript>
+    </div>
+  </div>
+  
+
+<script>
+  window.addEventListener('tabs:register', () => {
+    let { activeClass } = CONFIG.comments;
+    if (CONFIG.comments.storage) {
+      activeClass = localStorage.getItem('comments_active') || activeClass;
+    }
+    if (activeClass) {
+      let activeTab = document.querySelector(`a[href="#comment-${activeClass}"]`);
+      if (activeTab) {
+        activeTab.click();
+      }
+    }
+  });
+  if (CONFIG.comments.storage) {
+    window.addEventListener('tabs:click', event => {
+      if (!event.target.matches('.tabs-comment .tab-content .tab-pane')) return;
+      let commentClass = event.target.classList[1];
+      localStorage.setItem('comments_active', commentClass);
+    });
+  }
+</script>
+
+        </div>
+          
+  
+  <div class="toggle sidebar-toggle">
+    <span class="toggle-line toggle-line-first"></span>
+    <span class="toggle-line toggle-line-middle"></span>
+    <span class="toggle-line toggle-line-last"></span>
+  </div>
+
+  <aside class="sidebar">
+    <div class="sidebar-inner">
+
+      <ul class="sidebar-nav motion-element">
+        <li class="sidebar-nav-toc">
+          Table of Contents
+        </li>
+        <li class="sidebar-nav-overview">
+          Overview
+        </li>
+      </ul>
+
+      <!--noindex-->
+      <div class="post-toc-wrap sidebar-panel">
+          <div class="post-toc motion-element"><ol class="nav"><li class="nav-item nav-level-1"><a class="nav-link" href="#%E4%BB%80%E4%B9%88%E6%98%AFICME"><span class="nav-number">1.</span> <span class="nav-text">什么是ICME</span></a><ol class="nav-child"><li class="nav-item nav-level-2"><a class="nav-link" href="#ICME-VS-Digital-Twin"><span class="nav-number">1.1.</span> <span class="nav-text">ICME VS Digital Twin</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#ICME-VS-Multiscale-Modeling"><span class="nav-number">1.2.</span> <span class="nav-text">ICME VS Multiscale Modeling</span></a></li></ol></li><li class="nav-item nav-level-1"><a class="nav-link" href="#ICME%E7%9A%84%E7%89%B9%E7%82%B9"><span class="nav-number">2.</span> <span class="nav-text">ICME的特点</span></a><ol class="nav-child"><li class="nav-item nav-level-2"><a class="nav-link" href="#%E5%90%84%E4%B8%AA%E7%8E%AF%E8%8A%82%E5%90%8C%E7%AD%89%E9%87%8D%E8%A6%81%EF%BC%8C%E7%BC%BA%E4%B8%80%E4%B8%8D%E5%8F%AF"><span class="nav-number">2.1.</span> <span class="nav-text">各个环节同等重要，缺一不可</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E6%B5%81%E7%A8%8B%E9%9D%9E%E7%BA%BF%E6%80%A7%E5%8C%96"><span class="nav-number">2.2.</span> <span class="nav-text">流程非线性化</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E8%AE%A1%E7%AE%97%E6%9C%BA%E6%A8%A1%E6%8B%9F%E4%B8%8EV-amp-V%E9%AA%8C%E8%AF%81"><span class="nav-number">2.3.</span> <span class="nav-text">计算机模拟与V&amp;V验证</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E5%AE%9A%E9%87%8F%E9%A2%84%E6%B5%8B%E4%B8%8E%E7%BB%8F%E9%AA%8C%E6%8E%A8%E6%B5%8B"><span class="nav-number">2.4.</span> <span class="nav-text">定量预测与经验推测</span></a></li></ol></li><li class="nav-item nav-level-1"><a class="nav-link" href="#ICME%E7%9B%AE%E5%89%8D%E5%AD%98%E5%9C%A8%E7%9A%84%E9%97%AE%E9%A2%98"><span class="nav-number">3.</span> <span class="nav-text">ICME目前存在的问题</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#%E6%88%91%E7%9A%84%E8%A7%92%E8%89%B2"><span class="nav-number">4.</span> <span class="nav-text">我的角色</span></a></li></ol></div>
+      </div>
+      <!--/noindex-->
+
+      <div class="site-overview-wrap sidebar-panel">
+        <div class="site-author motion-element" itemprop="author" itemscope itemtype="http://schema.org/Person">
+    <img class="site-author-image" itemprop="image" alt="Xin-Bo Qi(亓欣波)"
+      src="/images/avatar.jpg">
+  <p class="site-author-name" itemprop="name">Xin-Bo Qi(亓欣波)</p>
+  <div class="site-description" itemprop="description">Be interesting!</div>
+</div>
+<div class="site-state-wrap motion-element">
+  <nav class="site-state">
+      <div class="site-state-item site-state-posts">
+          <a href="/archives/">
+        
+          <span class="site-state-item-count">120</span>
+          <span class="site-state-item-name">posts</span>
+        </a>
+      </div>
+      <div class="site-state-item site-state-categories">
+            <a href="/categories/">
+          
+        <span class="site-state-item-count">5</span>
+        <span class="site-state-item-name">categories</span></a>
+      </div>
+      <div class="site-state-item site-state-tags">
+            <a href="/tags/">
+          
+        <span class="site-state-item-count">41</span>
+        <span class="site-state-item-name">tags</span></a>
+      </div>
+  </nav>
+</div>
+  <div class="links-of-author motion-element">
+      <span class="links-of-author-item">
+        <a href="https://github.com/qixinbo" title="GitHub → https:&#x2F;&#x2F;github.com&#x2F;qixinbo" rel="noopener" target="_blank"><i class="github fa-fw"></i>GitHub</a>
+      </span>
+      <span class="links-of-author-item">
+        <a href="mailto:qixinbo@gmail.com" title="E-Mail → mailto:qixinbo@gmail.com" rel="noopener" target="_blank"><i class="envelope fa-fw"></i>E-Mail</a>
+      </span>
+  </div>
+
+
+  <div class="links-of-blogroll motion-element">
+    <div class="links-of-blogroll-title"><i class="fa fa-link fa-fw"></i>
+      Links
+    </div>
+    <ul class="links-of-blogroll-list">
+        <li class="links-of-blogroll-item">
+          <a href="https://www.tsinghua.edu.cn/" title="https:&#x2F;&#x2F;www.tsinghua.edu.cn" rel="noopener" target="_blank">THU</a>
+        </li>
+        <li class="links-of-blogroll-item">
+          <a href="http://www.imr.cas.cn/" title="http:&#x2F;&#x2F;www.imr.cas.cn" rel="noopener" target="_blank">IMR</a>
+        </li>
+        <li class="links-of-blogroll-item">
+          <a href="http://www.sdu.edu.cn/" title="http:&#x2F;&#x2F;www.sdu.edu.cn" rel="noopener" target="_blank">SDU</a>
+        </li>
+        <li class="links-of-blogroll-item">
+          <a href="http://liam0205.me/" title="http:&#x2F;&#x2F;liam0205.me&#x2F;" rel="noopener" target="_blank">黄晨成</a>
+        </li>
+    </ul>
+  </div>
+
+      </div>
+
+    </div>
+  </aside>
+  <div id="sidebar-dimmer"></div>
+
+
+      </div>
+    </main>
+
+    <footer class="footer">
+      <div class="footer-inner">
+        
+
+        
+
+<div class="copyright">
+  
+  &copy; 
+  <span itemprop="copyrightYear">2021</span>
+  <span class="with-love">
+    <i class="fa fa-heart"></i>
+  </span>
+  <span class="author" itemprop="copyrightHolder">Xin-Bo Qi(亓欣波)</span>
+</div>
+  <div class="powered-by">Powered by <a href="https://hexo.io/" class="theme-link" rel="noopener" target="_blank">Hexo</a> & <a href="https://theme-next.org/" class="theme-link" rel="noopener" target="_blank">NexT.Gemini</a>
+  </div>
+
+        
+
+
+
+
+
+
+
+
+      </div>
+    </footer>
+  </div>
+
+  
+  <script src="/lib/anime.min.js"></script>
+  <script src="/lib/velocity/velocity.min.js"></script>
+  <script src="/lib/velocity/velocity.ui.min.js"></script>
+
+<script src="/js/utils.js"></script>
+
+<script src="/js/motion.js"></script>
+
+
+<script src="/js/schemes/pisces.js"></script>
+
+
+<script src="/js/next-boot.js"></script>
+
+
+
+
+  
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+  
+
+  
+
+  
+
+<script>
+  function loadCount() {
+    var d = document, s = d.createElement('script');
+    s.src = 'https://qixinbo.disqus.com/count.js';
+    s.id = 'dsq-count-scr';
+    (d.head || d.body).appendChild(s);
+  }
+  // defer loading until the whole page loading is completed
+  window.addEventListener('load', loadCount, false);
+</script>
+<script>
+  var disqus_config = function() {
+    this.page.url = "http://qixinbo.github.io/2017/11/29/icme/";
+    this.page.identifier = "2017/11/29/icme/";
+    this.page.title = "对ICME的理解";
+    };
+  NexT.utils.loadComments(document.querySelector('#disqus_thread'), () => {
+    if (window.DISQUS) {
+      DISQUS.reset({
+        reload: true,
+        config: disqus_config
+      });
+    } else {
+      var d = document, s = d.createElement('script');
+      s.src = 'https://qixinbo.disqus.com/embed.js';
+      s.setAttribute('data-timestamp', '' + +new Date());
+      (d.head || d.body).appendChild(s);
+    }
+  });
+</script>
+
+</body>
+</html>

@@ -1,0 +1,602 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=2">
+<meta name="theme-color" content="#222">
+<meta name="generator" content="Hexo 5.4.0">
+  <link rel="apple-touch-icon" sizes="180x180" href="/images/apple-touch-icon-next.png">
+  <link rel="icon" type="image/png" sizes="32x32" href="/favicon.ico">
+  <link rel="icon" type="image/png" sizes="16x16" href="/favicon.ico">
+  <link rel="mask-icon" href="/images/logo.svg" color="#222">
+
+<link rel="stylesheet" href="/css/main.css">
+
+
+<link rel="stylesheet" href="/lib/font-awesome/css/all.min.css">
+
+<script id="hexo-configurations">
+    var NexT = window.NexT || {};
+    var CONFIG = {"hostname":"qixinbo.github.io","root":"/","scheme":"Gemini","version":"7.8.0","exturl":false,"sidebar":{"position":"left","display":"post","padding":18,"offset":12,"onmobile":false},"copycode":{"enable":false,"show_result":false,"style":null},"back2top":{"enable":true,"sidebar":false,"scrollpercent":false},"bookmark":{"enable":false,"color":"#222","save":"auto"},"fancybox":false,"mediumzoom":false,"lazyload":false,"pangu":false,"comments":{"style":"tabs","active":null,"storage":true,"lazyload":false,"nav":null},"algolia":{"hits":{"per_page":10},"labels":{"input_placeholder":"Search for Posts","hits_empty":"We didn't find any results for the search: ${query}","hits_stats":"${hits} results found in ${time} ms"}},"localsearch":{"enable":false,"trigger":"auto","top_n_per_article":1,"unescape":false,"preload":false},"motion":{"enable":true,"async":false,"transition":{"post_block":"fadeIn","post_header":"slideDownIn","post_body":"slideDownIn","coll_header":"slideLeftIn","sidebar":"slideUpIn"}}};
+  </script>
+
+  <meta name="description" content="源码在：这里还有一篇参考文献：局部极值提取算法 图像准备首先创建一张10 pixels乘以10 pixels的背底黑色、中间白色的图像，如下图所示（下图仅是为了显示，实际图像是100个像素的面积大小，这样是为了后面显示像素矩阵时更方便）：然后上面这张图像不能直接传入findmax脚本中，实际用到的是它的距离变换图（注意将这张图的显示范围调整为0-3，因为面积很小，所以距离很近，如果正常0-255显">
+<meta property="og:type" content="article">
+<meta property="og:title" content="ImagePy解析：14 -- 寻找局部极值（Find Maximum和Find Minimum）">
+<meta property="og:url" content="http://qixinbo.github.io/2019/11/17/ImagePy_14/index.html">
+<meta property="og:site_name" content="亓欣波">
+<meta property="og:description" content="源码在：这里还有一篇参考文献：局部极值提取算法 图像准备首先创建一张10 pixels乘以10 pixels的背底黑色、中间白色的图像，如下图所示（下图仅是为了显示，实际图像是100个像素的面积大小，这样是为了后面显示像素矩阵时更方便）：然后上面这张图像不能直接传入findmax脚本中，实际用到的是它的距离变换图（注意将这张图的显示范围调整为0-3，因为面积很小，所以距离很近，如果正常0-255显">
+<meta property="og:locale" content="en_US">
+<meta property="og:image" content="https://user-images.githubusercontent.com/6218739/69029452-e91cfe00-0a0f-11ea-9e7f-b13dec002fc2.png">
+<meta property="og:image" content="https://user-images.githubusercontent.com/6218739/69029482-04880900-0a10-11ea-80a9-496a538fabd5.png">
+<meta property="article:published_time" content="2019-11-16T16:00:00.000Z">
+<meta property="article:modified_time" content="2021-03-25T07:20:30.348Z">
+<meta property="article:author" content="Xin-Bo Qi(亓欣波)">
+<meta property="article:tag" content="ImagePy">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:image" content="https://user-images.githubusercontent.com/6218739/69029452-e91cfe00-0a0f-11ea-9e7f-b13dec002fc2.png">
+
+<link rel="canonical" href="http://qixinbo.github.io/2019/11/17/ImagePy_14/">
+
+
+<script id="page-configurations">
+  // https://hexo.io/docs/variables.html
+  CONFIG.page = {
+    sidebar: "",
+    isHome : false,
+    isPost : true,
+    lang   : 'en'
+  };
+</script>
+
+  <title>ImagePy解析：14 -- 寻找局部极值（Find Maximum和Find Minimum） | 亓欣波</title>
+  
+
+
+
+
+
+
+  <noscript>
+  <style>
+  .use-motion .brand,
+  .use-motion .menu-item,
+  .sidebar-inner,
+  .use-motion .post-block,
+  .use-motion .pagination,
+  .use-motion .comments,
+  .use-motion .post-header,
+  .use-motion .post-body,
+  .use-motion .collection-header { opacity: initial; }
+
+  .use-motion .site-title,
+  .use-motion .site-subtitle {
+    opacity: initial;
+    top: initial;
+  }
+
+  .use-motion .logo-line-before i { left: initial; }
+  .use-motion .logo-line-after i { right: initial; }
+  </style>
+</noscript>
+
+</head>
+
+<body itemscope itemtype="http://schema.org/WebPage">
+  <div class="container use-motion">
+    <div class="headband"></div>
+
+    <header class="header" itemscope itemtype="http://schema.org/WPHeader">
+      <div class="header-inner"><div class="site-brand-container">
+  <div class="site-nav-toggle">
+    <div class="toggle" aria-label="Toggle navigation bar">
+      <span class="toggle-line toggle-line-first"></span>
+      <span class="toggle-line toggle-line-middle"></span>
+      <span class="toggle-line toggle-line-last"></span>
+    </div>
+  </div>
+
+  <div class="site-meta">
+
+    <a href="/" class="brand" rel="start">
+      <span class="logo-line-before"><i></i></span>
+      <h1 class="site-title">亓欣波</h1>
+      <span class="logo-line-after"><i></i></span>
+    </a>
+      <p class="site-subtitle" itemprop="description">Hi, I am Xin-Bo Qi (亓欣波)</p>
+  </div>
+
+  <div class="site-nav-right">
+    <div class="toggle popup-trigger">
+    </div>
+  </div>
+</div>
+
+
+
+
+<nav class="site-nav">
+  <ul id="menu" class="main-menu menu">
+        <li class="menu-item menu-item-home">
+
+    <a href="/" rel="section"><i class="home fa-fw"></i>Home</a>
+
+  </li>
+        <li class="menu-item menu-item-categories">
+
+    <a href="/categories/" rel="section"><i class="th fa-fw"></i>Categories</a>
+
+  </li>
+        <li class="menu-item menu-item-archives">
+
+    <a href="/archives/" rel="section"><i class="archive fa-fw"></i>Archives</a>
+
+  </li>
+        <li class="menu-item menu-item-tags">
+
+    <a href="/tags/" rel="section"><i class="tags fa-fw"></i>Tags</a>
+
+  </li>
+        <li class="menu-item menu-item-scholar">
+
+    <a href="/scholar/" rel="section"><i class="bar-chart fa-fw"></i>scholar</a>
+
+  </li>
+        <li class="menu-item menu-item-sources">
+
+    <a href="/sources/" rel="section"><i class="rss fa-fw"></i>sources</a>
+
+  </li>
+        <li class="menu-item menu-item-gallery">
+
+    <a href="/gallery/" rel="section"><i class="file-image-o fa-fw"></i>gallery</a>
+
+  </li>
+        <li class="menu-item menu-item-about">
+
+    <a href="/about/" rel="section"><i class="user fa-fw"></i>About</a>
+
+  </li>
+        <li class="menu-item menu-item-commonweal">
+
+    <a href="/404.html" rel="section"><i class="heartbeat fa-fw"></i>Commonweal 404</a>
+
+  </li>
+  </ul>
+</nav>
+
+
+
+
+</div>
+    </header>
+
+    
+  <div class="back-to-top">
+    <i class="fa fa-arrow-up"></i>
+    <span>0%</span>
+  </div>
+
+
+    <main class="main">
+      <div class="main-inner">
+        <div class="content-wrap">
+          
+
+          <div class="content post posts-expand">
+            
+
+    
+  
+  
+  <article itemscope itemtype="http://schema.org/Article" class="post-block" lang="en">
+    <link itemprop="mainEntityOfPage" href="http://qixinbo.github.io/2019/11/17/ImagePy_14/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="image" content="/images/avatar.jpg">
+      <meta itemprop="name" content="Xin-Bo Qi(亓欣波)">
+      <meta itemprop="description" content="Be interesting!">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="亓欣波">
+    </span>
+      <header class="post-header">
+        <h1 class="post-title" itemprop="name headline">
+          ImagePy解析：14 -- 寻找局部极值（Find Maximum和Find Minimum）
+        </h1>
+
+        <div class="post-meta">
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="far fa-calendar"></i>
+              </span>
+              <span class="post-meta-item-text">Posted on</span>
+
+              <time title="Created: 2019-11-17 00:00:00" itemprop="dateCreated datePublished" datetime="2019-11-17T00:00:00+08:00">2019-11-17</time>
+            </span>
+              <span class="post-meta-item">
+                <span class="post-meta-item-icon">
+                  <i class="far fa-calendar-check"></i>
+                </span>
+                <span class="post-meta-item-text">Edited on</span>
+                <time title="Modified: 2021-03-25 15:20:30" itemprop="dateModified" datetime="2021-03-25T15:20:30+08:00">2021-03-25</time>
+              </span>
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="far fa-folder"></i>
+              </span>
+              <span class="post-meta-item-text">In</span>
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+                  <a href="/categories/computational-material-science/" itemprop="url" rel="index"><span itemprop="name">computational material science</span></a>
+                </span>
+            </span>
+
+          
+  
+  <span class="post-meta-item">
+    
+      <span class="post-meta-item-icon">
+        <i class="far fa-comment"></i>
+      </span>
+      <span class="post-meta-item-text">Disqus: </span>
+    
+    <a title="disqus" href="/2019/11/17/ImagePy_14/#disqus_thread" itemprop="discussionUrl">
+      <span class="post-comments-count disqus-comment-count" data-disqus-identifier="2019/11/17/ImagePy_14/" itemprop="commentCount"></span>
+    </a>
+  </span>
+  
+  
+
+        </div>
+      </header>
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+        <p>源码在：<a target="_blank" rel="noopener" href="https://github.com/Image-Py/imagepy/blob/master/imagepy/ipyalg/hydrology/findmax.py">这里</a><br>还有一篇参考文献：<a target="_blank" rel="noopener" href="https://www.cnblogs.com/wjy-lulu/p/7416135.html">局部极值提取算法</a></p>
+<h1 id="图像准备"><a href="#图像准备" class="headerlink" title="图像准备"></a>图像准备</h1><p>首先创建一张10 pixels乘以10 pixels的背底黑色、中间白色的图像，如下图所示（下图仅是为了显示，实际图像是100个像素的面积大小，这样是为了后面显示像素矩阵时更方便）：<br><img src="https://user-images.githubusercontent.com/6218739/69029452-e91cfe00-0a0f-11ea-9e7f-b13dec002fc2.png"><br>然后上面这张图像不能直接传入findmax脚本中，实际用到的是它的距离变换图（注意将这张图的显示范围调整为0-3，因为面积很小，所以距离很近，如果正常0-255显示则就是一片黑色）：<br><img src="https://user-images.githubusercontent.com/6218739/69029482-04880900-0a10-11ea-80a9-496a538fabd5.png"><br>这张图像的像素矩阵就是：</p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br></pre></td><td class="code"><pre><span class="line">[[<span class="number">0</span> <span class="number">0</span> <span class="number">0</span> <span class="number">0</span> <span class="number">0</span> <span class="number">0</span> <span class="number">0</span> <span class="number">0</span> <span class="number">0</span> <span class="number">0</span>]</span><br><span class="line"> [<span class="number">0</span> <span class="number">0</span> <span class="number">0</span> <span class="number">0</span> <span class="number">0</span> <span class="number">0</span> <span class="number">0</span> <span class="number">0</span> <span class="number">0</span> <span class="number">0</span>]</span><br><span class="line"> [<span class="number">0</span> <span class="number">0</span> <span class="number">0</span> <span class="number">0</span> <span class="number">1</span> <span class="number">1</span> <span class="number">1</span> <span class="number">0</span> <span class="number">0</span> <span class="number">0</span>]</span><br><span class="line"> [<span class="number">0</span> <span class="number">0</span> <span class="number">0</span> <span class="number">1</span> <span class="number">1</span> <span class="number">2</span> <span class="number">1</span> <span class="number">1</span> <span class="number">0</span> <span class="number">0</span>]</span><br><span class="line"> [<span class="number">0</span> <span class="number">0</span> <span class="number">1</span> <span class="number">1</span> <span class="number">2</span> <span class="number">3</span> <span class="number">2</span> <span class="number">1</span> <span class="number">1</span> <span class="number">0</span>]</span><br><span class="line"> [<span class="number">0</span> <span class="number">0</span> <span class="number">1</span> <span class="number">1</span> <span class="number">2</span> <span class="number">3</span> <span class="number">2</span> <span class="number">1</span> <span class="number">1</span> <span class="number">0</span>]</span><br><span class="line"> [<span class="number">0</span> <span class="number">0</span> <span class="number">0</span> <span class="number">1</span> <span class="number">1</span> <span class="number">2</span> <span class="number">1</span> <span class="number">1</span> <span class="number">0</span> <span class="number">0</span>]</span><br><span class="line"> [<span class="number">0</span> <span class="number">0</span> <span class="number">0</span> <span class="number">0</span> <span class="number">1</span> <span class="number">1</span> <span class="number">1</span> <span class="number">0</span> <span class="number">0</span> <span class="number">0</span>]</span><br><span class="line"> [<span class="number">0</span> <span class="number">0</span> <span class="number">0</span> <span class="number">0</span> <span class="number">0</span> <span class="number">0</span> <span class="number">0</span> <span class="number">0</span> <span class="number">0</span> <span class="number">0</span>]</span><br><span class="line"> [<span class="number">0</span> <span class="number">0</span> <span class="number">0</span> <span class="number">0</span> <span class="number">0</span> <span class="number">0</span> <span class="number">0</span> <span class="number">0</span> <span class="number">0</span> <span class="number">0</span>]]</span><br></pre></td></tr></table></figure>
+
+<p>然后基于这张图像创建一个掩膜和缓冲区：<br>创建掩膜：</p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">msk = np.zeros_like(img, dtype=np.uint8)</span><br><span class="line">msk[<span class="built_in">tuple</span>([<span class="built_in">slice</span>(<span class="number">1</span>,-<span class="number">1</span>)]*img.ndim)] = <span class="number">1</span></span><br></pre></td></tr></table></figure>
+<p>该掩膜的矩阵为：</p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br></pre></td><td class="code"><pre><span class="line">[[<span class="number">0</span> <span class="number">0</span> <span class="number">0</span> <span class="number">0</span> <span class="number">0</span> <span class="number">0</span> <span class="number">0</span> <span class="number">0</span> <span class="number">0</span> <span class="number">0</span>]</span><br><span class="line"> [<span class="number">0</span> <span class="number">1</span> <span class="number">1</span> <span class="number">1</span> <span class="number">1</span> <span class="number">1</span> <span class="number">1</span> <span class="number">1</span> <span class="number">1</span> <span class="number">0</span>]</span><br><span class="line"> [<span class="number">0</span> <span class="number">1</span> <span class="number">1</span> <span class="number">1</span> <span class="number">1</span> <span class="number">1</span> <span class="number">1</span> <span class="number">1</span> <span class="number">1</span> <span class="number">0</span>]</span><br><span class="line"> [<span class="number">0</span> <span class="number">1</span> <span class="number">1</span> <span class="number">1</span> <span class="number">1</span> <span class="number">1</span> <span class="number">1</span> <span class="number">1</span> <span class="number">1</span> <span class="number">0</span>]</span><br><span class="line"> [<span class="number">0</span> <span class="number">1</span> <span class="number">1</span> <span class="number">1</span> <span class="number">1</span> <span class="number">1</span> <span class="number">1</span> <span class="number">1</span> <span class="number">1</span> <span class="number">0</span>]</span><br><span class="line"> [<span class="number">0</span> <span class="number">1</span> <span class="number">1</span> <span class="number">1</span> <span class="number">1</span> <span class="number">1</span> <span class="number">1</span> <span class="number">1</span> <span class="number">1</span> <span class="number">0</span>]</span><br><span class="line"> [<span class="number">0</span> <span class="number">1</span> <span class="number">1</span> <span class="number">1</span> <span class="number">1</span> <span class="number">1</span> <span class="number">1</span> <span class="number">1</span> <span class="number">1</span> <span class="number">0</span>]</span><br><span class="line"> [<span class="number">0</span> <span class="number">1</span> <span class="number">1</span> <span class="number">1</span> <span class="number">1</span> <span class="number">1</span> <span class="number">1</span> <span class="number">1</span> <span class="number">1</span> <span class="number">0</span>]</span><br><span class="line"> [<span class="number">0</span> <span class="number">1</span> <span class="number">1</span> <span class="number">1</span> <span class="number">1</span> <span class="number">1</span> <span class="number">1</span> <span class="number">1</span> <span class="number">1</span> <span class="number">0</span>]</span><br><span class="line"> [<span class="number">0</span> <span class="number">0</span> <span class="number">0</span> <span class="number">0</span> <span class="number">0</span> <span class="number">0</span> <span class="number">0</span> <span class="number">0</span> <span class="number">0</span> <span class="number">0</span>]]</span><br></pre></td></tr></table></figure>
+<p>可以看出来，实际就是将边界一圈都置为0，内部区域置为1。<br>创建缓冲区：</p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">buf = np.zeros(img.size//<span class="number">3</span>, dtype=np.int64)</span><br></pre></td></tr></table></figure>
+<p>该缓冲区为：</p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">[<span class="number">0</span> <span class="number">0</span> <span class="number">0</span> <span class="number">0</span> <span class="number">0</span> <span class="number">0</span> <span class="number">0</span> <span class="number">0</span> <span class="number">0</span> <span class="number">0</span> <span class="number">0</span> <span class="number">0</span> <span class="number">0</span> <span class="number">0</span> <span class="number">0</span> <span class="number">0</span> <span class="number">0</span> <span class="number">0</span> <span class="number">0</span> <span class="number">0</span> <span class="number">0</span> <span class="number">0</span> <span class="number">0</span> <span class="number">0</span> <span class="number">0</span> <span class="number">0</span> <span class="number">0</span> <span class="number">0</span> <span class="number">0</span> <span class="number">0</span> <span class="number">0</span> <span class="number">0</span> <span class="number">0</span>]</span><br></pre></td></tr></table></figure>
+<p>可以看出，是33个0，即对图像尺寸对3进行向下取整的除法。这里的缓冲区是为了存放泛洪填充时的中心像素的位置，因此，很有可能泛洪漫延时超过33个位置，不过也没关系，程序中已经做了，如果超过33个，就会及时地将后面的数据挪到前面，保证不溢出。如这两部分处的代码：</p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">if</span> s==<span class="built_in">len</span>(buf):</span><br><span class="line">    buf[:s-cur] = buf[cur:]</span><br><span class="line">    s-=cur; cur=<span class="number">0</span>;</span><br></pre></td></tr></table></figure>
+<p>和：</p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">if</span> s==msk.size//<span class="number">3</span>:</span><br><span class="line">    cut = cur//<span class="number">2</span></span><br><span class="line">    msk[bur[:cut]] = <span class="number">2</span></span><br><span class="line">    bur[:s-cut] = bur[cut:]</span><br><span class="line">    cur -= cut</span><br><span class="line">    s -= cut</span><br></pre></td></tr></table></figure>
+
+<h1 id="获得邻居像素的位置距离"><a href="#获得邻居像素的位置距离" class="headerlink" title="获得邻居像素的位置距离"></a>获得邻居像素的位置距离</h1><p>neighbors()方法是为了在以某个像素为中心时，获得它周围的8个像素相对它的位置距离。<br>源码为：</p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="keyword">def</span> <span class="title">neighbors</span>(<span class="params">shape</span>):</span></span><br><span class="line">    dim = <span class="built_in">len</span>(shape)</span><br><span class="line">    block = np.ones([<span class="number">3</span>]*dim)</span><br><span class="line">    block[<span class="built_in">tuple</span>([<span class="number">1</span>]*dim)] = <span class="number">0</span></span><br><span class="line">    idx = np.where(block&gt;<span class="number">0</span>)</span><br><span class="line">    idx = np.array(idx, dtype=np.uint8).T</span><br><span class="line">    idx = np.array(idx-[<span class="number">1</span>]*dim)</span><br><span class="line">    acc = np.cumprod((<span class="number">1</span>,)+shape[::-<span class="number">1</span>][:-<span class="number">1</span>])</span><br><span class="line">    <span class="keyword">return</span> np.dot(idx, acc[::-<span class="number">1</span>])</span><br></pre></td></tr></table></figure>
+<p>比如，这里的示例图像是10乘以10的大小，那么经过neighbour方法后，得到的邻居像素的位置距离就是：</p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">nbs = neighbors(img.shape)</span><br></pre></td></tr></table></figure>
+<p>得到：</p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">nbs = array([-<span class="number">11</span>, -<span class="number">10</span>,  -<span class="number">9</span>,  -<span class="number">1</span>,   <span class="number">1</span>,   <span class="number">9</span>,  <span class="number">10</span>,  <span class="number">11</span>])</span><br></pre></td></tr></table></figure>
+<p>后面对img进行Ravel()的扁平化处理后，就可以根据相对距离得到中心像素的8个邻居。</p>
+<h1 id="以某个像素点为起点进行等值填充"><a href="#以某个像素点为起点进行等值填充" class="headerlink" title="以某个像素点为起点进行等值填充"></a>以某个像素点为起点进行等值填充</h1><p>fill()方法是实现针对于某一像素点，如果其周围的八个邻居与其像素值相等，则填充为相同的背景。<br>fill()算法就是传说中的泛洪填充算法（或称漫水填充算法）。<br>算法原理为：<br>（1）选取一个起始种子点，获得基准颜色，将种子点压入堆栈；<br>（2）从堆栈中取出一个像素，对其进行填充，然后搜索其四邻域（或八邻域），如果有需要填充的像素，压入堆栈；<br>（3）重复（2）直至堆栈为空。</p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="keyword">def</span> <span class="title">fill</span>(<span class="params">img, msk, p, nbs, buf</span>):</span></span><br><span class="line">    buf[<span class="number">0</span>] = p</span><br><span class="line">    back = img[p]</span><br><span class="line">    cur = <span class="number">0</span>; s = <span class="number">1</span>;</span><br><span class="line"></span><br><span class="line">    <span class="keyword">while</span> cur&lt;s:</span><br><span class="line">        p = buf[cur]</span><br><span class="line">        <span class="keyword">for</span> dp <span class="keyword">in</span> nbs:</span><br><span class="line">            cp = p+dp</span><br><span class="line">            <span class="keyword">if</span> img[cp]==back <span class="keyword">and</span> msk[cp]==<span class="number">1</span>:</span><br><span class="line">                msk[cp] = <span class="number">3</span></span><br><span class="line">                buf[s] = cp</span><br><span class="line">                s+=<span class="number">1</span></span><br><span class="line">                <span class="keyword">if</span> s==<span class="built_in">len</span>(buf):</span><br><span class="line">                    buf[:s-cur] = buf[cur:]</span><br><span class="line">                    s-=cur; cur=<span class="number">0</span>;</span><br><span class="line">        cur += <span class="number">1</span></span><br></pre></td></tr></table></figure>
+<p>注意理解该算法所接收的参数：<br>img是原图像，msk是掩膜（初始为边界一圈为0，内部为1），p是填充时所选的起始像素（一切都是该像素引发的，后面的idx中存储的就是这种引起填充行为的像素的位置），nbs就是上面所说的邻居像素的相对距离，buf存储了填充时的中心像素位置（再说一遍，起始像素引起了这次填充，它周围的像素则可以作为继续填充时的中心像素，以此类推）。<br>具体算法为：<br>（1）将起始像素点的位置记入buffer的第一个元素；<br>（2）将起始像素点的像素值另存为back变量，后面的像素都是与它做比较；<br>（3）创建一个游标cur和不断变化的可以作为填充的中心像素的计数变量s；<br>（4）对于起始像素，判断它周围的8个像素，如果满足两个条件：一是邻居像素的像素值与它的像素值相等，二是邻居像素不在边界上及未被填充过（这里再说明一下，边界点的掩膜值为0，填充过的掩膜值为3，未填充的掩膜值为1，后面还会有一个值为2，是代表该像素是否被某一局部极值占有），那么就把该邻居像素的掩膜值设为3，同时把它的位置存入buf中，同时把可作为填充的中心像素数目加1；<br>（5）后面再以邻居像素为中心继续填充，直到不满足上面的两个条件。</p>
+<p>前面也说了，如果buf的长度不够，会及时把它后面的数据挪到前面来。</p>
+<h1 id="对整张图像进行标记"><a href="#对整张图像进行标记" class="headerlink" title="对整张图像进行标记"></a>对整张图像进行标记</h1><p>mark()方法就是对整张图像进行填充标记：</p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="keyword">def</span> <span class="title">mark</span>(<span class="params">img, msk, buf, mode</span>):</span></span><br><span class="line">    nbs = neighbors(img.shape)</span><br><span class="line">    idx = np.zeros(msk.size//<span class="number">3</span>, dtype=np.int64)</span><br><span class="line">    img = img.ravel()</span><br><span class="line">    msk = msk.ravel()</span><br><span class="line">    s = <span class="number">0</span></span><br><span class="line">    <span class="keyword">for</span> p <span class="keyword">in</span> <span class="built_in">range</span>(<span class="built_in">len</span>(img)):</span><br><span class="line">        <span class="keyword">if</span> msk[p]!=<span class="number">1</span>:<span class="keyword">continue</span></span><br><span class="line">        sta = <span class="number">0</span></span><br><span class="line">        <span class="keyword">for</span> dp <span class="keyword">in</span> nbs:</span><br><span class="line">            <span class="keyword">if</span> img[p+dp]==img[p]:sta+=<span class="number">1</span></span><br><span class="line">            <span class="keyword">if</span> mode <span class="keyword">and</span> img[p+dp]&gt;img[p]:</span><br><span class="line">                sta = <span class="number">100</span></span><br><span class="line">                <span class="keyword">break</span></span><br><span class="line">            <span class="keyword">elif</span> <span class="keyword">not</span> mode <span class="keyword">and</span> img[p+dp]&lt;img[p]:</span><br><span class="line">                sta = <span class="number">100</span></span><br><span class="line">                <span class="keyword">break</span></span><br><span class="line">        <span class="keyword">if</span> sta==<span class="number">100</span>:<span class="keyword">continue</span></span><br><span class="line">        msk[p] = <span class="number">3</span></span><br><span class="line">        <span class="keyword">if</span> sta&gt;<span class="number">0</span>:</span><br><span class="line">            fill(img, msk, p, nbs, buf)</span><br><span class="line"></span><br><span class="line">        idx[s] = p</span><br><span class="line">        s += <span class="number">1</span></span><br><span class="line">        <span class="keyword">if</span> s==<span class="built_in">len</span>(idx):<span class="keyword">break</span></span><br><span class="line">    <span class="keyword">return</span> idx[:s].copy()</span><br></pre></td></tr></table></figure>
+<p>需要明确的是该方法所接收的mode，如果为True，则是寻找局部极大值，如果为False，则是寻找局部极小值。<br>它首先是要对图像中的所有像素点进行循环：<br>（1）如果该点在边界上（掩膜值为0）或之前已经被标记过（掩膜值为3），那么就会跳过；<br>（2）如果没有被标记（掩膜值为1），那么就会对它周围的八个邻居像素进行循环：<br>（2.1）如果邻居像素的像素值与该中心像素的像素值相同，则将状态加1；<br>（2.2）如果是想寻找局部极大值（mode为True），且有个邻居像素大于该中心像素的像素值，则直接将状态置为100，并跳出循环；<br>（2.3）如果是想寻找局部极小值（mode为False），且有个邻居像素小于该中心像素的像素值，则直接将状态置为100，并跳出循环；<br>然后就判断状态值，如果为100，那么就不以该像素为起点进行填充，反之，则将该像素的掩膜值置为3，然后如果状态&gt;0，那么就以它为起点进行填充，同时记录下该起点像素的位置，填入idx中进行保存。</p>
+<p>举一个例子，因为边界上的像素都不会被标记，因为第一个被标记的像素是编号为11的像素（即除了边界外的左上角的那个像素，此时的编号是基于img已经被Ravel()压平了），以它为起始点进行填充后，得到的掩膜矩阵为：</p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br></pre></td><td class="code"><pre><span class="line">[[<span class="number">0</span> <span class="number">0</span> <span class="number">0</span> <span class="number">0</span> <span class="number">0</span> <span class="number">0</span> <span class="number">0</span> <span class="number">0</span> <span class="number">0</span> <span class="number">0</span>]</span><br><span class="line"> [<span class="number">0</span> <span class="number">3</span> <span class="number">3</span> <span class="number">3</span> <span class="number">3</span> <span class="number">3</span> <span class="number">3</span> <span class="number">3</span> <span class="number">3</span> <span class="number">0</span>]</span><br><span class="line"> [<span class="number">0</span> <span class="number">3</span> <span class="number">3</span> <span class="number">3</span> <span class="number">1</span> <span class="number">1</span> <span class="number">1</span> <span class="number">3</span> <span class="number">3</span> <span class="number">0</span>]</span><br><span class="line"> [<span class="number">0</span> <span class="number">3</span> <span class="number">3</span> <span class="number">1</span> <span class="number">1</span> <span class="number">1</span> <span class="number">1</span> <span class="number">1</span> <span class="number">3</span> <span class="number">0</span>]</span><br><span class="line"> [<span class="number">0</span> <span class="number">3</span> <span class="number">1</span> <span class="number">1</span> <span class="number">1</span> <span class="number">1</span> <span class="number">1</span> <span class="number">1</span> <span class="number">1</span> <span class="number">0</span>]</span><br><span class="line"> [<span class="number">0</span> <span class="number">3</span> <span class="number">1</span> <span class="number">1</span> <span class="number">1</span> <span class="number">1</span> <span class="number">1</span> <span class="number">1</span> <span class="number">1</span> <span class="number">0</span>]</span><br><span class="line"> [<span class="number">0</span> <span class="number">3</span> <span class="number">3</span> <span class="number">1</span> <span class="number">1</span> <span class="number">1</span> <span class="number">1</span> <span class="number">1</span> <span class="number">3</span> <span class="number">0</span>]</span><br><span class="line"> [<span class="number">0</span> <span class="number">3</span> <span class="number">3</span> <span class="number">3</span> <span class="number">1</span> <span class="number">1</span> <span class="number">1</span> <span class="number">3</span> <span class="number">3</span> <span class="number">0</span>]</span><br><span class="line"> [<span class="number">0</span> <span class="number">3</span> <span class="number">3</span> <span class="number">3</span> <span class="number">3</span> <span class="number">3</span> <span class="number">3</span> <span class="number">3</span> <span class="number">3</span> <span class="number">0</span>]</span><br><span class="line"> [<span class="number">0</span> <span class="number">0</span> <span class="number">0</span> <span class="number">0</span> <span class="number">0</span> <span class="number">0</span> <span class="number">0</span> <span class="number">0</span> <span class="number">0</span> <span class="number">0</span>]]</span><br></pre></td></tr></table></figure>
+<p>然后，第二个可作为填充的起始像素是编号为42的像素，经过再一次填充后，掩膜变为：</p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br></pre></td><td class="code"><pre><span class="line">[[<span class="number">0</span> <span class="number">0</span> <span class="number">0</span> <span class="number">0</span> <span class="number">0</span> <span class="number">0</span> <span class="number">0</span> <span class="number">0</span> <span class="number">0</span> <span class="number">0</span>]</span><br><span class="line"> [<span class="number">0</span> <span class="number">3</span> <span class="number">3</span> <span class="number">3</span> <span class="number">3</span> <span class="number">3</span> <span class="number">3</span> <span class="number">3</span> <span class="number">3</span> <span class="number">0</span>]</span><br><span class="line"> [<span class="number">0</span> <span class="number">3</span> <span class="number">3</span> <span class="number">3</span> <span class="number">3</span> <span class="number">3</span> <span class="number">3</span> <span class="number">3</span> <span class="number">3</span> <span class="number">0</span>]</span><br><span class="line"> [<span class="number">0</span> <span class="number">3</span> <span class="number">3</span> <span class="number">3</span> <span class="number">3</span> <span class="number">1</span> <span class="number">3</span> <span class="number">3</span> <span class="number">3</span> <span class="number">0</span>]</span><br><span class="line"> [<span class="number">0</span> <span class="number">3</span> <span class="number">3</span> <span class="number">3</span> <span class="number">1</span> <span class="number">1</span> <span class="number">1</span> <span class="number">3</span> <span class="number">3</span> <span class="number">0</span>]</span><br><span class="line"> [<span class="number">0</span> <span class="number">3</span> <span class="number">3</span> <span class="number">3</span> <span class="number">1</span> <span class="number">1</span> <span class="number">1</span> <span class="number">3</span> <span class="number">3</span> <span class="number">0</span>]</span><br><span class="line"> [<span class="number">0</span> <span class="number">3</span> <span class="number">3</span> <span class="number">3</span> <span class="number">3</span> <span class="number">1</span> <span class="number">3</span> <span class="number">3</span> <span class="number">3</span> <span class="number">0</span>]</span><br><span class="line"> [<span class="number">0</span> <span class="number">3</span> <span class="number">3</span> <span class="number">3</span> <span class="number">3</span> <span class="number">3</span> <span class="number">3</span> <span class="number">3</span> <span class="number">3</span> <span class="number">0</span>]</span><br><span class="line"> [<span class="number">0</span> <span class="number">3</span> <span class="number">3</span> <span class="number">3</span> <span class="number">3</span> <span class="number">3</span> <span class="number">3</span> <span class="number">3</span> <span class="number">3</span> <span class="number">0</span>]</span><br><span class="line"> [<span class="number">0</span> <span class="number">0</span> <span class="number">0</span> <span class="number">0</span> <span class="number">0</span> <span class="number">0</span> <span class="number">0</span> <span class="number">0</span> <span class="number">0</span> <span class="number">0</span>]]</span><br></pre></td></tr></table></figure>
+<p>第三次可作为填充的起始像素的编号为45，经过填充后，掩膜变为：</p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br></pre></td><td class="code"><pre><span class="line">[[<span class="number">0</span> <span class="number">0</span> <span class="number">0</span> <span class="number">0</span> <span class="number">0</span> <span class="number">0</span> <span class="number">0</span> <span class="number">0</span> <span class="number">0</span> <span class="number">0</span>]</span><br><span class="line"> [<span class="number">0</span> <span class="number">3</span> <span class="number">3</span> <span class="number">3</span> <span class="number">3</span> <span class="number">3</span> <span class="number">3</span> <span class="number">3</span> <span class="number">3</span> <span class="number">0</span>]</span><br><span class="line"> [<span class="number">0</span> <span class="number">3</span> <span class="number">3</span> <span class="number">3</span> <span class="number">3</span> <span class="number">3</span> <span class="number">3</span> <span class="number">3</span> <span class="number">3</span> <span class="number">0</span>]</span><br><span class="line"> [<span class="number">0</span> <span class="number">3</span> <span class="number">3</span> <span class="number">3</span> <span class="number">3</span> <span class="number">1</span> <span class="number">3</span> <span class="number">3</span> <span class="number">3</span> <span class="number">0</span>]</span><br><span class="line"> [<span class="number">0</span> <span class="number">3</span> <span class="number">3</span> <span class="number">3</span> <span class="number">1</span> <span class="number">3</span> <span class="number">1</span> <span class="number">3</span> <span class="number">3</span> <span class="number">0</span>]</span><br><span class="line"> [<span class="number">0</span> <span class="number">3</span> <span class="number">3</span> <span class="number">3</span> <span class="number">1</span> <span class="number">3</span> <span class="number">1</span> <span class="number">3</span> <span class="number">3</span> <span class="number">0</span>]</span><br><span class="line"> [<span class="number">0</span> <span class="number">3</span> <span class="number">3</span> <span class="number">3</span> <span class="number">3</span> <span class="number">1</span> <span class="number">3</span> <span class="number">3</span> <span class="number">3</span> <span class="number">0</span>]</span><br><span class="line"> [<span class="number">0</span> <span class="number">3</span> <span class="number">3</span> <span class="number">3</span> <span class="number">3</span> <span class="number">3</span> <span class="number">3</span> <span class="number">3</span> <span class="number">3</span> <span class="number">0</span>]</span><br><span class="line"> [<span class="number">0</span> <span class="number">3</span> <span class="number">3</span> <span class="number">3</span> <span class="number">3</span> <span class="number">3</span> <span class="number">3</span> <span class="number">3</span> <span class="number">3</span> <span class="number">0</span>]</span><br><span class="line"> [<span class="number">0</span> <span class="number">0</span> <span class="number">0</span> <span class="number">0</span> <span class="number">0</span> <span class="number">0</span> <span class="number">0</span> <span class="number">0</span> <span class="number">0</span> <span class="number">0</span>]]</span><br></pre></td></tr></table></figure>
+<p>可以看出，像素值为2的区域没有被填充，就是因为以这些像素进行填充时，会碰到像素值为3的像素，导致sta被置为100，无法执行填充操作。</p>
+<p>经过后面对idx中的元素截取，得到mark()方法后的返回值为：</p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">[<span class="number">11</span>, <span class="number">42</span>, <span class="number">45</span>]</span><br></pre></td></tr></table></figure>
+
+<h1 id="寻找局部极值"><a href="#寻找局部极值" class="headerlink" title="寻找局部极值"></a>寻找局部极值</h1><p>filter()方法就是用来实现局部极值的寻找：</p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="keyword">def</span> <span class="title">filter</span>(<span class="params">img, msk, idx, bur, tor, mode</span>):</span></span><br><span class="line">    nbs = neighbors(img.shape)</span><br><span class="line">    acc = np.cumprod((<span class="number">1</span>,)+img.shape[::-<span class="number">1</span>][:-<span class="number">1</span>])[::-<span class="number">1</span>]</span><br><span class="line">    img = img.ravel()</span><br><span class="line">    msk = msk.ravel()</span><br><span class="line"></span><br><span class="line">    arg = np.argsort(img[idx])[::-<span class="number">1</span> <span class="keyword">if</span> mode <span class="keyword">else</span> <span class="number">1</span>]</span><br><span class="line">   </span><br><span class="line">    <span class="keyword">for</span> i <span class="keyword">in</span> arg:</span><br><span class="line">        <span class="keyword">if</span> msk[idx[i]]!=<span class="number">3</span>:</span><br><span class="line">            idx[i] = <span class="number">0</span></span><br><span class="line">            <span class="keyword">continue</span></span><br><span class="line">        cur = <span class="number">0</span>; s = <span class="number">1</span>;</span><br><span class="line">        bur[<span class="number">0</span>] = idx[i]</span><br><span class="line">        <span class="keyword">while</span> cur&lt;s:</span><br><span class="line">            p = bur[cur]</span><br><span class="line">            <span class="keyword">if</span> msk[p] == <span class="number">2</span>:</span><br><span class="line">                idx[i]=<span class="number">0</span></span><br><span class="line">                <span class="keyword">break</span></span><br><span class="line"></span><br><span class="line">            <span class="keyword">for</span> dp <span class="keyword">in</span> nbs:</span><br><span class="line">                cp = p+dp</span><br><span class="line">                <span class="keyword">if</span> msk[cp]==<span class="number">0</span> <span class="keyword">or</span> cp==idx[i] <span class="keyword">or</span> msk[cp] == <span class="number">4</span>: <span class="keyword">continue</span></span><br><span class="line">                <span class="keyword">if</span> mode <span class="keyword">and</span> img[cp] &lt; img[idx[i]]-tor: <span class="keyword">continue</span></span><br><span class="line">                <span class="keyword">if</span> <span class="keyword">not</span> mode <span class="keyword">and</span> img[cp] &gt; img[idx[i]]+tor: <span class="keyword">continue</span></span><br><span class="line">                bur[s] = cp</span><br><span class="line">                s += <span class="number">1</span></span><br><span class="line">                <span class="keyword">if</span> s==msk.size//<span class="number">3</span>:</span><br><span class="line">                    cut = cur//<span class="number">2</span></span><br><span class="line">                    msk[bur[:cut]] = <span class="number">2</span></span><br><span class="line">                    bur[:s-cut] = bur[cut:]</span><br><span class="line">                    cur -= cut</span><br><span class="line">                    s -= cut</span><br><span class="line"></span><br><span class="line">                <span class="keyword">if</span> msk[cp]!=<span class="number">2</span>:msk[cp] = <span class="number">4</span></span><br><span class="line">            cur += <span class="number">1</span></span><br><span class="line">        msk[bur[:s]] = <span class="number">2</span></span><br><span class="line">    <span class="keyword">return</span> idx2rc(idx[idx&gt;<span class="number">0</span>], acc)</span><br></pre></td></tr></table></figure>
+<p>主要步骤是：<br>（1）首先对找到的极值按数值大小进行排序：</p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">arg = np.argsort(img[idx])[::-<span class="number">1</span> <span class="keyword">if</span> mode <span class="keyword">else</span> <span class="number">1</span>]</span><br></pre></td></tr></table></figure>
+<p>如果是寻找极大值，那么就是按从大到小来排序。比如在这里，idx中存储的位置对应的像素的数值分别是0、1和3，所以，arg就是：</p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">arg = Array([<span class="number">2</span>, <span class="number">1</span>, <span class="number">0</span>], dtype=int64)</span><br></pre></td></tr></table></figure>
+<p>（2）按顺序依次寻找极值的领地<br>（2.1）首先还是以idx存储的像素为起始点，对它的8个邻居像素进行遍历，如果这些邻居像素在边界上（掩膜值为0）或被临时占有（掩膜值为4），那么就跳过；<br>（2.2）如果是寻找极大值（mode为True）以及邻居像素要小于该idx存储的起点像素的像素值减去容忍度tolerance，那么也跳过（那么这里，容忍度就是非常重要的一个参数，它是由用户输入，代表这个极值的“势力范围”或“领地”，如果容忍度为0，那么就严格地认为只有拥有该数值的像素才属于该极值，直观理解看，就是容忍度决定了势力范围，如果tolerance较大，说明划定的势力范围较大，那么两个局部极值就可以碰到，导致合并成一个极值，所以tolerance越大，极值点越少）；<br>（2.3）同理，如果是寻找极小值，邻居像素如果大于该起点像素的像素值加上容忍度，那么也跳过；<br>（2.4）如果邻居像素属于该极值的势力范围（即数值满足起点像素值和tolerance），那么就将它的位置存入buf中，后续还要以它为中心进行循环，同时如果它的掩膜值不为2（即之前没有被占有过），则将它的掩膜值置为4，即临时占有；<br>（2.5）在对这些中心像素都遍历一遍后，就将它们的掩膜值置为2，即它们被该idx存储的像素所永久占有。<br>如果将tolerance设为1，下面是位置编号为45的像素所占有的领地（掩膜矩阵）：</p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br></pre></td><td class="code"><pre><span class="line">[[<span class="number">0</span> <span class="number">0</span> <span class="number">0</span> <span class="number">0</span> <span class="number">0</span> <span class="number">0</span> <span class="number">0</span> <span class="number">0</span> <span class="number">0</span> <span class="number">0</span>]</span><br><span class="line"> [<span class="number">0</span> <span class="number">3</span> <span class="number">3</span> <span class="number">3</span> <span class="number">3</span> <span class="number">3</span> <span class="number">3</span> <span class="number">3</span> <span class="number">3</span> <span class="number">0</span>]</span><br><span class="line"> [<span class="number">0</span> <span class="number">3</span> <span class="number">3</span> <span class="number">3</span> <span class="number">3</span> <span class="number">3</span> <span class="number">3</span> <span class="number">3</span> <span class="number">3</span> <span class="number">0</span>]</span><br><span class="line"> [<span class="number">0</span> <span class="number">3</span> <span class="number">3</span> <span class="number">3</span> <span class="number">3</span> <span class="number">2</span> <span class="number">3</span> <span class="number">3</span> <span class="number">3</span> <span class="number">0</span>]</span><br><span class="line"> [<span class="number">0</span> <span class="number">3</span> <span class="number">3</span> <span class="number">3</span> <span class="number">2</span> <span class="number">2</span> <span class="number">2</span> <span class="number">3</span> <span class="number">3</span> <span class="number">0</span>]</span><br><span class="line"> [<span class="number">0</span> <span class="number">3</span> <span class="number">3</span> <span class="number">3</span> <span class="number">2</span> <span class="number">2</span> <span class="number">2</span> <span class="number">3</span> <span class="number">3</span> <span class="number">0</span>]</span><br><span class="line"> [<span class="number">0</span> <span class="number">3</span> <span class="number">3</span> <span class="number">3</span> <span class="number">3</span> <span class="number">2</span> <span class="number">3</span> <span class="number">3</span> <span class="number">3</span> <span class="number">0</span>]</span><br><span class="line"> [<span class="number">0</span> <span class="number">3</span> <span class="number">3</span> <span class="number">3</span> <span class="number">3</span> <span class="number">3</span> <span class="number">3</span> <span class="number">3</span> <span class="number">3</span> <span class="number">0</span>]</span><br><span class="line"> [<span class="number">0</span> <span class="number">3</span> <span class="number">3</span> <span class="number">3</span> <span class="number">3</span> <span class="number">3</span> <span class="number">3</span> <span class="number">3</span> <span class="number">3</span> <span class="number">0</span>]</span><br><span class="line"> [<span class="number">0</span> <span class="number">0</span> <span class="number">0</span> <span class="number">0</span> <span class="number">0</span> <span class="number">0</span> <span class="number">0</span> <span class="number">0</span> <span class="number">0</span> <span class="number">0</span>]]</span><br></pre></td></tr></table></figure>
+<p>那么在对下一个idx存储的像素为起点进行探索时，也会执行上面的步骤，但此时可以在一开始或中途触发某个掩膜值为2的邻居像素，那么此时就会终止该次循环，并且将idx中存储的这个像素的位置置为0，即下面的代码：</p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">while</span> cur&lt;s:</span><br><span class="line">    p = bur[cur]</span><br><span class="line">    <span class="keyword">if</span> msk[p] == <span class="number">2</span>:</span><br><span class="line">        idx[i]=<span class="number">0</span></span><br><span class="line">        <span class="keyword">break</span></span><br></pre></td></tr></table></figure>
+<p>这个地方非常重要，这代表着两个极值所涉及的领地是否有冲突，如果冲突了，那么说明这两个极值实际是接触的，因为前面的循环是基于更大的极值（以寻找极大值来说），那么这个第二次的极值就会被刚才的极值占领，它的位置也就可以在idx中被抹去。<br>比如位置编号为42的像素开始占有后：</p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br></pre></td><td class="code"><pre><span class="line">[[<span class="number">0</span> <span class="number">0</span> <span class="number">0</span> <span class="number">0</span> <span class="number">0</span> <span class="number">0</span> <span class="number">0</span> <span class="number">0</span> <span class="number">0</span> <span class="number">0</span>]</span><br><span class="line"> [<span class="number">0</span> <span class="number">2</span> <span class="number">2</span> <span class="number">2</span> <span class="number">2</span> <span class="number">2</span> <span class="number">3</span> <span class="number">3</span> <span class="number">3</span> <span class="number">0</span>]</span><br><span class="line"> [<span class="number">0</span> <span class="number">2</span> <span class="number">2</span> <span class="number">2</span> <span class="number">2</span> <span class="number">2</span> <span class="number">3</span> <span class="number">3</span> <span class="number">3</span> <span class="number">0</span>]</span><br><span class="line"> [<span class="number">0</span> <span class="number">2</span> <span class="number">2</span> <span class="number">2</span> <span class="number">2</span> <span class="number">2</span> <span class="number">3</span> <span class="number">3</span> <span class="number">3</span> <span class="number">0</span>]</span><br><span class="line"> [<span class="number">0</span> <span class="number">2</span> <span class="number">2</span> <span class="number">2</span> <span class="number">2</span> <span class="number">2</span> <span class="number">2</span> <span class="number">3</span> <span class="number">3</span> <span class="number">0</span>]</span><br><span class="line"> [<span class="number">0</span> <span class="number">2</span> <span class="number">2</span> <span class="number">2</span> <span class="number">2</span> <span class="number">2</span> <span class="number">2</span> <span class="number">3</span> <span class="number">3</span> <span class="number">0</span>]</span><br><span class="line"> [<span class="number">0</span> <span class="number">2</span> <span class="number">2</span> <span class="number">2</span> <span class="number">2</span> <span class="number">2</span> <span class="number">3</span> <span class="number">3</span> <span class="number">3</span> <span class="number">0</span>]</span><br><span class="line"> [<span class="number">0</span> <span class="number">3</span> <span class="number">3</span> <span class="number">3</span> <span class="number">3</span> <span class="number">3</span> <span class="number">3</span> <span class="number">3</span> <span class="number">3</span> <span class="number">0</span>]</span><br><span class="line"> [<span class="number">0</span> <span class="number">3</span> <span class="number">3</span> <span class="number">3</span> <span class="number">3</span> <span class="number">3</span> <span class="number">3</span> <span class="number">3</span> <span class="number">3</span> <span class="number">0</span>]</span><br><span class="line"> [<span class="number">0</span> <span class="number">0</span> <span class="number">0</span> <span class="number">0</span> <span class="number">0</span> <span class="number">0</span> <span class="number">0</span> <span class="number">0</span> <span class="number">0</span> <span class="number">0</span>]]</span><br></pre></td></tr></table></figure>
+<p>就是因为在不断地寻找过程中，某个邻居像素碰到了之前已经被标记为2的像素，导致提前终止，使得idx变成了：</p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">idx = array([<span class="number">11</span>,  <span class="number">0</span>, <span class="number">45</span>], dtype=int64)</span><br></pre></td></tr></table></figure>
+<p>而接着在对idx中的位置为11的像素进行探索时，发现它一上来掩膜值就已经是2，所以直接就被终止，idx变成：</p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">idx = array([<span class="number">0</span>,  <span class="number">0</span>, <span class="number">45</span>], dtype=int64)</span><br></pre></td></tr></table></figure>
+<p>那么下面一步就是挑选不为0的位置编号，并且将它转换为行号和列号，即：</p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br></pre></td><td class="code"><pre><span class="line">idx2rc(idx[idx&gt;<span class="number">0</span>], acc)</span><br><span class="line"> </span><br><span class="line"><span class="function"><span class="keyword">def</span> <span class="title">idx2rc</span>(<span class="params">idx, acc</span>):</span></span><br><span class="line">    rst = np.zeros((<span class="built_in">len</span>(idx), <span class="built_in">len</span>(acc)), dtype=np.int16)</span><br><span class="line">    <span class="keyword">for</span> i <span class="keyword">in</span> <span class="built_in">range</span>(<span class="built_in">len</span>(idx)):</span><br><span class="line">        <span class="keyword">for</span> j <span class="keyword">in</span> <span class="built_in">range</span>(<span class="built_in">len</span>(acc)):</span><br><span class="line">            rst[i,j] = idx[i]//acc[j]</span><br><span class="line">            idx[i] -= rst[i,j]*acc[j]</span><br><span class="line">    <span class="keyword">return</span> rst</span><br></pre></td></tr></table></figure>
+<p>这里找到的极值点就是在行号为4、列号为5的像素点，即第5行、第6列。</p>
+
+    </div>
+
+    
+    
+    
+        <div class="reward-container">
+  <div></div>
+  <button onclick="var qr = document.getElementById('qr'); qr.style.display = (qr.style.display === 'none') ? 'block' : 'none';">
+    Donate
+  </button>
+  <div id="qr" style="display: none;">
+      
+      <div style="display: inline-block;">
+        <img src="/images/wechat_reward.png" alt="Xin-Bo Qi(亓欣波) WeChat Pay">
+        <p>WeChat Pay</p>
+      </div>
+
+  </div>
+</div>
+
+
+      <footer class="post-footer">
+          <div class="post-tags">
+              <a href="/tags/ImagePy/" rel="tag"># ImagePy</a>
+          </div>
+
+        
+
+
+        
+    <div class="post-nav">
+      <div class="post-nav-item">
+    <a href="/2019/11/04/ImagePy_13/" rel="prev" title="ImagePy解析：13 -- Macros引擎及宏录制">
+      <i class="fa fa-chevron-left"></i> ImagePy解析：13 -- Macros引擎及宏录制
+    </a></div>
+      <div class="post-nav-item">
+    <a href="/2019/12/20/ImagePy_15/" rel="next" title="ImagePy解析：15 -- 分水岭Watershed算法">
+      ImagePy解析：15 -- 分水岭Watershed算法 <i class="fa fa-chevron-right"></i>
+    </a></div>
+    </div>
+      </footer>
+    
+  </article>
+  
+  
+  
+
+
+
+          </div>
+          
+    
+  <div class="comments">
+    <div id="disqus_thread">
+      <noscript>Please enable JavaScript to view the comments powered by Disqus.</noscript>
+    </div>
+  </div>
+  
+
+<script>
+  window.addEventListener('tabs:register', () => {
+    let { activeClass } = CONFIG.comments;
+    if (CONFIG.comments.storage) {
+      activeClass = localStorage.getItem('comments_active') || activeClass;
+    }
+    if (activeClass) {
+      let activeTab = document.querySelector(`a[href="#comment-${activeClass}"]`);
+      if (activeTab) {
+        activeTab.click();
+      }
+    }
+  });
+  if (CONFIG.comments.storage) {
+    window.addEventListener('tabs:click', event => {
+      if (!event.target.matches('.tabs-comment .tab-content .tab-pane')) return;
+      let commentClass = event.target.classList[1];
+      localStorage.setItem('comments_active', commentClass);
+    });
+  }
+</script>
+
+        </div>
+          
+  
+  <div class="toggle sidebar-toggle">
+    <span class="toggle-line toggle-line-first"></span>
+    <span class="toggle-line toggle-line-middle"></span>
+    <span class="toggle-line toggle-line-last"></span>
+  </div>
+
+  <aside class="sidebar">
+    <div class="sidebar-inner">
+
+      <ul class="sidebar-nav motion-element">
+        <li class="sidebar-nav-toc">
+          Table of Contents
+        </li>
+        <li class="sidebar-nav-overview">
+          Overview
+        </li>
+      </ul>
+
+      <!--noindex-->
+      <div class="post-toc-wrap sidebar-panel">
+          <div class="post-toc motion-element"><ol class="nav"><li class="nav-item nav-level-1"><a class="nav-link" href="#%E5%9B%BE%E5%83%8F%E5%87%86%E5%A4%87"><span class="nav-number">1.</span> <span class="nav-text">图像准备</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#%E8%8E%B7%E5%BE%97%E9%82%BB%E5%B1%85%E5%83%8F%E7%B4%A0%E7%9A%84%E4%BD%8D%E7%BD%AE%E8%B7%9D%E7%A6%BB"><span class="nav-number">2.</span> <span class="nav-text">获得邻居像素的位置距离</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#%E4%BB%A5%E6%9F%90%E4%B8%AA%E5%83%8F%E7%B4%A0%E7%82%B9%E4%B8%BA%E8%B5%B7%E7%82%B9%E8%BF%9B%E8%A1%8C%E7%AD%89%E5%80%BC%E5%A1%AB%E5%85%85"><span class="nav-number">3.</span> <span class="nav-text">以某个像素点为起点进行等值填充</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#%E5%AF%B9%E6%95%B4%E5%BC%A0%E5%9B%BE%E5%83%8F%E8%BF%9B%E8%A1%8C%E6%A0%87%E8%AE%B0"><span class="nav-number">4.</span> <span class="nav-text">对整张图像进行标记</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#%E5%AF%BB%E6%89%BE%E5%B1%80%E9%83%A8%E6%9E%81%E5%80%BC"><span class="nav-number">5.</span> <span class="nav-text">寻找局部极值</span></a></li></ol></div>
+      </div>
+      <!--/noindex-->
+
+      <div class="site-overview-wrap sidebar-panel">
+        <div class="site-author motion-element" itemprop="author" itemscope itemtype="http://schema.org/Person">
+    <img class="site-author-image" itemprop="image" alt="Xin-Bo Qi(亓欣波)"
+      src="/images/avatar.jpg">
+  <p class="site-author-name" itemprop="name">Xin-Bo Qi(亓欣波)</p>
+  <div class="site-description" itemprop="description">Be interesting!</div>
+</div>
+<div class="site-state-wrap motion-element">
+  <nav class="site-state">
+      <div class="site-state-item site-state-posts">
+          <a href="/archives/">
+        
+          <span class="site-state-item-count">120</span>
+          <span class="site-state-item-name">posts</span>
+        </a>
+      </div>
+      <div class="site-state-item site-state-categories">
+            <a href="/categories/">
+          
+        <span class="site-state-item-count">5</span>
+        <span class="site-state-item-name">categories</span></a>
+      </div>
+      <div class="site-state-item site-state-tags">
+            <a href="/tags/">
+          
+        <span class="site-state-item-count">41</span>
+        <span class="site-state-item-name">tags</span></a>
+      </div>
+  </nav>
+</div>
+  <div class="links-of-author motion-element">
+      <span class="links-of-author-item">
+        <a href="https://github.com/qixinbo" title="GitHub → https:&#x2F;&#x2F;github.com&#x2F;qixinbo" rel="noopener" target="_blank"><i class="github fa-fw"></i>GitHub</a>
+      </span>
+      <span class="links-of-author-item">
+        <a href="mailto:qixinbo@gmail.com" title="E-Mail → mailto:qixinbo@gmail.com" rel="noopener" target="_blank"><i class="envelope fa-fw"></i>E-Mail</a>
+      </span>
+  </div>
+
+
+  <div class="links-of-blogroll motion-element">
+    <div class="links-of-blogroll-title"><i class="fa fa-link fa-fw"></i>
+      Links
+    </div>
+    <ul class="links-of-blogroll-list">
+        <li class="links-of-blogroll-item">
+          <a href="https://www.tsinghua.edu.cn/" title="https:&#x2F;&#x2F;www.tsinghua.edu.cn" rel="noopener" target="_blank">THU</a>
+        </li>
+        <li class="links-of-blogroll-item">
+          <a href="http://www.imr.cas.cn/" title="http:&#x2F;&#x2F;www.imr.cas.cn" rel="noopener" target="_blank">IMR</a>
+        </li>
+        <li class="links-of-blogroll-item">
+          <a href="http://www.sdu.edu.cn/" title="http:&#x2F;&#x2F;www.sdu.edu.cn" rel="noopener" target="_blank">SDU</a>
+        </li>
+        <li class="links-of-blogroll-item">
+          <a href="http://liam0205.me/" title="http:&#x2F;&#x2F;liam0205.me&#x2F;" rel="noopener" target="_blank">黄晨成</a>
+        </li>
+    </ul>
+  </div>
+
+      </div>
+
+    </div>
+  </aside>
+  <div id="sidebar-dimmer"></div>
+
+
+      </div>
+    </main>
+
+    <footer class="footer">
+      <div class="footer-inner">
+        
+
+        
+
+<div class="copyright">
+  
+  &copy; 
+  <span itemprop="copyrightYear">2021</span>
+  <span class="with-love">
+    <i class="fa fa-heart"></i>
+  </span>
+  <span class="author" itemprop="copyrightHolder">Xin-Bo Qi(亓欣波)</span>
+</div>
+  <div class="powered-by">Powered by <a href="https://hexo.io/" class="theme-link" rel="noopener" target="_blank">Hexo</a> & <a href="https://theme-next.org/" class="theme-link" rel="noopener" target="_blank">NexT.Gemini</a>
+  </div>
+
+        
+
+
+
+
+
+
+
+
+      </div>
+    </footer>
+  </div>
+
+  
+  <script src="/lib/anime.min.js"></script>
+  <script src="/lib/velocity/velocity.min.js"></script>
+  <script src="/lib/velocity/velocity.ui.min.js"></script>
+
+<script src="/js/utils.js"></script>
+
+<script src="/js/motion.js"></script>
+
+
+<script src="/js/schemes/pisces.js"></script>
+
+
+<script src="/js/next-boot.js"></script>
+
+
+
+
+  
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+  
+
+  
+
+  
+
+<script>
+  function loadCount() {
+    var d = document, s = d.createElement('script');
+    s.src = 'https://qixinbo.disqus.com/count.js';
+    s.id = 'dsq-count-scr';
+    (d.head || d.body).appendChild(s);
+  }
+  // defer loading until the whole page loading is completed
+  window.addEventListener('load', loadCount, false);
+</script>
+<script>
+  var disqus_config = function() {
+    this.page.url = "http://qixinbo.github.io/2019/11/17/ImagePy_14/";
+    this.page.identifier = "2019/11/17/ImagePy_14/";
+    this.page.title = "ImagePy解析：14 -- 寻找局部极值（Find Maximum和Find Minimum）";
+    };
+  NexT.utils.loadComments(document.querySelector('#disqus_thread'), () => {
+    if (window.DISQUS) {
+      DISQUS.reset({
+        reload: true,
+        config: disqus_config
+      });
+    } else {
+      var d = document, s = d.createElement('script');
+      s.src = 'https://qixinbo.disqus.com/embed.js';
+      s.setAttribute('data-timestamp', '' + +new Date());
+      (d.head || d.body).appendChild(s);
+    }
+  });
+</script>
+
+</body>
+</html>

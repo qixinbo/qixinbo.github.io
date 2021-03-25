@@ -1,0 +1,550 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=2">
+<meta name="theme-color" content="#222">
+<meta name="generator" content="Hexo 5.4.0">
+  <link rel="apple-touch-icon" sizes="180x180" href="/images/apple-touch-icon-next.png">
+  <link rel="icon" type="image/png" sizes="32x32" href="/favicon.ico">
+  <link rel="icon" type="image/png" sizes="16x16" href="/favicon.ico">
+  <link rel="mask-icon" href="/images/logo.svg" color="#222">
+
+<link rel="stylesheet" href="/css/main.css">
+
+
+<link rel="stylesheet" href="/lib/font-awesome/css/all.min.css">
+
+<script id="hexo-configurations">
+    var NexT = window.NexT || {};
+    var CONFIG = {"hostname":"qixinbo.github.io","root":"/","scheme":"Gemini","version":"7.8.0","exturl":false,"sidebar":{"position":"left","display":"post","padding":18,"offset":12,"onmobile":false},"copycode":{"enable":false,"show_result":false,"style":null},"back2top":{"enable":true,"sidebar":false,"scrollpercent":false},"bookmark":{"enable":false,"color":"#222","save":"auto"},"fancybox":false,"mediumzoom":false,"lazyload":false,"pangu":false,"comments":{"style":"tabs","active":null,"storage":true,"lazyload":false,"nav":null},"algolia":{"hits":{"per_page":10},"labels":{"input_placeholder":"Search for Posts","hits_empty":"We didn't find any results for the search: ${query}","hits_stats":"${hits} results found in ${time} ms"}},"localsearch":{"enable":false,"trigger":"auto","top_n_per_article":1,"unescape":false,"preload":false},"motion":{"enable":true,"async":false,"transition":{"post_block":"fadeIn","post_header":"slideDownIn","post_body":"slideDownIn","coll_header":"slideLeftIn","sidebar":"slideUpIn"}}};
+  </script>
+
+  <meta name="description" content="该文是对以下博客的摘抄和总结：  数学之美番外篇：平凡而又神奇的贝叶斯方法 一文搞懂极大似然估计  贝叶斯公式的背景“所谓的贝叶斯方法源于他生前为解决一个“逆概”问题写的一篇文章，而这篇文章是在他死后才由他的一位朋友发表出来的。在贝叶斯写这篇文章之前，人们已经能够计算“正向概率”，如“假设袋子里面有N个白球，M个黑球，你伸手进去摸一把，摸出黑球的概率是多大”。而一个自然而然的问题是反过来：“如果我">
+<meta property="og:type" content="article">
+<meta property="og:title" content="贝叶斯公式、先验概率、最大似然估计、最大后验概率估计">
+<meta property="og:url" content="http://qixinbo.github.io/2018/07/30/bayesian-method/index.html">
+<meta property="og:site_name" content="亓欣波">
+<meta property="og:description" content="该文是对以下博客的摘抄和总结：  数学之美番外篇：平凡而又神奇的贝叶斯方法 一文搞懂极大似然估计  贝叶斯公式的背景“所谓的贝叶斯方法源于他生前为解决一个“逆概”问题写的一篇文章，而这篇文章是在他死后才由他的一位朋友发表出来的。在贝叶斯写这篇文章之前，人们已经能够计算“正向概率”，如“假设袋子里面有N个白球，M个黑球，你伸手进去摸一把，摸出黑球的概率是多大”。而一个自然而然的问题是反过来：“如果我">
+<meta property="og:locale" content="en_US">
+<meta property="article:published_time" content="2018-07-29T16:00:00.000Z">
+<meta property="article:modified_time" content="2021-03-25T07:20:30.469Z">
+<meta property="article:author" content="Xin-Bo Qi(亓欣波)">
+<meta property="article:tag" content="Machine Learning">
+<meta name="twitter:card" content="summary">
+
+<link rel="canonical" href="http://qixinbo.github.io/2018/07/30/bayesian-method/">
+
+
+<script id="page-configurations">
+  // https://hexo.io/docs/variables.html
+  CONFIG.page = {
+    sidebar: "",
+    isHome : false,
+    isPost : true,
+    lang   : 'en'
+  };
+</script>
+
+  <title>贝叶斯公式、先验概率、最大似然估计、最大后验概率估计 | 亓欣波</title>
+  
+
+
+
+
+
+
+  <noscript>
+  <style>
+  .use-motion .brand,
+  .use-motion .menu-item,
+  .sidebar-inner,
+  .use-motion .post-block,
+  .use-motion .pagination,
+  .use-motion .comments,
+  .use-motion .post-header,
+  .use-motion .post-body,
+  .use-motion .collection-header { opacity: initial; }
+
+  .use-motion .site-title,
+  .use-motion .site-subtitle {
+    opacity: initial;
+    top: initial;
+  }
+
+  .use-motion .logo-line-before i { left: initial; }
+  .use-motion .logo-line-after i { right: initial; }
+  </style>
+</noscript>
+
+</head>
+
+<body itemscope itemtype="http://schema.org/WebPage">
+  <div class="container use-motion">
+    <div class="headband"></div>
+
+    <header class="header" itemscope itemtype="http://schema.org/WPHeader">
+      <div class="header-inner"><div class="site-brand-container">
+  <div class="site-nav-toggle">
+    <div class="toggle" aria-label="Toggle navigation bar">
+      <span class="toggle-line toggle-line-first"></span>
+      <span class="toggle-line toggle-line-middle"></span>
+      <span class="toggle-line toggle-line-last"></span>
+    </div>
+  </div>
+
+  <div class="site-meta">
+
+    <a href="/" class="brand" rel="start">
+      <span class="logo-line-before"><i></i></span>
+      <h1 class="site-title">亓欣波</h1>
+      <span class="logo-line-after"><i></i></span>
+    </a>
+      <p class="site-subtitle" itemprop="description">Hi, I am Xin-Bo Qi (亓欣波)</p>
+  </div>
+
+  <div class="site-nav-right">
+    <div class="toggle popup-trigger">
+    </div>
+  </div>
+</div>
+
+
+
+
+<nav class="site-nav">
+  <ul id="menu" class="main-menu menu">
+        <li class="menu-item menu-item-home">
+
+    <a href="/" rel="section"><i class="home fa-fw"></i>Home</a>
+
+  </li>
+        <li class="menu-item menu-item-categories">
+
+    <a href="/categories/" rel="section"><i class="th fa-fw"></i>Categories</a>
+
+  </li>
+        <li class="menu-item menu-item-archives">
+
+    <a href="/archives/" rel="section"><i class="archive fa-fw"></i>Archives</a>
+
+  </li>
+        <li class="menu-item menu-item-tags">
+
+    <a href="/tags/" rel="section"><i class="tags fa-fw"></i>Tags</a>
+
+  </li>
+        <li class="menu-item menu-item-scholar">
+
+    <a href="/scholar/" rel="section"><i class="bar-chart fa-fw"></i>scholar</a>
+
+  </li>
+        <li class="menu-item menu-item-sources">
+
+    <a href="/sources/" rel="section"><i class="rss fa-fw"></i>sources</a>
+
+  </li>
+        <li class="menu-item menu-item-gallery">
+
+    <a href="/gallery/" rel="section"><i class="file-image-o fa-fw"></i>gallery</a>
+
+  </li>
+        <li class="menu-item menu-item-about">
+
+    <a href="/about/" rel="section"><i class="user fa-fw"></i>About</a>
+
+  </li>
+        <li class="menu-item menu-item-commonweal">
+
+    <a href="/404.html" rel="section"><i class="heartbeat fa-fw"></i>Commonweal 404</a>
+
+  </li>
+  </ul>
+</nav>
+
+
+
+
+</div>
+    </header>
+
+    
+  <div class="back-to-top">
+    <i class="fa fa-arrow-up"></i>
+    <span>0%</span>
+  </div>
+
+
+    <main class="main">
+      <div class="main-inner">
+        <div class="content-wrap">
+          
+
+          <div class="content post posts-expand">
+            
+
+    
+  
+  
+  <article itemscope itemtype="http://schema.org/Article" class="post-block" lang="en">
+    <link itemprop="mainEntityOfPage" href="http://qixinbo.github.io/2018/07/30/bayesian-method/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="image" content="/images/avatar.jpg">
+      <meta itemprop="name" content="Xin-Bo Qi(亓欣波)">
+      <meta itemprop="description" content="Be interesting!">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="亓欣波">
+    </span>
+      <header class="post-header">
+        <h1 class="post-title" itemprop="name headline">
+          贝叶斯公式、先验概率、最大似然估计、最大后验概率估计
+        </h1>
+
+        <div class="post-meta">
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="far fa-calendar"></i>
+              </span>
+              <span class="post-meta-item-text">Posted on</span>
+
+              <time title="Created: 2018-07-30 00:00:00" itemprop="dateCreated datePublished" datetime="2018-07-30T00:00:00+08:00">2018-07-30</time>
+            </span>
+              <span class="post-meta-item">
+                <span class="post-meta-item-icon">
+                  <i class="far fa-calendar-check"></i>
+                </span>
+                <span class="post-meta-item-text">Edited on</span>
+                <time title="Modified: 2021-03-25 15:20:30" itemprop="dateModified" datetime="2021-03-25T15:20:30+08:00">2021-03-25</time>
+              </span>
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="far fa-folder"></i>
+              </span>
+              <span class="post-meta-item-text">In</span>
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+                  <a href="/categories/programming/" itemprop="url" rel="index"><span itemprop="name">programming</span></a>
+                </span>
+            </span>
+
+          
+  
+  <span class="post-meta-item">
+    
+      <span class="post-meta-item-icon">
+        <i class="far fa-comment"></i>
+      </span>
+      <span class="post-meta-item-text">Disqus: </span>
+    
+    <a title="disqus" href="/2018/07/30/bayesian-method/#disqus_thread" itemprop="discussionUrl">
+      <span class="post-comments-count disqus-comment-count" data-disqus-identifier="2018/07/30/bayesian-method/" itemprop="commentCount"></span>
+    </a>
+  </span>
+  
+  
+
+        </div>
+      </header>
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+        <p>该文是对以下博客的摘抄和总结：</p>
+<ul>
+<li><a target="_blank" rel="noopener" href="http://mindhacks.cn/2008/09/21/the-magical-bayesian-method/">数学之美番外篇：平凡而又神奇的贝叶斯方法</a></li>
+<li><a target="_blank" rel="noopener" href="https://zhuanlan.zhihu.com/p/26614750">一文搞懂极大似然估计</a></li>
+</ul>
+<h1 id="贝叶斯公式的背景"><a href="#贝叶斯公式的背景" class="headerlink" title="贝叶斯公式的背景"></a>贝叶斯公式的背景</h1><p>“所谓的贝叶斯方法源于他生前为解决一个“逆概”问题写的一篇文章，而这篇文章是在他死后才由他的一位朋友发表出来的。在贝叶斯写这篇文章之前，人们已经能够计算“正向概率”，如“假设袋子里面有N个白球，M个黑球，你伸手进去摸一把，摸出黑球的概率是多大”。而一个自然而然的问题是反过来：“如果我们事先并不知道袋子里面黑白球的比例，而是闭着眼睛摸出一个（或好几个）球，观察这些取出来的球的颜色之后，那么我们可以就此对袋子里面的黑白球的比例作出什么样的推测”。这个问题，就是所谓的逆概问题。”<br>这个时候，我们就需要提供一个猜测（hypothesis，更为严格的说法是“假设”，这里用“猜测”更通俗易懂一点），所谓猜测，当然就是不确定的（很可能有好多种乃至无数种猜测都能满足目前的观测），但也绝对不是两眼一抹黑瞎蒙——具体地说，我们需要做两件事情：1. 算出各种不同猜测的可能性大小。2. 算出最靠谱的猜测是什么。第一个就是计算特定猜测的后验概率，对于连续的猜测空间则是计算猜测的概率密度函数。第二个则是所谓的模型比较，模型比较如果不考虑先验概率的话就是最大似然方法。</p>
+<h1 id="例子：女裤style，导出“贝叶斯公式”"><a href="#例子：女裤style，导出“贝叶斯公式”" class="headerlink" title="例子：女裤style，导出“贝叶斯公式”"></a>例子：女裤style，导出“贝叶斯公式”</h1><p>问题：一所学校里面有 $60%$ 的男生和$40%$ 的女生。男生总是穿长裤，女生则一半穿长裤一半穿裙子。有了这些信息之后我们可以容易地计算“随机选取一个学生，他（她）穿长裤的概率和穿裙子的概率是多大”，这个就是前面说的“正向概率”的计算。然而，假设你走在校园中，迎面走来一个穿长裤的学生（很不幸的是你高度近似，你只看得见他（她）穿的是否长裤，而无法确定他（她）的性别），你能够推断出他（她）是男生的概率是多大吗？<br>分析：一些认知科学的研究表明，我们对形式化的贝叶斯问题不擅长，但对于以频率形式呈现的等价问题却很擅长。在这里，我们不妨把问题重新叙述成：你在校园里面随机游走，遇到了 $N$ 个穿长裤的人（仍然假设你无法直接观察到他们的性别），问这$N$个人里面有多少个女生多少个男生。<br>解答：假设学校里面人的总数是 $U$ 个。$60%$ 的男生都穿长裤，于是我们得到了 <code>$U*P(Boy)*P(Pants|Boy)$</code> 个穿长裤的（男生）（其中 $P(Boy)$ 是男生的概率 $= 60%$，这里可以简单的理解为男生的比例；$P(Pants|Boy)$ 是条件概率，即在 Boy 这个条件下穿长裤的概率是多大，这里是 $100%$ ，因为所有男生都穿长裤）。$40%$ 的女生里面又有一半（$50%$）是穿长裤的，于是我们又得到了 <code>$U* P(Girl) * P(Pants|Girl)$</code> 个穿长裤的（女生）。加起来一共是 <code>$U * P(Boy) * P(Pants|Boy) + U * P(Girl) * P(Pants|Girl)$</code> 个穿长裤的，其中有 <code>$U * P(Girl) * P(Pants|Girl)$</code> 个女生。两者一比就是你要求的答案。<br>转为贝叶斯问题：我们要求的是 $P(Girl|Pants)$ （穿长裤的人里面有多少女生），我们计算的结果是 <code>$\frac&#123;U * P(Girl) * P(Pants|Girl)&#125;&#123;U * P(Boy) * P(Pants|Boy) + U * P(Girl) * P(Pants|Girl)&#125;$</code>。容易发现这里校园内人的总数是无关的，可以消去。于是得到:<br>$$<br>P(Girl|Pants)=\frac{P(Girl) * P(Pants|Girl)}{P(Boy) * P(Pants|Boy) + P(Girl) * P(Pants|Girl)}<br>$$<br>注意，如果把上式收缩起来，分母其实就是 $P(Pants)$ ，分子其实就是 $P(Pants, Girl)$ 。而这个比例$P(Girl|Pants)$很自然地就读作：在穿长裤的人（ $P(Pants)$ ）里面有多少（穿长裤）的女孩（ $P(Pants, Girl)$ ）。</p>
+<p>上式中的 Pants 和 Boy/Girl 可以指代一切东西，所以其一般形式就是：<br>$$<br>P(B|A) = \frac{P(A|B) * P(B)} {P(A|B) * P(B) + P(A|\sim B) * P(\sim B)}<br>$$<br>收缩起来就是：<br>$$<br>P(B|A) = \frac{P(AB)} {P(A)} = \frac{P(A|B) * P(B)}{P(A)}<br>$$</p>
+<h1 id="例子：拼写检查，导出“先验概率、最大似然估计和最大后验概率估计”"><a href="#例子：拼写检查，导出“先验概率、最大似然估计和最大后验概率估计”" class="headerlink" title="例子：拼写检查，导出“先验概率、最大似然估计和最大后验概率估计”"></a>例子：拼写检查，导出“先验概率、最大似然估计和最大后验概率估计”</h1><p>问题：我们看到用户输入了一个不在字典中的单词，我们需要去猜测：“这个家伙到底真正想输入的单词是什么呢？”。用刚才我们形式化的语言来叙述就是，我们需要求：$ P(我们猜测他想输入的单词 | 他实际输入的单词)$ 这个概率。并找出那个使得这个概率最大的猜测单词。显然，我们的猜测未必是唯一的，就像前面举的那个自然语言的歧义性的例子一样；这里，比如用户输入： thew ，那么他到底是想输入 the ，还是想输入 thaw ？到底哪个猜测可能性更大呢？幸运的是我们可以用贝叶斯公式来直接出它们各自的概率，我们不妨将我们的多个猜测记为 $h1, h2 .. (h=hypothesis)$，它们都属于一个有限且离散的猜测空间 $H$（单词总共就那么多而已），将用户实际输入的单词记为 $D, D 代表 Data ，即观测数据$，于是<br>$P(我们的猜测1 | 他实际输入的单词)$ 可以抽象地记为：$P(h1 | D)$，类似地，对于我们的猜测2，则是 $P(h2 | D)$。不妨统一记为：$P(h | D)$。那么运用一次贝叶斯公式，有：<br>$$<br>P(h|D) = \frac{P(h) * P(D|h)}{P(D)}<br>$$<br>对于不同的具体猜测$h1, h2, h3..$，$P(D)$都是一样的，所以在比较$P(h1 | D)$和$P(h2 | D)$时，可以忽略这个常数。即：<br>$$<br>P(h|D) \propto P(h) * P(D|h)<br>$$<br>这个式子的抽象含义是：对于给定观测数据，一个猜测是好是坏，取决于“这个猜测本身独立的可能性大小（先验概率，Prior ）”和“这个猜测生成我们观测到的数据的可能性大小”（似然，Likelihood ）的乘积。具体到我们的那个 thew 例子上，含义就是，用户实际是想输入 the 的可能性大小取决于 the 本身在词汇表中被使用的可能性（频繁程度）大小（先验概率）和 想打 the 却打成 thew 的可能性大小（似然）的乘积。下面的事情就很简单了，对于我们猜测为可能的每个单词计算一下 $P(h) * P(D | h)$ 这个值，然后取最大的，得到的就是最靠谱的猜测。<br>注意：贝叶斯方法计算的是两个概率的乘积，一个是先验概率，一个是最大似然估计。不能仅取其中一个，因为会有失偏颇。最大似然估计是计算了在$h$出现的情形下$D$出现的概率，但忽略了$h$本身出现的概率。如果$h$本身就很难出现，那么即使$P(D|h)$很大，那计算出的$P(h|D)$也会很小。比如如果用户输入的是tlp，那么到底他输入的是top还是tpp。当输入tpp时，有很大可能输成tlp，但tpp本身出现概率很小，所以更有可能是用户想输的是top。<br>奥卡姆剃刀就是说 $P(h)$ 较大的模型有较大的优势，而最大似然则是说最符合观测数据的（即 $P(D | h)$ 最大的）最有优势。整个模型比较就是这两方力量的拉锯。更一般的，大多数情形下我们的先验概率往往是均匀分布，此时就主要是似然估计在起作用。但即使只有似然估计起作用的时候，它也是倾向于更简单的模型，即此时是贝叶斯奥卡姆剃刀。</p>
+<p>所以，贝叶斯方法计算的是最大后验概率估计，它包括两个部分：先验概率和最大似然估计。具体地，似然估计是求的参数，是根据已有的数据，推知模型中的参数，以使得该数据出现的可能性最大。<br>背景知识：<br>概率（probabilty）和统计（statistics）看似两个相近的概念，其实研究的问题刚好相反。<br>概率是已知模型和参数，推数据。统计是已知数据，推模型和参数。<br>对于函数：<br>$$<br>P(x|\theta)<br>$$<br>其中，$x$表示数据，$\theta$表示模型的参数。<br>如果$\theta$已知，$x$是变量，那么这个函数叫做概率函数（probability function），描述对于不同的样本点$x$，其出现概率是多少。如果$x$已知，$\theta$是变量，那么这个函数叫做似然函数（likelihood function），描述对于不同的模型参数，出现$x$这个样本点的概率是多少。</p>
+<h1 id="例子：垃圾邮件过滤器，导出“朴素贝叶斯”"><a href="#例子：垃圾邮件过滤器，导出“朴素贝叶斯”" class="headerlink" title="例子：垃圾邮件过滤器，导出“朴素贝叶斯”"></a>例子：垃圾邮件过滤器，导出“朴素贝叶斯”</h1><p>问题：给定一封邮件，判定它是否属于垃圾邮件。按照先例，我们还是用 $D$ 来表示这封邮件，注意 $D$ 由 $N$ 个单词组成。我们用 $h$ 来表示垃圾邮件。问题可以形式化地描述为求：<br>$$<br>P(h|D) = P(h) * P(D|h) / P(D)<br>$$<br>其中 $P(h)$ 这个先验概率是很容易求出来的，只需要计算一个邮件库里面垃圾邮件占所有邮件的比例就行了。然而 $P(D|h)$ 却不容易求，因为 $D$ 里面含有 $N$ 个单词 $d1, d2, d3, ..$ ，所以$P(D|h) = P(d1,d2,..,dn|h)$ 。我们又一次遇到了数据稀疏性，为什么这么说呢？$P(d1,d2,..,dn|h)$ 就是说在垃圾邮件当中出现跟我们目前这封邮件一模一样的一封邮件的概率是多大！开玩笑，每封邮件都是不同的，世界上有无穷多封邮件。瞧，这就是数据稀疏性，因为可以肯定地说，你收集的训练数据库不管里面含了多少封邮件，也不可能找出一封跟目前这封一模一样的。结果呢？我们又该如何来计算它呢？我们将 $P(d1,d2,..,dn|h)$  扩展为： <code>$P(d1|h) * P(d2|d1, h) * P(d3|d2,h) * ..$</code>。这个式子就是假设一个词出现的概率只依赖于它前面的一个词。这里我们会使用一个更激进的假设，我们假设 $di$ 与 $di-1$ 是完全条件无关的，于是式子就简化为 <code>$P(d1|h) * P(d2|h) * P(d3|h) * ..$</code> 。这个就是所谓的条件独立假设，也正是朴素贝叶斯方法的朴素之处。而计算 <code>$P(d1|h) * P(d2|h) * P(d3|h) * ..$</code> 就太简单了，只要统计 $di$ 这个单词在垃圾邮件中出现的频率即可。</p>
+
+    </div>
+
+    
+    
+    
+        <div class="reward-container">
+  <div></div>
+  <button onclick="var qr = document.getElementById('qr'); qr.style.display = (qr.style.display === 'none') ? 'block' : 'none';">
+    Donate
+  </button>
+  <div id="qr" style="display: none;">
+      
+      <div style="display: inline-block;">
+        <img src="/images/wechat_reward.png" alt="Xin-Bo Qi(亓欣波) WeChat Pay">
+        <p>WeChat Pay</p>
+      </div>
+
+  </div>
+</div>
+
+
+      <footer class="post-footer">
+          <div class="post-tags">
+              <a href="/tags/Machine-Learning/" rel="tag"># Machine Learning</a>
+          </div>
+
+        
+
+
+        
+    <div class="post-nav">
+      <div class="post-nav-item">
+    <a href="/2018/07/24/vae/" rel="prev" title="变分自编码器的原理和程序解析">
+      <i class="fa fa-chevron-left"></i> 变分自编码器的原理和程序解析
+    </a></div>
+      <div class="post-nav-item">
+    <a href="/2018/09/01/imagej-intro/" rel="next" title="ImageJ 用户指南 -- 1. 简介和安装">
+      ImageJ 用户指南 -- 1. 简介和安装 <i class="fa fa-chevron-right"></i>
+    </a></div>
+    </div>
+      </footer>
+    
+  </article>
+  
+  
+  
+
+
+
+          </div>
+          
+    
+  <div class="comments">
+    <div id="disqus_thread">
+      <noscript>Please enable JavaScript to view the comments powered by Disqus.</noscript>
+    </div>
+  </div>
+  
+
+<script>
+  window.addEventListener('tabs:register', () => {
+    let { activeClass } = CONFIG.comments;
+    if (CONFIG.comments.storage) {
+      activeClass = localStorage.getItem('comments_active') || activeClass;
+    }
+    if (activeClass) {
+      let activeTab = document.querySelector(`a[href="#comment-${activeClass}"]`);
+      if (activeTab) {
+        activeTab.click();
+      }
+    }
+  });
+  if (CONFIG.comments.storage) {
+    window.addEventListener('tabs:click', event => {
+      if (!event.target.matches('.tabs-comment .tab-content .tab-pane')) return;
+      let commentClass = event.target.classList[1];
+      localStorage.setItem('comments_active', commentClass);
+    });
+  }
+</script>
+
+        </div>
+          
+  
+  <div class="toggle sidebar-toggle">
+    <span class="toggle-line toggle-line-first"></span>
+    <span class="toggle-line toggle-line-middle"></span>
+    <span class="toggle-line toggle-line-last"></span>
+  </div>
+
+  <aside class="sidebar">
+    <div class="sidebar-inner">
+
+      <ul class="sidebar-nav motion-element">
+        <li class="sidebar-nav-toc">
+          Table of Contents
+        </li>
+        <li class="sidebar-nav-overview">
+          Overview
+        </li>
+      </ul>
+
+      <!--noindex-->
+      <div class="post-toc-wrap sidebar-panel">
+          <div class="post-toc motion-element"><ol class="nav"><li class="nav-item nav-level-1"><a class="nav-link" href="#%E8%B4%9D%E5%8F%B6%E6%96%AF%E5%85%AC%E5%BC%8F%E7%9A%84%E8%83%8C%E6%99%AF"><span class="nav-number">1.</span> <span class="nav-text">贝叶斯公式的背景</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#%E4%BE%8B%E5%AD%90%EF%BC%9A%E5%A5%B3%E8%A3%A4style%EF%BC%8C%E5%AF%BC%E5%87%BA%E2%80%9C%E8%B4%9D%E5%8F%B6%E6%96%AF%E5%85%AC%E5%BC%8F%E2%80%9D"><span class="nav-number">2.</span> <span class="nav-text">例子：女裤style，导出“贝叶斯公式”</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#%E4%BE%8B%E5%AD%90%EF%BC%9A%E6%8B%BC%E5%86%99%E6%A3%80%E6%9F%A5%EF%BC%8C%E5%AF%BC%E5%87%BA%E2%80%9C%E5%85%88%E9%AA%8C%E6%A6%82%E7%8E%87%E3%80%81%E6%9C%80%E5%A4%A7%E4%BC%BC%E7%84%B6%E4%BC%B0%E8%AE%A1%E5%92%8C%E6%9C%80%E5%A4%A7%E5%90%8E%E9%AA%8C%E6%A6%82%E7%8E%87%E4%BC%B0%E8%AE%A1%E2%80%9D"><span class="nav-number">3.</span> <span class="nav-text">例子：拼写检查，导出“先验概率、最大似然估计和最大后验概率估计”</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#%E4%BE%8B%E5%AD%90%EF%BC%9A%E5%9E%83%E5%9C%BE%E9%82%AE%E4%BB%B6%E8%BF%87%E6%BB%A4%E5%99%A8%EF%BC%8C%E5%AF%BC%E5%87%BA%E2%80%9C%E6%9C%B4%E7%B4%A0%E8%B4%9D%E5%8F%B6%E6%96%AF%E2%80%9D"><span class="nav-number">4.</span> <span class="nav-text">例子：垃圾邮件过滤器，导出“朴素贝叶斯”</span></a></li></ol></div>
+      </div>
+      <!--/noindex-->
+
+      <div class="site-overview-wrap sidebar-panel">
+        <div class="site-author motion-element" itemprop="author" itemscope itemtype="http://schema.org/Person">
+    <img class="site-author-image" itemprop="image" alt="Xin-Bo Qi(亓欣波)"
+      src="/images/avatar.jpg">
+  <p class="site-author-name" itemprop="name">Xin-Bo Qi(亓欣波)</p>
+  <div class="site-description" itemprop="description">Be interesting!</div>
+</div>
+<div class="site-state-wrap motion-element">
+  <nav class="site-state">
+      <div class="site-state-item site-state-posts">
+          <a href="/archives/">
+        
+          <span class="site-state-item-count">120</span>
+          <span class="site-state-item-name">posts</span>
+        </a>
+      </div>
+      <div class="site-state-item site-state-categories">
+            <a href="/categories/">
+          
+        <span class="site-state-item-count">5</span>
+        <span class="site-state-item-name">categories</span></a>
+      </div>
+      <div class="site-state-item site-state-tags">
+            <a href="/tags/">
+          
+        <span class="site-state-item-count">41</span>
+        <span class="site-state-item-name">tags</span></a>
+      </div>
+  </nav>
+</div>
+  <div class="links-of-author motion-element">
+      <span class="links-of-author-item">
+        <a href="https://github.com/qixinbo" title="GitHub → https:&#x2F;&#x2F;github.com&#x2F;qixinbo" rel="noopener" target="_blank"><i class="github fa-fw"></i>GitHub</a>
+      </span>
+      <span class="links-of-author-item">
+        <a href="mailto:qixinbo@gmail.com" title="E-Mail → mailto:qixinbo@gmail.com" rel="noopener" target="_blank"><i class="envelope fa-fw"></i>E-Mail</a>
+      </span>
+  </div>
+
+
+  <div class="links-of-blogroll motion-element">
+    <div class="links-of-blogroll-title"><i class="fa fa-link fa-fw"></i>
+      Links
+    </div>
+    <ul class="links-of-blogroll-list">
+        <li class="links-of-blogroll-item">
+          <a href="https://www.tsinghua.edu.cn/" title="https:&#x2F;&#x2F;www.tsinghua.edu.cn" rel="noopener" target="_blank">THU</a>
+        </li>
+        <li class="links-of-blogroll-item">
+          <a href="http://www.imr.cas.cn/" title="http:&#x2F;&#x2F;www.imr.cas.cn" rel="noopener" target="_blank">IMR</a>
+        </li>
+        <li class="links-of-blogroll-item">
+          <a href="http://www.sdu.edu.cn/" title="http:&#x2F;&#x2F;www.sdu.edu.cn" rel="noopener" target="_blank">SDU</a>
+        </li>
+        <li class="links-of-blogroll-item">
+          <a href="http://liam0205.me/" title="http:&#x2F;&#x2F;liam0205.me&#x2F;" rel="noopener" target="_blank">黄晨成</a>
+        </li>
+    </ul>
+  </div>
+
+      </div>
+
+    </div>
+  </aside>
+  <div id="sidebar-dimmer"></div>
+
+
+      </div>
+    </main>
+
+    <footer class="footer">
+      <div class="footer-inner">
+        
+
+        
+
+<div class="copyright">
+  
+  &copy; 
+  <span itemprop="copyrightYear">2021</span>
+  <span class="with-love">
+    <i class="fa fa-heart"></i>
+  </span>
+  <span class="author" itemprop="copyrightHolder">Xin-Bo Qi(亓欣波)</span>
+</div>
+  <div class="powered-by">Powered by <a href="https://hexo.io/" class="theme-link" rel="noopener" target="_blank">Hexo</a> & <a href="https://theme-next.org/" class="theme-link" rel="noopener" target="_blank">NexT.Gemini</a>
+  </div>
+
+        
+
+
+
+
+
+
+
+
+      </div>
+    </footer>
+  </div>
+
+  
+  <script src="/lib/anime.min.js"></script>
+  <script src="/lib/velocity/velocity.min.js"></script>
+  <script src="/lib/velocity/velocity.ui.min.js"></script>
+
+<script src="/js/utils.js"></script>
+
+<script src="/js/motion.js"></script>
+
+
+<script src="/js/schemes/pisces.js"></script>
+
+
+<script src="/js/next-boot.js"></script>
+
+
+
+
+  
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+  
+
+  
+
+  
+
+<script>
+  function loadCount() {
+    var d = document, s = d.createElement('script');
+    s.src = 'https://qixinbo.disqus.com/count.js';
+    s.id = 'dsq-count-scr';
+    (d.head || d.body).appendChild(s);
+  }
+  // defer loading until the whole page loading is completed
+  window.addEventListener('load', loadCount, false);
+</script>
+<script>
+  var disqus_config = function() {
+    this.page.url = "http://qixinbo.github.io/2018/07/30/bayesian-method/";
+    this.page.identifier = "2018/07/30/bayesian-method/";
+    this.page.title = "贝叶斯公式、先验概率、最大似然估计、最大后验概率估计";
+    };
+  NexT.utils.loadComments(document.querySelector('#disqus_thread'), () => {
+    if (window.DISQUS) {
+      DISQUS.reset({
+        reload: true,
+        config: disqus_config
+      });
+    } else {
+      var d = document, s = d.createElement('script');
+      s.src = 'https://qixinbo.disqus.com/embed.js';
+      s.setAttribute('data-timestamp', '' + +new Date());
+      (d.head || d.body).appendChild(s);
+    }
+  });
+</script>
+
+</body>
+</html>

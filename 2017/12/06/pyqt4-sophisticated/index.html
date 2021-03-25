@@ -1,0 +1,606 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=2">
+<meta name="theme-color" content="#222">
+<meta name="generator" content="Hexo 5.4.0">
+  <link rel="apple-touch-icon" sizes="180x180" href="/images/apple-touch-icon-next.png">
+  <link rel="icon" type="image/png" sizes="32x32" href="/favicon.ico">
+  <link rel="icon" type="image/png" sizes="16x16" href="/favicon.ico">
+  <link rel="mask-icon" href="/images/logo.svg" color="#222">
+
+<link rel="stylesheet" href="/css/main.css">
+
+
+<link rel="stylesheet" href="/lib/font-awesome/css/all.min.css">
+
+<script id="hexo-configurations">
+    var NexT = window.NexT || {};
+    var CONFIG = {"hostname":"qixinbo.github.io","root":"/","scheme":"Gemini","version":"7.8.0","exturl":false,"sidebar":{"position":"left","display":"post","padding":18,"offset":12,"onmobile":false},"copycode":{"enable":false,"show_result":false,"style":null},"back2top":{"enable":true,"sidebar":false,"scrollpercent":false},"bookmark":{"enable":false,"color":"#222","save":"auto"},"fancybox":false,"mediumzoom":false,"lazyload":false,"pangu":false,"comments":{"style":"tabs","active":null,"storage":true,"lazyload":false,"nav":null},"algolia":{"hits":{"per_page":10},"labels":{"input_placeholder":"Search for Posts","hits_empty":"We didn't find any results for the search: ${query}","hits_stats":"${hits} results found in ${time} ms"}},"localsearch":{"enable":false,"trigger":"auto","top_n_per_article":1,"unescape":false,"preload":false},"motion":{"enable":true,"async":false,"transition":{"post_block":"fadeIn","post_header":"slideDownIn","post_body":"slideDownIn","coll_header":"slideLeftIn","sidebar":"slideUpIn"}}};
+  </script>
+
+  <meta name="description" content="本文是对TutorialsPoint上的教程的翻译。 数据库QSqlDatabasePyQt API可以和很多基于SQL的数据库进行通信，用的类是QSqlDatabase。具体使用哪个数据库要使用相应的驱动：  QDB2：IBM DB2 QIBASE：Borland InterBase Driver QMYSQL：MySQL Driver QOCI：Oracle Call Interface Dr">
+<meta property="og:type" content="article">
+<meta property="og:title" content="PyQt4教程系列四：高阶功能">
+<meta property="og:url" content="http://qixinbo.github.io/2017/12/06/pyqt4-sophisticated/index.html">
+<meta property="og:site_name" content="亓欣波">
+<meta property="og:description" content="本文是对TutorialsPoint上的教程的翻译。 数据库QSqlDatabasePyQt API可以和很多基于SQL的数据库进行通信，用的类是QSqlDatabase。具体使用哪个数据库要使用相应的驱动：  QDB2：IBM DB2 QIBASE：Borland InterBase Driver QMYSQL：MySQL Driver QOCI：Oracle Call Interface Dr">
+<meta property="og:locale" content="en_US">
+<meta property="article:published_time" content="2017-12-05T16:00:00.000Z">
+<meta property="article:modified_time" content="2021-03-25T07:20:30.848Z">
+<meta property="article:author" content="Xin-Bo Qi(亓欣波)">
+<meta property="article:tag" content="PyQt">
+<meta name="twitter:card" content="summary">
+
+<link rel="canonical" href="http://qixinbo.github.io/2017/12/06/pyqt4-sophisticated/">
+
+
+<script id="page-configurations">
+  // https://hexo.io/docs/variables.html
+  CONFIG.page = {
+    sidebar: "",
+    isHome : false,
+    isPost : true,
+    lang   : 'en'
+  };
+</script>
+
+  <title>PyQt4教程系列四：高阶功能 | 亓欣波</title>
+  
+
+
+
+
+
+
+  <noscript>
+  <style>
+  .use-motion .brand,
+  .use-motion .menu-item,
+  .sidebar-inner,
+  .use-motion .post-block,
+  .use-motion .pagination,
+  .use-motion .comments,
+  .use-motion .post-header,
+  .use-motion .post-body,
+  .use-motion .collection-header { opacity: initial; }
+
+  .use-motion .site-title,
+  .use-motion .site-subtitle {
+    opacity: initial;
+    top: initial;
+  }
+
+  .use-motion .logo-line-before i { left: initial; }
+  .use-motion .logo-line-after i { right: initial; }
+  </style>
+</noscript>
+
+</head>
+
+<body itemscope itemtype="http://schema.org/WebPage">
+  <div class="container use-motion">
+    <div class="headband"></div>
+
+    <header class="header" itemscope itemtype="http://schema.org/WPHeader">
+      <div class="header-inner"><div class="site-brand-container">
+  <div class="site-nav-toggle">
+    <div class="toggle" aria-label="Toggle navigation bar">
+      <span class="toggle-line toggle-line-first"></span>
+      <span class="toggle-line toggle-line-middle"></span>
+      <span class="toggle-line toggle-line-last"></span>
+    </div>
+  </div>
+
+  <div class="site-meta">
+
+    <a href="/" class="brand" rel="start">
+      <span class="logo-line-before"><i></i></span>
+      <h1 class="site-title">亓欣波</h1>
+      <span class="logo-line-after"><i></i></span>
+    </a>
+      <p class="site-subtitle" itemprop="description">Hi, I am Xin-Bo Qi (亓欣波)</p>
+  </div>
+
+  <div class="site-nav-right">
+    <div class="toggle popup-trigger">
+    </div>
+  </div>
+</div>
+
+
+
+
+<nav class="site-nav">
+  <ul id="menu" class="main-menu menu">
+        <li class="menu-item menu-item-home">
+
+    <a href="/" rel="section"><i class="home fa-fw"></i>Home</a>
+
+  </li>
+        <li class="menu-item menu-item-categories">
+
+    <a href="/categories/" rel="section"><i class="th fa-fw"></i>Categories</a>
+
+  </li>
+        <li class="menu-item menu-item-archives">
+
+    <a href="/archives/" rel="section"><i class="archive fa-fw"></i>Archives</a>
+
+  </li>
+        <li class="menu-item menu-item-tags">
+
+    <a href="/tags/" rel="section"><i class="tags fa-fw"></i>Tags</a>
+
+  </li>
+        <li class="menu-item menu-item-scholar">
+
+    <a href="/scholar/" rel="section"><i class="bar-chart fa-fw"></i>scholar</a>
+
+  </li>
+        <li class="menu-item menu-item-sources">
+
+    <a href="/sources/" rel="section"><i class="rss fa-fw"></i>sources</a>
+
+  </li>
+        <li class="menu-item menu-item-gallery">
+
+    <a href="/gallery/" rel="section"><i class="file-image-o fa-fw"></i>gallery</a>
+
+  </li>
+        <li class="menu-item menu-item-about">
+
+    <a href="/about/" rel="section"><i class="user fa-fw"></i>About</a>
+
+  </li>
+        <li class="menu-item menu-item-commonweal">
+
+    <a href="/404.html" rel="section"><i class="heartbeat fa-fw"></i>Commonweal 404</a>
+
+  </li>
+  </ul>
+</nav>
+
+
+
+
+</div>
+    </header>
+
+    
+  <div class="back-to-top">
+    <i class="fa fa-arrow-up"></i>
+    <span>0%</span>
+  </div>
+
+
+    <main class="main">
+      <div class="main-inner">
+        <div class="content-wrap">
+          
+
+          <div class="content post posts-expand">
+            
+
+    
+  
+  
+  <article itemscope itemtype="http://schema.org/Article" class="post-block" lang="en">
+    <link itemprop="mainEntityOfPage" href="http://qixinbo.github.io/2017/12/06/pyqt4-sophisticated/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="image" content="/images/avatar.jpg">
+      <meta itemprop="name" content="Xin-Bo Qi(亓欣波)">
+      <meta itemprop="description" content="Be interesting!">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="亓欣波">
+    </span>
+      <header class="post-header">
+        <h1 class="post-title" itemprop="name headline">
+          PyQt4教程系列四：高阶功能
+        </h1>
+
+        <div class="post-meta">
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="far fa-calendar"></i>
+              </span>
+              <span class="post-meta-item-text">Posted on</span>
+
+              <time title="Created: 2017-12-06 00:00:00" itemprop="dateCreated datePublished" datetime="2017-12-06T00:00:00+08:00">2017-12-06</time>
+            </span>
+              <span class="post-meta-item">
+                <span class="post-meta-item-icon">
+                  <i class="far fa-calendar-check"></i>
+                </span>
+                <span class="post-meta-item-text">Edited on</span>
+                <time title="Modified: 2021-03-25 15:20:30" itemprop="dateModified" datetime="2021-03-25T15:20:30+08:00">2021-03-25</time>
+              </span>
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="far fa-folder"></i>
+              </span>
+              <span class="post-meta-item-text">In</span>
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+                  <a href="/categories/programming/" itemprop="url" rel="index"><span itemprop="name">programming</span></a>
+                </span>
+            </span>
+
+          
+  
+  <span class="post-meta-item">
+    
+      <span class="post-meta-item-icon">
+        <i class="far fa-comment"></i>
+      </span>
+      <span class="post-meta-item-text">Disqus: </span>
+    
+    <a title="disqus" href="/2017/12/06/pyqt4-sophisticated/#disqus_thread" itemprop="discussionUrl">
+      <span class="post-comments-count disqus-comment-count" data-disqus-identifier="2017/12/06/pyqt4-sophisticated/" itemprop="commentCount"></span>
+    </a>
+  </span>
+  
+  
+
+        </div>
+      </header>
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+        <p>本文是对<a target="_blank" rel="noopener" href="https://www.tutorialspoint.com/pyqt/">TutorialsPoint</a>上的教程的翻译。</p>
+<h1 id="数据库QSqlDatabase"><a href="#数据库QSqlDatabase" class="headerlink" title="数据库QSqlDatabase"></a>数据库QSqlDatabase</h1><p>PyQt API可以和很多基于SQL的数据库进行通信，用的类是QSqlDatabase。<br>具体使用哪个数据库要使用相应的驱动：</p>
+<ol>
+<li>QDB2：IBM DB2</li>
+<li>QIBASE：Borland InterBase Driver</li>
+<li>QMYSQL：MySQL Driver</li>
+<li>QOCI：Oracle Call Interface Driver</li>
+<li>QODBC：ODBC Driver (includes Microsoft SQL Server)</li>
+<li>QPSQL：PostgreSQL Driver</li>
+<li>QSQLITE：SQLite version 3 or above</li>
+<li>QSQLITE2“SQLite version 2</li>
+</ol>
+<figure class="highlight"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">db = QtSql.QSqlDatabase.addDatabase(&#x27;QSQLITE&#x27;)</span><br></pre></td></tr></table></figure>
+
+<h2 id="QSqlDatabase的函数"><a href="#QSqlDatabase的函数" class="headerlink" title="QSqlDatabase的函数"></a>QSqlDatabase的函数</h2><ol>
+<li>setDatabaseName()：设置数据库的名称</li>
+<li>setHostName()：设置安装数据库的主机的名称</li>
+<li>setUserName()：输入用户名</li>
+<li>setPassword()：输入密码</li>
+<li>commit()：提交事务，如果连接成功则返回true</li>
+<li>rollback()：回滚事务</li>
+<li>close()：关闭连接</li>
+</ol>
+<h2 id="举例"><a href="#举例" class="headerlink" title="举例"></a>举例</h2><p>先创建一个含有五个记录的数据库：</p>
+<figure class="highlight cpp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br></pre></td><td class="code"><pre><span class="line">from PyQt4 <span class="keyword">import</span> QtSql, QtGui</span><br><span class="line"></span><br><span class="line"><span class="function">def <span class="title">createDB</span><span class="params">()</span>:</span></span><br><span class="line">   db = QtSql.QSqlDatabase.addDatabase(&#x27;QSQLITE&#x27;)</span><br><span class="line">   db.setDatabaseName(&#x27;sports.db&#x27;)</span><br><span class="line">	</span><br><span class="line">   <span class="keyword">if</span> <span class="keyword">not</span> db.<span class="built_in">open</span>():</span><br><span class="line">      QtGui.QMessageBox.<span class="built_in">critical</span>(None, QtGui.qApp.<span class="built_in">tr</span>(<span class="string">&quot;Cannot open database&quot;</span>),</span><br><span class="line">         QtGui.qApp.<span class="built_in">tr</span>(<span class="string">&quot;Unable to establish a database connection.\n&quot;</span></span><br><span class="line">            <span class="string">&quot;This example needs SQLite support. Please read &quot;</span></span><br><span class="line">            <span class="string">&quot;the Qt SQL driver documentation for information &quot;</span></span><br><span class="line">            <span class="string">&quot;how to build it.\n\n&quot;</span> <span class="string">&quot;Click Cancel to exit.&quot;</span>),</span><br><span class="line">         QtGui.QMessageBox.Cancel)</span><br><span class="line">			</span><br><span class="line">      <span class="keyword">return</span> False</span><br><span class="line">		</span><br><span class="line">   query = QtSql.<span class="built_in">QSqlQuery</span>()</span><br><span class="line">	</span><br><span class="line">   query.<span class="built_in">exec_</span>(<span class="string">&quot;create table sportsmen(id int primary key, &quot;</span></span><br><span class="line">      <span class="string">&quot;firstname varchar(20), lastname varchar(20))&quot;</span>)</span><br><span class="line">		</span><br><span class="line">   query.<span class="built_in">exec_</span>(<span class="string">&quot;insert into sportsmen values(101, &#x27;Roger&#x27;, &#x27;Federer&#x27;)&quot;</span>)</span><br><span class="line">   query.<span class="built_in">exec_</span>(<span class="string">&quot;insert into sportsmen values(102, &#x27;Christiano&#x27;, &#x27;Ronaldo&#x27;)&quot;</span>)</span><br><span class="line">   query.<span class="built_in">exec_</span>(<span class="string">&quot;insert into sportsmen values(103, &#x27;Ussain&#x27;, &#x27;Bolt&#x27;)&quot;</span>)</span><br><span class="line">   query.<span class="built_in">exec_</span>(<span class="string">&quot;insert into sportsmen values(104, &#x27;Sachin&#x27;, &#x27;Tendulkar&#x27;)&quot;</span>)</span><br><span class="line">   query.<span class="built_in">exec_</span>(<span class="string">&quot;insert into sportsmen values(105, &#x27;Saina&#x27;, &#x27;Nehwal&#x27;)&quot;</span>)</span><br><span class="line">   <span class="keyword">return</span> True</span><br><span class="line">	</span><br><span class="line">if __name__ == &#x27;__main__&#x27;:</span><br><span class="line">   <span class="keyword">import</span> sys</span><br><span class="line">	</span><br><span class="line">   app = QtGui.<span class="built_in">QApplication</span>(sys.argv)</span><br><span class="line">   <span class="built_in">createDB</span>()</span><br></pre></td></tr></table></figure>
+<p>再实际连接并操作这个数据库：</p>
+<figure class="highlight cpp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br><span class="line">52</span><br><span class="line">53</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">import</span> sys</span><br><span class="line">from PyQt4 <span class="keyword">import</span> QtCore, QtGui, QtSql</span><br><span class="line"></span><br><span class="line"><span class="function">def <span class="title">initializeModel</span><span class="params">(model)</span>:</span></span><br><span class="line">   model.setTable(&#x27;sportsmen&#x27;)</span><br><span class="line">   model.<span class="built_in">setEditStrategy</span>(QtSql.QSqlTableModel.OnFieldChange)</span><br><span class="line">   model.<span class="built_in">select</span>()</span><br><span class="line">   model.<span class="built_in">setHeaderData</span>(<span class="number">0</span>, QtCore.Qt.Horizontal, <span class="string">&quot;ID&quot;</span>)</span><br><span class="line">   model.<span class="built_in">setHeaderData</span>(<span class="number">1</span>, QtCore.Qt.Horizontal, <span class="string">&quot;First name&quot;</span>)</span><br><span class="line">   model.<span class="built_in">setHeaderData</span>(<span class="number">2</span>, QtCore.Qt.Horizontal, <span class="string">&quot;Last name&quot;</span>)</span><br><span class="line">	</span><br><span class="line"><span class="function">def <span class="title">createView</span><span class="params">(title, model)</span>:</span></span><br><span class="line"><span class="function">   view =</span> QtGui.<span class="built_in">QTableView</span>()</span><br><span class="line">   view.<span class="built_in">setModel</span>(model)</span><br><span class="line">   view.<span class="built_in">setWindowTitle</span>(title)</span><br><span class="line">   <span class="keyword">return</span> view</span><br><span class="line">	</span><br><span class="line">def <span class="built_in">addrow</span>():</span><br><span class="line">   print model.<span class="built_in">rowCount</span>()</span><br><span class="line">   ret = model.<span class="built_in">insertRows</span>(model.<span class="built_in">rowCount</span>(), <span class="number">1</span>)</span><br><span class="line">   print ret</span><br><span class="line">	</span><br><span class="line">def <span class="built_in">findrow</span>(i):</span><br><span class="line">   delrow = i.<span class="built_in">row</span>()</span><br><span class="line">	</span><br><span class="line">if __name__ == &#x27;__main__&#x27;:</span><br><span class="line"></span><br><span class="line">   app = QtGui.<span class="built_in">QApplication</span>(sys.argv)</span><br><span class="line">   db = QtSql.QSqlDatabase.addDatabase(&#x27;QSQLITE&#x27;)</span><br><span class="line">   db.setDatabaseName(&#x27;sports.db&#x27;)</span><br><span class="line">   model = QtSql.<span class="built_in">QSqlTableModel</span>()</span><br><span class="line">   delrow = <span class="number">-1</span></span><br><span class="line">   <span class="built_in">initializeModel</span>(model)</span><br><span class="line">	</span><br><span class="line">   view1 = <span class="built_in">createView</span>(<span class="string">&quot;Table Model (View 1)&quot;</span>, model)</span><br><span class="line">   view1.clicked.<span class="built_in">connect</span>(findrow)</span><br><span class="line">	</span><br><span class="line">   dlg = QtGui.<span class="built_in">QDialog</span>()</span><br><span class="line">   layout = QtGui.<span class="built_in">QVBoxLayout</span>()</span><br><span class="line">   layout.<span class="built_in">addWidget</span>(view1)</span><br><span class="line">	</span><br><span class="line">   button = QtGui.<span class="built_in">QPushButton</span>(<span class="string">&quot;Add a row&quot;</span>)</span><br><span class="line">   button.clicked.<span class="built_in">connect</span>(addrow)</span><br><span class="line">   layout.<span class="built_in">addWidget</span>(button)</span><br><span class="line">	</span><br><span class="line">   btn1 = QtGui.<span class="built_in">QPushButton</span>(<span class="string">&quot;del a row&quot;</span>)</span><br><span class="line">   btn1.clicked.<span class="built_in">connect</span>(lambda: model.<span class="built_in">removeRow</span>(view1.<span class="built_in">currentIndex</span>().<span class="built_in">row</span>()))</span><br><span class="line">   layout.<span class="built_in">addWidget</span>(btn1)</span><br><span class="line">	</span><br><span class="line">   dlg.<span class="built_in">setLayout</span>(layout)</span><br><span class="line">   dlg.<span class="built_in">setWindowTitle</span>(<span class="string">&quot;Database Demo&quot;</span>)</span><br><span class="line">   dlg.<span class="built_in">show</span>()</span><br><span class="line">   sys.<span class="built_in">exit</span>(app.<span class="built_in">exec_</span>())</span><br></pre></td></tr></table></figure>
+
+<h1 id="绘图API-QPaintDevice和QPainter"><a href="#绘图API-QPaintDevice和QPainter" class="headerlink" title="绘图API QPaintDevice和QPainter"></a>绘图API QPaintDevice和QPainter</h1><p>PyQt中的所有QWidget类都是QPaintDevice的子类。QPaintDevice是使用QPainter进行绘图的二维空间的抽象。绘图设备的维度是从左上角开始度量。<br>无论QPainter类的样式更新时，QPaintEvent都会发生。</p>
+<h2 id="QPainter的函数"><a href="#QPainter的函数" class="headerlink" title="QPainter的函数"></a>QPainter的函数</h2><ol>
+<li>begin()：开始绘图</li>
+<li>drawArc()：绘制圆弧</li>
+<li>drawEllipse()：绘制椭圆</li>
+<li>drawLine()：绘制直线</li>
+<li>drawPixmap()：从一个图片文件中提取pixmap，然后显示</li>
+<li>drwaPolygon()：绘制多边形</li>
+<li>drawRect()：绘制矩形</li>
+<li>drawText()：显示文字</li>
+<li>fillRect()：使用QColor参数填充矩形</li>
+<li>setBrush()：设置画刷样式</li>
+<li>setPen()：设置画笔的颜色、尺寸和样式</li>
+</ol>
+<h2 id="画刷样式"><a href="#画刷样式" class="headerlink" title="画刷样式"></a>画刷样式</h2><h3 id="预定义的QColor样式"><a href="#预定义的QColor样式" class="headerlink" title="预定义的QColor样式"></a>预定义的QColor样式</h3><p>Qt.NoBrush           |      No brush pattern<br>Qt.SolidPattern      |      Uniform color<br>Qt.Dense1Pattern     |      Extremely dense brush pattern<br>Qt.HorPattern        |      Horizontal lines<br>Qt.VerPattern        |      Vertical lines<br>Qt.CrossPattern      |      Crossing horizontal and vertical lines<br>Qt.BDiagPattern      |      Backward diagonal lines<br>Qt.FDiagPattern      |      Forward diagonal lines<br>Qt.DiagCrossPattern  |      Crossing diagonal lines</p>
+<h3 id="预定义的QColor对象"><a href="#预定义的QColor对象" class="headerlink" title="预定义的QColor对象"></a>预定义的QColor对象</h3><p>Qt.white      |    Qt.black      |  Qt.red<br>Qt.darkRed    |    Qt.green      |  Qt.darkGreen<br>Qt.blue       |    Qt.cyan       |  Qt.magenta<br>Qt.yellow     |    Qt.darkYellow |  Qt.gray</p>
+<h2 id="举例-1"><a href="#举例-1" class="headerlink" title="举例"></a>举例</h2><figure class="highlight cpp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">import</span> sys</span><br><span class="line">from PyQt4.QtGui <span class="keyword">import</span> *</span><br><span class="line">from PyQt4.QtCore <span class="keyword">import</span> *</span><br><span class="line"></span><br><span class="line"><span class="function">class <span class="title">Example</span><span class="params">(QWidget)</span>:</span></span><br><span class="line"><span class="function"></span></span><br><span class="line"><span class="function">   def __init__(self):</span></span><br><span class="line"><span class="function">      super(Example, self).__init__()</span></span><br><span class="line"><span class="function">      self.initUI()</span></span><br><span class="line"><span class="function">		</span></span><br><span class="line"><span class="function">   def initUI(self):</span></span><br><span class="line"><span class="function">      self.text =</span> <span class="string">&quot;hello world&quot;</span></span><br><span class="line">      self.<span class="built_in">setGeometry</span>(<span class="number">100</span>,<span class="number">100</span>, <span class="number">400</span>,<span class="number">300</span>)</span><br><span class="line">      self.setWindowTitle(&#x27;Draw Demo&#x27;)</span><br><span class="line">      self.<span class="built_in">show</span>()</span><br><span class="line">		</span><br><span class="line">   <span class="function">def <span class="title">paintEvent</span><span class="params">(self, event)</span>:</span></span><br><span class="line"><span class="function">      qp =</span> <span class="built_in">QPainter</span>()</span><br><span class="line">      qp.<span class="built_in">begin</span>(self)</span><br><span class="line">      qp.<span class="built_in">setPen</span>(<span class="built_in">QColor</span>(Qt.red))</span><br><span class="line">      qp.setFont(QFont(&#x27;Arial&#x27;, 20))</span><br><span class="line">		</span><br><span class="line">      qp.<span class="built_in">drawText</span>(<span class="number">10</span>,<span class="number">50</span>, <span class="string">&quot;hello Python&quot;</span>)</span><br><span class="line">      qp.<span class="built_in">setPen</span>(<span class="built_in">QColor</span>(Qt.blue))</span><br><span class="line">      qp.<span class="built_in">drawLine</span>(<span class="number">10</span>,<span class="number">100</span>,<span class="number">100</span>,<span class="number">100</span>)</span><br><span class="line">      qp.<span class="built_in">drawRect</span>(<span class="number">10</span>,<span class="number">150</span>,<span class="number">150</span>,<span class="number">100</span>)</span><br><span class="line">		</span><br><span class="line">      qp.<span class="built_in">setPen</span>(<span class="built_in">QColor</span>(Qt.yellow))</span><br><span class="line">      qp.<span class="built_in">drawEllipse</span>(<span class="number">100</span>,<span class="number">50</span>,<span class="number">100</span>,<span class="number">50</span>)</span><br><span class="line">      qp.<span class="built_in">drawPixmap</span>(<span class="number">220</span>,<span class="number">10</span>,<span class="built_in">QPixmap</span>(<span class="string">&quot;python.jpg&quot;</span>))</span><br><span class="line">      qp.<span class="built_in">fillRect</span>(<span class="number">200</span>,<span class="number">175</span>,<span class="number">150</span>,<span class="number">100</span>,<span class="built_in">QBrush</span>(Qt.SolidPattern))</span><br><span class="line">      qp.<span class="built_in">end</span>()</span><br><span class="line">		</span><br><span class="line"><span class="function">def <span class="title">main</span><span class="params">()</span>:</span></span><br><span class="line"><span class="function">   app =</span> <span class="built_in">QApplication</span>(sys.argv)</span><br><span class="line">   ex = <span class="built_in">Example</span>()</span><br><span class="line">   sys.<span class="built_in">exit</span>(app.<span class="built_in">exec_</span>())</span><br><span class="line">	</span><br><span class="line">if __name__ == &#x27;__main__&#x27;:</span><br><span class="line">   <span class="built_in">main</span>()</span><br></pre></td></tr></table></figure>
+
+<h1 id="剪贴板QClipboard"><a href="#剪贴板QClipboard" class="headerlink" title="剪贴板QClipboard"></a>剪贴板QClipboard</h1><p>QClipboard提供了对系统剪贴板的访问，可以很简单地在不同应用之间复制和粘贴数据。它的动作跟QDrag类类似，使用类似的数据结构。<br>QApplication类有一个静态函数clipboard()来访问系统剪贴板。</p>
+<h2 id="QClipboard的函数"><a href="#QClipboard的函数" class="headerlink" title="QClipboard的函数"></a>QClipboard的函数</h2><ol>
+<li>clear()：清空剪贴板内容</li>
+<li>setImage()：复制QImage到剪贴板</li>
+<li>setMimeData()：复制MIME数据到剪贴板</li>
+<li>setPixmap()：复制Pixmap对象到剪贴板</li>
+<li>setText()：复制QString到剪贴板</li>
+<li>text()：从剪贴板中取得文本</li>
+</ol>
+<h2 id="QClipboard的信号"><a href="#QClipboard的信号" class="headerlink" title="QClipboard的信号"></a>QClipboard的信号</h2><p>dataChanged()：剪贴板数据变化</p>
+<h1 id="QPixmap"><a href="#QPixmap" class="headerlink" title="QPixmap"></a>QPixmap</h1><p>QPixmap和QImage都是图片类，前者专门用于绘图，用作QPaintDevice对象，或者加载到其他控件中，通常是标签或按钮，以及在屏幕上显示；而QImage则是为I/O进行了优化。<br>可以读取到QPixmap中的图片格式有：<br>BMP、GIF、JPG、JPEG、PNG、PBM、PGM、PPM、XBM、XPM。</p>
+<h2 id="QPixmap的函数"><a href="#QPixmap的函数" class="headerlink" title="QPixmap的函数"></a>QPixmap的函数</h2><ol>
+<li>copy()：从一个QRect对象中复制pixmap数据</li>
+<li>fromImage()：将QImage对象转换成QPixmap</li>
+<li>grabWidget()：从给定的控件中创建pixmap</li>
+<li>grabWindow()：在窗口中创建pixmap数据</li>
+<li>Load()：加载一个图片作为pixmap</li>
+<li>save()：保存一个QPixmap对象为一个文件</li>
+<li>toImage()：将一个QPixmap转换成QImage</li>
+</ol>
+<h2 id="举例-2"><a href="#举例-2" class="headerlink" title="举例"></a>举例</h2><figure class="highlight cpp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">import</span> sys</span><br><span class="line">from PyQt4.QtCore <span class="keyword">import</span> *</span><br><span class="line">from PyQt4.QtGui <span class="keyword">import</span> *</span><br><span class="line"></span><br><span class="line"><span class="function">def <span class="title">window</span><span class="params">()</span>:</span></span><br><span class="line"><span class="function">   app =</span> <span class="built_in">QApplication</span>(sys.argv)</span><br><span class="line">   win = <span class="built_in">QWidget</span>()</span><br><span class="line">   l1 = <span class="built_in">QLabel</span>()</span><br><span class="line">   l1.<span class="built_in">setPixmap</span>(<span class="built_in">QPixmap</span>(<span class="string">&quot;python.jpg&quot;</span>))</span><br><span class="line">	</span><br><span class="line">   vbox = <span class="built_in">QVBoxLayout</span>()</span><br><span class="line">   vbox.<span class="built_in">addWidget</span>(l1)</span><br><span class="line">   win.<span class="built_in">setLayout</span>(vbox)</span><br><span class="line">   win.<span class="built_in">setWindowTitle</span>(<span class="string">&quot;QPixmap Demo&quot;</span>)</span><br><span class="line">   win.<span class="built_in">show</span>()</span><br><span class="line">   sys.<span class="built_in">exit</span>(app.<span class="built_in">exec_</span>())</span><br><span class="line">	</span><br><span class="line">if __name__ == &#x27;__main__&#x27;:</span><br><span class="line">   <span class="built_in">window</span>()</span><br></pre></td></tr></table></figure>
+
+    </div>
+
+    
+    
+    
+        <div class="reward-container">
+  <div></div>
+  <button onclick="var qr = document.getElementById('qr'); qr.style.display = (qr.style.display === 'none') ? 'block' : 'none';">
+    Donate
+  </button>
+  <div id="qr" style="display: none;">
+      
+      <div style="display: inline-block;">
+        <img src="/images/wechat_reward.png" alt="Xin-Bo Qi(亓欣波) WeChat Pay">
+        <p>WeChat Pay</p>
+      </div>
+
+  </div>
+</div>
+
+
+      <footer class="post-footer">
+          <div class="post-tags">
+              <a href="/tags/PyQt/" rel="tag"># PyQt</a>
+          </div>
+
+        
+
+
+        
+    <div class="post-nav">
+      <div class="post-nav-item">
+    <a href="/2017/12/05/pyqt4-extension/" rel="prev" title="PyQt4教程系列三：扩展功能">
+      <i class="fa fa-chevron-left"></i> PyQt4教程系列三：扩展功能
+    </a></div>
+      <div class="post-nav-item">
+    <a href="/2018/01/12/damask-install/" rel="next" title="晶体塑性有限元开源软件DAMASK安装过程记录">
+      晶体塑性有限元开源软件DAMASK安装过程记录 <i class="fa fa-chevron-right"></i>
+    </a></div>
+    </div>
+      </footer>
+    
+  </article>
+  
+  
+  
+
+
+
+          </div>
+          
+    
+  <div class="comments">
+    <div id="disqus_thread">
+      <noscript>Please enable JavaScript to view the comments powered by Disqus.</noscript>
+    </div>
+  </div>
+  
+
+<script>
+  window.addEventListener('tabs:register', () => {
+    let { activeClass } = CONFIG.comments;
+    if (CONFIG.comments.storage) {
+      activeClass = localStorage.getItem('comments_active') || activeClass;
+    }
+    if (activeClass) {
+      let activeTab = document.querySelector(`a[href="#comment-${activeClass}"]`);
+      if (activeTab) {
+        activeTab.click();
+      }
+    }
+  });
+  if (CONFIG.comments.storage) {
+    window.addEventListener('tabs:click', event => {
+      if (!event.target.matches('.tabs-comment .tab-content .tab-pane')) return;
+      let commentClass = event.target.classList[1];
+      localStorage.setItem('comments_active', commentClass);
+    });
+  }
+</script>
+
+        </div>
+          
+  
+  <div class="toggle sidebar-toggle">
+    <span class="toggle-line toggle-line-first"></span>
+    <span class="toggle-line toggle-line-middle"></span>
+    <span class="toggle-line toggle-line-last"></span>
+  </div>
+
+  <aside class="sidebar">
+    <div class="sidebar-inner">
+
+      <ul class="sidebar-nav motion-element">
+        <li class="sidebar-nav-toc">
+          Table of Contents
+        </li>
+        <li class="sidebar-nav-overview">
+          Overview
+        </li>
+      </ul>
+
+      <!--noindex-->
+      <div class="post-toc-wrap sidebar-panel">
+          <div class="post-toc motion-element"><ol class="nav"><li class="nav-item nav-level-1"><a class="nav-link" href="#%E6%95%B0%E6%8D%AE%E5%BA%93QSqlDatabase"><span class="nav-number">1.</span> <span class="nav-text">数据库QSqlDatabase</span></a><ol class="nav-child"><li class="nav-item nav-level-2"><a class="nav-link" href="#QSqlDatabase%E7%9A%84%E5%87%BD%E6%95%B0"><span class="nav-number">1.1.</span> <span class="nav-text">QSqlDatabase的函数</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E4%B8%BE%E4%BE%8B"><span class="nav-number">1.2.</span> <span class="nav-text">举例</span></a></li></ol></li><li class="nav-item nav-level-1"><a class="nav-link" href="#%E7%BB%98%E5%9B%BEAPI-QPaintDevice%E5%92%8CQPainter"><span class="nav-number">2.</span> <span class="nav-text">绘图API QPaintDevice和QPainter</span></a><ol class="nav-child"><li class="nav-item nav-level-2"><a class="nav-link" href="#QPainter%E7%9A%84%E5%87%BD%E6%95%B0"><span class="nav-number">2.1.</span> <span class="nav-text">QPainter的函数</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E7%94%BB%E5%88%B7%E6%A0%B7%E5%BC%8F"><span class="nav-number">2.2.</span> <span class="nav-text">画刷样式</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#%E9%A2%84%E5%AE%9A%E4%B9%89%E7%9A%84QColor%E6%A0%B7%E5%BC%8F"><span class="nav-number">2.2.1.</span> <span class="nav-text">预定义的QColor样式</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E9%A2%84%E5%AE%9A%E4%B9%89%E7%9A%84QColor%E5%AF%B9%E8%B1%A1"><span class="nav-number">2.2.2.</span> <span class="nav-text">预定义的QColor对象</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E4%B8%BE%E4%BE%8B-1"><span class="nav-number">2.3.</span> <span class="nav-text">举例</span></a></li></ol></li><li class="nav-item nav-level-1"><a class="nav-link" href="#%E5%89%AA%E8%B4%B4%E6%9D%BFQClipboard"><span class="nav-number">3.</span> <span class="nav-text">剪贴板QClipboard</span></a><ol class="nav-child"><li class="nav-item nav-level-2"><a class="nav-link" href="#QClipboard%E7%9A%84%E5%87%BD%E6%95%B0"><span class="nav-number">3.1.</span> <span class="nav-text">QClipboard的函数</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#QClipboard%E7%9A%84%E4%BF%A1%E5%8F%B7"><span class="nav-number">3.2.</span> <span class="nav-text">QClipboard的信号</span></a></li></ol></li><li class="nav-item nav-level-1"><a class="nav-link" href="#QPixmap"><span class="nav-number">4.</span> <span class="nav-text">QPixmap</span></a><ol class="nav-child"><li class="nav-item nav-level-2"><a class="nav-link" href="#QPixmap%E7%9A%84%E5%87%BD%E6%95%B0"><span class="nav-number">4.1.</span> <span class="nav-text">QPixmap的函数</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E4%B8%BE%E4%BE%8B-2"><span class="nav-number">4.2.</span> <span class="nav-text">举例</span></a></li></ol></li></ol></div>
+      </div>
+      <!--/noindex-->
+
+      <div class="site-overview-wrap sidebar-panel">
+        <div class="site-author motion-element" itemprop="author" itemscope itemtype="http://schema.org/Person">
+    <img class="site-author-image" itemprop="image" alt="Xin-Bo Qi(亓欣波)"
+      src="/images/avatar.jpg">
+  <p class="site-author-name" itemprop="name">Xin-Bo Qi(亓欣波)</p>
+  <div class="site-description" itemprop="description">Be interesting!</div>
+</div>
+<div class="site-state-wrap motion-element">
+  <nav class="site-state">
+      <div class="site-state-item site-state-posts">
+          <a href="/archives/">
+        
+          <span class="site-state-item-count">120</span>
+          <span class="site-state-item-name">posts</span>
+        </a>
+      </div>
+      <div class="site-state-item site-state-categories">
+            <a href="/categories/">
+          
+        <span class="site-state-item-count">5</span>
+        <span class="site-state-item-name">categories</span></a>
+      </div>
+      <div class="site-state-item site-state-tags">
+            <a href="/tags/">
+          
+        <span class="site-state-item-count">41</span>
+        <span class="site-state-item-name">tags</span></a>
+      </div>
+  </nav>
+</div>
+  <div class="links-of-author motion-element">
+      <span class="links-of-author-item">
+        <a href="https://github.com/qixinbo" title="GitHub → https:&#x2F;&#x2F;github.com&#x2F;qixinbo" rel="noopener" target="_blank"><i class="github fa-fw"></i>GitHub</a>
+      </span>
+      <span class="links-of-author-item">
+        <a href="mailto:qixinbo@gmail.com" title="E-Mail → mailto:qixinbo@gmail.com" rel="noopener" target="_blank"><i class="envelope fa-fw"></i>E-Mail</a>
+      </span>
+  </div>
+
+
+  <div class="links-of-blogroll motion-element">
+    <div class="links-of-blogroll-title"><i class="fa fa-link fa-fw"></i>
+      Links
+    </div>
+    <ul class="links-of-blogroll-list">
+        <li class="links-of-blogroll-item">
+          <a href="https://www.tsinghua.edu.cn/" title="https:&#x2F;&#x2F;www.tsinghua.edu.cn" rel="noopener" target="_blank">THU</a>
+        </li>
+        <li class="links-of-blogroll-item">
+          <a href="http://www.imr.cas.cn/" title="http:&#x2F;&#x2F;www.imr.cas.cn" rel="noopener" target="_blank">IMR</a>
+        </li>
+        <li class="links-of-blogroll-item">
+          <a href="http://www.sdu.edu.cn/" title="http:&#x2F;&#x2F;www.sdu.edu.cn" rel="noopener" target="_blank">SDU</a>
+        </li>
+        <li class="links-of-blogroll-item">
+          <a href="http://liam0205.me/" title="http:&#x2F;&#x2F;liam0205.me&#x2F;" rel="noopener" target="_blank">黄晨成</a>
+        </li>
+    </ul>
+  </div>
+
+      </div>
+
+    </div>
+  </aside>
+  <div id="sidebar-dimmer"></div>
+
+
+      </div>
+    </main>
+
+    <footer class="footer">
+      <div class="footer-inner">
+        
+
+        
+
+<div class="copyright">
+  
+  &copy; 
+  <span itemprop="copyrightYear">2021</span>
+  <span class="with-love">
+    <i class="fa fa-heart"></i>
+  </span>
+  <span class="author" itemprop="copyrightHolder">Xin-Bo Qi(亓欣波)</span>
+</div>
+  <div class="powered-by">Powered by <a href="https://hexo.io/" class="theme-link" rel="noopener" target="_blank">Hexo</a> & <a href="https://theme-next.org/" class="theme-link" rel="noopener" target="_blank">NexT.Gemini</a>
+  </div>
+
+        
+
+
+
+
+
+
+
+
+      </div>
+    </footer>
+  </div>
+
+  
+  <script src="/lib/anime.min.js"></script>
+  <script src="/lib/velocity/velocity.min.js"></script>
+  <script src="/lib/velocity/velocity.ui.min.js"></script>
+
+<script src="/js/utils.js"></script>
+
+<script src="/js/motion.js"></script>
+
+
+<script src="/js/schemes/pisces.js"></script>
+
+
+<script src="/js/next-boot.js"></script>
+
+
+
+
+  
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+  
+
+  
+
+  
+
+<script>
+  function loadCount() {
+    var d = document, s = d.createElement('script');
+    s.src = 'https://qixinbo.disqus.com/count.js';
+    s.id = 'dsq-count-scr';
+    (d.head || d.body).appendChild(s);
+  }
+  // defer loading until the whole page loading is completed
+  window.addEventListener('load', loadCount, false);
+</script>
+<script>
+  var disqus_config = function() {
+    this.page.url = "http://qixinbo.github.io/2017/12/06/pyqt4-sophisticated/";
+    this.page.identifier = "2017/12/06/pyqt4-sophisticated/";
+    this.page.title = "PyQt4教程系列四：高阶功能";
+    };
+  NexT.utils.loadComments(document.querySelector('#disqus_thread'), () => {
+    if (window.DISQUS) {
+      DISQUS.reset({
+        reload: true,
+        config: disqus_config
+      });
+    } else {
+      var d = document, s = d.createElement('script');
+      s.src = 'https://qixinbo.disqus.com/embed.js';
+      s.setAttribute('data-timestamp', '' + +new Date());
+      (d.head || d.body).appendChild(s);
+    }
+  });
+</script>
+
+</body>
+</html>

@@ -1,0 +1,557 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=2">
+<meta name="theme-color" content="#222">
+<meta name="generator" content="Hexo 5.4.0">
+  <link rel="apple-touch-icon" sizes="180x180" href="/images/apple-touch-icon-next.png">
+  <link rel="icon" type="image/png" sizes="32x32" href="/favicon.ico">
+  <link rel="icon" type="image/png" sizes="16x16" href="/favicon.ico">
+  <link rel="mask-icon" href="/images/logo.svg" color="#222">
+
+<link rel="stylesheet" href="/css/main.css">
+
+
+<link rel="stylesheet" href="/lib/font-awesome/css/all.min.css">
+
+<script id="hexo-configurations">
+    var NexT = window.NexT || {};
+    var CONFIG = {"hostname":"qixinbo.github.io","root":"/","scheme":"Gemini","version":"7.8.0","exturl":false,"sidebar":{"position":"left","display":"post","padding":18,"offset":12,"onmobile":false},"copycode":{"enable":false,"show_result":false,"style":null},"back2top":{"enable":true,"sidebar":false,"scrollpercent":false},"bookmark":{"enable":false,"color":"#222","save":"auto"},"fancybox":false,"mediumzoom":false,"lazyload":false,"pangu":false,"comments":{"style":"tabs","active":null,"storage":true,"lazyload":false,"nav":null},"algolia":{"hits":{"per_page":10},"labels":{"input_placeholder":"Search for Posts","hits_empty":"We didn't find any results for the search: ${query}","hits_stats":"${hits} results found in ${time} ms"}},"localsearch":{"enable":false,"trigger":"auto","top_n_per_article":1,"unescape":false,"preload":false},"motion":{"enable":true,"async":false,"transition":{"post_block":"fadeIn","post_header":"slideDownIn","post_body":"slideDownIn","coll_header":"slideLeftIn","sidebar":"slideUpIn"}}};
+  </script>
+
+  <meta name="description" content="看到一篇非常好的讲解Python星号变量的用法，特转载之。来自:晴刃(QingSword.COM)原文连接:http:&#x2F;&#x2F;www.qingsword.com&#x2F;qing&#x2F;python-12.html 引言在Python中，星号除了用于乘法数值运算和幂运算外，还有一种特殊的用法”在变量前添加单个星号或两个星号”，实现多参数的传入或变量的拆解，本文将详细介绍”星号参数”的用法。 0×1.什么是星号变量最">
+<meta property="og:type" content="article">
+<meta property="og:title" content="(转载)Python星号变量的特殊用法">
+<meta property="og:url" content="http://qixinbo.github.io/2019/10/15/python-asterisk/index.html">
+<meta property="og:site_name" content="亓欣波">
+<meta property="og:description" content="看到一篇非常好的讲解Python星号变量的用法，特转载之。来自:晴刃(QingSword.COM)原文连接:http:&#x2F;&#x2F;www.qingsword.com&#x2F;qing&#x2F;python-12.html 引言在Python中，星号除了用于乘法数值运算和幂运算外，还有一种特殊的用法”在变量前添加单个星号或两个星号”，实现多参数的传入或变量的拆解，本文将详细介绍”星号参数”的用法。 0×1.什么是星号变量最">
+<meta property="og:locale" content="en_US">
+<meta property="article:published_time" content="2019-10-14T16:00:00.000Z">
+<meta property="article:modified_time" content="2021-03-25T07:20:30.863Z">
+<meta property="article:author" content="Xin-Bo Qi(亓欣波)">
+<meta property="article:tag" content="python">
+<meta name="twitter:card" content="summary">
+
+<link rel="canonical" href="http://qixinbo.github.io/2019/10/15/python-asterisk/">
+
+
+<script id="page-configurations">
+  // https://hexo.io/docs/variables.html
+  CONFIG.page = {
+    sidebar: "",
+    isHome : false,
+    isPost : true,
+    lang   : 'en'
+  };
+</script>
+
+  <title>(转载)Python星号变量的特殊用法 | 亓欣波</title>
+  
+
+
+
+
+
+
+  <noscript>
+  <style>
+  .use-motion .brand,
+  .use-motion .menu-item,
+  .sidebar-inner,
+  .use-motion .post-block,
+  .use-motion .pagination,
+  .use-motion .comments,
+  .use-motion .post-header,
+  .use-motion .post-body,
+  .use-motion .collection-header { opacity: initial; }
+
+  .use-motion .site-title,
+  .use-motion .site-subtitle {
+    opacity: initial;
+    top: initial;
+  }
+
+  .use-motion .logo-line-before i { left: initial; }
+  .use-motion .logo-line-after i { right: initial; }
+  </style>
+</noscript>
+
+</head>
+
+<body itemscope itemtype="http://schema.org/WebPage">
+  <div class="container use-motion">
+    <div class="headband"></div>
+
+    <header class="header" itemscope itemtype="http://schema.org/WPHeader">
+      <div class="header-inner"><div class="site-brand-container">
+  <div class="site-nav-toggle">
+    <div class="toggle" aria-label="Toggle navigation bar">
+      <span class="toggle-line toggle-line-first"></span>
+      <span class="toggle-line toggle-line-middle"></span>
+      <span class="toggle-line toggle-line-last"></span>
+    </div>
+  </div>
+
+  <div class="site-meta">
+
+    <a href="/" class="brand" rel="start">
+      <span class="logo-line-before"><i></i></span>
+      <h1 class="site-title">亓欣波</h1>
+      <span class="logo-line-after"><i></i></span>
+    </a>
+      <p class="site-subtitle" itemprop="description">Hi, I am Xin-Bo Qi (亓欣波)</p>
+  </div>
+
+  <div class="site-nav-right">
+    <div class="toggle popup-trigger">
+    </div>
+  </div>
+</div>
+
+
+
+
+<nav class="site-nav">
+  <ul id="menu" class="main-menu menu">
+        <li class="menu-item menu-item-home">
+
+    <a href="/" rel="section"><i class="home fa-fw"></i>Home</a>
+
+  </li>
+        <li class="menu-item menu-item-categories">
+
+    <a href="/categories/" rel="section"><i class="th fa-fw"></i>Categories</a>
+
+  </li>
+        <li class="menu-item menu-item-archives">
+
+    <a href="/archives/" rel="section"><i class="archive fa-fw"></i>Archives</a>
+
+  </li>
+        <li class="menu-item menu-item-tags">
+
+    <a href="/tags/" rel="section"><i class="tags fa-fw"></i>Tags</a>
+
+  </li>
+        <li class="menu-item menu-item-scholar">
+
+    <a href="/scholar/" rel="section"><i class="bar-chart fa-fw"></i>scholar</a>
+
+  </li>
+        <li class="menu-item menu-item-sources">
+
+    <a href="/sources/" rel="section"><i class="rss fa-fw"></i>sources</a>
+
+  </li>
+        <li class="menu-item menu-item-gallery">
+
+    <a href="/gallery/" rel="section"><i class="file-image-o fa-fw"></i>gallery</a>
+
+  </li>
+        <li class="menu-item menu-item-about">
+
+    <a href="/about/" rel="section"><i class="user fa-fw"></i>About</a>
+
+  </li>
+        <li class="menu-item menu-item-commonweal">
+
+    <a href="/404.html" rel="section"><i class="heartbeat fa-fw"></i>Commonweal 404</a>
+
+  </li>
+  </ul>
+</nav>
+
+
+
+
+</div>
+    </header>
+
+    
+  <div class="back-to-top">
+    <i class="fa fa-arrow-up"></i>
+    <span>0%</span>
+  </div>
+
+
+    <main class="main">
+      <div class="main-inner">
+        <div class="content-wrap">
+          
+
+          <div class="content post posts-expand">
+            
+
+    
+  
+  
+  <article itemscope itemtype="http://schema.org/Article" class="post-block" lang="en">
+    <link itemprop="mainEntityOfPage" href="http://qixinbo.github.io/2019/10/15/python-asterisk/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="image" content="/images/avatar.jpg">
+      <meta itemprop="name" content="Xin-Bo Qi(亓欣波)">
+      <meta itemprop="description" content="Be interesting!">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="亓欣波">
+    </span>
+      <header class="post-header">
+        <h1 class="post-title" itemprop="name headline">
+          (转载)Python星号变量的特殊用法
+        </h1>
+
+        <div class="post-meta">
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="far fa-calendar"></i>
+              </span>
+              <span class="post-meta-item-text">Posted on</span>
+
+              <time title="Created: 2019-10-15 00:00:00" itemprop="dateCreated datePublished" datetime="2019-10-15T00:00:00+08:00">2019-10-15</time>
+            </span>
+              <span class="post-meta-item">
+                <span class="post-meta-item-icon">
+                  <i class="far fa-calendar-check"></i>
+                </span>
+                <span class="post-meta-item-text">Edited on</span>
+                <time title="Modified: 2021-03-25 15:20:30" itemprop="dateModified" datetime="2021-03-25T15:20:30+08:00">2021-03-25</time>
+              </span>
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="far fa-folder"></i>
+              </span>
+              <span class="post-meta-item-text">In</span>
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+                  <a href="/categories/programming/" itemprop="url" rel="index"><span itemprop="name">programming</span></a>
+                </span>
+            </span>
+
+          
+  
+  <span class="post-meta-item">
+    
+      <span class="post-meta-item-icon">
+        <i class="far fa-comment"></i>
+      </span>
+      <span class="post-meta-item-text">Disqus: </span>
+    
+    <a title="disqus" href="/2019/10/15/python-asterisk/#disqus_thread" itemprop="discussionUrl">
+      <span class="post-comments-count disqus-comment-count" data-disqus-identifier="2019/10/15/python-asterisk/" itemprop="commentCount"></span>
+    </a>
+  </span>
+  
+  
+
+        </div>
+      </header>
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+        <p>看到一篇非常好的讲解Python星号变量的用法，特转载之。<br>来自:晴刃(QingSword.COM)<br>原文连接:<a target="_blank" rel="noopener" href="http://www.qingsword.com/qing/python-12.html">http://www.qingsword.com/qing/python-12.html</a></p>
+<h1 id="引言"><a href="#引言" class="headerlink" title="引言"></a>引言</h1><p>在Python中，星号除了用于乘法数值运算和幂运算外，还有一种特殊的用法”在变量前添加单个星号或两个星号”，实现多参数的传入或变量的拆解，本文将详细介绍”星号参数”的用法。</p>
+<h1 id="0×1-什么是星号变量"><a href="#0×1-什么是星号变量" class="headerlink" title="0×1.什么是星号变量"></a>0×1.什么是星号变量</h1><p>最初，星号变量是用在函数的参数传递上的，在下面的实例中，单个星号代表这个位置接收任意多个非关键字参数，在函数的*b位置上将其转化成元组，而双星号代表这个位置接收任意多个关键字参数，在**b位置上将其转化成字典：</p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">#!/usr/bin/env python</span></span><br><span class="line"><span class="comment">#coding=utf-8</span></span><br><span class="line"><span class="comment">#--------</span></span><br><span class="line"><span class="function"><span class="keyword">def</span> <span class="title">one</span>(<span class="params">a,*b</span>):</span></span><br><span class="line">    <span class="string">&quot;&quot;&quot;a是一个普通传入参数，*b是一个非关键字星号参数&quot;&quot;&quot;</span></span><br><span class="line">    <span class="built_in">print</span>(b)</span><br><span class="line">one(<span class="number">1</span>,<span class="number">2</span>,<span class="number">3</span>,<span class="number">4</span>,<span class="number">5</span>,<span class="number">6</span>)</span><br><span class="line"><span class="comment">#--------</span></span><br><span class="line"></span><br><span class="line"><span class="function"><span class="keyword">def</span> <span class="title">two</span>(<span class="params">a=<span class="number">1</span>,**b</span>):</span></span><br><span class="line">    <span class="string">&quot;&quot;&quot;a是一个普通关键字参数，**b是一个关键字双星号参数&quot;&quot;&quot;</span></span><br><span class="line">    <span class="built_in">print</span>(b)</span><br><span class="line">two(a=<span class="number">1</span>,b=<span class="number">2</span>,c=<span class="number">3</span>,d=<span class="number">4</span>,e=<span class="number">5</span>,f=<span class="number">6</span>)</span><br><span class="line"><span class="comment">#程序输出</span></span><br><span class="line">(<span class="number">2</span>, <span class="number">3</span>, <span class="number">4</span>, <span class="number">5</span>, <span class="number">6</span>)</span><br><span class="line">&#123;<span class="string">&#x27;b&#x27;</span>: <span class="number">2</span>, <span class="string">&#x27;c&#x27;</span>: <span class="number">3</span>, <span class="string">&#x27;e&#x27;</span>: <span class="number">5</span>, <span class="string">&#x27;f&#x27;</span>: <span class="number">6</span>, <span class="string">&#x27;d&#x27;</span>: <span class="number">4</span>&#125;</span><br><span class="line"><span class="comment">#从输出中可以看到，第一个函数中，*b的位置可以传入任意多没有关键字的参数，*b会将这些传入参数转化成一个元组，下面的调用</span></span><br><span class="line">one(<span class="number">1</span>,<span class="number">2</span>,<span class="number">3</span>,<span class="number">4</span>,<span class="number">5</span>,<span class="number">6</span>)</span><br><span class="line"><span class="comment">#传入one(a,*b)后，等价与</span></span><br><span class="line">one(<span class="number">1</span>,(<span class="number">2</span>,<span class="number">3</span>,<span class="number">4</span>,<span class="number">5</span>,<span class="number">6</span>))</span><br><span class="line"></span><br><span class="line"><span class="comment">#第二个函数中，**b的位置可以接收任意多个关键字参数，下面的调用</span></span><br><span class="line">two(a=<span class="number">1</span>,b=<span class="number">2</span>,c=<span class="number">3</span>,d=<span class="number">4</span>,e=<span class="number">5</span>,f=<span class="number">6</span>)</span><br><span class="line"><span class="comment">#传入one(a,*b)后，等价与</span></span><br><span class="line">two(a=<span class="number">1</span>,&#123;<span class="string">&#x27;b&#x27;</span>: <span class="number">2</span>, <span class="string">&#x27;c&#x27;</span>: <span class="number">3</span>, <span class="string">&#x27;e&#x27;</span>: <span class="number">5</span>, <span class="string">&#x27;f&#x27;</span>: <span class="number">6</span>, <span class="string">&#x27;d&#x27;</span>: <span class="number">4</span>&#125;)</span><br></pre></td></tr></table></figure>
+<p>在了解了单星号和双星号的基本使用方法后，下面来看看他们的扩展用法。</p>
+<h1 id="0×2-单星号变量实例"><a href="#0×2-单星号变量实例" class="headerlink" title="0×2.单星号变量实例"></a>0×2.单星号变量实例</h1><p>单星号变量不仅仅能够用在函数的参数传递中，实际上对一个普通变量使用单星号前缀，能够将这个变量拆分成单个元素，请看下面的实例：</p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">#!/usr/bin/env python</span></span><br><span class="line"><span class="comment">#coding=utf-8</span></span><br><span class="line"><span class="comment">#--------</span></span><br><span class="line"><span class="function"><span class="keyword">def</span> <span class="title">one</span>(<span class="params">*x</span>):</span></span><br><span class="line">    <span class="string">&quot;&quot;&quot;输出传入的第一个参数&quot;&quot;&quot;</span></span><br><span class="line">    <span class="built_in">print</span>(x[<span class="number">0</span>])</span><br><span class="line"><span class="comment">#--------</span></span><br><span class="line">lst=[<span class="string">&quot;a&quot;</span>,<span class="string">&quot;b&quot;</span>,<span class="string">&quot;c&quot;</span>,<span class="string">&quot;d&quot;</span>]</span><br><span class="line">stri=<span class="string">&quot;www.qingsword.com&quot;</span></span><br><span class="line">one(stri,lst)</span><br><span class="line">one(*lst)</span><br><span class="line">one(*stri)</span><br><span class="line"><span class="comment">#程序输出</span></span><br><span class="line">www.qingsword.com</span><br><span class="line">a</span><br><span class="line">w</span><br><span class="line"><span class="comment">#第一次调用one(stri,lst)，代入one(*x)后等价与</span></span><br><span class="line">one(([<span class="string">&quot;a&quot;</span>,<span class="string">&quot;b&quot;</span>,<span class="string">&quot;c&quot;</span>,<span class="string">&quot;d&quot;</span>],<span class="string">&quot;www.qingsword.com&quot;</span>))</span><br><span class="line"><span class="comment">#第二次调用one(*lst)，代入one(*x)后等价与</span></span><br><span class="line">one((<span class="string">&quot;a&quot;</span>,<span class="string">&quot;b&quot;</span>,<span class="string">&quot;c&quot;</span>,<span class="string">&quot;d&quot;</span>))</span><br><span class="line"><span class="comment">#第三次调用one(*stri)，代入one(*x)后等价与</span></span><br><span class="line">one((<span class="string">&quot;w&quot;</span>,<span class="string">&quot;w&quot;</span>,<span class="string">&quot;w&quot;</span>,<span class="string">&quot;.&quot;</span>,<span class="string">&quot;q&quot;</span>,<span class="string">&quot;i&quot;</span>,<span class="string">&quot;n&quot;</span>,<span class="string">&quot;g&quot;</span>,<span class="string">&quot;s&quot;</span>,<span class="string">&quot;w&quot;</span>,<span class="string">&quot;o&quot;</span>,<span class="string">&quot;r&quot;</span>,<span class="string">&quot;d&quot;</span>,<span class="string">&quot;.&quot;</span>,<span class="string">&quot;c&quot;</span>,<span class="string">&quot;o&quot;</span>,<span class="string">&quot;m&quot;</span>))</span><br><span class="line"><span class="comment">#如果在变量前面使用单星号，实际上是对变量的一次拆解操作，将变量中单独的元素拆解出来，然后依次传入one()函数，而传入one()函数后，one()函数会将这些传入的单个元素保存成一个元组，这就是为什么我们 print(x[0])能够提取第一个元素的原因</span></span><br></pre></td></tr></table></figure>
+<p>为了验证这一点，我们修改一下one()函数，如下：</p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">#!/usr/bin/env python</span></span><br><span class="line"><span class="comment">#coding=utf-8</span></span><br><span class="line"><span class="comment">#--------</span></span><br><span class="line"><span class="function"><span class="keyword">def</span> <span class="title">one</span>(<span class="params">*x</span>):</span></span><br><span class="line">    <span class="string">&quot;&quot;&quot;一个错误的实例，尝试修改传入的第一个参数值，引发异常&quot;&quot;&quot;</span></span><br><span class="line">    <span class="built_in">print</span>(x[<span class="number">0</span>])</span><br><span class="line">    x[<span class="number">0</span>]=<span class="string">&quot;qingsword&quot;</span></span><br><span class="line">lst=[<span class="string">&quot;a&quot;</span>,<span class="string">&quot;b&quot;</span>,<span class="string">&quot;c&quot;</span>,<span class="string">&quot;d&quot;</span>]</span><br><span class="line">one(*lst)</span><br><span class="line"><span class="comment">#我们知道列表是可以更改的，我们将列表拆分后传入one()函数，尝试在函数内部更改第一个元素的值，结果触发了&quot;TypeError&quot;异常，大家可以自己尝试下，出现这种结果的原因上面已经说明，不论传入的参数的原始类型是什么，one(*x)在*x的位置接收这些传入的参数后，都会将其保存成&quot;元组&quot;，而元组是不能改变的</span></span><br></pre></td></tr></table></figure>
+<p>再来看几个实例：</p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">#!/usr/bin/env python</span></span><br><span class="line"><span class="comment">#coding=utf-8</span></span><br><span class="line"><span class="comment">#--------</span></span><br><span class="line"><span class="function"><span class="keyword">def</span> <span class="title">one</span>(<span class="params">*x</span>):</span></span><br><span class="line">    <span class="string">&quot;&quot;&quot;打印出传入参数&quot;&quot;&quot;</span></span><br><span class="line">    <span class="keyword">for</span> a <span class="keyword">in</span> x:</span><br><span class="line">        <span class="built_in">print</span>(a)</span><br><span class="line">lst=[<span class="string">&quot;abc&quot;</span>,<span class="number">123</span>,<span class="string">&quot;www.qingsword.com&quot;</span>]</span><br><span class="line">stri=<span class="string">&quot;abcd&quot;</span></span><br><span class="line">dect=&#123;<span class="number">1</span>:<span class="string">&quot;one&quot;</span>,<span class="number">2</span>:<span class="string">&quot;two&quot;</span>,<span class="number">3</span>:<span class="string">&quot;three&quot;</span>&#125;</span><br><span class="line">one(*lst)</span><br><span class="line">one(*stri)</span><br><span class="line">one(*dect)</span><br><span class="line"><span class="comment">#程序输出</span></span><br><span class="line">abc</span><br><span class="line"><span class="number">123</span></span><br><span class="line">www.qingsword.com</span><br><span class="line">a</span><br><span class="line">b</span><br><span class="line">c</span><br><span class="line">d</span><br><span class="line"><span class="number">1</span></span><br><span class="line"><span class="number">2</span></span><br><span class="line"><span class="number">3</span></span><br><span class="line"><span class="comment">#前面两次调用都很好理解，最后我们传入了一个字典元素，发现仅输出了字典元素的键，并没有包含值，实际上，单星号是无法读取到字典中的值的，永远只会读取到字典中的键，如果想读取到字典中的值，需要使用双星号</span></span><br></pre></td></tr></table></figure>
+<h1 id="0×3-双星号变量实例"><a href="#0×3-双星号变量实例" class="headerlink" title="0×3.双星号变量实例"></a>0×3.双星号变量实例</h1><p>在第2小节的最后，我们使用单星号拆分了一个字典传递给函数，却只能得到字典的键，下面演示如何使用双星号来获得字典的值：</p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">#!/usr/bin/env python</span></span><br><span class="line"><span class="comment">#coding=utf-8</span></span><br><span class="line"><span class="comment">#--------</span></span><br><span class="line"><span class="function"><span class="keyword">def</span> <span class="title">one</span>(<span class="params">**x</span>):</span></span><br><span class="line">    <span class="string">&quot;&quot;&quot;将传入的关键字参数的值保存成元组输出&quot;&quot;&quot;</span></span><br><span class="line">    <span class="built_in">print</span>(x)</span><br><span class="line">    b=()</span><br><span class="line">    <span class="keyword">for</span> a <span class="keyword">in</span> x.values():</span><br><span class="line">        b+=(a,)</span><br><span class="line">    <span class="built_in">print</span>(b)</span><br><span class="line">dect=&#123;<span class="string">&quot;one&quot;</span>:<span class="number">1</span>,<span class="string">&quot;two&quot;</span>:<span class="number">2</span>,<span class="string">&quot;three&quot;</span>:<span class="number">3</span>&#125;</span><br><span class="line">one(**dect)</span><br><span class="line"><span class="comment">#程序输出</span></span><br><span class="line">&#123;<span class="string">&#x27;three&#x27;</span>: <span class="number">3</span>, <span class="string">&#x27;one&#x27;</span>: <span class="number">1</span>, <span class="string">&#x27;two&#x27;</span>: <span class="number">2</span>&#125;</span><br><span class="line">(<span class="number">3</span>, <span class="number">1</span>, <span class="number">2</span>)</span><br><span class="line"><span class="comment">#对一个字典使用双星号前缀，就相当于将其拆分成关键字参数的形式，**dect相当于将字典拆分成下面这种样子</span></span><br><span class="line">one=<span class="number">1</span>,two=<span class="number">2</span>,three=<span class="number">3</span></span><br><span class="line"><span class="comment">#将上面这些关键字参数传入one(**x)，就等价与（还记得前面说的，双星号将接收到的所有关键字参数都保存成一个字典吧）</span></span><br><span class="line">one(&#123;<span class="string">&quot;one&quot;</span>:<span class="number">1</span>,<span class="string">&quot;two&quot;</span>:<span class="number">2</span>,<span class="string">&quot;three&quot;</span>:<span class="number">3</span>&#125;)</span><br><span class="line"><span class="comment">#既然是字典，那么字典中的所有方法都能使用，使用for循环遍历这个字典的值，添加到一个元组中，最后打印出这个元组</span></span><br></pre></td></tr></table></figure>
+<p>Ps：注意，使用这种方法将字典传入函数的时候，字典的键的命名要符合python变量的命名规则，通过上面的分析也不难看出，双星号会将字典首先转换成关键字参数的形式，就相当于使用字典中的键作为变量名，如果键不符合变量命名规则，则会抛出一个”TypeError”异常，大家可以尝试着颠倒一下上面字典中的键和值，使用数字作为键，看看会出现什么问题。</p>
+<p>在一个函数的接收参数中，同时出现”非关键字参数（位置参数）”和”关键字参数”时，可以使用一个单星号来分隔这两种参数，例如：</p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">#!/usr/bin/env python</span></span><br><span class="line"><span class="comment">#coding=utf-8</span></span><br><span class="line"><span class="comment">#--------</span></span><br><span class="line"><span class="function"><span class="keyword">def</span> <span class="title">mix</span>(<span class="params">a,b,*,x,y</span>):</span></span><br><span class="line">    <span class="string">&quot;&quot;&quot;位置参数与关键字参数混合&quot;&quot;&quot;</span></span><br><span class="line">    <span class="keyword">return</span> a,b,x,y</span><br><span class="line"><span class="comment">#星号前面的a和b是位置参数，星号后面的x和y是关键字参数，调用mix()函数并传入参数时，关键字参数一定要使用&quot;变量名=值&quot;的形式传入数据，如果同位置参数一样传入数据，就会引发一个TypeError异常</span></span><br><span class="line"><span class="built_in">print</span>(mix(<span class="number">1</span>,<span class="number">2</span>,x=<span class="number">3</span>,y=<span class="number">4</span>))</span><br><span class="line"><span class="comment">#程序输出</span></span><br><span class="line">(<span class="number">1</span>, <span class="number">2</span>, <span class="number">3</span>, <span class="number">4</span>)</span><br><span class="line"><span class="comment">#在上面的mix函数中，如果位置参数与关键字参数之间已经存在了一个单星号位置参数，那么，这个参数后面的就都是关键字参数，也不需要再使用星号来分隔他们了，例如</span></span><br><span class="line"><span class="comment">#!/usr/bin/env python</span></span><br><span class="line"><span class="comment">#coding=utf-8</span></span><br><span class="line"><span class="comment">#--------</span></span><br><span class="line"><span class="function"><span class="keyword">def</span> <span class="title">mix</span>(<span class="params">a,b,*c,x,y</span>):</span></span><br><span class="line">    <span class="string">&quot;&quot;&quot;位置参数与关键字参数混合&quot;&quot;&quot;</span></span><br><span class="line">    <span class="keyword">return</span> a,b,c,x,y</span><br><span class="line"><span class="comment">#在*c的位置可以输入任意多个位置参数值</span></span><br><span class="line"><span class="built_in">print</span>(mix(<span class="number">1</span>,<span class="number">2</span>,<span class="number">3</span>,<span class="number">4</span>,<span class="number">5</span>,x=<span class="number">6</span>,y=<span class="number">7</span>))</span><br><span class="line"><span class="comment">#程序输出</span></span><br><span class="line">(<span class="number">1</span>, <span class="number">2</span>, (<span class="number">3</span>, <span class="number">4</span>, <span class="number">5</span>), <span class="number">6</span>, <span class="number">7</span>)</span><br></pre></td></tr></table></figure>
+<p>如果我们要在一个函数中包含多种参数的组合，必须遵守这样的顺序：位置参数（必选参数），默认参数，单星号参数或星号分隔符，关键字参数，双星号参数；请看下面的实例：</p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">#!/usr/bin/env python</span></span><br><span class="line"><span class="comment">#coding=utf-8</span></span><br><span class="line"><span class="comment">#--------</span></span><br><span class="line"><span class="function"><span class="keyword">def</span> <span class="title">mix</span>(<span class="params">a,b=<span class="number">0</span>,*c,x,**y</span>):</span></span><br><span class="line">    <span class="string">&quot;&quot;&quot;位置参数与关键字参数混合&quot;&quot;&quot;</span></span><br><span class="line">    <span class="keyword">return</span> a,b,c,x,y</span><br><span class="line"><span class="built_in">print</span>(mix(<span class="number">1</span>,<span class="number">2</span>,<span class="number">3</span>,<span class="number">4</span>,<span class="number">5</span>,x=<span class="number">6</span>,y=<span class="number">7</span>,z=<span class="number">8</span>))</span><br><span class="line"><span class="comment">#程序输出</span></span><br><span class="line">(<span class="number">1</span>, <span class="number">2</span>, (<span class="number">3</span>, <span class="number">4</span>, <span class="number">5</span>), <span class="number">6</span>, &#123;<span class="string">&#x27;y&#x27;</span>: <span class="number">7</span>, <span class="string">&#x27;z&#x27;</span>: <span class="number">8</span>&#125;)</span><br></pre></td></tr></table></figure>
+
+    </div>
+
+    
+    
+    
+        <div class="reward-container">
+  <div></div>
+  <button onclick="var qr = document.getElementById('qr'); qr.style.display = (qr.style.display === 'none') ? 'block' : 'none';">
+    Donate
+  </button>
+  <div id="qr" style="display: none;">
+      
+      <div style="display: inline-block;">
+        <img src="/images/wechat_reward.png" alt="Xin-Bo Qi(亓欣波) WeChat Pay">
+        <p>WeChat Pay</p>
+      </div>
+
+  </div>
+</div>
+
+
+      <footer class="post-footer">
+          <div class="post-tags">
+              <a href="/tags/python/" rel="tag"># python</a>
+          </div>
+
+        
+
+
+        
+    <div class="post-nav">
+      <div class="post-nav-item">
+    <a href="/2019/10/13/python-import/" rel="prev" title="Python3的Import理解">
+      <i class="fa fa-chevron-left"></i> Python3的Import理解
+    </a></div>
+      <div class="post-nav-item">
+    <a href="/2019/10/16/ImagePy_11/" rel="next" title="ImagePy解析：11 -- 使用wxPython设备上下文绘图">
+      ImagePy解析：11 -- 使用wxPython设备上下文绘图 <i class="fa fa-chevron-right"></i>
+    </a></div>
+    </div>
+      </footer>
+    
+  </article>
+  
+  
+  
+
+
+
+          </div>
+          
+    
+  <div class="comments">
+    <div id="disqus_thread">
+      <noscript>Please enable JavaScript to view the comments powered by Disqus.</noscript>
+    </div>
+  </div>
+  
+
+<script>
+  window.addEventListener('tabs:register', () => {
+    let { activeClass } = CONFIG.comments;
+    if (CONFIG.comments.storage) {
+      activeClass = localStorage.getItem('comments_active') || activeClass;
+    }
+    if (activeClass) {
+      let activeTab = document.querySelector(`a[href="#comment-${activeClass}"]`);
+      if (activeTab) {
+        activeTab.click();
+      }
+    }
+  });
+  if (CONFIG.comments.storage) {
+    window.addEventListener('tabs:click', event => {
+      if (!event.target.matches('.tabs-comment .tab-content .tab-pane')) return;
+      let commentClass = event.target.classList[1];
+      localStorage.setItem('comments_active', commentClass);
+    });
+  }
+</script>
+
+        </div>
+          
+  
+  <div class="toggle sidebar-toggle">
+    <span class="toggle-line toggle-line-first"></span>
+    <span class="toggle-line toggle-line-middle"></span>
+    <span class="toggle-line toggle-line-last"></span>
+  </div>
+
+  <aside class="sidebar">
+    <div class="sidebar-inner">
+
+      <ul class="sidebar-nav motion-element">
+        <li class="sidebar-nav-toc">
+          Table of Contents
+        </li>
+        <li class="sidebar-nav-overview">
+          Overview
+        </li>
+      </ul>
+
+      <!--noindex-->
+      <div class="post-toc-wrap sidebar-panel">
+          <div class="post-toc motion-element"><ol class="nav"><li class="nav-item nav-level-1"><a class="nav-link" href="#%E5%BC%95%E8%A8%80"><span class="nav-number">1.</span> <span class="nav-text">引言</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#0%C3%971-%E4%BB%80%E4%B9%88%E6%98%AF%E6%98%9F%E5%8F%B7%E5%8F%98%E9%87%8F"><span class="nav-number">2.</span> <span class="nav-text">0×1.什么是星号变量</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#0%C3%972-%E5%8D%95%E6%98%9F%E5%8F%B7%E5%8F%98%E9%87%8F%E5%AE%9E%E4%BE%8B"><span class="nav-number">3.</span> <span class="nav-text">0×2.单星号变量实例</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#0%C3%973-%E5%8F%8C%E6%98%9F%E5%8F%B7%E5%8F%98%E9%87%8F%E5%AE%9E%E4%BE%8B"><span class="nav-number">4.</span> <span class="nav-text">0×3.双星号变量实例</span></a></li></ol></div>
+      </div>
+      <!--/noindex-->
+
+      <div class="site-overview-wrap sidebar-panel">
+        <div class="site-author motion-element" itemprop="author" itemscope itemtype="http://schema.org/Person">
+    <img class="site-author-image" itemprop="image" alt="Xin-Bo Qi(亓欣波)"
+      src="/images/avatar.jpg">
+  <p class="site-author-name" itemprop="name">Xin-Bo Qi(亓欣波)</p>
+  <div class="site-description" itemprop="description">Be interesting!</div>
+</div>
+<div class="site-state-wrap motion-element">
+  <nav class="site-state">
+      <div class="site-state-item site-state-posts">
+          <a href="/archives/">
+        
+          <span class="site-state-item-count">120</span>
+          <span class="site-state-item-name">posts</span>
+        </a>
+      </div>
+      <div class="site-state-item site-state-categories">
+            <a href="/categories/">
+          
+        <span class="site-state-item-count">5</span>
+        <span class="site-state-item-name">categories</span></a>
+      </div>
+      <div class="site-state-item site-state-tags">
+            <a href="/tags/">
+          
+        <span class="site-state-item-count">41</span>
+        <span class="site-state-item-name">tags</span></a>
+      </div>
+  </nav>
+</div>
+  <div class="links-of-author motion-element">
+      <span class="links-of-author-item">
+        <a href="https://github.com/qixinbo" title="GitHub → https:&#x2F;&#x2F;github.com&#x2F;qixinbo" rel="noopener" target="_blank"><i class="github fa-fw"></i>GitHub</a>
+      </span>
+      <span class="links-of-author-item">
+        <a href="mailto:qixinbo@gmail.com" title="E-Mail → mailto:qixinbo@gmail.com" rel="noopener" target="_blank"><i class="envelope fa-fw"></i>E-Mail</a>
+      </span>
+  </div>
+
+
+  <div class="links-of-blogroll motion-element">
+    <div class="links-of-blogroll-title"><i class="fa fa-link fa-fw"></i>
+      Links
+    </div>
+    <ul class="links-of-blogroll-list">
+        <li class="links-of-blogroll-item">
+          <a href="https://www.tsinghua.edu.cn/" title="https:&#x2F;&#x2F;www.tsinghua.edu.cn" rel="noopener" target="_blank">THU</a>
+        </li>
+        <li class="links-of-blogroll-item">
+          <a href="http://www.imr.cas.cn/" title="http:&#x2F;&#x2F;www.imr.cas.cn" rel="noopener" target="_blank">IMR</a>
+        </li>
+        <li class="links-of-blogroll-item">
+          <a href="http://www.sdu.edu.cn/" title="http:&#x2F;&#x2F;www.sdu.edu.cn" rel="noopener" target="_blank">SDU</a>
+        </li>
+        <li class="links-of-blogroll-item">
+          <a href="http://liam0205.me/" title="http:&#x2F;&#x2F;liam0205.me&#x2F;" rel="noopener" target="_blank">黄晨成</a>
+        </li>
+    </ul>
+  </div>
+
+      </div>
+
+    </div>
+  </aside>
+  <div id="sidebar-dimmer"></div>
+
+
+      </div>
+    </main>
+
+    <footer class="footer">
+      <div class="footer-inner">
+        
+
+        
+
+<div class="copyright">
+  
+  &copy; 
+  <span itemprop="copyrightYear">2021</span>
+  <span class="with-love">
+    <i class="fa fa-heart"></i>
+  </span>
+  <span class="author" itemprop="copyrightHolder">Xin-Bo Qi(亓欣波)</span>
+</div>
+  <div class="powered-by">Powered by <a href="https://hexo.io/" class="theme-link" rel="noopener" target="_blank">Hexo</a> & <a href="https://theme-next.org/" class="theme-link" rel="noopener" target="_blank">NexT.Gemini</a>
+  </div>
+
+        
+
+
+
+
+
+
+
+
+      </div>
+    </footer>
+  </div>
+
+  
+  <script src="/lib/anime.min.js"></script>
+  <script src="/lib/velocity/velocity.min.js"></script>
+  <script src="/lib/velocity/velocity.ui.min.js"></script>
+
+<script src="/js/utils.js"></script>
+
+<script src="/js/motion.js"></script>
+
+
+<script src="/js/schemes/pisces.js"></script>
+
+
+<script src="/js/next-boot.js"></script>
+
+
+
+
+  
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+  
+
+  
+
+  
+
+<script>
+  function loadCount() {
+    var d = document, s = d.createElement('script');
+    s.src = 'https://qixinbo.disqus.com/count.js';
+    s.id = 'dsq-count-scr';
+    (d.head || d.body).appendChild(s);
+  }
+  // defer loading until the whole page loading is completed
+  window.addEventListener('load', loadCount, false);
+</script>
+<script>
+  var disqus_config = function() {
+    this.page.url = "http://qixinbo.github.io/2019/10/15/python-asterisk/";
+    this.page.identifier = "2019/10/15/python-asterisk/";
+    this.page.title = "(转载)Python星号变量的特殊用法";
+    };
+  NexT.utils.loadComments(document.querySelector('#disqus_thread'), () => {
+    if (window.DISQUS) {
+      DISQUS.reset({
+        reload: true,
+        config: disqus_config
+      });
+    } else {
+      var d = document, s = d.createElement('script');
+      s.src = 'https://qixinbo.disqus.com/embed.js';
+      s.setAttribute('data-timestamp', '' + +new Date());
+      (d.head || d.body).appendChild(s);
+    }
+  });
+</script>
+
+</body>
+</html>

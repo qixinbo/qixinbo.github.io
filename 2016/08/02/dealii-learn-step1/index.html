@@ -1,0 +1,626 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=2">
+<meta name="theme-color" content="#222">
+<meta name="generator" content="Hexo 5.4.0">
+  <link rel="apple-touch-icon" sizes="180x180" href="/images/apple-touch-icon-next.png">
+  <link rel="icon" type="image/png" sizes="32x32" href="/favicon.ico">
+  <link rel="icon" type="image/png" sizes="16x16" href="/favicon.ico">
+  <link rel="mask-icon" href="/images/logo.svg" color="#222">
+
+<link rel="stylesheet" href="/css/main.css">
+
+
+<link rel="stylesheet" href="/lib/font-awesome/css/all.min.css">
+
+<script id="hexo-configurations">
+    var NexT = window.NexT || {};
+    var CONFIG = {"hostname":"qixinbo.github.io","root":"/","scheme":"Gemini","version":"7.8.0","exturl":false,"sidebar":{"position":"left","display":"post","padding":18,"offset":12,"onmobile":false},"copycode":{"enable":false,"show_result":false,"style":null},"back2top":{"enable":true,"sidebar":false,"scrollpercent":false},"bookmark":{"enable":false,"color":"#222","save":"auto"},"fancybox":false,"mediumzoom":false,"lazyload":false,"pangu":false,"comments":{"style":"tabs","active":null,"storage":true,"lazyload":false,"nav":null},"algolia":{"hits":{"per_page":10},"labels":{"input_placeholder":"Search for Posts","hits_empty":"We didn't find any results for the search: ${query}","hits_stats":"${hits} results found in ${time} ms"}},"localsearch":{"enable":false,"trigger":"auto","top_n_per_article":1,"unescape":false,"preload":false},"motion":{"enable":true,"async":false,"transition":{"post_block":"fadeIn","post_header":"slideDownIn","post_body":"slideDownIn","coll_header":"slideLeftIn","sidebar":"slideUpIn"}}};
+  </script>
+
+  <meta name="description" content="简介deal.II是一款开源的求解偏微分方程的有限元软件，它有如下几个特点：  使用C++编写 有多种单元类型 可以大规模并行 可以自适应网格 文档和范例齐全 与其他库有良好的接口  安装deal.II最新版本为8.4.1,可从官网上下载源码，解压后进入源文件目录安装： 12345mkdir buildcd buildcmake -DCMAKE_INSTALL_PREFIX&#x3D;&#x2F;path&#x2F;to&#x2F;in">
+<meta property="og:type" content="article">
+<meta property="og:title" content="求解偏微分方程开源有限元软件deal.II学习--Step 1">
+<meta property="og:url" content="http://qixinbo.github.io/2016/08/02/dealii-learn-step1/index.html">
+<meta property="og:site_name" content="亓欣波">
+<meta property="og:description" content="简介deal.II是一款开源的求解偏微分方程的有限元软件，它有如下几个特点：  使用C++编写 有多种单元类型 可以大规模并行 可以自适应网格 文档和范例齐全 与其他库有良好的接口  安装deal.II最新版本为8.4.1,可从官网上下载源码，解压后进入源文件目录安装： 12345mkdir buildcd buildcmake -DCMAKE_INSTALL_PREFIX&#x3D;&#x2F;path&#x2F;to&#x2F;in">
+<meta property="og:locale" content="en_US">
+<meta property="og:image" content="https://ws1.sinaimg.cn/large/0072Lfvtly1fvjkunipr2j30i60i4myi.jpg">
+<meta property="og:image" content="https://ws1.sinaimg.cn/large/0072Lfvtly1fvjkv8lgfkj308d07yq39.jpg">
+<meta property="og:image" content="https://ws1.sinaimg.cn/large/0072Lfvtly1fvjkvs65zlj308d08d74o.jpg">
+<meta property="og:image" content="https://ws1.sinaimg.cn/large/0072Lfvtly1fvjkw5vj6zj308d08ddg7.jpg">
+<meta property="og:image" content="https://ws1.sinaimg.cn/large/0072Lfvtly1fvjkz3xiwyj308d08d0sx.jpg">
+<meta property="og:image" content="https://ws1.sinaimg.cn/large/0072Lfvtly1fvjkzr11lfj308d08d74f.jpg">
+<meta property="og:image" content="https://ws1.sinaimg.cn/large/0072Lfvtly1fvjl0si8vzj308b08c0t0.jpg">
+<meta property="og:image" content="https://ws1.sinaimg.cn/large/0072Lfvtly1fvjl1612r5j30lv0l9td6.jpg">
+<meta property="article:published_time" content="2016-08-01T16:00:00.000Z">
+<meta property="article:modified_time" content="2021-03-25T07:20:30.516Z">
+<meta property="article:author" content="Xin-Bo Qi(亓欣波)">
+<meta property="article:tag" content="deal.II">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:image" content="https://ws1.sinaimg.cn/large/0072Lfvtly1fvjkunipr2j30i60i4myi.jpg">
+
+<link rel="canonical" href="http://qixinbo.github.io/2016/08/02/dealii-learn-step1/">
+
+
+<script id="page-configurations">
+  // https://hexo.io/docs/variables.html
+  CONFIG.page = {
+    sidebar: "",
+    isHome : false,
+    isPost : true,
+    lang   : 'en'
+  };
+</script>
+
+  <title>求解偏微分方程开源有限元软件deal.II学习--Step 1 | 亓欣波</title>
+  
+
+
+
+
+
+
+  <noscript>
+  <style>
+  .use-motion .brand,
+  .use-motion .menu-item,
+  .sidebar-inner,
+  .use-motion .post-block,
+  .use-motion .pagination,
+  .use-motion .comments,
+  .use-motion .post-header,
+  .use-motion .post-body,
+  .use-motion .collection-header { opacity: initial; }
+
+  .use-motion .site-title,
+  .use-motion .site-subtitle {
+    opacity: initial;
+    top: initial;
+  }
+
+  .use-motion .logo-line-before i { left: initial; }
+  .use-motion .logo-line-after i { right: initial; }
+  </style>
+</noscript>
+
+</head>
+
+<body itemscope itemtype="http://schema.org/WebPage">
+  <div class="container use-motion">
+    <div class="headband"></div>
+
+    <header class="header" itemscope itemtype="http://schema.org/WPHeader">
+      <div class="header-inner"><div class="site-brand-container">
+  <div class="site-nav-toggle">
+    <div class="toggle" aria-label="Toggle navigation bar">
+      <span class="toggle-line toggle-line-first"></span>
+      <span class="toggle-line toggle-line-middle"></span>
+      <span class="toggle-line toggle-line-last"></span>
+    </div>
+  </div>
+
+  <div class="site-meta">
+
+    <a href="/" class="brand" rel="start">
+      <span class="logo-line-before"><i></i></span>
+      <h1 class="site-title">亓欣波</h1>
+      <span class="logo-line-after"><i></i></span>
+    </a>
+      <p class="site-subtitle" itemprop="description">Hi, I am Xin-Bo Qi (亓欣波)</p>
+  </div>
+
+  <div class="site-nav-right">
+    <div class="toggle popup-trigger">
+    </div>
+  </div>
+</div>
+
+
+
+
+<nav class="site-nav">
+  <ul id="menu" class="main-menu menu">
+        <li class="menu-item menu-item-home">
+
+    <a href="/" rel="section"><i class="home fa-fw"></i>Home</a>
+
+  </li>
+        <li class="menu-item menu-item-categories">
+
+    <a href="/categories/" rel="section"><i class="th fa-fw"></i>Categories</a>
+
+  </li>
+        <li class="menu-item menu-item-archives">
+
+    <a href="/archives/" rel="section"><i class="archive fa-fw"></i>Archives</a>
+
+  </li>
+        <li class="menu-item menu-item-tags">
+
+    <a href="/tags/" rel="section"><i class="tags fa-fw"></i>Tags</a>
+
+  </li>
+        <li class="menu-item menu-item-scholar">
+
+    <a href="/scholar/" rel="section"><i class="bar-chart fa-fw"></i>scholar</a>
+
+  </li>
+        <li class="menu-item menu-item-sources">
+
+    <a href="/sources/" rel="section"><i class="rss fa-fw"></i>sources</a>
+
+  </li>
+        <li class="menu-item menu-item-gallery">
+
+    <a href="/gallery/" rel="section"><i class="file-image-o fa-fw"></i>gallery</a>
+
+  </li>
+        <li class="menu-item menu-item-about">
+
+    <a href="/about/" rel="section"><i class="user fa-fw"></i>About</a>
+
+  </li>
+        <li class="menu-item menu-item-commonweal">
+
+    <a href="/404.html" rel="section"><i class="heartbeat fa-fw"></i>Commonweal 404</a>
+
+  </li>
+  </ul>
+</nav>
+
+
+
+
+</div>
+    </header>
+
+    
+  <div class="back-to-top">
+    <i class="fa fa-arrow-up"></i>
+    <span>0%</span>
+  </div>
+
+
+    <main class="main">
+      <div class="main-inner">
+        <div class="content-wrap">
+          
+
+          <div class="content post posts-expand">
+            
+
+    
+  
+  
+  <article itemscope itemtype="http://schema.org/Article" class="post-block" lang="en">
+    <link itemprop="mainEntityOfPage" href="http://qixinbo.github.io/2016/08/02/dealii-learn-step1/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="image" content="/images/avatar.jpg">
+      <meta itemprop="name" content="Xin-Bo Qi(亓欣波)">
+      <meta itemprop="description" content="Be interesting!">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="亓欣波">
+    </span>
+      <header class="post-header">
+        <h1 class="post-title" itemprop="name headline">
+          求解偏微分方程开源有限元软件deal.II学习--Step 1
+        </h1>
+
+        <div class="post-meta">
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="far fa-calendar"></i>
+              </span>
+              <span class="post-meta-item-text">Posted on</span>
+
+              <time title="Created: 2016-08-02 00:00:00" itemprop="dateCreated datePublished" datetime="2016-08-02T00:00:00+08:00">2016-08-02</time>
+            </span>
+              <span class="post-meta-item">
+                <span class="post-meta-item-icon">
+                  <i class="far fa-calendar-check"></i>
+                </span>
+                <span class="post-meta-item-text">Edited on</span>
+                <time title="Modified: 2021-03-25 15:20:30" itemprop="dateModified" datetime="2021-03-25T15:20:30+08:00">2021-03-25</time>
+              </span>
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="far fa-folder"></i>
+              </span>
+              <span class="post-meta-item-text">In</span>
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+                  <a href="/categories/computational-material-science/" itemprop="url" rel="index"><span itemprop="name">computational material science</span></a>
+                </span>
+            </span>
+
+          
+  
+  <span class="post-meta-item">
+    
+      <span class="post-meta-item-icon">
+        <i class="far fa-comment"></i>
+      </span>
+      <span class="post-meta-item-text">Disqus: </span>
+    
+    <a title="disqus" href="/2016/08/02/dealii-learn-step1/#disqus_thread" itemprop="discussionUrl">
+      <span class="post-comments-count disqus-comment-count" data-disqus-identifier="2016/08/02/dealii-learn-step1/" itemprop="commentCount"></span>
+    </a>
+  </span>
+  
+  
+
+        </div>
+      </header>
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+        <h1 id="简介"><a href="#简介" class="headerlink" title="简介"></a>简介</h1><p><a href="dealii.org">deal.II</a>是一款开源的求解偏微分方程的有限元软件，它有如下几个<a target="_blank" rel="noopener" href="https://en.wikipedia.org/wiki/Deal.II">特点</a>：</p>
+<ul>
+<li>使用C++编写</li>
+<li>有多种单元类型</li>
+<li>可以大规模并行</li>
+<li>可以自适应网格</li>
+<li>文档和范例齐全</li>
+<li>与其他库有良好的接口</li>
+</ul>
+<h1 id="安装"><a href="#安装" class="headerlink" title="安装"></a>安装</h1><p>deal.II最新版本为8.4.1,可从官网上下载源码，解压后进入源文件目录安装：</p>
+<figure class="highlight cpp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line">mkdir build</span><br><span class="line">cd build</span><br><span class="line">cmake -DCMAKE_INSTALL_PREFIX=/path/to/install/dir ../deal.II</span><br><span class="line">make install</span><br><span class="line">make test</span><br></pre></td></tr></table></figure>
+<p>如果期间需要其他依赖如cmake、doxygen等，自行安装好即可。</p>
+<h1 id="编译运行"><a href="#编译运行" class="headerlink" title="编译运行"></a>编译运行</h1><p>deal.II的文档和example特别完备，刚开始接触可以它多达54个例子进行。<br>具体入口在<a target="_blank" rel="noopener" href="https://dealii.org/8.4.1/doxygen/deal.II/Tutorial.html">这里</a>。<br>编译运行命令为：</p>
+<figure class="highlight cpp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">cmake .</span><br><span class="line">make</span><br><span class="line">make run</span><br></pre></td></tr></table></figure>
+<p>第一条命令用来创建Makefile文件，指明程序所依赖的文件、怎样编译和运行。此命令应该能找到之前安装deal.II后的库文件，如果不能找到，需要人为指定路径：</p>
+<figure class="highlight cpp"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">cmake -DDEAL_II_DIR=/path/to/installed/deal.II .</span><br></pre></td></tr></table></figure>
+<p>第二条命令将源文件编译成可执行文件，第三条是运行该可执行文件。其实可以省略第二条命令。后面的example遵循同样的命令。</p>
+<h1 id="第一个教学实例——step-1"><a href="#第一个教学实例——step-1" class="headerlink" title="第一个教学实例——step-1"></a>第一个教学实例——step-1</h1><figure class="highlight cpp"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">#<span class="meta-keyword">include</span> <span class="meta-string">&lt;deal.II/grid/tria.h&gt;</span></span></span><br></pre></td></tr></table></figure>
+<p>此头文件声明了Triangulation类模板，其用途是生成各种单元。如Triangulation&lt;1,1&gt;表示一维线段，Triangulation&lt;1,2&gt;或&lt;2,3&gt;表示二维中的曲线和三维中的面，通常用于边界单元中。</p>
+<figure class="highlight cpp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">#<span class="meta-keyword">include</span> <span class="meta-string">&lt;deal.II/grid/tria_accessor.h&gt;</span></span></span><br><span class="line"><span class="meta">#<span class="meta-keyword">include</span> <span class="meta-string">&lt;deal.II/grid/tria_iterator.h&gt;</span></span></span><br></pre></td></tr></table></figure>
+<p>这两个头文件一个是存取器，一个是迭代器，用于对单元的循环遍历。</p>
+<figure class="highlight cpp"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">#<span class="meta-keyword">include</span> <span class="meta-string">&lt;deal.II/grid/grid_generator.h&gt;</span></span></span><br></pre></td></tr></table></figure>
+<p>该头文件声明了GridGenerator命名空间，用于生成标准网格</p>
+<figure class="highlight cpp"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">#<span class="meta-keyword">include</span> <span class="meta-string">&lt;deal.II/grid/manifold_lib.h&gt;</span></span></span><br></pre></td></tr></table></figure>
+<p>本例中用到了非直线的边以及双线性四边形，所以还要导入一些类来预先描述流形，比如描述球、圆柱等。</p>
+<figure class="highlight cpp"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">#<span class="meta-keyword">include</span> <span class="meta-string">&lt;deal.II/grid/grid_out.h&gt;</span></span></span><br></pre></td></tr></table></figure>
+<p>该头文件声明了GridOut类，用于生成多种格式的数据，如dx、gnuplot、msh、eps、svg、vtk等。</p>
+<figure class="highlight cpp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">#<span class="meta-keyword">include</span> <span class="meta-string">&lt;iostream&gt;</span></span></span><br><span class="line"><span class="meta">#<span class="meta-keyword">include</span> <span class="meta-string">&lt;fstream&gt;</span></span></span><br><span class="line"><span class="meta">#<span class="meta-keyword">include</span> <span class="meta-string">&lt;cmath&gt;</span></span></span><br></pre></td></tr></table></figure>
+<p>以上是c++的一些标准库，用于字符和文件的输入输出，以及作开方、取绝对值等数学库。</p>
+<figure class="highlight cpp"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">using</span> <span class="keyword">namespace</span> dealii;</span><br></pre></td></tr></table></figure>
+<p>为了防止命名冲突，该包的函数和类都包含在dealii这个命名空间中。</p>
+<figure class="highlight cpp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="keyword">void</span> <span class="title">first_grid</span> <span class="params">()</span></span></span><br><span class="line"><span class="function"></span>&#123;</span><br><span class="line">  Triangulation&lt;<span class="number">2</span>&gt; triangulation;</span><br><span class="line">  GridGenerator::<span class="built_in">hyper_cube</span> (triangulation);</span><br><span class="line">  triangulation.<span class="built_in">refine_global</span> (<span class="number">4</span>);</span><br></pre></td></tr></table></figure>
+<p>首先创建一个Triangulation类的对象，这里只有一个参数是2，表明该对象是作用在二维上。然后用超立方体形状的一个单元来填充给定的triangulation。这里因为是二维，就是一个正方形。正方形的大小是默认的从0到1的边长，可以在参数中人为设定。还有一个参数colorize是设定边界标识，这里默认都是0。<br>此时整个网格只有一个单元，然后将网格加密4次。</p>
+<figure class="highlight cpp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line"><span class="function">std::ofstream <span class="title">out</span> <span class="params">(<span class="string">&quot;grid-1.eps&quot;</span>)</span></span>;</span><br><span class="line">GridOut grid_out;</span><br><span class="line">grid_out.<span class="built_in">write_eps</span> (triangulation, out);</span><br><span class="line">std::cout &lt;&lt; <span class="string">&quot;Grid written to grid-1.eps&quot;</span> &lt;&lt; std::endl;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p>然后输出，这里使用的是eps格式。</p>
+<p>第一个函数first_grid生成一个由一个单元网格加密四次后生成的4的4次方=256个正方形单元的网格。<br><img src="https://ws1.sinaimg.cn/large/0072Lfvtly1fvjkunipr2j30i60i4myi.jpg"></p>
+<p>然后是第二个函数：</p>
+<figure class="highlight cpp"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">GridGenerator::<span class="built_in">hyper_shell</span> (triangulation,center,inner_radius,outer_radius,<span class="number">10</span>);</span><br></pre></td></tr></table></figure>
+<p>生成一个三维的壳体或二维的环。注意：这里的边界是弯曲的，而默认情形下边界都是直线。这时需要指定“manifold indicator”来指明边界，告诉在哪个地方细化。<br>如果不指明manifold indicator，那么就只会得到在周向为10个cell，然后加密3次：</p>
+<figure class="highlight cpp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><span class="line">Triangulation&lt;<span class="number">2</span>&gt; triangulation;</span><br><span class="line"><span class="function"><span class="keyword">const</span> Point&lt;2&gt; <span class="title">center</span> <span class="params">(<span class="number">1</span>,<span class="number">0</span>)</span></span>;</span><br><span class="line"><span class="keyword">const</span> <span class="keyword">double</span> inner_radius = <span class="number">0.5</span>,</span><br><span class="line">outer_radius = <span class="number">1.0</span>;</span><br><span class="line">GridGenerator::<span class="built_in">hyper_shell</span> (triangulation,</span><br><span class="line">center, inner_radius, outer_radius,</span><br><span class="line"><span class="number">10</span>);</span><br><span class="line">triangulation.<span class="built_in">refine_global</span> (<span class="number">3</span>);</span><br></pre></td></tr></table></figure>
+<p>结果如图：<br><img src="https://ws1.sinaimg.cn/large/0072Lfvtly1fvjkv8lgfkj308d07yq39.jpg"><br>对边界进行特定标识后，效果会好一些：</p>
+<figure class="highlight cpp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br></pre></td><td class="code"><pre><span class="line">Triangulation&lt;<span class="number">2</span>&gt; triangulation;</span><br><span class="line"><span class="function"><span class="keyword">const</span> Point&lt;2&gt; <span class="title">center</span> <span class="params">(<span class="number">1</span>,<span class="number">0</span>)</span></span>;</span><br><span class="line"><span class="keyword">const</span> <span class="keyword">double</span> inner_radius = <span class="number">0.5</span>,</span><br><span class="line">outer_radius = <span class="number">1.0</span>;</span><br><span class="line">GridGenerator::<span class="built_in">hyper_shell</span> (triangulation,</span><br><span class="line">center, inner_radius, outer_radius,</span><br><span class="line"><span class="number">10</span>);</span><br><span class="line"><span class="function"><span class="keyword">const</span> HyperShellBoundary&lt;2&gt; <span class="title">boundary_description</span><span class="params">(center)</span></span>;</span><br><span class="line">triangulation.<span class="built_in">set_boundary</span> (<span class="number">0</span>, boundary_description);</span><br><span class="line">triangulation.<span class="built_in">refine_global</span> (<span class="number">3</span>);</span><br></pre></td></tr></table></figure>
+<p>结果如图：<br><img src="https://ws1.sinaimg.cn/large/0072Lfvtly1fvjkvs65zlj308d08d74o.jpg"><br>可以看出此时能较好地表现出内外边界的圆形特征，但仍然能从切线上的弯折分辨出最初的10个cell。这可以通过不光对边界上的线，而是对所有的线都指定indicator来优化：</p>
+<figure class="highlight cpp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br></pre></td><td class="code"><pre><span class="line">Triangulation&lt;<span class="number">2</span>&gt; triangulation;</span><br><span class="line"><span class="function"><span class="keyword">const</span> Point&lt;2&gt; <span class="title">center</span> <span class="params">(<span class="number">1</span>,<span class="number">0</span>)</span></span>;</span><br><span class="line"><span class="keyword">const</span> <span class="keyword">double</span> inner_radius = <span class="number">0.5</span>,</span><br><span class="line">outer_radius = <span class="number">1.0</span>;</span><br><span class="line">GridGenerator::<span class="built_in">hyper_shell</span> (triangulation,</span><br><span class="line">center, inner_radius, outer_radius,</span><br><span class="line"><span class="number">10</span>);</span><br><span class="line"><span class="function"><span class="keyword">const</span> SphericalManifold&lt;2&gt; <span class="title">boundary_description</span><span class="params">(center)</span></span>;</span><br><span class="line">triangulation.<span class="built_in">set_manifold</span> (<span class="number">0</span>, boundary_description);</span><br><span class="line">Triangulation&lt;<span class="number">2</span>&gt;::active_cell_iterator</span><br><span class="line">cell = triangulation.<span class="built_in">begin_active</span>(),</span><br><span class="line">endc = triangulation.<span class="built_in">end</span>();</span><br><span class="line"><span class="keyword">for</span> (; cell!=endc; ++cell)</span><br><span class="line">cell-&gt;<span class="built_in">set_all_manifold_ids</span> (<span class="number">0</span>);</span><br><span class="line">triangulation.<span class="built_in">refine_global</span> (<span class="number">3</span>);</span><br></pre></td></tr></table></figure>
+<p>效果如图：<br><img src="https://ws1.sinaimg.cn/large/0072Lfvtly1fvjkw5vj6zj308d08ddg7.jpg"></p>
+<p>之前设定的hyper_shell初始周向网格为10个cell，如果设置为3,且只对边界上的cell设定indicator：</p>
+<figure class="highlight cpp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br></pre></td><td class="code"><pre><span class="line">Triangulation&lt;<span class="number">2</span>&gt; triangulation;</span><br><span class="line"><span class="function"><span class="keyword">const</span> Point&lt;2&gt; <span class="title">center</span> <span class="params">(<span class="number">1</span>,<span class="number">0</span>)</span></span>;</span><br><span class="line"><span class="keyword">const</span> <span class="keyword">double</span> inner_radius = <span class="number">0.5</span>,</span><br><span class="line">outer_radius = <span class="number">1.0</span>;</span><br><span class="line">GridGenerator::<span class="built_in">hyper_shell</span> (triangulation,</span><br><span class="line">center, inner_radius, outer_radius,</span><br><span class="line"><span class="number">3</span>); <span class="comment">// four circumferential cells</span></span><br><span class="line"><span class="function"><span class="keyword">const</span> HyperShellBoundary&lt;2&gt; <span class="title">boundary_description</span><span class="params">(center)</span></span>;</span><br><span class="line">triangulation.<span class="built_in">set_boundary</span> (<span class="number">0</span>, boundary_description);</span><br><span class="line">triangulation.<span class="built_in">refine_global</span> (<span class="number">3</span>);</span><br></pre></td></tr></table></figure>
+<p>结果为：<br><img src="https://ws1.sinaimg.cn/large/0072Lfvtly1fvjkz3xiwyj308d08d0sx.jpg"><br>可以看出细化效果很差，但即使初始为3,也可以通过对全部的cell设定indicator来优化：</p>
+<figure class="highlight cpp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br></pre></td><td class="code"><pre><span class="line">Triangulation&lt;<span class="number">2</span>&gt; triangulation;</span><br><span class="line"><span class="function"><span class="keyword">const</span> Point&lt;2&gt; <span class="title">center</span> <span class="params">(<span class="number">1</span>,<span class="number">0</span>)</span></span>;</span><br><span class="line"><span class="keyword">const</span> <span class="keyword">double</span> inner_radius = <span class="number">0.5</span>,</span><br><span class="line">outer_radius = <span class="number">1.0</span>;</span><br><span class="line">GridGenerator::<span class="built_in">hyper_shell</span> (triangulation,</span><br><span class="line">center, inner_radius, outer_radius,</span><br><span class="line"><span class="number">3</span>); <span class="comment">// three circumferential cells</span></span><br><span class="line"><span class="function"><span class="keyword">const</span> SphericalManifold&lt;2&gt; <span class="title">boundary_description</span><span class="params">(center)</span></span>;</span><br><span class="line">triangulation.<span class="built_in">set_manifold</span> (<span class="number">0</span>, boundary_description);</span><br><span class="line">Triangulation&lt;<span class="number">2</span>&gt;::active_cell_iterator</span><br><span class="line">cell = triangulation.<span class="built_in">begin_active</span>(),</span><br><span class="line">endc = triangulation.<span class="built_in">end</span>();</span><br><span class="line"><span class="keyword">for</span> (; cell!=endc; ++cell)</span><br><span class="line">cell-&gt;<span class="built_in">set_all_manifold_ids</span> (<span class="number">0</span>);</span><br><span class="line">triangulation.<span class="built_in">refine_global</span> (<span class="number">3</span>);</span><br></pre></td></tr></table></figure>
+<p>结果为：<br><img src="https://ws1.sinaimg.cn/large/0072Lfvtly1fvjkzr11lfj308d08d74f.jpg"></p>
+<p>以上分析过程见<a target="_blank" rel="noopener" href="https://dealii.org/8.4.1/doxygen/deal.II/group__manifold.html">这里</a>。</p>
+<p>在step-1的second_grid函数中，将上述细化更进一步，不再是全局细化，而是局部细化，因此首先是要得到能指向每个cell的指针，可以想象一个triangulation是所有cell的集合，而cell在其中并不是一个序列，因此这里不能直接用指针，而是用迭代器iterator，从第一个cell开始，遍历所有cell。不过这里没有使用遍历所有cell的迭代器，而是使用只遍历active cell的迭代器active_cell_iterator，active cell是没有children的cell，其后来将被细化：</p>
+<figure class="highlight cpp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line">Triangulation&lt;<span class="number">2</span>&gt;::active_cell_iterator</span><br><span class="line">cell = triangulation.<span class="built_in">begin_active</span>(),</span><br><span class="line">endc = triangulation.<span class="built_in">end</span>();</span><br><span class="line"><span class="keyword">for</span> (; cell!=endc; ++cell)</span><br></pre></td></tr></table></figure>
+<p>然后在这个for循环中再遍历每个cell的所有顶点：</p>
+<figure class="highlight cpp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">for</span> (<span class="keyword">unsigned</span> <span class="keyword">int</span> v=<span class="number">0</span>;</span><br><span class="line">v &lt; GeometryInfo&lt;<span class="number">2</span>&gt;::vertices_per_cell;</span><br><span class="line">++v)</span><br></pre></td></tr></table></figure>
+<p>然后从这些顶点中通过判断该顶点与圆心的距离找到属于内边界的顶点，从而标记该顶点所在的cell，用于后续的细化：</p>
+<figure class="highlight cpp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">const</span> <span class="keyword">double</span> distance_from_center</span><br><span class="line">= center.<span class="built_in">distance</span> (cell-&gt;<span class="built_in">vertex</span>(v));</span><br><span class="line"><span class="keyword">if</span> (std::<span class="built_in">fabs</span>(distance_from_center - inner_radius) &lt; <span class="number">1e-10</span>)</span><br><span class="line">&#123;</span><br><span class="line">cell-&gt;<span class="built_in">set_refine_flag</span> ();</span><br><span class="line"><span class="keyword">break</span>;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p>然后开始执行细化操作：</p>
+<figure class="highlight cpp"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">triangulation.<span class="built_in">execute_coarsening_and_refinement</span> ();</span><br></pre></td></tr></table></figure>
+<p>结果为：<br><img src="https://ws1.sinaimg.cn/large/0072Lfvtly1fvjl0si8vzj308b08c0t0.jpg"></p>
+<p>注意：当函数结束，开始销毁所创建的对象时，按相反顺序进行，因为定义的manifold object是在triangulation之后，所以manifold object先销毁，此时将会报错，因此必须先释放它：</p>
+<figure class="highlight cpp"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">triangulation.<span class="built_in">set_manifold</span> (<span class="number">0</span>);</span><br></pre></td></tr></table></figure>
+<p>另一种简单的方法是在triangulation之前定义manifold object。</p>
+<p>second_grid给了我们提示，可以设定不同的细化条件，比如设定当cell的中心的y坐标大于0时才加密：</p>
+<figure class="highlight cpp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">for</span> (; cell!=endc; ++cell)</span><br><span class="line"><span class="keyword">if</span> (cell-&gt;<span class="built_in">center</span>()[<span class="number">1</span>] &gt; <span class="number">0</span>)</span><br><span class="line">cell-&gt;<span class="built_in">set_refine_flag</span> ();</span><br></pre></td></tr></table></figure>
+<p>结果为：<br><img src="https://ws1.sinaimg.cn/large/0072Lfvtly1fvjl1612r5j30lv0l9td6.jpg"></p>
+<h1 id="最后"><a href="#最后" class="headerlink" title="最后"></a>最后</h1><p>deal.II的作者建议尽早学会使用一个debugger！</p>
+<h1 id="补充"><a href="#补充" class="headerlink" title="补充"></a>补充</h1><h2 id="产生的信息"><a href="#产生的信息" class="headerlink" title="产生的信息"></a>产生的信息</h2><p>此例最简化的版本是：</p>
+<figure class="highlight cpp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="keyword">void</span> <span class="title">first_grid</span><span class="params">()</span></span></span><br><span class="line"><span class="function"></span>&#123;</span><br><span class="line">  Triangulation&lt;<span class="number">2</span>&gt; triangulation;</span><br><span class="line">  GridGenerator::<span class="built_in">hyper_cube</span>(triangulation);</span><br><span class="line">  triangulation.<span class="built_in">refine_global</span>(<span class="number">0</span>);</span><br><span class="line"></span><br><span class="line">  <span class="function">std::ofstream <span class="title">out</span><span class="params">(<span class="string">&quot;grid-1.vtk&quot;</span>)</span></span>;</span><br><span class="line">  GridOut grid_out;</span><br><span class="line">  grid_out.<span class="built_in">write_vtk</span>(triangulation,out);</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p>产生的vtk文件是：</p>
+<figure class="highlight cpp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta"># vtk DataFile Version 3.0</span></span><br><span class="line">#This file was generated by the deal.II library on <span class="number">2016</span>/<span class="number">11</span>/<span class="number">7</span> at <span class="number">15</span>:<span class="number">38</span>:<span class="number">30</span></span><br><span class="line">ASCII</span><br><span class="line">DATASET UNSTRUCTURED_GRID</span><br><span class="line"></span><br><span class="line">POINTS <span class="number">4</span> <span class="keyword">double</span></span><br><span class="line"><span class="number">0</span> <span class="number">0</span> <span class="number">0</span></span><br><span class="line"><span class="number">1</span> <span class="number">0</span> <span class="number">0</span></span><br><span class="line"><span class="number">0</span> <span class="number">1</span> <span class="number">0</span></span><br><span class="line"><span class="number">1</span> <span class="number">1</span> <span class="number">0</span></span><br><span class="line"></span><br><span class="line">CELLS <span class="number">1</span> <span class="number">5</span></span><br><span class="line"><span class="number">4</span>	<span class="number">0</span>	<span class="number">1</span>	<span class="number">3</span>	<span class="number">2</span></span><br><span class="line"></span><br><span class="line">CELL_TYPES <span class="number">1</span></span><br><span class="line"><span class="number">9</span></span><br><span class="line"></span><br><span class="line">POINT_DATA <span class="number">4</span></span><br><span class="line">SCALARS level <span class="keyword">double</span> <span class="number">1</span></span><br><span class="line">LOOKUP_TABLE <span class="keyword">default</span></span><br><span class="line"><span class="number">0</span> <span class="number">0</span> <span class="number">0</span> <span class="number">0</span> </span><br><span class="line">SCALARS manifold <span class="keyword">double</span> <span class="number">1</span></span><br><span class="line">LOOKUP_TABLE <span class="keyword">default</span></span><br><span class="line"><span class="number">-1</span> <span class="number">-1</span> <span class="number">-1</span> <span class="number">-1</span> </span><br><span class="line">SCALARS material <span class="keyword">double</span> <span class="number">1</span></span><br><span class="line">LOOKUP_TABLE <span class="keyword">default</span></span><br><span class="line"><span class="number">0</span> <span class="number">0</span> <span class="number">0</span> <span class="number">0</span> </span><br><span class="line">SCALARS subdomain <span class="keyword">double</span> <span class="number">1</span></span><br><span class="line">LOOKUP_TABLE <span class="keyword">default</span></span><br><span class="line"><span class="number">0</span> <span class="number">0</span> <span class="number">0</span> <span class="number">0</span> </span><br><span class="line">SCALARS level_subdomain <span class="keyword">double</span> <span class="number">1</span></span><br><span class="line">LOOKUP_TABLE <span class="keyword">default</span></span><br><span class="line"><span class="number">0</span> <span class="number">0</span> <span class="number">0</span> <span class="number">0</span> </span><br></pre></td></tr></table></figure>
+<p>说明生成的数据的特点是：<br>(1)拓扑结构：只有四个点，且其构成四边形<br>(2)属性：该网格上有五个属性值，包括level、manifold、material、subdomain和level_subdomain。<br>具体的样子可以通过ParaView查看。</p>
+<p>注意，如果将全局优化次数改为1，那么节点个数就变成16个，点的编号也相应变化，虽然点变成了16个，但实际只有9个，因为有些是同一个坐标点有多个编号，相应的上面的每个属性值的个数也变成了16个，单元个数还是实际个数，不存在重合现象，即此时是4个。改为全局细化两次后，节点有64个，单元有16个。</p>
+<h2 id="cell和vertex分布"><a href="#cell和vertex分布" class="headerlink" title="cell和vertex分布"></a>cell和vertex分布</h2><p>deal.II对cell的个数计数有两种：一种是active_cells，它们就是网格中呈现的单元，表示不能再继续细化的单元;另一种是cells，它们不仅包含active_cells，还包含之前细化过的单元。<br>对单元作循环，统计个数，可以看出两者的区别：</p>
+<figure class="highlight cpp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><span class="line">Triangulation&lt;<span class="number">2</span>&gt;::cell_iterator</span><br><span class="line">  cell = triangulation.<span class="built_in">begin</span>(),</span><br><span class="line">  endc = triangulation.<span class="built_in">end</span>();</span><br><span class="line"></span><br><span class="line">Triangulation&lt;<span class="number">2</span>&gt;::active_cell_iterator</span><br><span class="line">  active_cell = triangulation.<span class="built_in">begin_active</span>(),</span><br><span class="line">  active_endc = triangulation.<span class="built_in">end</span>();</span><br></pre></td></tr></table></figure>
+<p>以全局细化两次为例，active_cells共有16个，而cells共有21个。</p>
+<figure class="highlight cpp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">for</span>(;cell!=endc;cell++)</span><br><span class="line">&#123;</span><br><span class="line">  <span class="keyword">for</span>(<span class="keyword">unsigned</span> <span class="keyword">int</span> v=<span class="number">0</span>; v &lt; GeometryInfo&lt;<span class="number">2</span>&gt;::vertices_per_cell; v++)</span><br><span class="line">    std::cout &lt;&lt; <span class="string">&quot;the point at &quot;</span> &lt;&lt; cell-&gt;<span class="built_in">vertex</span>(v)[<span class="number">0</span>] &lt;&lt; <span class="string">&quot; &quot;</span></span><br><span class="line">              &lt;&lt; <span class="string">&quot;and &quot;</span>          &lt;&lt; cell-&gt;<span class="built_in">vertex</span>(v)[<span class="number">1</span>] &lt;&lt; std::endl;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p>上面就是将顶点的坐标输出，其结果跟vtk文件是相同的。</p>
+
+    </div>
+
+    
+    
+    
+        <div class="reward-container">
+  <div></div>
+  <button onclick="var qr = document.getElementById('qr'); qr.style.display = (qr.style.display === 'none') ? 'block' : 'none';">
+    Donate
+  </button>
+  <div id="qr" style="display: none;">
+      
+      <div style="display: inline-block;">
+        <img src="/images/wechat_reward.png" alt="Xin-Bo Qi(亓欣波) WeChat Pay">
+        <p>WeChat Pay</p>
+      </div>
+
+  </div>
+</div>
+
+
+      <footer class="post-footer">
+          <div class="post-tags">
+              <a href="/tags/deal-II/" rel="tag"># deal.II</a>
+          </div>
+
+        
+
+
+        
+    <div class="post-nav">
+      <div class="post-nav-item">
+    <a href="/2016/06/12/mathematica-pickPointData/" rel="prev" title="Mathematica版GetData——用Mathematica提取图片中的数据点">
+      <i class="fa fa-chevron-left"></i> Mathematica版GetData——用Mathematica提取图片中的数据点
+    </a></div>
+      <div class="post-nav-item">
+    <a href="/2016/08/04/dealii-learn-step2/" rel="next" title="求解偏微分方程开源有限元软件deal.II学习--Step 2">
+      求解偏微分方程开源有限元软件deal.II学习--Step 2 <i class="fa fa-chevron-right"></i>
+    </a></div>
+    </div>
+      </footer>
+    
+  </article>
+  
+  
+  
+
+
+
+          </div>
+          
+    
+  <div class="comments">
+    <div id="disqus_thread">
+      <noscript>Please enable JavaScript to view the comments powered by Disqus.</noscript>
+    </div>
+  </div>
+  
+
+<script>
+  window.addEventListener('tabs:register', () => {
+    let { activeClass } = CONFIG.comments;
+    if (CONFIG.comments.storage) {
+      activeClass = localStorage.getItem('comments_active') || activeClass;
+    }
+    if (activeClass) {
+      let activeTab = document.querySelector(`a[href="#comment-${activeClass}"]`);
+      if (activeTab) {
+        activeTab.click();
+      }
+    }
+  });
+  if (CONFIG.comments.storage) {
+    window.addEventListener('tabs:click', event => {
+      if (!event.target.matches('.tabs-comment .tab-content .tab-pane')) return;
+      let commentClass = event.target.classList[1];
+      localStorage.setItem('comments_active', commentClass);
+    });
+  }
+</script>
+
+        </div>
+          
+  
+  <div class="toggle sidebar-toggle">
+    <span class="toggle-line toggle-line-first"></span>
+    <span class="toggle-line toggle-line-middle"></span>
+    <span class="toggle-line toggle-line-last"></span>
+  </div>
+
+  <aside class="sidebar">
+    <div class="sidebar-inner">
+
+      <ul class="sidebar-nav motion-element">
+        <li class="sidebar-nav-toc">
+          Table of Contents
+        </li>
+        <li class="sidebar-nav-overview">
+          Overview
+        </li>
+      </ul>
+
+      <!--noindex-->
+      <div class="post-toc-wrap sidebar-panel">
+          <div class="post-toc motion-element"><ol class="nav"><li class="nav-item nav-level-1"><a class="nav-link" href="#%E7%AE%80%E4%BB%8B"><span class="nav-number">1.</span> <span class="nav-text">简介</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#%E5%AE%89%E8%A3%85"><span class="nav-number">2.</span> <span class="nav-text">安装</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#%E7%BC%96%E8%AF%91%E8%BF%90%E8%A1%8C"><span class="nav-number">3.</span> <span class="nav-text">编译运行</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#%E7%AC%AC%E4%B8%80%E4%B8%AA%E6%95%99%E5%AD%A6%E5%AE%9E%E4%BE%8B%E2%80%94%E2%80%94step-1"><span class="nav-number">4.</span> <span class="nav-text">第一个教学实例——step-1</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#%E6%9C%80%E5%90%8E"><span class="nav-number">5.</span> <span class="nav-text">最后</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#%E8%A1%A5%E5%85%85"><span class="nav-number">6.</span> <span class="nav-text">补充</span></a><ol class="nav-child"><li class="nav-item nav-level-2"><a class="nav-link" href="#%E4%BA%A7%E7%94%9F%E7%9A%84%E4%BF%A1%E6%81%AF"><span class="nav-number">6.1.</span> <span class="nav-text">产生的信息</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#cell%E5%92%8Cvertex%E5%88%86%E5%B8%83"><span class="nav-number">6.2.</span> <span class="nav-text">cell和vertex分布</span></a></li></ol></li></ol></div>
+      </div>
+      <!--/noindex-->
+
+      <div class="site-overview-wrap sidebar-panel">
+        <div class="site-author motion-element" itemprop="author" itemscope itemtype="http://schema.org/Person">
+    <img class="site-author-image" itemprop="image" alt="Xin-Bo Qi(亓欣波)"
+      src="/images/avatar.jpg">
+  <p class="site-author-name" itemprop="name">Xin-Bo Qi(亓欣波)</p>
+  <div class="site-description" itemprop="description">Be interesting!</div>
+</div>
+<div class="site-state-wrap motion-element">
+  <nav class="site-state">
+      <div class="site-state-item site-state-posts">
+          <a href="/archives/">
+        
+          <span class="site-state-item-count">120</span>
+          <span class="site-state-item-name">posts</span>
+        </a>
+      </div>
+      <div class="site-state-item site-state-categories">
+            <a href="/categories/">
+          
+        <span class="site-state-item-count">5</span>
+        <span class="site-state-item-name">categories</span></a>
+      </div>
+      <div class="site-state-item site-state-tags">
+            <a href="/tags/">
+          
+        <span class="site-state-item-count">41</span>
+        <span class="site-state-item-name">tags</span></a>
+      </div>
+  </nav>
+</div>
+  <div class="links-of-author motion-element">
+      <span class="links-of-author-item">
+        <a href="https://github.com/qixinbo" title="GitHub → https:&#x2F;&#x2F;github.com&#x2F;qixinbo" rel="noopener" target="_blank"><i class="github fa-fw"></i>GitHub</a>
+      </span>
+      <span class="links-of-author-item">
+        <a href="mailto:qixinbo@gmail.com" title="E-Mail → mailto:qixinbo@gmail.com" rel="noopener" target="_blank"><i class="envelope fa-fw"></i>E-Mail</a>
+      </span>
+  </div>
+
+
+  <div class="links-of-blogroll motion-element">
+    <div class="links-of-blogroll-title"><i class="fa fa-link fa-fw"></i>
+      Links
+    </div>
+    <ul class="links-of-blogroll-list">
+        <li class="links-of-blogroll-item">
+          <a href="https://www.tsinghua.edu.cn/" title="https:&#x2F;&#x2F;www.tsinghua.edu.cn" rel="noopener" target="_blank">THU</a>
+        </li>
+        <li class="links-of-blogroll-item">
+          <a href="http://www.imr.cas.cn/" title="http:&#x2F;&#x2F;www.imr.cas.cn" rel="noopener" target="_blank">IMR</a>
+        </li>
+        <li class="links-of-blogroll-item">
+          <a href="http://www.sdu.edu.cn/" title="http:&#x2F;&#x2F;www.sdu.edu.cn" rel="noopener" target="_blank">SDU</a>
+        </li>
+        <li class="links-of-blogroll-item">
+          <a href="http://liam0205.me/" title="http:&#x2F;&#x2F;liam0205.me&#x2F;" rel="noopener" target="_blank">黄晨成</a>
+        </li>
+    </ul>
+  </div>
+
+      </div>
+
+    </div>
+  </aside>
+  <div id="sidebar-dimmer"></div>
+
+
+      </div>
+    </main>
+
+    <footer class="footer">
+      <div class="footer-inner">
+        
+
+        
+
+<div class="copyright">
+  
+  &copy; 
+  <span itemprop="copyrightYear">2021</span>
+  <span class="with-love">
+    <i class="fa fa-heart"></i>
+  </span>
+  <span class="author" itemprop="copyrightHolder">Xin-Bo Qi(亓欣波)</span>
+</div>
+  <div class="powered-by">Powered by <a href="https://hexo.io/" class="theme-link" rel="noopener" target="_blank">Hexo</a> & <a href="https://theme-next.org/" class="theme-link" rel="noopener" target="_blank">NexT.Gemini</a>
+  </div>
+
+        
+
+
+
+
+
+
+
+
+      </div>
+    </footer>
+  </div>
+
+  
+  <script src="/lib/anime.min.js"></script>
+  <script src="/lib/velocity/velocity.min.js"></script>
+  <script src="/lib/velocity/velocity.ui.min.js"></script>
+
+<script src="/js/utils.js"></script>
+
+<script src="/js/motion.js"></script>
+
+
+<script src="/js/schemes/pisces.js"></script>
+
+
+<script src="/js/next-boot.js"></script>
+
+
+
+
+  
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+  
+
+  
+
+  
+
+<script>
+  function loadCount() {
+    var d = document, s = d.createElement('script');
+    s.src = 'https://qixinbo.disqus.com/count.js';
+    s.id = 'dsq-count-scr';
+    (d.head || d.body).appendChild(s);
+  }
+  // defer loading until the whole page loading is completed
+  window.addEventListener('load', loadCount, false);
+</script>
+<script>
+  var disqus_config = function() {
+    this.page.url = "http://qixinbo.github.io/2016/08/02/dealii-learn-step1/";
+    this.page.identifier = "2016/08/02/dealii-learn-step1/";
+    this.page.title = "求解偏微分方程开源有限元软件deal.II学习--Step 1";
+    };
+  NexT.utils.loadComments(document.querySelector('#disqus_thread'), () => {
+    if (window.DISQUS) {
+      DISQUS.reset({
+        reload: true,
+        config: disqus_config
+      });
+    } else {
+      var d = document, s = d.createElement('script');
+      s.src = 'https://qixinbo.disqus.com/embed.js';
+      s.setAttribute('data-timestamp', '' + +new Date());
+      (d.head || d.body).appendChild(s);
+    }
+  });
+</script>
+
+</body>
+</html>

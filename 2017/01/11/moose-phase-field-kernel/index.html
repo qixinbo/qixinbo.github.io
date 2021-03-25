@@ -1,0 +1,595 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=2">
+<meta name="theme-color" content="#222">
+<meta name="generator" content="Hexo 5.4.0">
+  <link rel="apple-touch-icon" sizes="180x180" href="/images/apple-touch-icon-next.png">
+  <link rel="icon" type="image/png" sizes="32x32" href="/favicon.ico">
+  <link rel="icon" type="image/png" sizes="16x16" href="/favicon.ico">
+  <link rel="mask-icon" href="/images/logo.svg" color="#222">
+
+<link rel="stylesheet" href="/css/main.css">
+
+
+<link rel="stylesheet" href="/lib/font-awesome/css/all.min.css">
+
+<script id="hexo-configurations">
+    var NexT = window.NexT || {};
+    var CONFIG = {"hostname":"qixinbo.github.io","root":"/","scheme":"Gemini","version":"7.8.0","exturl":false,"sidebar":{"position":"left","display":"post","padding":18,"offset":12,"onmobile":false},"copycode":{"enable":false,"show_result":false,"style":null},"back2top":{"enable":true,"sidebar":false,"scrollpercent":false},"bookmark":{"enable":false,"color":"#222","save":"auto"},"fancybox":false,"mediumzoom":false,"lazyload":false,"pangu":false,"comments":{"style":"tabs","active":null,"storage":true,"lazyload":false,"nav":null},"algolia":{"hits":{"per_page":10},"labels":{"input_placeholder":"Search for Posts","hits_empty":"We didn't find any results for the search: ${query}","hits_stats":"${hits} results found in ${time} ms"}},"localsearch":{"enable":false,"trigger":"auto","top_n_per_article":1,"unescape":false,"preload":false},"motion":{"enable":true,"async":false,"transition":{"post_block":"fadeIn","post_header":"slideDownIn","post_body":"slideDownIn","coll_header":"slideLeftIn","sidebar":"slideUpIn"}}};
+  </script>
+
+  <meta name="description" content="引子moose的相场模块提供了通用的求解相场模型的算法，其通式采用的是自由能泛函的原始形式，只要用户要求解的模型满足这里内置的方程形式，那么用户仅需要提供自由能的导数和材料参数，就可以迅速进行模拟。比如教程中的调幅分解模型。如果用户不能知道相场的原始形式，也可以自己开发模型，比如用于模拟枝晶生长的Kobayashi模型，就不满足上述规则，此时可以自己创建模型。 牛顿迭代法moose内核模型的表达形">
+<meta property="og:type" content="article">
+<meta property="og:title" content="MOOSE相场模块的内核模型">
+<meta property="og:url" content="http://qixinbo.github.io/2017/01/11/moose-phase-field-kernel/index.html">
+<meta property="og:site_name" content="亓欣波">
+<meta property="og:description" content="引子moose的相场模块提供了通用的求解相场模型的算法，其通式采用的是自由能泛函的原始形式，只要用户要求解的模型满足这里内置的方程形式，那么用户仅需要提供自由能的导数和材料参数，就可以迅速进行模拟。比如教程中的调幅分解模型。如果用户不能知道相场的原始形式，也可以自己开发模型，比如用于模拟枝晶生长的Kobayashi模型，就不满足上述规则，此时可以自己创建模型。 牛顿迭代法moose内核模型的表达形">
+<meta property="og:locale" content="en_US">
+<meta property="article:published_time" content="2017-01-10T16:00:00.000Z">
+<meta property="article:modified_time" content="2021-03-25T07:20:30.770Z">
+<meta property="article:author" content="Xin-Bo Qi(亓欣波)">
+<meta property="article:tag" content="MOOSE">
+<meta property="article:tag" content="phasefield">
+<meta name="twitter:card" content="summary">
+
+<link rel="canonical" href="http://qixinbo.github.io/2017/01/11/moose-phase-field-kernel/">
+
+
+<script id="page-configurations">
+  // https://hexo.io/docs/variables.html
+  CONFIG.page = {
+    sidebar: "",
+    isHome : false,
+    isPost : true,
+    lang   : 'en'
+  };
+</script>
+
+  <title>MOOSE相场模块的内核模型 | 亓欣波</title>
+  
+
+
+
+
+
+
+  <noscript>
+  <style>
+  .use-motion .brand,
+  .use-motion .menu-item,
+  .sidebar-inner,
+  .use-motion .post-block,
+  .use-motion .pagination,
+  .use-motion .comments,
+  .use-motion .post-header,
+  .use-motion .post-body,
+  .use-motion .collection-header { opacity: initial; }
+
+  .use-motion .site-title,
+  .use-motion .site-subtitle {
+    opacity: initial;
+    top: initial;
+  }
+
+  .use-motion .logo-line-before i { left: initial; }
+  .use-motion .logo-line-after i { right: initial; }
+  </style>
+</noscript>
+
+</head>
+
+<body itemscope itemtype="http://schema.org/WebPage">
+  <div class="container use-motion">
+    <div class="headband"></div>
+
+    <header class="header" itemscope itemtype="http://schema.org/WPHeader">
+      <div class="header-inner"><div class="site-brand-container">
+  <div class="site-nav-toggle">
+    <div class="toggle" aria-label="Toggle navigation bar">
+      <span class="toggle-line toggle-line-first"></span>
+      <span class="toggle-line toggle-line-middle"></span>
+      <span class="toggle-line toggle-line-last"></span>
+    </div>
+  </div>
+
+  <div class="site-meta">
+
+    <a href="/" class="brand" rel="start">
+      <span class="logo-line-before"><i></i></span>
+      <h1 class="site-title">亓欣波</h1>
+      <span class="logo-line-after"><i></i></span>
+    </a>
+      <p class="site-subtitle" itemprop="description">Hi, I am Xin-Bo Qi (亓欣波)</p>
+  </div>
+
+  <div class="site-nav-right">
+    <div class="toggle popup-trigger">
+    </div>
+  </div>
+</div>
+
+
+
+
+<nav class="site-nav">
+  <ul id="menu" class="main-menu menu">
+        <li class="menu-item menu-item-home">
+
+    <a href="/" rel="section"><i class="home fa-fw"></i>Home</a>
+
+  </li>
+        <li class="menu-item menu-item-categories">
+
+    <a href="/categories/" rel="section"><i class="th fa-fw"></i>Categories</a>
+
+  </li>
+        <li class="menu-item menu-item-archives">
+
+    <a href="/archives/" rel="section"><i class="archive fa-fw"></i>Archives</a>
+
+  </li>
+        <li class="menu-item menu-item-tags">
+
+    <a href="/tags/" rel="section"><i class="tags fa-fw"></i>Tags</a>
+
+  </li>
+        <li class="menu-item menu-item-scholar">
+
+    <a href="/scholar/" rel="section"><i class="bar-chart fa-fw"></i>scholar</a>
+
+  </li>
+        <li class="menu-item menu-item-sources">
+
+    <a href="/sources/" rel="section"><i class="rss fa-fw"></i>sources</a>
+
+  </li>
+        <li class="menu-item menu-item-gallery">
+
+    <a href="/gallery/" rel="section"><i class="file-image-o fa-fw"></i>gallery</a>
+
+  </li>
+        <li class="menu-item menu-item-about">
+
+    <a href="/about/" rel="section"><i class="user fa-fw"></i>About</a>
+
+  </li>
+        <li class="menu-item menu-item-commonweal">
+
+    <a href="/404.html" rel="section"><i class="heartbeat fa-fw"></i>Commonweal 404</a>
+
+  </li>
+  </ul>
+</nav>
+
+
+
+
+</div>
+    </header>
+
+    
+  <div class="back-to-top">
+    <i class="fa fa-arrow-up"></i>
+    <span>0%</span>
+  </div>
+
+
+    <main class="main">
+      <div class="main-inner">
+        <div class="content-wrap">
+          
+
+          <div class="content post posts-expand">
+            
+
+    
+  
+  
+  <article itemscope itemtype="http://schema.org/Article" class="post-block" lang="en">
+    <link itemprop="mainEntityOfPage" href="http://qixinbo.github.io/2017/01/11/moose-phase-field-kernel/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="image" content="/images/avatar.jpg">
+      <meta itemprop="name" content="Xin-Bo Qi(亓欣波)">
+      <meta itemprop="description" content="Be interesting!">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="亓欣波">
+    </span>
+      <header class="post-header">
+        <h1 class="post-title" itemprop="name headline">
+          MOOSE相场模块的内核模型
+        </h1>
+
+        <div class="post-meta">
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="far fa-calendar"></i>
+              </span>
+              <span class="post-meta-item-text">Posted on</span>
+
+              <time title="Created: 2017-01-11 00:00:00" itemprop="dateCreated datePublished" datetime="2017-01-11T00:00:00+08:00">2017-01-11</time>
+            </span>
+              <span class="post-meta-item">
+                <span class="post-meta-item-icon">
+                  <i class="far fa-calendar-check"></i>
+                </span>
+                <span class="post-meta-item-text">Edited on</span>
+                <time title="Modified: 2021-03-25 15:20:30" itemprop="dateModified" datetime="2021-03-25T15:20:30+08:00">2021-03-25</time>
+              </span>
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="far fa-folder"></i>
+              </span>
+              <span class="post-meta-item-text">In</span>
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+                  <a href="/categories/computational-material-science/" itemprop="url" rel="index"><span itemprop="name">computational material science</span></a>
+                </span>
+            </span>
+
+          
+  
+  <span class="post-meta-item">
+    
+      <span class="post-meta-item-icon">
+        <i class="far fa-comment"></i>
+      </span>
+      <span class="post-meta-item-text">Disqus: </span>
+    
+    <a title="disqus" href="/2017/01/11/moose-phase-field-kernel/#disqus_thread" itemprop="discussionUrl">
+      <span class="post-comments-count disqus-comment-count" data-disqus-identifier="2017/01/11/moose-phase-field-kernel/" itemprop="commentCount"></span>
+    </a>
+  </span>
+  
+  
+
+        </div>
+      </header>
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+        <h1 id="引子"><a href="#引子" class="headerlink" title="引子"></a>引子</h1><p>moose的相场模块提供了通用的求解相场模型的算法，其通式采用的是自由能泛函的原始形式，只要用户要求解的模型满足这里内置的方程形式，那么用户仅需要提供自由能的导数和材料参数，就可以迅速进行模拟。比如教程中的调幅分解模型。<br>如果用户不能知道相场的原始形式，也可以自己开发模型，比如用于模拟枝晶生长的Kobayashi模型，就不满足上述规则，此时可以自己创建模型。</p>
+<h1 id="牛顿迭代法"><a href="#牛顿迭代法" class="headerlink" title="牛顿迭代法"></a>牛顿迭代法</h1><p>moose内核模型的表达形式是将原来的控制方程中的右端项都移动到左端，得到这样的形式：<br>$$<br>R_i(u)=0, \qquad i=1,\ldots, N<br>$$<br>其中，N是分量的个数。<br>如果写成有限元函数的形式：<br>$$<br>R_i(u_h)=0, \qquad i=1,\ldots, N<br>$$<br>其中：<br>$$<br>u \approx u_h = \sum_{j=1}^N u_j \phi_j<br>$$<br>即，原来的连续的场变量由节点上的离散的系数来代替。</p>
+<h2 id="单变量求根"><a href="#单变量求根" class="headerlink" title="单变量求根"></a>单变量求根</h2><p>现在仅考虑单变量情形：<br>$$<br>f(x)=0<br>$$<br>moose采用Newton迭代法来对其求根，该方法的基本思想是：将非线性方程的求根问题，转化成某个线性方程的求根。比如，对该方程的左端项进行泰勒展开，且只取其线性主部：<br>$$<br>0=f(x)=f(x_0)+f’(x_0)(x-x_0)<br>$$<br>那么，解就是：<br>$$<br>x_1=x_0-\frac{f(x_0)}{f’(x_0)}<br>$$<br>这样就得到根的新的近似值。进一步迭代：<br>$$<br>x_{k+1}=x_k-\frac{f(x_k)}{f’(x_k)}<br>$$<br>当前后两步解的差值达到某个精度时，就认为该解就是方程的根。</p>
+<h2 id="多变量求根"><a href="#多变量求根" class="headerlink" title="多变量求根"></a>多变量求根</h2><p>回到有限元法中，因为场函数由分布在节点上的有限元函数值所代替，所以此时变量就有多个。那么，对应于单变量情形，可得出多变量时的表达式：<br>$$<br>\mathbf{J}(\vec{u}_0) (\vec{u}_1-\vec{u}_0) = -\vec{R}(\vec{u}_0)<br>$$<br>其中，$\mathbf{J}(\vec{u}_0)$是当前迭代步的雅各比矩阵。上方带箭头的变量表示其是一个矢量，矢量大小就是节点的个数。<br>通用的迭代格式就是：<br>$$<br>\mathbf{J}(\vec{u}_k) (\vec{u}_{k+1}-\vec{u}_k) = -\vec{R}(\vec{u}_k)<br>$$<br>其中雅各比矩阵的具体形式为：<br>$$<br>J_{ij}(\vec{u}_k) = \frac{\partial R_i(\vec{u}_k)}{\partial u_j}<br>$$<br>在求雅各比矩阵时，有两个基本公式是非常重要的：<br>$$<br>\frac{\partial u_h}{\partial u_j} =<br>      \sum_k\frac{\partial }{\partial u_j}(u_k \phi_k) = \phi_j<br>    \qquad<br>\frac{\partial (\nabla u_h)}{\partial u_j} =<br>      \sum_k \frac{\partial }{\partial u_j}(u_k \nabla \phi_k)=\nabla \phi_j<br>$$</p>
+<h2 id="线性迭代和非线性迭代"><a href="#线性迭代和非线性迭代" class="headerlink" title="线性迭代和非线性迭代"></a>线性迭代和非线性迭代</h2><p>首先将<br>$$<br>\mathbf{J}(\vec{u}_0) (\vec{u}_1-\vec{u}_0) = -\vec{R}(\vec{u}_0)<br>$$<br>等效成：<br>$$<br>Ax=b<br>$$<br>线性迭代：对于某一个Newton迭代步，比如上面的k+1步，Ax=b是一个大型线性方程组。在求解这个线性方程组的过程中A和b保持不变，仅是不断地迭代x，使其收敛，这个过程叫线性迭代Linear Iteration，每步迭代的残差称为线性残差Linear Residual，第i步迭代的残差表达式为\rhoi=Axi-b。如果设置print_linear_residuals=true，那么MOOSE就会打印该残差向量的范数。</p>
+<p>JFNK算法：在上面的线性迭代过程中，想要高效地求解x，这里使用Krylov子空间，将Ax=b转换为Kxi+1=Kxi+b-Axi的迭代形式来求解，具体的算法可以是GMRES或共轭梯度法等。这个算法中不明确地需要Jacobi矩阵，仅仅需要J对向量的作用。下面有详细介绍。</p>
+<p>非线性迭代：也是在一个Newton迭代步中，针对的是总的残差R的迭代，从而使其收敛，进入下一个时间步，该残差称为非线性残差Nonlinear Residuals。</p>
+<p>那么总的思路就是：对于某个时间步，首先给定一个R的初值R0，然后计算出一个x0，从而对x进行迭代，直到x收敛到给定线性迭代精度，这时候也就计算出了新的R值，即R1，如果R1和R0不满足非线性迭代精度要求，那么将R1再代入Ax=b中，再次对x迭代，直到再次达到线性迭代精度，再计算出R2，再判定是否达到非线性迭代精度。  </p>
+<h2 id="牛刀小试"><a href="#牛刀小试" class="headerlink" title="牛刀小试"></a>牛刀小试</h2><p>对于一个经典的对流-扩散方程：<br>$$<br>-\nabla\cdot k\nabla u + \vec{\beta} \cdot \nabla u = f<br>$$<br>其残差向量的第i个分量为：<br>$$<br>R_i(u_h) = (\nabla\psi_i, k\nabla u_h)-\langle\psi_i, k\nabla u_h\cdot \hat{n} \rangle + (\psi_i, \vec{\beta} \cdot \nabla u_h)-(\psi_i, f)<br>$$<br>雅各比矩阵的某个元素为：<br>$$<br>J_{ij}(u_h)= (\nabla\psi_i,\frac{\partial k}{\partial u_j}\nabla u_h) +(\nabla\psi_i, k \nabla \phi_j ) - \langle\psi_i, \frac{\partial k}{\partial u_j}\nabla u_h\cdot \hat{n} \rangle - \langle\psi_i, k\nabla \phi_j\cdot \hat{n} \rangle + (\psi_i, \frac{\partial \vec{\beta}}{\partial u_j} \cdot\nabla u_h) + (\psi_i, \vec{\beta} \cdot \nabla \phi_j) - (\psi_i, \frac{\partial f}{\partial u_j})<br>$$<br>注意，这里假定扩散系数、对流速度、源项等都是变量，所以形式会比较复杂。<br>尤其是对于多个方程相互耦合，或材料属性比较复杂的情形，雅各比矩阵的计算会很困难。</p>
+<h2 id="链式法则"><a href="#链式法则" class="headerlink" title="链式法则"></a>链式法则</h2><p>有时候，可以应用链式法则来简化一下，比如：<br>$$<br>\frac{\partial f}{\partial u_j} = \frac{\partial f}{\partial u_h} \frac{\partial u_h}{\partial u_j}=\frac{\partial f}{\partial u_h} \phi_j<br>$$<br>如果f的表达式已知，比如$f(u) = \sin(u)$，那么：<br>$$<br>\frac{\partial f}{\partial u_j} = \cos(u_h) \phi_j<br>$$</p>
+<h2 id="JFNK算法"><a href="#JFNK算法" class="headerlink" title="JFNK算法"></a>JFNK算法</h2><p>JFNK算法，全称是Jacobian Free Newton Krylov methods，是数值求解非线性问题的一种先进方法，其核心思想是将Newton非线性迭代法嵌入到Krylov空间法求解线性代数方程组的过程中，其显著优点是避免了传统Newton迭代法中的Jacobian矩阵生成环节，有利于降低内存占用率，缩短计算时长。<br>JFNK算法将Newton迭代法与Krylov空间法结合的方式是将Newton迭代法中的Jacobian矩阵$\mathbf{J}$与Krylov空间法的解向量$\vec{v}$之间进行向量积操作，其近似为：<br>$$<br>\mathbf{J}\vec{v} \approx \frac{\vec{R}(\vec{u} + \epsilon\vec{v}) - \vec{R}(\vec{u})}{\epsilon}<br>$$<br>这个算法的优点有：</p>
+<ul>
+<li>无需计算偏导数来得到雅各比矩阵</li>
+<li>无需直接计算雅各比矩阵</li>
+<li>无需空间来存储雅各比矩阵</li>
+</ul>
+<h1 id="调幅分解所用的Cahn-Hilliard方程"><a href="#调幅分解所用的Cahn-Hilliard方程" class="headerlink" title="调幅分解所用的Cahn-Hilliard方程"></a>调幅分解所用的Cahn-Hilliard方程</h1><p>这里将含有四阶导数的原CH方程，拆分成两个，这样每个都只含有二阶导数，易于求解，两个方程的变量分别是化学势和浓度。</p>
+<h2 id="化学势的残差"><a href="#化学势的残差" class="headerlink" title="化学势的残差"></a>化学势的残差</h2><p>其表达式及其求解内核分为两个：</p>
+<h3 id="第一项"><a href="#第一项" class="headerlink" title="第一项"></a>第一项</h3><p>$$<br>(\frac{\partial c}{\partial t},\psi)<br>$$<br>该项中变量是化学势，耦合的变量是浓度，使用的内核是CoupledTimeDerivative。</p>
+<figure class="highlight cpp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br></pre></td><td class="code"><pre><span class="line">Real</span><br><span class="line">CoupledTimeDerivative::<span class="built_in">computeQpResidual</span>()</span><br><span class="line">&#123;</span><br><span class="line"> <span class="keyword">return</span> _test[_i][_qp] * _v_dot[_qp];</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line">Real</span><br><span class="line">CoupledTimeDerivative::<span class="built_in">computeQpJacobian</span>()</span><br><span class="line">&#123;</span><br><span class="line"> <span class="keyword">return</span> <span class="number">0.0</span>;</span><br><span class="line">&#125;</span><br><span class="line"></span><br></pre></td></tr></table></figure>
+<h3 id="第二项"><a href="#第二项" class="headerlink" title="第二项"></a>第二项</h3><p>$$<br>(M\nabla\mu,\nabla \psi)<br>$$<br>该项中变量是化学势，使用的内核是SplitCHWRes，实际使用的是SplitCHWResBase：</p>
+<figure class="highlight cpp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">template</span>&lt;<span class="keyword">typename</span> T&gt;</span><br><span class="line">Real</span><br><span class="line">SplitCHWResBase&lt;T&gt;::<span class="built_in">computeQpResidual</span>()</span><br><span class="line">&#123;</span><br><span class="line"> <span class="keyword">return</span> _mob[_qp] * _grad_u[_qp] * _grad_test[_i][_qp];</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="keyword">template</span>&lt;<span class="keyword">typename</span> T&gt;</span><br><span class="line">Real</span><br><span class="line">SplitCHWResBase&lt;T&gt;::<span class="built_in">computeQpJacobian</span>()</span><br><span class="line">&#123;</span><br><span class="line"> <span class="keyword">return</span> _mob[_qp] * _grad_phi[_j][_qp] * _grad_test[_i][_qp];</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<h2 id="浓度的残差"><a href="#浓度的残差" class="headerlink" title="浓度的残差"></a>浓度的残差</h2><p>残差表达式为：<br>$$<br>(\nabla c, \nabla(\kappa \psi))+((\frac{\partial f_{loc}}{\partial c}+\frac{\partial E_d}{\partial c} - \mu ), \psi)<br>$$<br>变量是浓度，还需耦合化学势$\mu$，使用的内核是SplitCHParsed，实际使用的内核是SplitCHCRes：</p>
+<figure class="highlight cpp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br></pre></td><td class="code"><pre><span class="line">Real</span><br><span class="line">SplitCHCRes::<span class="built_in">computeQpResidual</span>()</span><br><span class="line">&#123;</span><br><span class="line"> Real residual = SplitCHBase::<span class="built_in">computeQpResidual</span>(); <span class="comment">//(f_prime_zero+e_prime)*_test[_i][_qp] from SplitCHBase</span></span><br><span class="line"></span><br><span class="line"> residual += -_w[_qp] * _test[_i][_qp];</span><br><span class="line"> residual += _kappa[_qp] * _grad_u[_qp] * _grad_test[_i][_qp];</span><br><span class="line"></span><br><span class="line"> <span class="keyword">return</span> residual;</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line">Real</span><br><span class="line">SplitCHCRes::<span class="built_in">computeQpJacobian</span>()</span><br><span class="line">&#123;</span><br><span class="line"> Real jacobian = SplitCHBase::<span class="built_in">computeQpJacobian</span>(); <span class="comment">//(df_prime_zero_dc+de_prime_dc)*_test[_i][_qp]; from SplitCHBase</span></span><br><span class="line"></span><br><span class="line"> jacobian += _kappa[_qp] * _grad_phi[_j][_qp] * _grad_test[_i][_qp];</span><br><span class="line"></span><br><span class="line"> <span class="keyword">return</span> jacobian;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>注意，在computeQpResidual函数中，可以很容易地找出第一项和第三项的计算过程，但对于第二项，可能不容易发现，其实第二项的计算放在了最前面：</p>
+<figure class="highlight cpp"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">Real residual = SplitCHBase::<span class="built_in">computeQpResidual</span>(); <span class="comment">//(f_prime_zero+e_prime)*_test[_i][_qp] from SplitCHBase</span></span><br></pre></td></tr></table></figure>
+<p>然后：</p>
+<figure class="highlight cpp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br></pre></td><td class="code"><pre><span class="line">Real</span><br><span class="line">SplitCHBase::<span class="built_in">computeQpResidual</span>()</span><br><span class="line">&#123;</span><br><span class="line"> Real f_prime_zero = <span class="built_in">computeDFDC</span>(Residual);</span><br><span class="line"> Real e_prime = <span class="built_in">computeDEDC</span>(Residual);</span><br><span class="line"></span><br><span class="line"> Real residual = (f_prime_zero + e_prime) *_test[_i][_qp];</span><br><span class="line"></span><br><span class="line"> <span class="keyword">return</span> residual;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p>然后computeDFDC和computeDEDC就是计算自由能密度和其他能量对浓度的一阶导数，即：</p>
+<figure class="highlight cpp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br></pre></td><td class="code"><pre><span class="line">Real</span><br><span class="line">SplitCHParsed::<span class="built_in">computeDFDC</span>(PFFunctionType type)</span><br><span class="line">&#123;</span><br><span class="line"> <span class="built_in"><span class="keyword">switch</span></span> (type)</span><br><span class="line"> &#123;</span><br><span class="line"> <span class="keyword">case</span> Residual:</span><br><span class="line"> <span class="keyword">return</span> _dFdc[_qp];</span><br><span class="line"></span><br><span class="line"> <span class="keyword">case</span> Jacobian:</span><br><span class="line"> <span class="keyword">return</span> _d2Fdc2[_qp] * _phi[_j][_qp];</span><br><span class="line"> &#125;</span><br><span class="line"></span><br><span class="line"> <span class="built_in">mooseError</span>(<span class="string">&quot;Internal error&quot;</span>);</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p>实际上，</p>
+<figure class="highlight cpp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">_dFdc(getMaterialPropertyDerivative&lt;Real&gt;(<span class="string">&quot;f_name&quot;</span>, _var.<span class="built_in">name</span>())),</span><br><span class="line">_d2Fdc2(getMaterialPropertyDerivative&lt;Real&gt;(<span class="string">&quot;f_name&quot;</span>, _var.<span class="built_in">name</span>(), _var.<span class="built_in">name</span>()))</span><br></pre></td></tr></table></figure>
+<p>注意取一阶导数和二阶导数时，是由后面的参数个数来控制。</p>
+<p>具体的自由能形式则是在输入文件中输入：</p>
+<figure class="highlight cpp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br></pre></td><td class="code"><pre><span class="line">[Materials]</span><br><span class="line">  [./local_energy]</span><br><span class="line">    # Defines the function <span class="keyword">for</span> the local free energy density as given in the</span><br><span class="line">    <span class="meta"># problem, then converts units and adds scaling factor.</span></span><br><span class="line">    type = DerivativeParsedMaterial</span><br><span class="line">    block = <span class="number">0</span></span><br><span class="line">    f_name = f_loc</span><br><span class="line">    args = c</span><br><span class="line">    constant_names = &#x27;A   B   C   D   E   F   G  eV_J  d&#x27;</span><br><span class="line">    constant_expressions = &#x27;-2.446831e+04 -2.827533e+04 4.167994e+03 7.052907e+03</span><br><span class="line">                            <span class="number">1.208993e+04</span> <span class="number">2.568625e+03</span> <span class="number">-2.354293e+03</span></span><br><span class="line">                            <span class="number">6.24150934e+18</span> <span class="number">1e-27&#x27;</span></span><br><span class="line">    function = &#x27;eV_J*d*(A*c+B*(1-c)+C*c*log(c)+D*(1-c)*log(1-c)+</span><br><span class="line">                E*c*(<span class="number">1</span>-c)+F*c*(<span class="number">1</span>-c)*(<span class="number">2</span>*c<span class="number">-1</span>)+G*c*(<span class="number">1</span>-c)*(<span class="number">2</span>*c<span class="number">-1</span>)^<span class="number">2</span>)&#x27;</span><br><span class="line">  [../]</span><br><span class="line">[]</span><br></pre></td></tr></table></figure>
+
+<h1 id="枝晶生长所用的Kobayashi模型"><a href="#枝晶生长所用的Kobayashi模型" class="headerlink" title="枝晶生长所用的Kobayashi模型"></a>枝晶生长所用的Kobayashi模型</h1><h2 id="相场的残差"><a href="#相场的残差" class="headerlink" title="相场的残差"></a>相场的残差</h2><p>包括以下几项：</p>
+<h3 id="第一项-1"><a href="#第一项-1" class="headerlink" title="第一项"></a>第一项</h3><p>$$<br>(\frac{\partial w}{\partial t},\psi)<br>$$<br>内核使用TimeDerivative：</p>
+<figure class="highlight cpp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">#<span class="meta-keyword">include</span> <span class="meta-string">&quot;TimeDerivative.h&quot;</span></span></span><br><span class="line"><span class="meta">#<span class="meta-keyword">include</span> <span class="meta-string">&quot;Assembly.h&quot;</span></span></span><br><span class="line"></span><br><span class="line"><span class="comment">// libmesh includes</span></span><br><span class="line"><span class="meta">#<span class="meta-keyword">include</span> <span class="meta-string">&quot;libmesh/quadrature.h&quot;</span></span></span><br><span class="line"></span><br><span class="line"><span class="keyword">template</span>&lt;&gt;</span><br><span class="line">InputParameters validParams&lt;TimeDerivative&gt;()</span><br><span class="line">&#123;</span><br><span class="line"> InputParameters params = validParams&lt;TimeKernel&gt;();</span><br><span class="line"> params.addParam&lt;<span class="keyword">bool</span>&gt;(<span class="string">&quot;lumping&quot;</span>, <span class="literal">false</span>, <span class="string">&quot;True for mass matrix lumping, false otherwise&quot;</span>);</span><br><span class="line"> <span class="keyword">return</span> params;</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line">TimeDerivative::<span class="built_in">TimeDerivative</span>(<span class="keyword">const</span> InputParameters &amp; parameters) :</span><br><span class="line"> <span class="built_in">TimeKernel</span>(parameters),</span><br><span class="line"> _lumping(getParam&lt;<span class="keyword">bool</span>&gt;(<span class="string">&quot;lumping&quot;</span>))</span><br><span class="line">&#123;</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line">Real</span><br><span class="line">TimeDerivative::<span class="built_in">computeQpResidual</span>()</span><br><span class="line">&#123;</span><br><span class="line"> <span class="keyword">return</span> _test[_i][_qp]*_u_dot[_qp];</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line">Real</span><br><span class="line">TimeDerivative::<span class="built_in">computeQpJacobian</span>()</span><br><span class="line">&#123;</span><br><span class="line"> <span class="keyword">return</span> _test[_i][_qp]*_phi[_j][_qp]*_du_dot_du[_qp];</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="keyword">void</span></span><br><span class="line">TimeDerivative::<span class="built_in">computeJacobian</span>()</span><br><span class="line">&#123;</span><br><span class="line"> <span class="keyword">if</span> (_lumping)</span><br><span class="line"> &#123;</span><br><span class="line"> DenseMatrix&lt;Number&gt; &amp; ke = _assembly.<span class="built_in">jacobianBlock</span>(_var.<span class="built_in">number</span>(), _var.<span class="built_in">number</span>());</span><br><span class="line"></span><br><span class="line"> <span class="keyword">for</span> (_i = <span class="number">0</span>; _i &lt; _test.<span class="built_in">size</span>(); _i++)</span><br><span class="line"> <span class="keyword">for</span> (_j = <span class="number">0</span>; _j &lt; _phi.<span class="built_in">size</span>(); _j++)</span><br><span class="line"> <span class="keyword">for</span> (_qp = <span class="number">0</span>; _qp &lt; _qrule-&gt;<span class="built_in">n_points</span>(); _qp++)</span><br><span class="line"> <span class="built_in">ke</span>(_i, _i) += _JxW[_qp] * _coord[_qp] * <span class="built_in">computeQpJacobian</span>();</span><br><span class="line"> &#125;</span><br><span class="line"> <span class="keyword">else</span></span><br><span class="line"> TimeKernel::<span class="built_in">computeJacobian</span>();</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<h3 id="第二项-1"><a href="#第二项-1" class="headerlink" title="第二项"></a>第二项</h3><p>注意将残差都移动到方程左端，注意符号变化。<br>$$<br>(-L\epsilon\epsilon\prime\frac{\partial w}{\partial y},\frac{\partial \psi}{\partial x})+(L\epsilon\epsilon\prime\frac{\partial w}{\partial x},\frac{\partial \psi}{\partial y})<br>$$<br>这两项使用内核ACInterfaceKobayashi1.h，其实际使用KernelGrad：</p>
+<figure class="highlight cpp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br></pre></td><td class="code"><pre><span class="line">RealGradient</span><br><span class="line">ACInterfaceKobayashi1::<span class="built_in">precomputeQpResidual</span>()</span><br><span class="line">&#123;</span><br><span class="line"> <span class="comment">// Set modified gradient vector</span></span><br><span class="line"> <span class="function"><span class="keyword">const</span> RealGradient <span class="title">v</span><span class="params">(- _grad_u[_qp](<span class="number">1</span>), _grad_u[_qp](<span class="number">0</span>), <span class="number">0</span>)</span></span>;</span><br><span class="line"></span><br><span class="line"> <span class="comment">// Define anisotropic interface residual</span></span><br><span class="line"> <span class="keyword">return</span> _eps[_qp] * _deps[_qp] * _L[_qp] * v;</span><br><span class="line">&#125;</span><br><span class="line">...</span><br><span class="line"><span class="keyword">void</span></span><br><span class="line">KernelGrad::<span class="built_in">computeResidual</span>()</span><br><span class="line">&#123;</span><br><span class="line"> DenseVector&lt;Number&gt; &amp; re = _assembly.<span class="built_in">residualBlock</span>(_var.<span class="built_in">number</span>());</span><br><span class="line"> _local_re.<span class="built_in">resize</span>(re.<span class="built_in">size</span>());</span><br><span class="line"> _local_re.<span class="built_in">zero</span>();</span><br><span class="line"></span><br><span class="line"> <span class="keyword">const</span> <span class="keyword">unsigned</span> <span class="keyword">int</span> n_test = _test.<span class="built_in">size</span>();</span><br><span class="line"> <span class="keyword">for</span> (_qp = <span class="number">0</span>; _qp &lt; _qrule-&gt;<span class="built_in">n_points</span>(); _qp++)</span><br><span class="line"> &#123;</span><br><span class="line"> RealGradient value = <span class="built_in">precomputeQpResidual</span>() * _JxW[_qp] * _coord[_qp];</span><br><span class="line"> <span class="keyword">for</span> (_i = <span class="number">0</span>; _i &lt; n_test; _i++) <span class="comment">// target for auto vectorization</span></span><br><span class="line"> _local_re(_i) += value * _grad_test[_i][_qp];</span><br><span class="line"> &#125;</span><br><span class="line"></span><br><span class="line"> re += _local_re;</span><br><span class="line"></span><br><span class="line"> <span class="keyword">if</span> (_has_save_in)</span><br><span class="line"> &#123;</span><br><span class="line"> Threads::<span class="function">spin_mutex::scoped_lock <span class="title">lock</span><span class="params">(Threads::spin_mtx)</span></span>;</span><br><span class="line"> <span class="keyword">for</span> (<span class="keyword">const</span> <span class="keyword">auto</span> &amp; var : _save_in)</span><br><span class="line"> var-&gt;<span class="built_in">sys</span>().<span class="built_in">solution</span>().<span class="built_in">add_vector</span>(_local_re, var-&gt;<span class="built_in">dofIndices</span>());</span><br><span class="line"> &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<h3 id="第三项"><a href="#第三项" class="headerlink" title="第三项"></a>第三项</h3><p>$$<br>(L\epsilon^2\nabla w,\nabla \psi)<br>$$<br>注意，内核中不是直接使用该形式，该形式是自由能对相场参量的一阶导数，实际程序中使用的也是一阶导数，所以需要输入的是自由能，即该形式的积分。<br>其使用的内核是ACInterfaceKobayashi2，实际也是KernelGrad：</p>
+<figure class="highlight cpp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br></pre></td><td class="code"><pre><span class="line">RealGradient</span><br><span class="line">ACInterfaceKobayashi2::<span class="built_in">precomputeQpResidual</span>()</span><br><span class="line">&#123;</span><br><span class="line"> <span class="comment">// Set interfacial part of residual</span></span><br><span class="line"> <span class="keyword">return</span> _eps[_qp] * _eps[_qp] * _L[_qp] * _grad_u[_qp];</span><br><span class="line">&#125;</span><br><span class="line">...</span><br><span class="line">KernelGrad::<span class="built_in">computeResidual</span>()</span><br><span class="line">&#123;</span><br><span class="line"> DenseVector&lt;Number&gt; &amp; re = _assembly.<span class="built_in">residualBlock</span>(_var.<span class="built_in">number</span>());</span><br><span class="line"> _local_re.<span class="built_in">resize</span>(re.<span class="built_in">size</span>());</span><br><span class="line"> _local_re.<span class="built_in">zero</span>();</span><br><span class="line"></span><br><span class="line"> <span class="keyword">const</span> <span class="keyword">unsigned</span> <span class="keyword">int</span> n_test = _test.<span class="built_in">size</span>();</span><br><span class="line"> <span class="keyword">for</span> (_qp = <span class="number">0</span>; _qp &lt; _qrule-&gt;<span class="built_in">n_points</span>(); _qp++)</span><br><span class="line"> &#123;</span><br><span class="line"> RealGradient value = <span class="built_in">precomputeQpResidual</span>() * _JxW[_qp] * _coord[_qp];</span><br><span class="line"> <span class="keyword">for</span> (_i = <span class="number">0</span>; _i &lt; n_test; _i++) <span class="comment">// target for auto vectorization</span></span><br><span class="line"> _local_re(_i) += value * _grad_test[_i][_qp];</span><br><span class="line"> &#125;</span><br><span class="line"></span><br><span class="line"> re += _local_re;</span><br><span class="line"></span><br><span class="line"> <span class="keyword">if</span> (_has_save_in)</span><br><span class="line"> &#123;</span><br><span class="line"> Threads::<span class="function">spin_mutex::scoped_lock <span class="title">lock</span><span class="params">(Threads::spin_mtx)</span></span>;</span><br><span class="line"> <span class="keyword">for</span> (<span class="keyword">const</span> <span class="keyword">auto</span> &amp; var : _save_in)</span><br><span class="line"> var-&gt;<span class="built_in">sys</span>().<span class="built_in">solution</span>().<span class="built_in">add_vector</span>(_local_re, var-&gt;<span class="built_in">dofIndices</span>());</span><br><span class="line"> &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p>(4)<br>$$<br>(-Lw(1-w)(w-0.5+m),\psi)<br>$$<br>使用的内核是AllenCahn，实际间接使用了ACBulk，最终使用KernelValue：</p>
+<figure class="highlight cpp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br><span class="line">52</span><br><span class="line">53</span><br><span class="line">54</span><br></pre></td><td class="code"><pre><span class="line">...</span><br><span class="line">_dFdEta(getMaterialPropertyDerivative&lt;Real&gt;(<span class="string">&quot;f_name&quot;</span>, _var.<span class="built_in">name</span>())),</span><br><span class="line">_d2FdEta2(getMaterialPropertyDerivative&lt;Real&gt;(<span class="string">&quot;f_name&quot;</span>, _var.<span class="built_in">name</span>(), _var.<span class="built_in">name</span>())),</span><br><span class="line">...</span><br><span class="line">Real</span><br><span class="line">AllenCahn::<span class="built_in">computeDFDOP</span>(PFFunctionType type)</span><br><span class="line">&#123;</span><br><span class="line"> <span class="built_in"><span class="keyword">switch</span></span> (type)</span><br><span class="line"> &#123;</span><br><span class="line"> <span class="keyword">case</span> Residual:</span><br><span class="line"> <span class="keyword">return</span> _dFdEta[_qp];</span><br><span class="line"></span><br><span class="line"> <span class="keyword">case</span> Jacobian:</span><br><span class="line"> <span class="keyword">return</span> _d2FdEta2[_qp] * _phi[_j][_qp];</span><br><span class="line"> &#125;</span><br><span class="line"></span><br><span class="line"> <span class="built_in">mooseError</span>(<span class="string">&quot;Internal error&quot;</span>);</span><br><span class="line">&#125;</span><br><span class="line">...</span><br><span class="line"><span class="keyword">template</span>&lt;<span class="keyword">typename</span> T&gt;</span><br><span class="line">Real</span><br><span class="line">ACBulk&lt;T&gt;::<span class="built_in">precomputeQpResidual</span>()</span><br><span class="line">&#123;</span><br><span class="line"> <span class="comment">// Get free energy derivative from function</span></span><br><span class="line"> Real dFdop = <span class="built_in">computeDFDOP</span>(Residual);</span><br><span class="line"></span><br><span class="line"> <span class="comment">// Set residual</span></span><br><span class="line"> <span class="keyword">return</span> _L[_qp] * dFdop;</span><br><span class="line">&#125;</span><br><span class="line">...</span><br><span class="line"><span class="keyword">void</span></span><br><span class="line">KernelValue::<span class="built_in">computeResidual</span>()</span><br><span class="line">&#123;</span><br><span class="line"> DenseVector&lt;Number&gt; &amp; re = _assembly.<span class="built_in">residualBlock</span>(_var.<span class="built_in">number</span>());</span><br><span class="line"> _local_re.<span class="built_in">resize</span>(re.<span class="built_in">size</span>());</span><br><span class="line"> _local_re.<span class="built_in">zero</span>();</span><br><span class="line"></span><br><span class="line"> <span class="keyword">const</span> <span class="keyword">unsigned</span> <span class="keyword">int</span> n_test = _test.<span class="built_in">size</span>();</span><br><span class="line"> <span class="keyword">for</span> (_qp = <span class="number">0</span>; _qp &lt; _qrule-&gt;<span class="built_in">n_points</span>(); _qp++)</span><br><span class="line"> &#123;</span><br><span class="line"> Real value = <span class="built_in">precomputeQpResidual</span>() * _JxW[_qp] * _coord[_qp];</span><br><span class="line"> <span class="keyword">for</span> (_i = <span class="number">0</span>; _i &lt; n_test; _i++) <span class="comment">// target for auto vectorization</span></span><br><span class="line"> _local_re(_i) += value * _test[_i][_qp];</span><br><span class="line"> &#125;</span><br><span class="line"></span><br><span class="line"> re += _local_re;</span><br><span class="line"></span><br><span class="line"> <span class="keyword">if</span> (_has_save_in)</span><br><span class="line"> &#123;</span><br><span class="line"> Threads::<span class="function">spin_mutex::scoped_lock <span class="title">lock</span><span class="params">(Threads::spin_mtx)</span></span>;</span><br><span class="line"> <span class="keyword">for</span> (<span class="keyword">const</span> <span class="keyword">auto</span> &amp; var : _save_in)</span><br><span class="line"> var-&gt;<span class="built_in">sys</span>().<span class="built_in">solution</span>().<span class="built_in">add_vector</span>(_local_re, var-&gt;<span class="built_in">dofIndices</span>());</span><br><span class="line"> &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<h2 id="温度场的残差"><a href="#温度场的残差" class="headerlink" title="温度场的残差"></a>温度场的残差</h2><p>由以下几项构成：</p>
+<h3 id="第一项-2"><a href="#第一项-2" class="headerlink" title="第一项"></a>第一项</h3><p>$$<br>(\frac{\partial T}{\partial t},\psi)<br>$$<br>所以使用的内核是TimeDerivative。</p>
+<h3 id="第二项-2"><a href="#第二项-2" class="headerlink" title="第二项"></a>第二项</h3><p>$$<br>(\nabla T,\nabla \psi)<br>$$<br>所以使用的内核是Diffusion。</p>
+<h3 id="第三项-1"><a href="#第三项-1" class="headerlink" title="第三项"></a>第三项</h3><p>$$<br>(-K\frac{\partial w}{\partial t},\psi)<br>$$<br>使用的内核是CoefCoupledTimeDerivative，实际就是CoupledTimeDerivative再乘以一个系数：</p>
+<figure class="highlight cpp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br></pre></td><td class="code"><pre><span class="line">Real</span><br><span class="line">CoefCoupledTimeDerivative::<span class="built_in">computeQpResidual</span>()</span><br><span class="line">&#123;</span><br><span class="line"> <span class="keyword">return</span> CoupledTimeDerivative::<span class="built_in">computeQpResidual</span>() * _coef;</span><br><span class="line">&#125;</span><br><span class="line">Real</span><br><span class="line">CoupledTimeDerivative::<span class="built_in">computeQpResidual</span>()</span><br><span class="line">&#123;</span><br><span class="line"> <span class="keyword">return</span> _test[_i][_qp] * _v_dot[_qp];</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+    </div>
+
+    
+    
+    
+        <div class="reward-container">
+  <div></div>
+  <button onclick="var qr = document.getElementById('qr'); qr.style.display = (qr.style.display === 'none') ? 'block' : 'none';">
+    Donate
+  </button>
+  <div id="qr" style="display: none;">
+      
+      <div style="display: inline-block;">
+        <img src="/images/wechat_reward.png" alt="Xin-Bo Qi(亓欣波) WeChat Pay">
+        <p>WeChat Pay</p>
+      </div>
+
+  </div>
+</div>
+
+
+      <footer class="post-footer">
+          <div class="post-tags">
+              <a href="/tags/MOOSE/" rel="tag"># MOOSE</a>
+              <a href="/tags/phasefield/" rel="tag"># phasefield</a>
+          </div>
+
+        
+
+
+        
+    <div class="post-nav">
+      <div class="post-nav-item">
+    <a href="/2016/12/26/dealii-learn-step37/" rel="prev" title="求解偏微分方程开源有限元软件deal.II学习--Step 37">
+      <i class="fa fa-chevron-left"></i> 求解偏微分方程开源有限元软件deal.II学习--Step 37
+    </a></div>
+      <div class="post-nav-item">
+    <a href="/2017/01/15/moose-tutorials/" rel="next" title="多物理场面向对象模拟环境MOOSE学习手册">
+      多物理场面向对象模拟环境MOOSE学习手册 <i class="fa fa-chevron-right"></i>
+    </a></div>
+    </div>
+      </footer>
+    
+  </article>
+  
+  
+  
+
+
+
+          </div>
+          
+    
+  <div class="comments">
+    <div id="disqus_thread">
+      <noscript>Please enable JavaScript to view the comments powered by Disqus.</noscript>
+    </div>
+  </div>
+  
+
+<script>
+  window.addEventListener('tabs:register', () => {
+    let { activeClass } = CONFIG.comments;
+    if (CONFIG.comments.storage) {
+      activeClass = localStorage.getItem('comments_active') || activeClass;
+    }
+    if (activeClass) {
+      let activeTab = document.querySelector(`a[href="#comment-${activeClass}"]`);
+      if (activeTab) {
+        activeTab.click();
+      }
+    }
+  });
+  if (CONFIG.comments.storage) {
+    window.addEventListener('tabs:click', event => {
+      if (!event.target.matches('.tabs-comment .tab-content .tab-pane')) return;
+      let commentClass = event.target.classList[1];
+      localStorage.setItem('comments_active', commentClass);
+    });
+  }
+</script>
+
+        </div>
+          
+  
+  <div class="toggle sidebar-toggle">
+    <span class="toggle-line toggle-line-first"></span>
+    <span class="toggle-line toggle-line-middle"></span>
+    <span class="toggle-line toggle-line-last"></span>
+  </div>
+
+  <aside class="sidebar">
+    <div class="sidebar-inner">
+
+      <ul class="sidebar-nav motion-element">
+        <li class="sidebar-nav-toc">
+          Table of Contents
+        </li>
+        <li class="sidebar-nav-overview">
+          Overview
+        </li>
+      </ul>
+
+      <!--noindex-->
+      <div class="post-toc-wrap sidebar-panel">
+          <div class="post-toc motion-element"><ol class="nav"><li class="nav-item nav-level-1"><a class="nav-link" href="#%E5%BC%95%E5%AD%90"><span class="nav-number">1.</span> <span class="nav-text">引子</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#%E7%89%9B%E9%A1%BF%E8%BF%AD%E4%BB%A3%E6%B3%95"><span class="nav-number">2.</span> <span class="nav-text">牛顿迭代法</span></a><ol class="nav-child"><li class="nav-item nav-level-2"><a class="nav-link" href="#%E5%8D%95%E5%8F%98%E9%87%8F%E6%B1%82%E6%A0%B9"><span class="nav-number">2.1.</span> <span class="nav-text">单变量求根</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E5%A4%9A%E5%8F%98%E9%87%8F%E6%B1%82%E6%A0%B9"><span class="nav-number">2.2.</span> <span class="nav-text">多变量求根</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E7%BA%BF%E6%80%A7%E8%BF%AD%E4%BB%A3%E5%92%8C%E9%9D%9E%E7%BA%BF%E6%80%A7%E8%BF%AD%E4%BB%A3"><span class="nav-number">2.3.</span> <span class="nav-text">线性迭代和非线性迭代</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E7%89%9B%E5%88%80%E5%B0%8F%E8%AF%95"><span class="nav-number">2.4.</span> <span class="nav-text">牛刀小试</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E9%93%BE%E5%BC%8F%E6%B3%95%E5%88%99"><span class="nav-number">2.5.</span> <span class="nav-text">链式法则</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#JFNK%E7%AE%97%E6%B3%95"><span class="nav-number">2.6.</span> <span class="nav-text">JFNK算法</span></a></li></ol></li><li class="nav-item nav-level-1"><a class="nav-link" href="#%E8%B0%83%E5%B9%85%E5%88%86%E8%A7%A3%E6%89%80%E7%94%A8%E7%9A%84Cahn-Hilliard%E6%96%B9%E7%A8%8B"><span class="nav-number">3.</span> <span class="nav-text">调幅分解所用的Cahn-Hilliard方程</span></a><ol class="nav-child"><li class="nav-item nav-level-2"><a class="nav-link" href="#%E5%8C%96%E5%AD%A6%E5%8A%BF%E7%9A%84%E6%AE%8B%E5%B7%AE"><span class="nav-number">3.1.</span> <span class="nav-text">化学势的残差</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#%E7%AC%AC%E4%B8%80%E9%A1%B9"><span class="nav-number">3.1.1.</span> <span class="nav-text">第一项</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E7%AC%AC%E4%BA%8C%E9%A1%B9"><span class="nav-number">3.1.2.</span> <span class="nav-text">第二项</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E6%B5%93%E5%BA%A6%E7%9A%84%E6%AE%8B%E5%B7%AE"><span class="nav-number">3.2.</span> <span class="nav-text">浓度的残差</span></a></li></ol></li><li class="nav-item nav-level-1"><a class="nav-link" href="#%E6%9E%9D%E6%99%B6%E7%94%9F%E9%95%BF%E6%89%80%E7%94%A8%E7%9A%84Kobayashi%E6%A8%A1%E5%9E%8B"><span class="nav-number">4.</span> <span class="nav-text">枝晶生长所用的Kobayashi模型</span></a><ol class="nav-child"><li class="nav-item nav-level-2"><a class="nav-link" href="#%E7%9B%B8%E5%9C%BA%E7%9A%84%E6%AE%8B%E5%B7%AE"><span class="nav-number">4.1.</span> <span class="nav-text">相场的残差</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#%E7%AC%AC%E4%B8%80%E9%A1%B9-1"><span class="nav-number">4.1.1.</span> <span class="nav-text">第一项</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E7%AC%AC%E4%BA%8C%E9%A1%B9-1"><span class="nav-number">4.1.2.</span> <span class="nav-text">第二项</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E7%AC%AC%E4%B8%89%E9%A1%B9"><span class="nav-number">4.1.3.</span> <span class="nav-text">第三项</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E6%B8%A9%E5%BA%A6%E5%9C%BA%E7%9A%84%E6%AE%8B%E5%B7%AE"><span class="nav-number">4.2.</span> <span class="nav-text">温度场的残差</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#%E7%AC%AC%E4%B8%80%E9%A1%B9-2"><span class="nav-number">4.2.1.</span> <span class="nav-text">第一项</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E7%AC%AC%E4%BA%8C%E9%A1%B9-2"><span class="nav-number">4.2.2.</span> <span class="nav-text">第二项</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E7%AC%AC%E4%B8%89%E9%A1%B9-1"><span class="nav-number">4.2.3.</span> <span class="nav-text">第三项</span></a></li></ol></li></ol></li></ol></div>
+      </div>
+      <!--/noindex-->
+
+      <div class="site-overview-wrap sidebar-panel">
+        <div class="site-author motion-element" itemprop="author" itemscope itemtype="http://schema.org/Person">
+    <img class="site-author-image" itemprop="image" alt="Xin-Bo Qi(亓欣波)"
+      src="/images/avatar.jpg">
+  <p class="site-author-name" itemprop="name">Xin-Bo Qi(亓欣波)</p>
+  <div class="site-description" itemprop="description">Be interesting!</div>
+</div>
+<div class="site-state-wrap motion-element">
+  <nav class="site-state">
+      <div class="site-state-item site-state-posts">
+          <a href="/archives/">
+        
+          <span class="site-state-item-count">120</span>
+          <span class="site-state-item-name">posts</span>
+        </a>
+      </div>
+      <div class="site-state-item site-state-categories">
+            <a href="/categories/">
+          
+        <span class="site-state-item-count">5</span>
+        <span class="site-state-item-name">categories</span></a>
+      </div>
+      <div class="site-state-item site-state-tags">
+            <a href="/tags/">
+          
+        <span class="site-state-item-count">41</span>
+        <span class="site-state-item-name">tags</span></a>
+      </div>
+  </nav>
+</div>
+  <div class="links-of-author motion-element">
+      <span class="links-of-author-item">
+        <a href="https://github.com/qixinbo" title="GitHub → https:&#x2F;&#x2F;github.com&#x2F;qixinbo" rel="noopener" target="_blank"><i class="github fa-fw"></i>GitHub</a>
+      </span>
+      <span class="links-of-author-item">
+        <a href="mailto:qixinbo@gmail.com" title="E-Mail → mailto:qixinbo@gmail.com" rel="noopener" target="_blank"><i class="envelope fa-fw"></i>E-Mail</a>
+      </span>
+  </div>
+
+
+  <div class="links-of-blogroll motion-element">
+    <div class="links-of-blogroll-title"><i class="fa fa-link fa-fw"></i>
+      Links
+    </div>
+    <ul class="links-of-blogroll-list">
+        <li class="links-of-blogroll-item">
+          <a href="https://www.tsinghua.edu.cn/" title="https:&#x2F;&#x2F;www.tsinghua.edu.cn" rel="noopener" target="_blank">THU</a>
+        </li>
+        <li class="links-of-blogroll-item">
+          <a href="http://www.imr.cas.cn/" title="http:&#x2F;&#x2F;www.imr.cas.cn" rel="noopener" target="_blank">IMR</a>
+        </li>
+        <li class="links-of-blogroll-item">
+          <a href="http://www.sdu.edu.cn/" title="http:&#x2F;&#x2F;www.sdu.edu.cn" rel="noopener" target="_blank">SDU</a>
+        </li>
+        <li class="links-of-blogroll-item">
+          <a href="http://liam0205.me/" title="http:&#x2F;&#x2F;liam0205.me&#x2F;" rel="noopener" target="_blank">黄晨成</a>
+        </li>
+    </ul>
+  </div>
+
+      </div>
+
+    </div>
+  </aside>
+  <div id="sidebar-dimmer"></div>
+
+
+      </div>
+    </main>
+
+    <footer class="footer">
+      <div class="footer-inner">
+        
+
+        
+
+<div class="copyright">
+  
+  &copy; 
+  <span itemprop="copyrightYear">2021</span>
+  <span class="with-love">
+    <i class="fa fa-heart"></i>
+  </span>
+  <span class="author" itemprop="copyrightHolder">Xin-Bo Qi(亓欣波)</span>
+</div>
+  <div class="powered-by">Powered by <a href="https://hexo.io/" class="theme-link" rel="noopener" target="_blank">Hexo</a> & <a href="https://theme-next.org/" class="theme-link" rel="noopener" target="_blank">NexT.Gemini</a>
+  </div>
+
+        
+
+
+
+
+
+
+
+
+      </div>
+    </footer>
+  </div>
+
+  
+  <script src="/lib/anime.min.js"></script>
+  <script src="/lib/velocity/velocity.min.js"></script>
+  <script src="/lib/velocity/velocity.ui.min.js"></script>
+
+<script src="/js/utils.js"></script>
+
+<script src="/js/motion.js"></script>
+
+
+<script src="/js/schemes/pisces.js"></script>
+
+
+<script src="/js/next-boot.js"></script>
+
+
+
+
+  
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+  
+
+  
+
+  
+
+<script>
+  function loadCount() {
+    var d = document, s = d.createElement('script');
+    s.src = 'https://qixinbo.disqus.com/count.js';
+    s.id = 'dsq-count-scr';
+    (d.head || d.body).appendChild(s);
+  }
+  // defer loading until the whole page loading is completed
+  window.addEventListener('load', loadCount, false);
+</script>
+<script>
+  var disqus_config = function() {
+    this.page.url = "http://qixinbo.github.io/2017/01/11/moose-phase-field-kernel/";
+    this.page.identifier = "2017/01/11/moose-phase-field-kernel/";
+    this.page.title = "MOOSE相场模块的内核模型";
+    };
+  NexT.utils.loadComments(document.querySelector('#disqus_thread'), () => {
+    if (window.DISQUS) {
+      DISQUS.reset({
+        reload: true,
+        config: disqus_config
+      });
+    } else {
+      var d = document, s = d.createElement('script');
+      s.src = 'https://qixinbo.disqus.com/embed.js';
+      s.setAttribute('data-timestamp', '' + +new Date());
+      (d.head || d.body).appendChild(s);
+    }
+  });
+</script>
+
+</body>
+</html>

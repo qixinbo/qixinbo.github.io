@@ -1,0 +1,616 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=2">
+<meta name="theme-color" content="#222">
+<meta name="generator" content="Hexo 5.4.0">
+  <link rel="apple-touch-icon" sizes="180x180" href="/images/apple-touch-icon-next.png">
+  <link rel="icon" type="image/png" sizes="32x32" href="/favicon.ico">
+  <link rel="icon" type="image/png" sizes="16x16" href="/favicon.ico">
+  <link rel="mask-icon" href="/images/logo.svg" color="#222">
+
+<link rel="stylesheet" href="/css/main.css">
+
+
+<link rel="stylesheet" href="/lib/font-awesome/css/all.min.css">
+
+<script id="hexo-configurations">
+    var NexT = window.NexT || {};
+    var CONFIG = {"hostname":"qixinbo.github.io","root":"/","scheme":"Gemini","version":"7.8.0","exturl":false,"sidebar":{"position":"left","display":"post","padding":18,"offset":12,"onmobile":false},"copycode":{"enable":false,"show_result":false,"style":null},"back2top":{"enable":true,"sidebar":false,"scrollpercent":false},"bookmark":{"enable":false,"color":"#222","save":"auto"},"fancybox":false,"mediumzoom":false,"lazyload":false,"pangu":false,"comments":{"style":"tabs","active":null,"storage":true,"lazyload":false,"nav":null},"algolia":{"hits":{"per_page":10},"labels":{"input_placeholder":"Search for Posts","hits_empty":"We didn't find any results for the search: ${query}","hits_stats":"${hits} results found in ${time} ms"}},"localsearch":{"enable":false,"trigger":"auto","top_n_per_article":1,"unescape":false,"preload":false},"motion":{"enable":true,"async":false,"transition":{"post_block":"fadeIn","post_header":"slideDownIn","post_body":"slideDownIn","coll_header":"slideLeftIn","sidebar":"slideUpIn"}}};
+  </script>
+
+  <meta name="description" content="本章说明菜单栏列出了ImageJ的所有命令，它包含八个菜单：  File：基本的文件操作，包括打开、保存、创建新图片，大多数命令看名字就知道什么意思 Edit：编辑和绘制操作，以及全局设定 Image：图像显示，包括图像格式的转化、怎样显示等 Process：图像处理，包括点操作、过滤器和算术运算 Analyze：图像分析，统计测量、直方图绘制和其他与图像分析有关的操作 Plugins：创建、编辑">
+<meta property="og:type" content="article">
+<meta property="og:title" content="ImageJ 用户指南 -- 5. 菜单栏之File">
+<meta property="og:url" content="http://qixinbo.github.io/2018/09/03/imagej-ui-menu-file/index.html">
+<meta property="og:site_name" content="亓欣波">
+<meta property="og:description" content="本章说明菜单栏列出了ImageJ的所有命令，它包含八个菜单：  File：基本的文件操作，包括打开、保存、创建新图片，大多数命令看名字就知道什么意思 Edit：编辑和绘制操作，以及全局设定 Image：图像显示，包括图像格式的转化、怎样显示等 Process：图像处理，包括点操作、过滤器和算术运算 Analyze：图像分析，统计测量、直方图绘制和其他与图像分析有关的操作 Plugins：创建、编辑">
+<meta property="og:locale" content="en_US">
+<meta property="article:published_time" content="2018-09-02T16:00:00.000Z">
+<meta property="article:modified_time" content="2021-03-25T07:20:30.670Z">
+<meta property="article:author" content="Xin-Bo Qi(亓欣波)">
+<meta property="article:tag" content="ImageJ">
+<meta name="twitter:card" content="summary">
+
+<link rel="canonical" href="http://qixinbo.github.io/2018/09/03/imagej-ui-menu-file/">
+
+
+<script id="page-configurations">
+  // https://hexo.io/docs/variables.html
+  CONFIG.page = {
+    sidebar: "",
+    isHome : false,
+    isPost : true,
+    lang   : 'en'
+  };
+</script>
+
+  <title>ImageJ 用户指南 -- 5. 菜单栏之File | 亓欣波</title>
+  
+
+
+
+
+
+
+  <noscript>
+  <style>
+  .use-motion .brand,
+  .use-motion .menu-item,
+  .sidebar-inner,
+  .use-motion .post-block,
+  .use-motion .pagination,
+  .use-motion .comments,
+  .use-motion .post-header,
+  .use-motion .post-body,
+  .use-motion .collection-header { opacity: initial; }
+
+  .use-motion .site-title,
+  .use-motion .site-subtitle {
+    opacity: initial;
+    top: initial;
+  }
+
+  .use-motion .logo-line-before i { left: initial; }
+  .use-motion .logo-line-after i { right: initial; }
+  </style>
+</noscript>
+
+</head>
+
+<body itemscope itemtype="http://schema.org/WebPage">
+  <div class="container use-motion">
+    <div class="headband"></div>
+
+    <header class="header" itemscope itemtype="http://schema.org/WPHeader">
+      <div class="header-inner"><div class="site-brand-container">
+  <div class="site-nav-toggle">
+    <div class="toggle" aria-label="Toggle navigation bar">
+      <span class="toggle-line toggle-line-first"></span>
+      <span class="toggle-line toggle-line-middle"></span>
+      <span class="toggle-line toggle-line-last"></span>
+    </div>
+  </div>
+
+  <div class="site-meta">
+
+    <a href="/" class="brand" rel="start">
+      <span class="logo-line-before"><i></i></span>
+      <h1 class="site-title">亓欣波</h1>
+      <span class="logo-line-after"><i></i></span>
+    </a>
+      <p class="site-subtitle" itemprop="description">Hi, I am Xin-Bo Qi (亓欣波)</p>
+  </div>
+
+  <div class="site-nav-right">
+    <div class="toggle popup-trigger">
+    </div>
+  </div>
+</div>
+
+
+
+
+<nav class="site-nav">
+  <ul id="menu" class="main-menu menu">
+        <li class="menu-item menu-item-home">
+
+    <a href="/" rel="section"><i class="home fa-fw"></i>Home</a>
+
+  </li>
+        <li class="menu-item menu-item-categories">
+
+    <a href="/categories/" rel="section"><i class="th fa-fw"></i>Categories</a>
+
+  </li>
+        <li class="menu-item menu-item-archives">
+
+    <a href="/archives/" rel="section"><i class="archive fa-fw"></i>Archives</a>
+
+  </li>
+        <li class="menu-item menu-item-tags">
+
+    <a href="/tags/" rel="section"><i class="tags fa-fw"></i>Tags</a>
+
+  </li>
+        <li class="menu-item menu-item-scholar">
+
+    <a href="/scholar/" rel="section"><i class="bar-chart fa-fw"></i>scholar</a>
+
+  </li>
+        <li class="menu-item menu-item-sources">
+
+    <a href="/sources/" rel="section"><i class="rss fa-fw"></i>sources</a>
+
+  </li>
+        <li class="menu-item menu-item-gallery">
+
+    <a href="/gallery/" rel="section"><i class="file-image-o fa-fw"></i>gallery</a>
+
+  </li>
+        <li class="menu-item menu-item-about">
+
+    <a href="/about/" rel="section"><i class="user fa-fw"></i>About</a>
+
+  </li>
+        <li class="menu-item menu-item-commonweal">
+
+    <a href="/404.html" rel="section"><i class="heartbeat fa-fw"></i>Commonweal 404</a>
+
+  </li>
+  </ul>
+</nav>
+
+
+
+
+</div>
+    </header>
+
+    
+  <div class="back-to-top">
+    <i class="fa fa-arrow-up"></i>
+    <span>0%</span>
+  </div>
+
+
+    <main class="main">
+      <div class="main-inner">
+        <div class="content-wrap">
+          
+
+          <div class="content post posts-expand">
+            
+
+    
+  
+  
+  <article itemscope itemtype="http://schema.org/Article" class="post-block" lang="en">
+    <link itemprop="mainEntityOfPage" href="http://qixinbo.github.io/2018/09/03/imagej-ui-menu-file/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="image" content="/images/avatar.jpg">
+      <meta itemprop="name" content="Xin-Bo Qi(亓欣波)">
+      <meta itemprop="description" content="Be interesting!">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="亓欣波">
+    </span>
+      <header class="post-header">
+        <h1 class="post-title" itemprop="name headline">
+          ImageJ 用户指南 -- 5. 菜单栏之File
+        </h1>
+
+        <div class="post-meta">
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="far fa-calendar"></i>
+              </span>
+              <span class="post-meta-item-text">Posted on</span>
+
+              <time title="Created: 2018-09-03 00:00:00" itemprop="dateCreated datePublished" datetime="2018-09-03T00:00:00+08:00">2018-09-03</time>
+            </span>
+              <span class="post-meta-item">
+                <span class="post-meta-item-icon">
+                  <i class="far fa-calendar-check"></i>
+                </span>
+                <span class="post-meta-item-text">Edited on</span>
+                <time title="Modified: 2021-03-25 15:20:30" itemprop="dateModified" datetime="2021-03-25T15:20:30+08:00">2021-03-25</time>
+              </span>
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="far fa-folder"></i>
+              </span>
+              <span class="post-meta-item-text">In</span>
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+                  <a href="/categories/programming/" itemprop="url" rel="index"><span itemprop="name">programming</span></a>
+                </span>
+            </span>
+
+          
+  
+  <span class="post-meta-item">
+    
+      <span class="post-meta-item-icon">
+        <i class="far fa-comment"></i>
+      </span>
+      <span class="post-meta-item-text">Disqus: </span>
+    
+    <a title="disqus" href="/2018/09/03/imagej-ui-menu-file/#disqus_thread" itemprop="discussionUrl">
+      <span class="post-comments-count disqus-comment-count" data-disqus-identifier="2018/09/03/imagej-ui-menu-file/" itemprop="commentCount"></span>
+    </a>
+  </span>
+  
+  
+
+        </div>
+      </header>
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+        <h1 id="本章说明"><a href="#本章说明" class="headerlink" title="本章说明"></a>本章说明</h1><p>菜单栏列出了ImageJ的所有命令，它包含八个菜单：</p>
+<ul>
+<li>File：基本的文件操作，包括打开、保存、创建新图片，大多数命令看名字就知道什么意思</li>
+<li>Edit：编辑和绘制操作，以及全局设定</li>
+<li>Image：图像显示，包括图像格式的转化、怎样显示等</li>
+<li>Process：图像处理，包括点操作、过滤器和算术运算</li>
+<li>Analyze：图像分析，统计测量、直方图绘制和其他与图像分析有关的操作</li>
+<li>Plugins：创建、编辑和管理插件，列出了用户安装的所有宏、脚本和插件。</li>
+<li>Window：已打开的窗口的选择和管理</li>
+<li>Help：升级，文档资源和版本信息</li>
+</ul>
+<h1 id="File菜单"><a href="#File菜单" class="headerlink" title="File菜单"></a>File菜单</h1><h2 id="New新建"><a href="#New新建" class="headerlink" title="New新建"></a>New新建</h2><p>可以新建的东西有很多：</p>
+<ul>
+<li>Image：可以指定图片的标题、类型、尺寸、初始填充。且如果Slices大于1，则创建了一个stack</li>
+<li>Hyperstack：与Image-Hyperstacks-New Hyperstack相同</li>
+<li>Text Window：创建一个编写宏的文本窗口</li>
+<li>Internal Clipboard：打开ImageJ内部剪贴板中的内容</li>
+<li>System Clipboard：打开系统剪贴板中的内容</li>
+<li>TrakEM2：Fiji中还加入了编写TrakEM2程序</li>
+<li>Script：Fiji中还加入了新建脚本。</li>
+</ul>
+<h2 id="Open打开"><a href="#Open打开" class="headerlink" title="Open打开"></a>Open打开</h2><p>可以打开的东西也有很多：</p>
+<ul>
+<li>常见图片，后缀有TIFF、GIF、JPEG、DICOM、BMP、PGM和FITS格式。也可以通过插件打开额外的后缀的图片</li>
+<li>ImageJ和NIH的图片查询表，后缀是.lut</li>
+<li>以制表符分割的表格，后缀是.xls和.csv</li>
+<li>选区，后缀是.roi和.zip</li>
+<li>文本文件，后缀是.txt、.ijm、.js和.java</li>
+<li>其他</li>
+</ul>
+<h2 id="Open-Next打开下一个"><a href="#Open-Next打开下一个" class="headerlink" title="Open Next打开下一个"></a>Open Next打开下一个</h2><p>关闭当前图片，打开目录中的下一个图片（如果有的话）。按住Alt打开目录中的前一个图片（如果有的话）。</p>
+<h2 id="Open-Samples打开样例"><a href="#Open-Samples打开样例" class="headerlink" title="Open Samples打开样例"></a>Open Samples打开样例</h2><p>打开ImageJ服务器上的样例图片，可以用来测试宏、脚本、插件等。</p>
+<h2 id="Open-Recent打开最近文件"><a href="#Open-Recent打开最近文件" class="headerlink" title="Open Recent打开最近文件"></a>Open Recent打开最近文件</h2><p>子菜单会显示最近15个打开的文件，可以选择其中一个。</p>
+<h2 id="Import导入"><a href="#Import导入" class="headerlink" title="Import导入"></a>Import导入</h2><h3 id="Image-Sequence"><a href="#Image-Sequence" class="headerlink" title="Image Sequence"></a>Image Sequence</h3><p>打开所选文件夹中的一系列图片作为一个stack。图片可能有不同的尺寸，也可以是任意ImageJ所支持的格式。非图片格式的文件会被忽略。</p>
+<ul>
+<li>Number of Images：指定打开多少张图片</li>
+<li>Starting image：如果设置为n，将会从文件夹中的第n张图片开始导入</li>
+<li>Increment：增量步长，即每隔多少张图片导入</li>
+<li>File Name Contains：填入一个字符串，ImageJ将会仅打开含该字符串的文件</li>
+<li>Enter Pattern：可以使用正则表达式做进一步的过滤</li>
+<li>Scaled Images：设置一个小于100的数会减少内存要求，如填入50会使得所需内存减少$25%$。如果勾选Use Vritual Stack后，该选项会被忽略</li>
+<li>Convert to RGB：允许将RGB和灰度同时存在的图片全部转换为RGB。注意，如果该选项不勾选，且第一张图是8-bit，那么后面所有的图都将转为8-bit。勾选这个选项来避免这种问题。</li>
+<li>Sort Names Numerically：勾选后，将会以数值顺序打开文件，即以1、2、..10的顺序，而不是以1、10、2..的顺序。</li>
+<li>Use Virtual Stack：勾选后，图片将会使用Virtual Stack Opener该插件以只读Virtual Stack的形式打开。这使得太大而难以放入内存的图片的读取成为可能。</li>
+</ul>
+<h3 id="Raw"><a href="#Raw" class="headerlink" title="Raw"></a>Raw</h3><p>用于导入ImageJ所不支持的图片文件，需要事先知道关于该特定文件的信息，包括图片大小、与开头数据的偏移量等。</p>
+<h3 id="LUT"><a href="#LUT" class="headerlink" title="LUT"></a>LUT</h3><p>打开一个ImageJ或NIH的图片查询表，或者一个原生的表。原生的表必须是768字节大小，且包含256个红色、256个蓝、256个绿。如果事先没有图片打开，那么一个256*32的图片会创建来显示该表。</p>
+<h3 id="Text-Image"><a href="#Text-Image" class="headerlink" title="Text Image"></a>Text Image</h3><p>打开一个制表符分隔的文本文件作为一个32-bit的真实图片。图片的宽度和高度是通过扫描和计算文件的单词数和行数所确定的。对于不大于255的文本文件，使用Image-Type-8-Bit来转换为8-bit图片。在转换前，在Edit-Options-Conversions中不勾选Scale When Converting，从而避免图片被缩放到0-255范围。</p>
+<h3 id="Text-File"><a href="#Text-File" class="headerlink" title="Text File"></a>Text File</h3><p>打开一个文本文件。也可以通过上面的File-Open或拖拽打开。</p>
+<h3 id="URL"><a href="#URL" class="headerlink" title="URL"></a>URL</h3><p>通过一个URL来下载和显示图片。</p>
+<h3 id="Results"><a href="#Results" class="headerlink" title="Results"></a>Results</h3><p>打开一个ImageJ表格或任意制表符和逗号分隔的文本文件。.csv和.xls文件可直接拖拽打开。</p>
+<h3 id="Stack-From-List"><a href="#Stack-From-List" class="headerlink" title="Stack From List"></a>Stack From List</h3><p>从一个包含一系列图片文件路径的文本文件或URL中打开stack或virtual stack。文件可以放在不同的文件夹中，但必须是相同的尺寸和类型。</p>
+<h3 id="TIFF-Virtual-Stack"><a href="#TIFF-Virtual-Stack" class="headerlink" title="TIFF Virtual Stack"></a>TIFF Virtual Stack</h3><p>打开一个TIFF格式的文件作为Virtual Stack。</p>
+<h3 id="AVI"><a href="#AVI" class="headerlink" title="AVI"></a>AVI</h3><p>使用内置的AVI reader插件打开一个AVI文件，作为stack或virtual stack。动画速度是从图片帧速率获取的。</p>
+<h3 id="XY-Coordinates"><a href="#XY-Coordinates" class="headerlink" title="XY Coordinates"></a>XY Coordinates</h3><p>导入一个两栏的文本文件，比如通过File-Save As-XY Coordinates所存取的选区。选区可在当前图片中显示，如果当前文件太小，则在新的空白图片中显示。活跃选区的坐标可以通过Edit-Selection-Properties中的List coordinates显示。</p>
+<h2 id="Close"><a href="#Close" class="headerlink" title="Close"></a>Close</h2><p>关闭当前活动图片。</p>
+<h2 id="Close-All"><a href="#Close-All" class="headerlink" title="Close All"></a>Close All</h2><p>关闭所有图片。</p>
+<h2 id="Save"><a href="#Save" class="headerlink" title="Save"></a>Save</h2><p>将当前活动图片存成TIFF格式。如果仅存储一个所选区域，创建一个选区，然后使用Image-Duplicate。<br>Save命令与File-Save As-TIFF是相同的。</p>
+<h2 id="Save-As"><a href="#Save-As" class="headerlink" title="Save As"></a>Save As</h2><p>将图片存储为TIFF、GIF、JPEG或原始格式。也能用来存储测量结果、查询表、选区和选区的坐标。</p>
+<h3 id="TIFF"><a href="#TIFF" class="headerlink" title="TIFF"></a>TIFF</h3><p>TIFF是唯一一种（除了“raw”原始格式）支持所有ImageJ的数据格式（8-bit、16-bit、32-bit 浮点型和RGB）以及唯一支持空间和密度标定数据的格式。除此以外，选区和Overlay也存储在TIFF文件的header中。</p>
+<h3 id="GIF"><a href="#GIF" class="headerlink" title="GIF"></a>GIF</h3><p>将当前活动图片存储成GIF格式。在此之前，首先要将RGB图片通过Image-Type-8-bit Color转换一下格式。Stacks将被存成有动画的GIF。使用Image-Stacks-Tools-Animation Options来设定帧率。</p>
+<h3 id="JPEG"><a href="#JPEG" class="headerlink" title="JPEG"></a>JPEG</h3><p>将当前活动图片存储成JPEG格式。通过Edit-Options-Input/Output来设置JPEG的压缩率。<br>当存成JPEG时，Overlay会被永久嵌入图片中。</p>
+<h3 id="Text-Image-1"><a href="#Text-Image-1" class="headerlink" title="Text Image"></a>Text Image</h3><p>将当前活动图片存储成以制表符分隔的文本文件。已标定的和浮点类型的图片是用Analyze-Set Measurements所设定的Decimal places小数位数这样的精度来保存。对于RGB图片，每个像素通过三原色的平均来转成灰度，或者如果Edit-Options-Conversions中的If Weighed RGB to Grayscale Conversion勾选后，通过加权平均来转成灰度。</p>
+<h3 id="Zip"><a href="#Zip" class="headerlink" title="Zip"></a>Zip</h3><p>将当前活动图片或stack存成一个压缩的Zip格式的TIFF。</p>
+<h3 id="Raw-Data"><a href="#Raw-Data" class="headerlink" title="Raw Data"></a>Raw Data</h3><p>将当前活动图片或stack存成没有header的原始像素数据。8-bit图片存成unsigned bytes，unsigned的16-bit图片存成unsigned short，signed 16-bit图片存成signed short，32-bit图片存成float，RGB存成每像素3个字节的数据。</p>
+<h3 id="Image-Sequence-1"><a href="#Image-Sequence-1" class="headerlink" title="Image Sequence"></a>Image Sequence</h3><p>把一个stack或hyperstack存成一个图片序列。</p>
+<h3 id="AVI-1"><a href="#AVI-1" class="headerlink" title="AVI"></a>AVI</h3><p>把一个stack或hyperstack存成AVI文件。</p>
+<h3 id="PNG"><a href="#PNG" class="headerlink" title="PNG"></a>PNG</h3><p>把当前活动图片存成PNG。</p>
+<h3 id="FITS"><a href="#FITS" class="headerlink" title="FITS"></a>FITS</h3><p>把当前活动图片存成FITS。</p>
+<h3 id="LUT-1"><a href="#LUT-1" class="headerlink" title="LUT"></a>LUT</h3><p>把当前活动图片的查询表存成文件。</p>
+<h3 id="Results-1"><a href="#Results-1" class="headerlink" title="Results"></a>Results</h3><p>把“Results”窗口的内容存成制表符分隔或逗号分隔的csv文件。</p>
+<h3 id="Selection"><a href="#Selection" class="headerlink" title="Selection"></a>Selection</h3><p>把当前选区的边界存到文件中，然后稍后可以使用File-Open再导入。</p>
+<h3 id="XY-Coordinates-1"><a href="#XY-Coordinates-1" class="headerlink" title="XY Coordinates"></a>XY Coordinates</h3><p>把当前ROI的XY坐标存入一个两栏、制表符分隔的文本文件。ROI坐标也可以通过Edit-Selection-Properties勾选List coordinates来获得。</p>
+<h2 id="Revert"><a href="#Revert" class="headerlink" title="Revert"></a>Revert</h2><p>Revert实际的操作是：不保存而关闭窗口，重新打开图片。</p>
+<h2 id="Page-Setup"><a href="#Page-Setup" class="headerlink" title="Page Setup"></a>Page Setup</h2><p>控制输出的尺寸及其他选项。</p>
+<h2 id="Print"><a href="#Print" class="headerlink" title="Print"></a>Print</h2><p>打印当前图片。</p>
+<h2 id="Quit"><a href="#Quit" class="headerlink" title="Quit"></a>Quit</h2><p>退出程序。</p>
+
+    </div>
+
+    
+    
+    
+        <div class="reward-container">
+  <div></div>
+  <button onclick="var qr = document.getElementById('qr'); qr.style.display = (qr.style.display === 'none') ? 'block' : 'none';">
+    Donate
+  </button>
+  <div id="qr" style="display: none;">
+      
+      <div style="display: inline-block;">
+        <img src="/images/wechat_reward.png" alt="Xin-Bo Qi(亓欣波) WeChat Pay">
+        <p>WeChat Pay</p>
+      </div>
+
+  </div>
+</div>
+
+
+      <footer class="post-footer">
+          <div class="post-tags">
+              <a href="/tags/ImageJ/" rel="tag"># ImageJ</a>
+          </div>
+
+        
+
+
+        
+    <div class="post-nav">
+      <div class="post-nav-item">
+    <a href="/2018/09/03/imagej-ui/" rel="prev" title="ImageJ 用户指南 -- 4. 用户界面：状态栏和工具栏">
+      <i class="fa fa-chevron-left"></i> ImageJ 用户指南 -- 4. 用户界面：状态栏和工具栏
+    </a></div>
+      <div class="post-nav-item">
+    <a href="/2018/09/04/imagej-ui-menu-edit/" rel="next" title="ImageJ 用户指南 -- 6. 菜单栏之Edit">
+      ImageJ 用户指南 -- 6. 菜单栏之Edit <i class="fa fa-chevron-right"></i>
+    </a></div>
+    </div>
+      </footer>
+    
+  </article>
+  
+  
+  
+
+
+
+          </div>
+          
+    
+  <div class="comments">
+    <div id="disqus_thread">
+      <noscript>Please enable JavaScript to view the comments powered by Disqus.</noscript>
+    </div>
+  </div>
+  
+
+<script>
+  window.addEventListener('tabs:register', () => {
+    let { activeClass } = CONFIG.comments;
+    if (CONFIG.comments.storage) {
+      activeClass = localStorage.getItem('comments_active') || activeClass;
+    }
+    if (activeClass) {
+      let activeTab = document.querySelector(`a[href="#comment-${activeClass}"]`);
+      if (activeTab) {
+        activeTab.click();
+      }
+    }
+  });
+  if (CONFIG.comments.storage) {
+    window.addEventListener('tabs:click', event => {
+      if (!event.target.matches('.tabs-comment .tab-content .tab-pane')) return;
+      let commentClass = event.target.classList[1];
+      localStorage.setItem('comments_active', commentClass);
+    });
+  }
+</script>
+
+        </div>
+          
+  
+  <div class="toggle sidebar-toggle">
+    <span class="toggle-line toggle-line-first"></span>
+    <span class="toggle-line toggle-line-middle"></span>
+    <span class="toggle-line toggle-line-last"></span>
+  </div>
+
+  <aside class="sidebar">
+    <div class="sidebar-inner">
+
+      <ul class="sidebar-nav motion-element">
+        <li class="sidebar-nav-toc">
+          Table of Contents
+        </li>
+        <li class="sidebar-nav-overview">
+          Overview
+        </li>
+      </ul>
+
+      <!--noindex-->
+      <div class="post-toc-wrap sidebar-panel">
+          <div class="post-toc motion-element"><ol class="nav"><li class="nav-item nav-level-1"><a class="nav-link" href="#%E6%9C%AC%E7%AB%A0%E8%AF%B4%E6%98%8E"><span class="nav-number">1.</span> <span class="nav-text">本章说明</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#File%E8%8F%9C%E5%8D%95"><span class="nav-number">2.</span> <span class="nav-text">File菜单</span></a><ol class="nav-child"><li class="nav-item nav-level-2"><a class="nav-link" href="#New%E6%96%B0%E5%BB%BA"><span class="nav-number">2.1.</span> <span class="nav-text">New新建</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#Open%E6%89%93%E5%BC%80"><span class="nav-number">2.2.</span> <span class="nav-text">Open打开</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#Open-Next%E6%89%93%E5%BC%80%E4%B8%8B%E4%B8%80%E4%B8%AA"><span class="nav-number">2.3.</span> <span class="nav-text">Open Next打开下一个</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#Open-Samples%E6%89%93%E5%BC%80%E6%A0%B7%E4%BE%8B"><span class="nav-number">2.4.</span> <span class="nav-text">Open Samples打开样例</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#Open-Recent%E6%89%93%E5%BC%80%E6%9C%80%E8%BF%91%E6%96%87%E4%BB%B6"><span class="nav-number">2.5.</span> <span class="nav-text">Open Recent打开最近文件</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#Import%E5%AF%BC%E5%85%A5"><span class="nav-number">2.6.</span> <span class="nav-text">Import导入</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#Image-Sequence"><span class="nav-number">2.6.1.</span> <span class="nav-text">Image Sequence</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#Raw"><span class="nav-number">2.6.2.</span> <span class="nav-text">Raw</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#LUT"><span class="nav-number">2.6.3.</span> <span class="nav-text">LUT</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#Text-Image"><span class="nav-number">2.6.4.</span> <span class="nav-text">Text Image</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#Text-File"><span class="nav-number">2.6.5.</span> <span class="nav-text">Text File</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#URL"><span class="nav-number">2.6.6.</span> <span class="nav-text">URL</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#Results"><span class="nav-number">2.6.7.</span> <span class="nav-text">Results</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#Stack-From-List"><span class="nav-number">2.6.8.</span> <span class="nav-text">Stack From List</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#TIFF-Virtual-Stack"><span class="nav-number">2.6.9.</span> <span class="nav-text">TIFF Virtual Stack</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#AVI"><span class="nav-number">2.6.10.</span> <span class="nav-text">AVI</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#XY-Coordinates"><span class="nav-number">2.6.11.</span> <span class="nav-text">XY Coordinates</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#Close"><span class="nav-number">2.7.</span> <span class="nav-text">Close</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#Close-All"><span class="nav-number">2.8.</span> <span class="nav-text">Close All</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#Save"><span class="nav-number">2.9.</span> <span class="nav-text">Save</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#Save-As"><span class="nav-number">2.10.</span> <span class="nav-text">Save As</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#TIFF"><span class="nav-number">2.10.1.</span> <span class="nav-text">TIFF</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#GIF"><span class="nav-number">2.10.2.</span> <span class="nav-text">GIF</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#JPEG"><span class="nav-number">2.10.3.</span> <span class="nav-text">JPEG</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#Text-Image-1"><span class="nav-number">2.10.4.</span> <span class="nav-text">Text Image</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#Zip"><span class="nav-number">2.10.5.</span> <span class="nav-text">Zip</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#Raw-Data"><span class="nav-number">2.10.6.</span> <span class="nav-text">Raw Data</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#Image-Sequence-1"><span class="nav-number">2.10.7.</span> <span class="nav-text">Image Sequence</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#AVI-1"><span class="nav-number">2.10.8.</span> <span class="nav-text">AVI</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#PNG"><span class="nav-number">2.10.9.</span> <span class="nav-text">PNG</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#FITS"><span class="nav-number">2.10.10.</span> <span class="nav-text">FITS</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#LUT-1"><span class="nav-number">2.10.11.</span> <span class="nav-text">LUT</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#Results-1"><span class="nav-number">2.10.12.</span> <span class="nav-text">Results</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#Selection"><span class="nav-number">2.10.13.</span> <span class="nav-text">Selection</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#XY-Coordinates-1"><span class="nav-number">2.10.14.</span> <span class="nav-text">XY Coordinates</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#Revert"><span class="nav-number">2.11.</span> <span class="nav-text">Revert</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#Page-Setup"><span class="nav-number">2.12.</span> <span class="nav-text">Page Setup</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#Print"><span class="nav-number">2.13.</span> <span class="nav-text">Print</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#Quit"><span class="nav-number">2.14.</span> <span class="nav-text">Quit</span></a></li></ol></li></ol></div>
+      </div>
+      <!--/noindex-->
+
+      <div class="site-overview-wrap sidebar-panel">
+        <div class="site-author motion-element" itemprop="author" itemscope itemtype="http://schema.org/Person">
+    <img class="site-author-image" itemprop="image" alt="Xin-Bo Qi(亓欣波)"
+      src="/images/avatar.jpg">
+  <p class="site-author-name" itemprop="name">Xin-Bo Qi(亓欣波)</p>
+  <div class="site-description" itemprop="description">Be interesting!</div>
+</div>
+<div class="site-state-wrap motion-element">
+  <nav class="site-state">
+      <div class="site-state-item site-state-posts">
+          <a href="/archives/">
+        
+          <span class="site-state-item-count">120</span>
+          <span class="site-state-item-name">posts</span>
+        </a>
+      </div>
+      <div class="site-state-item site-state-categories">
+            <a href="/categories/">
+          
+        <span class="site-state-item-count">5</span>
+        <span class="site-state-item-name">categories</span></a>
+      </div>
+      <div class="site-state-item site-state-tags">
+            <a href="/tags/">
+          
+        <span class="site-state-item-count">41</span>
+        <span class="site-state-item-name">tags</span></a>
+      </div>
+  </nav>
+</div>
+  <div class="links-of-author motion-element">
+      <span class="links-of-author-item">
+        <a href="https://github.com/qixinbo" title="GitHub → https:&#x2F;&#x2F;github.com&#x2F;qixinbo" rel="noopener" target="_blank"><i class="github fa-fw"></i>GitHub</a>
+      </span>
+      <span class="links-of-author-item">
+        <a href="mailto:qixinbo@gmail.com" title="E-Mail → mailto:qixinbo@gmail.com" rel="noopener" target="_blank"><i class="envelope fa-fw"></i>E-Mail</a>
+      </span>
+  </div>
+
+
+  <div class="links-of-blogroll motion-element">
+    <div class="links-of-blogroll-title"><i class="fa fa-link fa-fw"></i>
+      Links
+    </div>
+    <ul class="links-of-blogroll-list">
+        <li class="links-of-blogroll-item">
+          <a href="https://www.tsinghua.edu.cn/" title="https:&#x2F;&#x2F;www.tsinghua.edu.cn" rel="noopener" target="_blank">THU</a>
+        </li>
+        <li class="links-of-blogroll-item">
+          <a href="http://www.imr.cas.cn/" title="http:&#x2F;&#x2F;www.imr.cas.cn" rel="noopener" target="_blank">IMR</a>
+        </li>
+        <li class="links-of-blogroll-item">
+          <a href="http://www.sdu.edu.cn/" title="http:&#x2F;&#x2F;www.sdu.edu.cn" rel="noopener" target="_blank">SDU</a>
+        </li>
+        <li class="links-of-blogroll-item">
+          <a href="http://liam0205.me/" title="http:&#x2F;&#x2F;liam0205.me&#x2F;" rel="noopener" target="_blank">黄晨成</a>
+        </li>
+    </ul>
+  </div>
+
+      </div>
+
+    </div>
+  </aside>
+  <div id="sidebar-dimmer"></div>
+
+
+      </div>
+    </main>
+
+    <footer class="footer">
+      <div class="footer-inner">
+        
+
+        
+
+<div class="copyright">
+  
+  &copy; 
+  <span itemprop="copyrightYear">2021</span>
+  <span class="with-love">
+    <i class="fa fa-heart"></i>
+  </span>
+  <span class="author" itemprop="copyrightHolder">Xin-Bo Qi(亓欣波)</span>
+</div>
+  <div class="powered-by">Powered by <a href="https://hexo.io/" class="theme-link" rel="noopener" target="_blank">Hexo</a> & <a href="https://theme-next.org/" class="theme-link" rel="noopener" target="_blank">NexT.Gemini</a>
+  </div>
+
+        
+
+
+
+
+
+
+
+
+      </div>
+    </footer>
+  </div>
+
+  
+  <script src="/lib/anime.min.js"></script>
+  <script src="/lib/velocity/velocity.min.js"></script>
+  <script src="/lib/velocity/velocity.ui.min.js"></script>
+
+<script src="/js/utils.js"></script>
+
+<script src="/js/motion.js"></script>
+
+
+<script src="/js/schemes/pisces.js"></script>
+
+
+<script src="/js/next-boot.js"></script>
+
+
+
+
+  
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+  
+
+  
+
+  
+
+<script>
+  function loadCount() {
+    var d = document, s = d.createElement('script');
+    s.src = 'https://qixinbo.disqus.com/count.js';
+    s.id = 'dsq-count-scr';
+    (d.head || d.body).appendChild(s);
+  }
+  // defer loading until the whole page loading is completed
+  window.addEventListener('load', loadCount, false);
+</script>
+<script>
+  var disqus_config = function() {
+    this.page.url = "http://qixinbo.github.io/2018/09/03/imagej-ui-menu-file/";
+    this.page.identifier = "2018/09/03/imagej-ui-menu-file/";
+    this.page.title = "ImageJ 用户指南 -- 5. 菜单栏之File";
+    };
+  NexT.utils.loadComments(document.querySelector('#disqus_thread'), () => {
+    if (window.DISQUS) {
+      DISQUS.reset({
+        reload: true,
+        config: disqus_config
+      });
+    } else {
+      var d = document, s = d.createElement('script');
+      s.src = 'https://qixinbo.disqus.com/embed.js';
+      s.setAttribute('data-timestamp', '' + +new Date());
+      (d.head || d.body).appendChild(s);
+    }
+  });
+</script>
+
+</body>
+</html>

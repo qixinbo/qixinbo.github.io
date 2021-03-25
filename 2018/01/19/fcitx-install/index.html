@@ -1,0 +1,582 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=2">
+<meta name="theme-color" content="#222">
+<meta name="generator" content="Hexo 5.4.0">
+  <link rel="apple-touch-icon" sizes="180x180" href="/images/apple-touch-icon-next.png">
+  <link rel="icon" type="image/png" sizes="32x32" href="/favicon.ico">
+  <link rel="icon" type="image/png" sizes="16x16" href="/favicon.ico">
+  <link rel="mask-icon" href="/images/logo.svg" color="#222">
+
+<link rel="stylesheet" href="/css/main.css">
+
+
+<link rel="stylesheet" href="/lib/font-awesome/css/all.min.css">
+
+<script id="hexo-configurations">
+    var NexT = window.NexT || {};
+    var CONFIG = {"hostname":"qixinbo.github.io","root":"/","scheme":"Gemini","version":"7.8.0","exturl":false,"sidebar":{"position":"left","display":"post","padding":18,"offset":12,"onmobile":false},"copycode":{"enable":false,"show_result":false,"style":null},"back2top":{"enable":true,"sidebar":false,"scrollpercent":false},"bookmark":{"enable":false,"color":"#222","save":"auto"},"fancybox":false,"mediumzoom":false,"lazyload":false,"pangu":false,"comments":{"style":"tabs","active":null,"storage":true,"lazyload":false,"nav":null},"algolia":{"hits":{"per_page":10},"labels":{"input_placeholder":"Search for Posts","hits_empty":"We didn't find any results for the search: ${query}","hits_stats":"${hits} results found in ${time} ms"}},"localsearch":{"enable":false,"trigger":"auto","top_n_per_article":1,"unescape":false,"preload":false},"motion":{"enable":true,"async":false,"transition":{"post_block":"fadeIn","post_header":"slideDownIn","post_body":"slideDownIn","coll_header":"slideLeftIn","sidebar":"slideUpIn"}}};
+  </script>
+
+  <meta name="description" content="2018-1-19更新：加入自动安装fcitx，以及安装搜狗输入法。 注：在Linux mint系统下，已自带fcitx，但此时安装搜狗后，fcitx并未识别出sogou。以下是自己的经验：（1）完全卸载fcitx： 12sudo apt remove fcitx* sudo apt autoremove （2）从搜狗官网下载sogou Linux版，双击安装。此时其实sogou也能直接用，但经常">
+<meta property="og:type" content="article">
+<meta property="og:title" content="linux系统安装fcitx框架和搜狗输入法">
+<meta property="og:url" content="http://qixinbo.github.io/2018/01/19/fcitx-install/index.html">
+<meta property="og:site_name" content="亓欣波">
+<meta property="og:description" content="2018-1-19更新：加入自动安装fcitx，以及安装搜狗输入法。 注：在Linux mint系统下，已自带fcitx，但此时安装搜狗后，fcitx并未识别出sogou。以下是自己的经验：（1）完全卸载fcitx： 12sudo apt remove fcitx* sudo apt autoremove （2）从搜狗官网下载sogou Linux版，双击安装。此时其实sogou也能直接用，但经常">
+<meta property="og:locale" content="en_US">
+<meta property="article:published_time" content="2018-01-18T16:00:00.000Z">
+<meta property="article:modified_time" content="2021-03-25T07:20:30.601Z">
+<meta property="article:author" content="Xin-Bo Qi(亓欣波)">
+<meta property="article:tag" content="linux">
+<meta property="article:tag" content="fcitx">
+<meta name="twitter:card" content="summary">
+
+<link rel="canonical" href="http://qixinbo.github.io/2018/01/19/fcitx-install/">
+
+
+<script id="page-configurations">
+  // https://hexo.io/docs/variables.html
+  CONFIG.page = {
+    sidebar: "",
+    isHome : false,
+    isPost : true,
+    lang   : 'en'
+  };
+</script>
+
+  <title>linux系统安装fcitx框架和搜狗输入法 | 亓欣波</title>
+  
+
+
+
+
+
+
+  <noscript>
+  <style>
+  .use-motion .brand,
+  .use-motion .menu-item,
+  .sidebar-inner,
+  .use-motion .post-block,
+  .use-motion .pagination,
+  .use-motion .comments,
+  .use-motion .post-header,
+  .use-motion .post-body,
+  .use-motion .collection-header { opacity: initial; }
+
+  .use-motion .site-title,
+  .use-motion .site-subtitle {
+    opacity: initial;
+    top: initial;
+  }
+
+  .use-motion .logo-line-before i { left: initial; }
+  .use-motion .logo-line-after i { right: initial; }
+  </style>
+</noscript>
+
+</head>
+
+<body itemscope itemtype="http://schema.org/WebPage">
+  <div class="container use-motion">
+    <div class="headband"></div>
+
+    <header class="header" itemscope itemtype="http://schema.org/WPHeader">
+      <div class="header-inner"><div class="site-brand-container">
+  <div class="site-nav-toggle">
+    <div class="toggle" aria-label="Toggle navigation bar">
+      <span class="toggle-line toggle-line-first"></span>
+      <span class="toggle-line toggle-line-middle"></span>
+      <span class="toggle-line toggle-line-last"></span>
+    </div>
+  </div>
+
+  <div class="site-meta">
+
+    <a href="/" class="brand" rel="start">
+      <span class="logo-line-before"><i></i></span>
+      <h1 class="site-title">亓欣波</h1>
+      <span class="logo-line-after"><i></i></span>
+    </a>
+      <p class="site-subtitle" itemprop="description">Hi, I am Xin-Bo Qi (亓欣波)</p>
+  </div>
+
+  <div class="site-nav-right">
+    <div class="toggle popup-trigger">
+    </div>
+  </div>
+</div>
+
+
+
+
+<nav class="site-nav">
+  <ul id="menu" class="main-menu menu">
+        <li class="menu-item menu-item-home">
+
+    <a href="/" rel="section"><i class="home fa-fw"></i>Home</a>
+
+  </li>
+        <li class="menu-item menu-item-categories">
+
+    <a href="/categories/" rel="section"><i class="th fa-fw"></i>Categories</a>
+
+  </li>
+        <li class="menu-item menu-item-archives">
+
+    <a href="/archives/" rel="section"><i class="archive fa-fw"></i>Archives</a>
+
+  </li>
+        <li class="menu-item menu-item-tags">
+
+    <a href="/tags/" rel="section"><i class="tags fa-fw"></i>Tags</a>
+
+  </li>
+        <li class="menu-item menu-item-scholar">
+
+    <a href="/scholar/" rel="section"><i class="bar-chart fa-fw"></i>scholar</a>
+
+  </li>
+        <li class="menu-item menu-item-sources">
+
+    <a href="/sources/" rel="section"><i class="rss fa-fw"></i>sources</a>
+
+  </li>
+        <li class="menu-item menu-item-gallery">
+
+    <a href="/gallery/" rel="section"><i class="file-image-o fa-fw"></i>gallery</a>
+
+  </li>
+        <li class="menu-item menu-item-about">
+
+    <a href="/about/" rel="section"><i class="user fa-fw"></i>About</a>
+
+  </li>
+        <li class="menu-item menu-item-commonweal">
+
+    <a href="/404.html" rel="section"><i class="heartbeat fa-fw"></i>Commonweal 404</a>
+
+  </li>
+  </ul>
+</nav>
+
+
+
+
+</div>
+    </header>
+
+    
+  <div class="back-to-top">
+    <i class="fa fa-arrow-up"></i>
+    <span>0%</span>
+  </div>
+
+
+    <main class="main">
+      <div class="main-inner">
+        <div class="content-wrap">
+          
+
+          <div class="content post posts-expand">
+            
+
+    
+  
+  
+  <article itemscope itemtype="http://schema.org/Article" class="post-block" lang="en">
+    <link itemprop="mainEntityOfPage" href="http://qixinbo.github.io/2018/01/19/fcitx-install/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="image" content="/images/avatar.jpg">
+      <meta itemprop="name" content="Xin-Bo Qi(亓欣波)">
+      <meta itemprop="description" content="Be interesting!">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="亓欣波">
+    </span>
+      <header class="post-header">
+        <h1 class="post-title" itemprop="name headline">
+          linux系统安装fcitx框架和搜狗输入法
+        </h1>
+
+        <div class="post-meta">
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="far fa-calendar"></i>
+              </span>
+              <span class="post-meta-item-text">Posted on</span>
+
+              <time title="Created: 2018-01-19 00:00:00" itemprop="dateCreated datePublished" datetime="2018-01-19T00:00:00+08:00">2018-01-19</time>
+            </span>
+              <span class="post-meta-item">
+                <span class="post-meta-item-icon">
+                  <i class="far fa-calendar-check"></i>
+                </span>
+                <span class="post-meta-item-text">Edited on</span>
+                <time title="Modified: 2021-03-25 15:20:30" itemprop="dateModified" datetime="2021-03-25T15:20:30+08:00">2021-03-25</time>
+              </span>
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="far fa-folder"></i>
+              </span>
+              <span class="post-meta-item-text">In</span>
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+                  <a href="/categories/linux/" itemprop="url" rel="index"><span itemprop="name">linux</span></a>
+                </span>
+            </span>
+
+          
+  
+  <span class="post-meta-item">
+    
+      <span class="post-meta-item-icon">
+        <i class="far fa-comment"></i>
+      </span>
+      <span class="post-meta-item-text">Disqus: </span>
+    
+    <a title="disqus" href="/2018/01/19/fcitx-install/#disqus_thread" itemprop="discussionUrl">
+      <span class="post-comments-count disqus-comment-count" data-disqus-identifier="2018/01/19/fcitx-install/" itemprop="commentCount"></span>
+    </a>
+  </span>
+  
+  
+
+        </div>
+      </header>
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+        <p>2018-1-19更新：加入自动安装fcitx，以及安装搜狗输入法。</p>
+<p>注：在Linux mint系统下，已自带fcitx，但此时安装搜狗后，fcitx并未识别出sogou。<br>以下是自己的经验：<br>（1）完全卸载fcitx：</p>
+<figure class="highlight cpp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">sudo apt remove fcitx* </span><br><span class="line">sudo apt autoremove</span><br></pre></td></tr></table></figure>
+<p>（2）从搜狗官网下载sogou Linux版，双击安装。<br>此时其实sogou也能直接用，但经常自己崩溃，所以还要进行下面的步骤。<br>（3）再次安装fcitx框架：<br>（3.1）从”菜单”——“Preference”——“input method”中安装fcitx，并安装simplified Chinese语言包。<br>（3.2）在fcitx配置的input Method中可以看到sogou输入法。</p>
+<hr>
+<p>以下是手动编译fcitx源码。</p>
+<p>参考文章：</p>
+<p>（1）<a target="_blank" rel="noopener" href="http://intijk.com/others/%E6%94%BE%E5%BC%83i-bus%EF%BC%8C%E4%BD%BF%E7%94%A8fcitx.html">http://intijk.com/others/%E6%94%BE%E5%BC%83i-bus%EF%BC%8C%E4%BD%BF%E7%94%A8fcitx.html</a><br>（2）<a target="_blank" rel="noopener" href="http://www.cnblogs.com/jan5/articles/3351574.html">http://www.cnblogs.com/jan5/articles/3351574.html</a></p>
+<h1 id="下载并编译fcitx源码。"><a href="#下载并编译fcitx源码。" class="headerlink" title="下载并编译fcitx源码。"></a>下载并编译fcitx源码。</h1><p>电脑是Ubuntu10.10，这里用的是Fcitx4.0.0版本，太高或太低版本都不好使。<br>如果系统版本较新，可以直接从fcitx的github页面下载最新的master分支。<br>注意：旧版的fcitx可以直接make，但新版的fcitx需要cmake，一定注意其依赖关系。</p>
+<p>下载列表：<a target="_blank" rel="noopener" href="https://code.google.com/p/fcitx/downloads/list">https://code.google.com/p/fcitx/downloads/list</a><br>然后参照INSTALL文件进行安装。</p>
+<p>测试是否安装成功：<br>输入fcitx -h，如果安装成功，应该能得到帮助文件的，如下：<br>[root@CentOS ~]# fcitx -h<br>Usage: fcitx [OPTION]<br>-d run as daemon(default)<br>-D don’t run as daemon<br>-c (re)create config file in home directory and then exit<br>-n[im name] run as specified name<br>-v display the version information and exit<br>-h display this help and exit</p>
+<h1 id="配置Fcitx为默认输入法"><a href="#配置Fcitx为默认输入法" class="headerlink" title="配置Fcitx为默认输入法"></a>配置Fcitx为默认输入法</h1><h2 id="方法一："><a href="#方法一：" class="headerlink" title="方法一："></a>方法一：</h2><p>1、新建配置文件 vim /etc/X11/xinit/xinput.d/fcitx.conf ，内容为：</p>
+<p>XIM=fcitx<br>XIM_PROGRAM=/usr/local/bin/fcitx # 注意这个文件必须存在，请确认它的位置<br>XIM_ARGS=”-d”<br>GTK_IM_MODULE=fcitx<br>QT_IM_MODULE =fcitx</p>
+<p>2、然后在/etc/alternatives/目录下，将符号链接xinputrc删除，重新建一个：</p>
+<p>mv /etc/alternatives/xinputrc /etc/alternatives/xinputrc.bak<br>ln -s /etc/X11/xinit/xinput.d/fcitx.conf /etc/alternatives/xinputrc</p>
+<p>3、最后，注销然后登陆，在菜单 系统—首选项—输入法 里面选择“启用输入法特性”，选择“使用fcitx”，然后“注销”，登录后按“ctrl+空格”就可激活fcitx输入法。</p>
+<p>注：如果你使用的桌面是英文环境的，还需要在使用用户的用户目录.bashrc配置文件里添加如下内容：</p>
+<p>export LANG=”zh_CN.UTF-8″<br>export LC_CTYPE=”zh_CN.UTF-8″<br>export XIM=fcitx<br>export XIM_PROGRAM=fcitx<br>export GTK_IM_MODULE=xim<br>export XMODIFIERS=”@im=fcitx”</p>
+<h2 id="方法二："><a href="#方法二：" class="headerlink" title="方法二："></a>方法二：</h2><p>1、新建配置文件：vim /etc/X11/xinit/xinput.d/fcitx，内容为：</p>
+<p>XIM=fcitx<br>XIM_PROGRAM=fcitx<br>GTK_IM_MOUDLE=fcitx<br>QT_IM_MOUDLE=fcitx</p>
+<p>保存退出，重启电脑</p>
+<p>2、查询Fcitx是否开机运行。终端下输入：fcitx，应该是提示：Start FCITX error. Another XIM daemon named SCIM is running？这样就对了，直接到”4“</p>
+<p>3、如果没任何提示，则：ln -s /etc/X11/xinit/Xinput.d/fcitx /$HOME/.xinputrc</p>
+<p>4、输入： fcitx -nb ，即可看到输入框</p>
+<p>默认fcitx启动后，是在后台运行的，因此看不到输入框，用上面的命令就可以调出来了。<br>ctrl+空格 切换输入法。<br>配置fcitx输入法修改vim ~/.fcitx/config文件中的相应偏好设置。</p>
+<p>—————————————————————————————–</p>
+<h1 id="可能遇到的问题："><a href="#可能遇到的问题：" class="headerlink" title="可能遇到的问题："></a>可能遇到的问题：</h1><p>(1)CMake Error at CMakeLists.txt:8 (find_package):<br>  Could not find a package configuration file provided by “ECM” (requested<br>  version 1.4.0) with any of the following names:<br>    ECMConfig.cmake<br>    ecm-config.cmake<br>  Add the installation prefix of “ECM” to CMAKE_PREFIX_PATH or set “ECM_DIR”<br>  to a directory containing one of the above files.  If “ECM” provides a<br>  separate development package or SDK, be sure it has been installed.<br>  — Configuring incomplete, errors occurred!</p>
+<p>解决方法：到这个页面 <a target="_blank" rel="noopener" href="https://launchpad.net/ubuntu/+source/extra-cmake-modules/1.4.0-0ubuntu1">https://launchpad.net/ubuntu/+source/extra-cmake-modules/1.4.0-0ubuntu1</a> 下载 extra-cmake-modules_1.4.0.orig.tar.xz</p>
+<p>解压后:<br>    cd extra-cmake-modules-1.4.0<br>  cmake .<br>  make<br>  sudo make install</p>
+<p>(2)— Found PkgConfig: /usr/bin/pkg-config (found version “0.26”)<br>  — Could NOT find XKBCommon_XKBCommon (missing:  XKBCommon_XKBCommon_LIBRARY XKBCommon_XKBCommon_INCLUDE_DIR)<br>CMake Error at /usr/share/cmake-2.8/Modules/FindPackageHandleStandardArgs.cmake:108 (message):<br>  Could NOT find XKBCommon (missing: XKBCommon_LIBRARIES XKBCommon) (Required<br>  is at least version “0.5.0”)</p>
+<p>处理方法：<br>    wget <a target="_blank" rel="noopener" href="http://xkbcommon.org/download/libxkbcommon-0.5.0.tar.xz">http://xkbcommon.org/download/libxkbcommon-0.5.0.tar.xz</a><br>  tar xf libxkbcommon-0.5.0.tar.xz<br>  ./configure —prefix=/usr —libdir=/usr/lib/x86_64-linux-gnu —disable-x11<br>  make<br>  sudo make install</p>
+<p>  编译libxkbcommon用到yacc，如果没有这个命令，会遇到下面的错误，yacc在 bison软件包中<br>  sudo apt-get install bison</p>
+<p>(3)- package ‘enchant’ not found<br>— Could NOT find Enchant (missing:  ENCHANT_LIBRARIES ENCHANT_INCLUDE_DIR ENCHANT_API_COMPATIBLE)</p>
+<p>网上搜索并安装enchant包即可。</p>
+<p>(4) Could NOT find LibXml2 (missing: LIBXML2_LIBRARIES LIBXML2_INCLUDE_DIR)</p>
+<p>网上搜索并安装libxml2包即可。</p>
+<p>(5)Could NOT find XkbFile (missing: XKBFILE_LIBRARIES   XKBFILE_MAIN_INCLUDE_DIR)</p>
+<p>网上搜索并安装xkbfile包即可。按照软件的文件目录，将相应的文件复制到系统路径中。</p>
+<p>(6)如果出现</p>
+<p>/usr/local/bin/fcitx-config-gtk: error while loading shared libraries: libfcitx-config.so.4: cannot open shared object file: No such file or directory</p>
+<p>只需sudo ldconfig<br>再不行就加一个符号链接<br>sudo ln -s /usr/local/lib/libfcitx-config.so /usr/lib/libfcitx-config.so.4</p>
+
+    </div>
+
+    
+    
+    
+        <div class="reward-container">
+  <div></div>
+  <button onclick="var qr = document.getElementById('qr'); qr.style.display = (qr.style.display === 'none') ? 'block' : 'none';">
+    Donate
+  </button>
+  <div id="qr" style="display: none;">
+      
+      <div style="display: inline-block;">
+        <img src="/images/wechat_reward.png" alt="Xin-Bo Qi(亓欣波) WeChat Pay">
+        <p>WeChat Pay</p>
+      </div>
+
+  </div>
+</div>
+
+
+      <footer class="post-footer">
+          <div class="post-tags">
+              <a href="/tags/linux/" rel="tag"># linux</a>
+              <a href="/tags/fcitx/" rel="tag"># fcitx</a>
+          </div>
+
+        
+
+
+        
+    <div class="post-nav">
+      <div class="post-nav-item">
+    <a href="/2018/01/12/abaqus-install/" rel="prev" title="linux系统abaqus安装过程及子程序编译器设置">
+      <i class="fa fa-chevron-left"></i> linux系统abaqus安装过程及子程序编译器设置
+    </a></div>
+      <div class="post-nav-item">
+    <a href="/2018/07/24/vae/" rel="next" title="变分自编码器的原理和程序解析">
+      变分自编码器的原理和程序解析 <i class="fa fa-chevron-right"></i>
+    </a></div>
+    </div>
+      </footer>
+    
+  </article>
+  
+  
+  
+
+
+
+          </div>
+          
+    
+  <div class="comments">
+    <div id="disqus_thread">
+      <noscript>Please enable JavaScript to view the comments powered by Disqus.</noscript>
+    </div>
+  </div>
+  
+
+<script>
+  window.addEventListener('tabs:register', () => {
+    let { activeClass } = CONFIG.comments;
+    if (CONFIG.comments.storage) {
+      activeClass = localStorage.getItem('comments_active') || activeClass;
+    }
+    if (activeClass) {
+      let activeTab = document.querySelector(`a[href="#comment-${activeClass}"]`);
+      if (activeTab) {
+        activeTab.click();
+      }
+    }
+  });
+  if (CONFIG.comments.storage) {
+    window.addEventListener('tabs:click', event => {
+      if (!event.target.matches('.tabs-comment .tab-content .tab-pane')) return;
+      let commentClass = event.target.classList[1];
+      localStorage.setItem('comments_active', commentClass);
+    });
+  }
+</script>
+
+        </div>
+          
+  
+  <div class="toggle sidebar-toggle">
+    <span class="toggle-line toggle-line-first"></span>
+    <span class="toggle-line toggle-line-middle"></span>
+    <span class="toggle-line toggle-line-last"></span>
+  </div>
+
+  <aside class="sidebar">
+    <div class="sidebar-inner">
+
+      <ul class="sidebar-nav motion-element">
+        <li class="sidebar-nav-toc">
+          Table of Contents
+        </li>
+        <li class="sidebar-nav-overview">
+          Overview
+        </li>
+      </ul>
+
+      <!--noindex-->
+      <div class="post-toc-wrap sidebar-panel">
+          <div class="post-toc motion-element"><ol class="nav"><li class="nav-item nav-level-1"><a class="nav-link" href="#%E4%B8%8B%E8%BD%BD%E5%B9%B6%E7%BC%96%E8%AF%91fcitx%E6%BA%90%E7%A0%81%E3%80%82"><span class="nav-number">1.</span> <span class="nav-text">下载并编译fcitx源码。</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#%E9%85%8D%E7%BD%AEFcitx%E4%B8%BA%E9%BB%98%E8%AE%A4%E8%BE%93%E5%85%A5%E6%B3%95"><span class="nav-number">2.</span> <span class="nav-text">配置Fcitx为默认输入法</span></a><ol class="nav-child"><li class="nav-item nav-level-2"><a class="nav-link" href="#%E6%96%B9%E6%B3%95%E4%B8%80%EF%BC%9A"><span class="nav-number">2.1.</span> <span class="nav-text">方法一：</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E6%96%B9%E6%B3%95%E4%BA%8C%EF%BC%9A"><span class="nav-number">2.2.</span> <span class="nav-text">方法二：</span></a></li></ol></li><li class="nav-item nav-level-1"><a class="nav-link" href="#%E5%8F%AF%E8%83%BD%E9%81%87%E5%88%B0%E7%9A%84%E9%97%AE%E9%A2%98%EF%BC%9A"><span class="nav-number">3.</span> <span class="nav-text">可能遇到的问题：</span></a></li></ol></div>
+      </div>
+      <!--/noindex-->
+
+      <div class="site-overview-wrap sidebar-panel">
+        <div class="site-author motion-element" itemprop="author" itemscope itemtype="http://schema.org/Person">
+    <img class="site-author-image" itemprop="image" alt="Xin-Bo Qi(亓欣波)"
+      src="/images/avatar.jpg">
+  <p class="site-author-name" itemprop="name">Xin-Bo Qi(亓欣波)</p>
+  <div class="site-description" itemprop="description">Be interesting!</div>
+</div>
+<div class="site-state-wrap motion-element">
+  <nav class="site-state">
+      <div class="site-state-item site-state-posts">
+          <a href="/archives/">
+        
+          <span class="site-state-item-count">120</span>
+          <span class="site-state-item-name">posts</span>
+        </a>
+      </div>
+      <div class="site-state-item site-state-categories">
+            <a href="/categories/">
+          
+        <span class="site-state-item-count">5</span>
+        <span class="site-state-item-name">categories</span></a>
+      </div>
+      <div class="site-state-item site-state-tags">
+            <a href="/tags/">
+          
+        <span class="site-state-item-count">41</span>
+        <span class="site-state-item-name">tags</span></a>
+      </div>
+  </nav>
+</div>
+  <div class="links-of-author motion-element">
+      <span class="links-of-author-item">
+        <a href="https://github.com/qixinbo" title="GitHub → https:&#x2F;&#x2F;github.com&#x2F;qixinbo" rel="noopener" target="_blank"><i class="github fa-fw"></i>GitHub</a>
+      </span>
+      <span class="links-of-author-item">
+        <a href="mailto:qixinbo@gmail.com" title="E-Mail → mailto:qixinbo@gmail.com" rel="noopener" target="_blank"><i class="envelope fa-fw"></i>E-Mail</a>
+      </span>
+  </div>
+
+
+  <div class="links-of-blogroll motion-element">
+    <div class="links-of-blogroll-title"><i class="fa fa-link fa-fw"></i>
+      Links
+    </div>
+    <ul class="links-of-blogroll-list">
+        <li class="links-of-blogroll-item">
+          <a href="https://www.tsinghua.edu.cn/" title="https:&#x2F;&#x2F;www.tsinghua.edu.cn" rel="noopener" target="_blank">THU</a>
+        </li>
+        <li class="links-of-blogroll-item">
+          <a href="http://www.imr.cas.cn/" title="http:&#x2F;&#x2F;www.imr.cas.cn" rel="noopener" target="_blank">IMR</a>
+        </li>
+        <li class="links-of-blogroll-item">
+          <a href="http://www.sdu.edu.cn/" title="http:&#x2F;&#x2F;www.sdu.edu.cn" rel="noopener" target="_blank">SDU</a>
+        </li>
+        <li class="links-of-blogroll-item">
+          <a href="http://liam0205.me/" title="http:&#x2F;&#x2F;liam0205.me&#x2F;" rel="noopener" target="_blank">黄晨成</a>
+        </li>
+    </ul>
+  </div>
+
+      </div>
+
+    </div>
+  </aside>
+  <div id="sidebar-dimmer"></div>
+
+
+      </div>
+    </main>
+
+    <footer class="footer">
+      <div class="footer-inner">
+        
+
+        
+
+<div class="copyright">
+  
+  &copy; 
+  <span itemprop="copyrightYear">2021</span>
+  <span class="with-love">
+    <i class="fa fa-heart"></i>
+  </span>
+  <span class="author" itemprop="copyrightHolder">Xin-Bo Qi(亓欣波)</span>
+</div>
+  <div class="powered-by">Powered by <a href="https://hexo.io/" class="theme-link" rel="noopener" target="_blank">Hexo</a> & <a href="https://theme-next.org/" class="theme-link" rel="noopener" target="_blank">NexT.Gemini</a>
+  </div>
+
+        
+
+
+
+
+
+
+
+
+      </div>
+    </footer>
+  </div>
+
+  
+  <script src="/lib/anime.min.js"></script>
+  <script src="/lib/velocity/velocity.min.js"></script>
+  <script src="/lib/velocity/velocity.ui.min.js"></script>
+
+<script src="/js/utils.js"></script>
+
+<script src="/js/motion.js"></script>
+
+
+<script src="/js/schemes/pisces.js"></script>
+
+
+<script src="/js/next-boot.js"></script>
+
+
+
+
+  
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+  
+
+  
+
+  
+
+<script>
+  function loadCount() {
+    var d = document, s = d.createElement('script');
+    s.src = 'https://qixinbo.disqus.com/count.js';
+    s.id = 'dsq-count-scr';
+    (d.head || d.body).appendChild(s);
+  }
+  // defer loading until the whole page loading is completed
+  window.addEventListener('load', loadCount, false);
+</script>
+<script>
+  var disqus_config = function() {
+    this.page.url = "http://qixinbo.github.io/2018/01/19/fcitx-install/";
+    this.page.identifier = "2018/01/19/fcitx-install/";
+    this.page.title = "linux系统安装fcitx框架和搜狗输入法";
+    };
+  NexT.utils.loadComments(document.querySelector('#disqus_thread'), () => {
+    if (window.DISQUS) {
+      DISQUS.reset({
+        reload: true,
+        config: disqus_config
+      });
+    } else {
+      var d = document, s = d.createElement('script');
+      s.src = 'https://qixinbo.disqus.com/embed.js';
+      s.setAttribute('data-timestamp', '' + +new Date());
+      (d.head || d.body).appendChild(s);
+    }
+  });
+</script>
+
+</body>
+</html>

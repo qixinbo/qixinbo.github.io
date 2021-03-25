@@ -1,0 +1,699 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=2">
+<meta name="theme-color" content="#222">
+<meta name="generator" content="Hexo 5.4.0">
+  <link rel="apple-touch-icon" sizes="180x180" href="/images/apple-touch-icon-next.png">
+  <link rel="icon" type="image/png" sizes="32x32" href="/favicon.ico">
+  <link rel="icon" type="image/png" sizes="16x16" href="/favicon.ico">
+  <link rel="mask-icon" href="/images/logo.svg" color="#222">
+
+<link rel="stylesheet" href="/css/main.css">
+
+
+<link rel="stylesheet" href="/lib/font-awesome/css/all.min.css">
+
+<script id="hexo-configurations">
+    var NexT = window.NexT || {};
+    var CONFIG = {"hostname":"qixinbo.github.io","root":"/","scheme":"Gemini","version":"7.8.0","exturl":false,"sidebar":{"position":"left","display":"post","padding":18,"offset":12,"onmobile":false},"copycode":{"enable":false,"show_result":false,"style":null},"back2top":{"enable":true,"sidebar":false,"scrollpercent":false},"bookmark":{"enable":false,"color":"#222","save":"auto"},"fancybox":false,"mediumzoom":false,"lazyload":false,"pangu":false,"comments":{"style":"tabs","active":null,"storage":true,"lazyload":false,"nav":null},"algolia":{"hits":{"per_page":10},"labels":{"input_placeholder":"Search for Posts","hits_empty":"We didn't find any results for the search: ${query}","hits_stats":"${hits} results found in ${time} ms"}},"localsearch":{"enable":false,"trigger":"auto","top_n_per_article":1,"unescape":false,"preload":false},"motion":{"enable":true,"async":false,"transition":{"post_block":"fadeIn","post_header":"slideDownIn","post_body":"slideDownIn","coll_header":"slideLeftIn","sidebar":"slideUpIn"}}};
+  </script>
+
+  <meta name="description" content="本章说明这里详解Image菜单的功能。 ImageType显示当前活动图像的类型（子菜单打钩的即是当前类型）以及将其转化成另一种类型。  8-bit：转化为8-bit灰度图。ImageJ将16-bit和32-bit的图像通过线性地将”min-max”缩放到”0-255”来转换成8-bit图像，其中min和max可以通过Image-Adjust-Brightness&#x2F;Contrast来查看。注意，如">
+<meta property="og:type" content="article">
+<meta property="og:title" content="ImageJ 用户指南 -- 7. 菜单栏之Image">
+<meta property="og:url" content="http://qixinbo.github.io/2018/09/06/imagej-ui-menu-image/index.html">
+<meta property="og:site_name" content="亓欣波">
+<meta property="og:description" content="本章说明这里详解Image菜单的功能。 ImageType显示当前活动图像的类型（子菜单打钩的即是当前类型）以及将其转化成另一种类型。  8-bit：转化为8-bit灰度图。ImageJ将16-bit和32-bit的图像通过线性地将”min-max”缩放到”0-255”来转换成8-bit图像，其中min和max可以通过Image-Adjust-Brightness&#x2F;Contrast来查看。注意，如">
+<meta property="og:locale" content="en_US">
+<meta property="article:published_time" content="2018-09-05T16:00:00.000Z">
+<meta property="article:modified_time" content="2021-03-25T07:20:30.670Z">
+<meta property="article:author" content="Xin-Bo Qi(亓欣波)">
+<meta property="article:tag" content="ImageJ">
+<meta name="twitter:card" content="summary">
+
+<link rel="canonical" href="http://qixinbo.github.io/2018/09/06/imagej-ui-menu-image/">
+
+
+<script id="page-configurations">
+  // https://hexo.io/docs/variables.html
+  CONFIG.page = {
+    sidebar: "",
+    isHome : false,
+    isPost : true,
+    lang   : 'en'
+  };
+</script>
+
+  <title>ImageJ 用户指南 -- 7. 菜单栏之Image | 亓欣波</title>
+  
+
+
+
+
+
+
+  <noscript>
+  <style>
+  .use-motion .brand,
+  .use-motion .menu-item,
+  .sidebar-inner,
+  .use-motion .post-block,
+  .use-motion .pagination,
+  .use-motion .comments,
+  .use-motion .post-header,
+  .use-motion .post-body,
+  .use-motion .collection-header { opacity: initial; }
+
+  .use-motion .site-title,
+  .use-motion .site-subtitle {
+    opacity: initial;
+    top: initial;
+  }
+
+  .use-motion .logo-line-before i { left: initial; }
+  .use-motion .logo-line-after i { right: initial; }
+  </style>
+</noscript>
+
+</head>
+
+<body itemscope itemtype="http://schema.org/WebPage">
+  <div class="container use-motion">
+    <div class="headband"></div>
+
+    <header class="header" itemscope itemtype="http://schema.org/WPHeader">
+      <div class="header-inner"><div class="site-brand-container">
+  <div class="site-nav-toggle">
+    <div class="toggle" aria-label="Toggle navigation bar">
+      <span class="toggle-line toggle-line-first"></span>
+      <span class="toggle-line toggle-line-middle"></span>
+      <span class="toggle-line toggle-line-last"></span>
+    </div>
+  </div>
+
+  <div class="site-meta">
+
+    <a href="/" class="brand" rel="start">
+      <span class="logo-line-before"><i></i></span>
+      <h1 class="site-title">亓欣波</h1>
+      <span class="logo-line-after"><i></i></span>
+    </a>
+      <p class="site-subtitle" itemprop="description">Hi, I am Xin-Bo Qi (亓欣波)</p>
+  </div>
+
+  <div class="site-nav-right">
+    <div class="toggle popup-trigger">
+    </div>
+  </div>
+</div>
+
+
+
+
+<nav class="site-nav">
+  <ul id="menu" class="main-menu menu">
+        <li class="menu-item menu-item-home">
+
+    <a href="/" rel="section"><i class="home fa-fw"></i>Home</a>
+
+  </li>
+        <li class="menu-item menu-item-categories">
+
+    <a href="/categories/" rel="section"><i class="th fa-fw"></i>Categories</a>
+
+  </li>
+        <li class="menu-item menu-item-archives">
+
+    <a href="/archives/" rel="section"><i class="archive fa-fw"></i>Archives</a>
+
+  </li>
+        <li class="menu-item menu-item-tags">
+
+    <a href="/tags/" rel="section"><i class="tags fa-fw"></i>Tags</a>
+
+  </li>
+        <li class="menu-item menu-item-scholar">
+
+    <a href="/scholar/" rel="section"><i class="bar-chart fa-fw"></i>scholar</a>
+
+  </li>
+        <li class="menu-item menu-item-sources">
+
+    <a href="/sources/" rel="section"><i class="rss fa-fw"></i>sources</a>
+
+  </li>
+        <li class="menu-item menu-item-gallery">
+
+    <a href="/gallery/" rel="section"><i class="file-image-o fa-fw"></i>gallery</a>
+
+  </li>
+        <li class="menu-item menu-item-about">
+
+    <a href="/about/" rel="section"><i class="user fa-fw"></i>About</a>
+
+  </li>
+        <li class="menu-item menu-item-commonweal">
+
+    <a href="/404.html" rel="section"><i class="heartbeat fa-fw"></i>Commonweal 404</a>
+
+  </li>
+  </ul>
+</nav>
+
+
+
+
+</div>
+    </header>
+
+    
+  <div class="back-to-top">
+    <i class="fa fa-arrow-up"></i>
+    <span>0%</span>
+  </div>
+
+
+    <main class="main">
+      <div class="main-inner">
+        <div class="content-wrap">
+          
+
+          <div class="content post posts-expand">
+            
+
+    
+  
+  
+  <article itemscope itemtype="http://schema.org/Article" class="post-block" lang="en">
+    <link itemprop="mainEntityOfPage" href="http://qixinbo.github.io/2018/09/06/imagej-ui-menu-image/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="image" content="/images/avatar.jpg">
+      <meta itemprop="name" content="Xin-Bo Qi(亓欣波)">
+      <meta itemprop="description" content="Be interesting!">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="亓欣波">
+    </span>
+      <header class="post-header">
+        <h1 class="post-title" itemprop="name headline">
+          ImageJ 用户指南 -- 7. 菜单栏之Image
+        </h1>
+
+        <div class="post-meta">
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="far fa-calendar"></i>
+              </span>
+              <span class="post-meta-item-text">Posted on</span>
+
+              <time title="Created: 2018-09-06 00:00:00" itemprop="dateCreated datePublished" datetime="2018-09-06T00:00:00+08:00">2018-09-06</time>
+            </span>
+              <span class="post-meta-item">
+                <span class="post-meta-item-icon">
+                  <i class="far fa-calendar-check"></i>
+                </span>
+                <span class="post-meta-item-text">Edited on</span>
+                <time title="Modified: 2021-03-25 15:20:30" itemprop="dateModified" datetime="2021-03-25T15:20:30+08:00">2021-03-25</time>
+              </span>
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="far fa-folder"></i>
+              </span>
+              <span class="post-meta-item-text">In</span>
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+                  <a href="/categories/programming/" itemprop="url" rel="index"><span itemprop="name">programming</span></a>
+                </span>
+            </span>
+
+          
+  
+  <span class="post-meta-item">
+    
+      <span class="post-meta-item-icon">
+        <i class="far fa-comment"></i>
+      </span>
+      <span class="post-meta-item-text">Disqus: </span>
+    
+    <a title="disqus" href="/2018/09/06/imagej-ui-menu-image/#disqus_thread" itemprop="discussionUrl">
+      <span class="post-comments-count disqus-comment-count" data-disqus-identifier="2018/09/06/imagej-ui-menu-image/" itemprop="commentCount"></span>
+    </a>
+  </span>
+  
+  
+
+        </div>
+      </header>
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+        <h1 id="本章说明"><a href="#本章说明" class="headerlink" title="本章说明"></a>本章说明</h1><p>这里详解Image菜单的功能。</p>
+<h1 id="Image"><a href="#Image" class="headerlink" title="Image"></a>Image</h1><h2 id="Type"><a href="#Type" class="headerlink" title="Type"></a>Type</h2><p>显示当前活动图像的类型（子菜单打钩的即是当前类型）以及将其转化成另一种类型。</p>
+<ul>
+<li>8-bit：转化为8-bit灰度图。ImageJ将16-bit和32-bit的图像通过线性地将”min-max”缩放到”0-255”来转换成8-bit图像，其中min和max可以通过Image-Adjust-Brightness/Contrast来查看。注意，如果Edit-Options-Conversions中的If Scale When Converting 没有勾选，那么就不会缩放。</li>
+<li>16-bit：转为unsigned 16-bit灰度图</li>
+<li>32-bit：转为signed 32-bit浮点型灰度图</li>
+<li>8-bit color：转为8-bit indexed 彩色图。当前图片必须是RGB图。</li>
+<li>RGB Color：转为32-bit RGB图</li>
+<li>RGB Stack：转为一个3-slice(RGB)的stack。</li>
+<li>HSB Stack：转为一个3-slice(HSV)的stack。</li>
+</ul>
+<h2 id="Adjust"><a href="#Adjust" class="headerlink" title="Adjust"></a>Adjust</h2><p>该菜单用来调节亮度/对比度、阈值和尺寸等。</p>
+<h3 id="Brightness-Contrast"><a href="#Brightness-Contrast" class="headerlink" title="Brightness/Contrast"></a>Brightness/Contrast</h3><p>使用该工具来交互地调节图片的亮度和对比度。对于8-bit图片，亮度和对比度是通过修改查询表LUT来改变，所以像素值是不变的。对于16-bit和32-bit图片，是通过改变从像素值到8-bit显示值的映射来改变的，所以像素值也不会改变。对于RGB图，亮度和对比度是通过修改像素值来改变的。</p>
+<ul>
+<li>直方图：显示像素值是怎样映射到8-bit（0-255）范围的。直方图下方的两个数是要显示的最小和最大像素值，这两个值可以在下面调节。如果实际像素值小于最小值，则显示为黑色；如果实际像素值大于最大值，则显示为白色。</li>
+<li>Minium and Maximum sliders：控制要显示的最小和最大像素值。按住Shift可以同时调节一个复合图片的所有通道。</li>
+<li>Brightness slider：通过移动显示范围（即同时增大或减小最小和最大像素值）来增加或降低图片亮度。</li>
+<li>Contrast slider：通过改变显示范围的宽度（即扩大或减小显示范围）来调节图片的对比度。</li>
+<li>Auto：ImageJ将会基于图片直方图的分析来自动优化亮度和对比度。创建一个选区后，整个图片也将会根据该选区的分析来自动优化。优化的方式是使得一小部分的像素值是饱和的，即显示为白色或黑色。每次额外的点击都会增加饱和像素的数目。</li>
+<li>Reset：恢复原来的亮度和对比度设置，将会显示整个范围的像素值。</li>
+<li>Set：允许用户输入最小和最大显示范围。</li>
+<li>Apply：应用当前设置。如果是选区，那么仅仅选区内的像素被修改。这是唯一的修改非RGB图片像素值的方式。</li>
+</ul>
+<h3 id="Window-Level"><a href="#Window-Level" class="headerlink" title="Window/Level"></a>Window/Level</h3><p>该命令和Brightness/Contrast是重复的，它更多地适用于医学图片的处理。</p>
+<h3 id="Color-Balance"><a href="#Color-Balance" class="headerlink" title="Color Balance"></a>Color Balance</h3><p>该命令改变一个标准RGB图片的每个通道的亮度和对比度。使用下拉菜单选择应用于哪个通道。<br>这里面的滑块和按钮的应用跟上面的B/C相同。<br>注意：当在色彩通道之间改变时，如果不点击Apply，那么之前的修改会丢失。</p>
+<h3 id="Threshold"><a href="#Threshold" class="headerlink" title="Threshold"></a>Threshold</h3><p>该命令自动或交互地设置阈值的上界和下界，从而将灰度图片分割成感兴趣的区域和背景。红框内框住的范围即是选择区域。</p>
+<ul>
+<li>Upper slider：调节阈值的下界。按住Shift能够在保持固定宽度阈值窗口的条件下调节下界。</li>
+<li>Lower slider：调节阈值的上界。</li>
+<li>Method：有16种不同的自动阈值算法可供选择。默认算法是改进IsoData算法。</li>
+<li>Display：有三种选择方式：（1）Red：用红色显示阈值以内的数值；（2）B&amp;W：用黑色显示特征，白色作为北京。（3）Over/Under：在阈值下界以下的像素用蓝色显示，阈值范围以内的用灰色显示，阈值上界以上的用绿色显示。</li>
+<li>Dark background：但特征要比背景浅的话，就会被勾选。</li>
+<li>Stack histogram：勾选后，ImageJ将首先计算整个stack的直方图，然后基于此再计算阈值。如果不勾选，则每个slice的阈值会单独计算。</li>
+<li>Auto：使用当前选择的method以及当前图片或选区的的直方图来计算阈值。</li>
+<li>Apply：将阈值范围内的像素设为黑色，其他设为白色。对于32-bit图片，Apply也会运行Process-Math-NaN Background。</li>
+<li>Reset：去掉阈值，然后更新直方图。</li>
+<li>Set：手动输入阈值的上下界。</li>
+</ul>
+<h3 id="Color-Threshold"><a href="#Color-Threshold" class="headerlink" title="Color Threshold"></a>Color Threshold</h3><p>上面的Threshold是对灰度图像进行操作。这里的Color Threshold是对24-bit的RGB图像基于HSB、RGB或YUV等进行阈值设定。</p>
+<ul>
+<li>Pass：勾选后，范围以内的值被选定和显示，否则，范围以外的值被选定和显示。</li>
+<li>Thresholding Method：选择16种不同的自动阈值算法中的某一个</li>
+<li>Threshold Color：选择阈值显示颜色</li>
+<li>Color Space：选择色彩空间，有HSB、RGB、CIE Lab或YUV</li>
+<li>Dark Background：当特征比背景要浅时，就勾选</li>
+<li>Orginal：恢复原先的图片</li>
+<li>Filtered：显示滤波后的图片，最终图片类型是RGB，不是8-bit灰度图</li>
+<li>Select：基于当前设定创建一个ROI选区，选区是根据Process-Binary-Options对话框中的设定定义的。</li>
+<li>Sample：基于用户自定义的ROI中的像素值设定滤波的范围</li>
+<li>Stack：使用当前的设定处理剩下的slices（如果有的话）</li>
+<li>Macro：基于当前设定创建一个宏</li>
+<li>Help：打开内置的help对话框</li>
+</ul>
+<h3 id="Size"><a href="#Size" class="headerlink" title="Size"></a>Size</h3><p>将当前图片或选区缩放到一个特定的以像素为单位的Width和Height。<br>缩放时可以设定是否保持长宽比，以及是否插值。</p>
+<h3 id="Canvas-Size"><a href="#Canvas-Size" class="headerlink" title="Canvas Size"></a>Canvas Size</h3><p>改变画布尺寸，而不缩放真实图片。如果画布尺寸增加了，边界用当前的背景色填充，如果选择了Zero Fill，那么边界用数值为0的像素填充。也可以指定原图片在新画布中的位置。</p>
+<h3 id="Line-Width"><a href="#Line-Width" class="headerlink" title="Line Width"></a>Line Width</h3><p>设置线宽，更简单的方式是双击Line Selection Tools的图标。</p>
+<h2 id="Show-Info"><a href="#Show-Info" class="headerlink" title="Show Info"></a>Show Info</h2><p>显示图片信息</p>
+<h2 id="Properties"><a href="#Properties" class="headerlink" title="Properties"></a>Properties</h2><p>使用该命令显示和设置当前图片或stack的属性。<br>Channels、Slices、Frames的数目都可以更改，只要三者的成绩等于stack中图片的数目。<br>Unit of Length是一个字符串，用来表明下方的Pixel Width、Pixel Height和Voxel Depth的测量单位。这三个维度可以自动转换，如果单位在ImageJ已知的单位之间转换，这些单位有：$nm$、$\mu m$（或写成$um$和$micron$）、$mm$、$cm$、$meter$、$km$和$inch$等。<br>对于时间序列的stack，可以设定Frame Interval，即frame rate的倒数。如果单位是sec，这个设置也会同时设定Animation Options中所用的frame rate。<br>Origin是图片坐标系的参考点，该参考点的x和y坐标永远是像素为单位。<br>如果勾选Global，这里的设置将会施加到当前session打开的所有图像。</p>
+<h2 id="Color"><a href="#Color" class="headerlink" title="Color"></a>Color</h2><p>该菜单是处理彩色图片。</p>
+<h3 id="Split-Channels"><a href="#Split-Channels" class="headerlink" title="Split Channels"></a>Split Channels</h3><p>将一张RGB图分割成三个8-bit的灰度图，分别是红绿蓝的三个通道。如果是复合图片或hyperstacks，该命令将分割这个stack成不同的channels。</p>
+<h3 id="Merge-Channels"><a href="#Merge-Channels" class="headerlink" title="Merge Channels"></a>Merge Channels</h3><p>把2-7张图片合并成RGB图片或多通道的复合图片。<br>如果勾选了Create composite，那么就会创建一个多通道的复合图片，如果不勾选，那么就会创建一个RGB图片。当创建复合图片时，原始的LUT和显示范围都会保留，除非勾选了下面的Ignore source LUTs。创建RGB时总是忽略原始的LUTs。<br>如果勾选了Keep source Images，源图片不会被清除。</p>
+<h3 id="Channels-Tool"><a href="#Channels-Tool" class="headerlink" title="Channels Tool"></a>Channels Tool</h3><p>等同于Image-Hyperstacks-Channels Tool。</p>
+<h3 id="Stack-to-RGB"><a href="#Stack-to-RGB" class="headerlink" title="Stack to RGB"></a>Stack to RGB</h3><p>将一个含2个或3个slices的stack转化成RGB，假定slices是按R、G、B的顺序排列的。stack必须是8-bit或16-bit的灰度图。也可以将一个复合图片转成RGB。</p>
+<h3 id="Make-Composite"><a href="#Make-Composite" class="headerlink" title="Make Composite"></a>Make Composite</h3><p>将RGB图、stack等转成复合图片。</p>
+<h3 id="Show-LUT"><a href="#Show-LUT" class="headerlink" title="Show LUT"></a>Show LUT</h3><p>显示当前图片的LUT。</p>
+<h3 id="Edit-LUT"><a href="#Edit-LUT" class="headerlink" title="Edit LUT"></a>Edit LUT</h3><p>打开ImageJ的LUT编辑器。</p>
+<h3 id="Color-Picker"><a href="#Color-Picker" class="headerlink" title="Color Picker"></a>Color Picker</h3><p>设定前景色和背景色。当前调色板是基于HSB，双击某个颜色可以设置RGB值。</p>
+<h2 id="Stacks"><a href="#Stacks" class="headerlink" title="Stacks"></a>Stacks</h2><p>该菜单包含与Stacks相关的命令。</p>
+<h3 id="Add-Slice"><a href="#Add-Slice" class="headerlink" title="Add Slice"></a>Add Slice</h3><p>在当前slice之后插入一个空白slice，按住Alt则在当前slice之前插入。</p>
+<h3 id="Delete-Slice"><a href="#Delete-Slice" class="headerlink" title="Delete Slice"></a>Delete Slice</h3><p>删除当前slice。</p>
+<h3 id="Next-Slice"><a href="#Next-Slice" class="headerlink" title="Next Slice"></a>Next Slice</h3><p>显示下一个slice</p>
+<h3 id="Previous-Slice"><a href="#Previous-Slice" class="headerlink" title="Previous Slice"></a>Previous Slice</h3><p>显示上一个的slice</p>
+<h3 id="Set-Slice"><a href="#Set-Slice" class="headerlink" title="Set Slice"></a>Set Slice</h3><p>显示一个特定的slice</p>
+<h3 id="Images-to-Stack"><a href="#Images-to-Stack" class="headerlink" title="Images to Stack"></a>Images to Stack</h3><p>从当前在不同窗口显示的图片创建一个新的stack。<br>如果图片尺寸不同，那么可以选择转换的Method。Copy(center)和Copy(top-left)：将最宽的照片的宽度设为stack的宽度，将最高的照片的高度设为stack的高度。较小的图片将会复制到slice的中间center或左上角top-left。边界用数值为0的像素填充。Scale(smallest)和Scale(largest)：Stack将会选择最小或最大的图片的尺寸，其他的图片会被缩放到新的尺寸，如果勾选了Bicubic interpolation，就会使用双三次插件。<br>Title Contains：输入一个字符串，然后ImageJ将会仅仅转换包含该string的图片。</p>
+<h3 id="Stack-to-Images"><a href="#Stack-to-Images" class="headerlink" title="Stack to Images"></a>Stack to Images</h3><p>将当前stack的slices转成分开的图片窗口。</p>
+<h3 id="Make-Montage"><a href="#Make-Montage" class="headerlink" title="Make Montage"></a>Make Montage</h3><p>创建拼贴集。</p>
+<h3 id="Reslice"><a href="#Reslice" class="headerlink" title="Reslice"></a>Reslice</h3><p>通过当前stack或hyperstack的图片体重新切片。</p>
+<ul>
+<li>Output spacing：输出间距，决定了重构的蒸饺的图片的数目，spacing越大，输出的stack的size越小</li>
+<li>Start at：决定图片的边缘，即重构从哪个地方开始</li>
+<li>Flip vertically：勾选后，输出的每个slice都是垂直翻转</li>
+<li>Rotate 90 degree：勾选后，每个slice都旋转90度</li>
+<li>Avoid interpolation：勾选后，不做插值</li>
+</ul>
+<h3 id="Orthogonal-Views"><a href="#Orthogonal-Views" class="headerlink" title="Orthogonal Views"></a>Orthogonal Views</h3><p>提供当前stack的正交视图，即如果原stack是XY视图，则该命令提供YZ和XZ视图。</p>
+<h3 id="Z-Project"><a href="#Z-Project" class="headerlink" title="Z Project"></a>Z Project</h3><p>将stack沿着垂直于图片的轴，即Z轴，进行投影。</p>
+<h3 id="3D-Project"><a href="#3D-Project" class="headerlink" title="3D Project"></a>3D Project</h3><p>可以很自由地对stack进行各个方向的投影。</p>
+<h3 id="Plot-Z-Axis-Profile"><a href="#Plot-Z-Axis-Profile" class="headerlink" title="Plot Z-Axis Profile"></a>Plot Z-Axis Profile</h3><p>将ROI选区的平均灰度值对slice进行作图。该命令需要一个点选区或线选区。</p>
+<h3 id="Label"><a href="#Label" class="headerlink" title="Label"></a>Label</h3><p>对stack添加一系列数字（比如时间戳）和/或标签。数字和标签使用当前前景色绘制。<br>标签的初始X和Y坐标及字体尺寸等基于当前的矩形选区（如果有的话）。</p>
+<ul>
+<li>Format：指定标签的结构。0：普通序列；0000：用前导的0填充数字；00:00：将标签转为minutes:seconds这样的时间戳；00:00:00：将标签转为hours:minutes:seconds这样的时间戳；Text：仅包含下面的Text输入框中的内容；Label：显示slice的标签。</li>
+<li>Starting value and Interval：指定第一个数值和间隔。注意，对于时间戳，必须使用公制时间间隔，比如Interval为3600时将创建1 hour的间隔</li>
+<li>Text：字符串</li>
+<li>Use overlay：勾选后，创建的标签就作为无损的Overlay，之前添加的overlay将会被删除。</li>
+<li>Use text tool font：勾选后，标签将使用Fonts部件中指定的风格</li>
+</ul>
+<h3 id="Tools"><a href="#Tools" class="headerlink" title="Tools"></a>Tools</h3><ul>
+<li>Combine：将两个stack组合，创建一个新的stack</li>
+<li>Concatenate：将多个图片或stack连接起来，类型和尺寸不符的图片将被忽略。</li>
+<li>Reduce：按照指定的Reduction Factor减少stack的尺寸。</li>
+<li>Reverse：与Image-Transfrom-Flip Z命令相同</li>
+<li>Insert：在指定的位置在目标图片上插入一张源图片。目标图片和源图片可以是单一图片或stacks，但必须相同类型，且目标图片一旦被插入后就被永久修改。如果源图片是单一图片，一种更简单的组合两个图片的方法是：通过Edit-Selection-Image to Selection创建图片ROI，然后Image-Overlay-Add Image</li>
+<li>Montage to Stack：将一个拼贴集转为一个stack，这与上面的创建拼贴集是相反操作</li>
+<li>Make Substack：从当前stack中提取一些图片成为新的stack。</li>
+<li>Grouped Z Project：创建Z轴投影的多个结果</li>
+<li>Remove Slice Labels：从stack中去除slice标签</li>
+</ul>
+<h3 id="Animation"><a href="#Animation" class="headerlink" title="Animation"></a>Animation</h3><ul>
+<li>Start Animation：重复按次序显示该stack的slices。</li>
+<li>Stop Animation：停止动画播放</li>
+<li>Animation Options：设置每秒多少帧，即动画速率。</li>
+</ul>
+<h2 id="Hyperstacks"><a href="#Hyperstacks" class="headerlink" title="Hyperstacks"></a>Hyperstacks</h2><p>这个菜单针对于Hyperstacks，即4D或5D的图片。</p>
+<h3 id="New-Hyperstack"><a href="#New-Hyperstack" class="headerlink" title="New Hyperstack"></a>New Hyperstack</h3><p>创建一个新的hyperstack，属性主要有Width(w)、Height(h)、Channels(c)、Slices(z)、Frames(t)。</p>
+<h3 id="Stack-to-Hyperstack"><a href="#Stack-to-Hyperstack" class="headerlink" title="Stack to Hyperstack"></a>Stack to Hyperstack</h3><p>将stack转化为hyperstack。RGB的stack将转为3个通道的hyperstack。Order就是channels、slices和frames的次序。ImageJ的hyperstack总是czt次序，不是czt顺序的stack将被重新排序为czt。</p>
+<h3 id="Hyperstack-to-Stack"><a href="#Hyperstack-to-Stack" class="headerlink" title="Hyperstack to Stack"></a>Hyperstack to Stack</h3><p>将hyperstack转为stack。</p>
+<h3 id="Reduce-Dimensionality"><a href="#Reduce-Dimensionality" class="headerlink" title="Reduce Dimensionality"></a>Reduce Dimensionality</h3><p>该命令通过创建一个新的hyperstack而将原hyperstack降维，比如抽取给定z坐标的所有的channels和时间点，或者抽取在当前channel和时间点的所有的z的slices。<br>不勾选channels将会删除所有的channels、但保留当前channel，不勾选Slices将仅保留当前的slice，不勾选Frames仅保留当前时间点。</p>
+<h3 id="Channels-Tool-1"><a href="#Channels-Tool-1" class="headerlink" title="Channels Tool"></a>Channels Tool</h3><p>打开Channels部件。</p>
+<h2 id="Crop"><a href="#Crop" class="headerlink" title="Crop"></a>Crop</h2><p>基于当前的矩形选区来裁剪图片或stack。</p>
+<h2 id="Duplicate"><a href="#Duplicate" class="headerlink" title="Duplicate"></a>Duplicate</h2><p>创建一个新的窗口，包含当前图片或矩形选区的副本。对于stack和hyperstack，可以指定channels、slices和Frames的复制范围。</p>
+<h2 id="Rename"><a href="#Rename" class="headerlink" title="Rename"></a>Rename</h2><p>重命名当前图片。</p>
+<h2 id="Scale"><a href="#Scale" class="headerlink" title="Scale"></a>Scale</h2><p>通过对话框中的缩放因子来调整当前图片或选区的大小，可以选择两种重采样方法：双线性或双三次插值。<br>为了更好的显示效果，对于图片和文字，使用整数缩放因子，如果该因子小于1，则勾选Average when downsizing。<br>如果勾选了Create New window，则缩放的图片或选区可以复制到一个新的图片；如果缩放一个选区，且不复制到新图片，则勾选Fill with Background Color将提供背景色，而不是填充0。勾选Process entire stack后将缩放整个stack。</p>
+<h2 id="Transform"><a href="#Transform" class="headerlink" title="Transform"></a>Transform</h2><p>该菜单包含常用的几何图形变换的命令。</p>
+<h3 id="Flip-Horizontally"><a href="#Flip-Horizontally" class="headerlink" title="Flip Horizontally"></a>Flip Horizontally</h3><p>水平翻转</p>
+<h3 id="Flip-Vertically"><a href="#Flip-Vertically" class="headerlink" title="Flip Vertically"></a>Flip Vertically</h3><p>垂直翻转</p>
+<h3 id="Flip-Z"><a href="#Flip-Z" class="headerlink" title="Flip Z"></a>Flip Z</h3><p>将stack中的slice的顺序翻转</p>
+<h3 id="Rotate-90-Degrees-Right"><a href="#Rotate-90-Degrees-Right" class="headerlink" title="Rotate 90 Degrees Right"></a>Rotate 90 Degrees Right</h3><p>顺时针90度旋转</p>
+<h3 id="Rotate-90-Degrees-Left"><a href="#Rotate-90-Degrees-Left" class="headerlink" title="Rotate 90 Degrees Left"></a>Rotate 90 Degrees Left</h3><p>逆时针90度旋转</p>
+<h3 id="Rotate"><a href="#Rotate" class="headerlink" title="Rotate"></a>Rotate</h3><p>旋转特定角度。</p>
+<ul>
+<li>Grid Lines：可以用预览模式在图片上加上网格线</li>
+<li>Interpolation：可选择双线性或双三次的重采样方法</li>
+<li>Fill with Background Color：对于8-bit或RGB图片，勾选此项后会填充当前背景色，而不是0</li>
+<li>Enlarge to Fit Result：勾选后，图片将会被避免裁剪</li>
+</ul>
+<h3 id="Translate"><a href="#Translate" class="headerlink" title="Translate"></a>Translate</h3><p>平移特定的像素值。对于stacks，可以平移当前图片或所有图片。勾选Preview可以预览效果。图片边缘的背景将被设为0。</p>
+<h3 id="Bin"><a href="#Bin" class="headerlink" title="Bin"></a>Bin</h3><p>通过指定X、Y、Z方向的收缩因子，来减小图片的尺寸。最终的像素可以通过Average、Median、Maximum或Minimum等方法计算。Undo撤销操作仅对二维图片有效，即对stack无效。<br>Z方向的操作与Image-Stacks-Tools-Grouped Z Project效果相同。然而，有两个主要的不同点：Bin替代了当前图片，Grouped Z Project则创建了一个新的substack；Bin中的Z shrink factor可以填入任意值，而Group size必须能够stack尺寸所整除。</p>
+<h3 id="Image-to-Results"><a href="#Image-to-Results" class="headerlink" title="Image to Results"></a>Image to Results</h3><p>将当前选区打印到Resutls Table中，同时清除之前的结果。如果没有ROI，则处理整个图片。表格中详细显示了XY坐标及其像素值。<br>对于RGB图片，每个像素通过平均或加权平均算法转化为灰度值。</p>
+<h3 id="Results-to-Image"><a href="#Results-to-Image" class="headerlink" title="Results to Image"></a>Results to Image</h3><p>是上面操作的逆操作，将Results Table中的表格数据转化为32-bit图片。</p>
+<h2 id="Zoom"><a href="#Zoom" class="headerlink" title="Zoom"></a>Zoom</h2><p>该菜单控制怎样显示图片。对于下面的In和Out命令，更提倡使用+、-或上下箭头。如果有选区时，使用上下箭头时需要按住Shift或者Ctrl。</p>
+<h3 id="In"><a href="#In" class="headerlink" title="In"></a>In</h3><p>有21种可能的放大级别。放大时，如果箭头在画布中，那么将会围绕箭头放大，如果箭头不在画布中，将会围绕图片的中心扩大。左上角的Zoom Indicator表明了当前显示的是图片的哪一部分。当放大到一定级别后，默认就会显示像素的格点，除非勾选Edit-Options-Appearance中的Interpolate zoomed images。当需要滚动放大的图片时，在拖拽鼠标的同时按住空格键。<br>默认Overlays和选区是按一个像素的宽度来显示，如果想要在较高放大级别下加粗ROI边缘，将Edit-Selection-Properties中的Stroke width设为非零。</p>
+<h3 id="Out"><a href="#Out" class="headerlink" title="Out"></a>Out</h3><p>缩小放大层级。</p>
+<h3 id="Original-Scale"><a href="#Original-Scale" class="headerlink" title="Original Scale"></a>Original Scale</h3><p>显示最初打开时的尺寸。快捷键是双击“放大镜”工具的图标</p>
+<h3 id="View-100"><a href="#View-100" class="headerlink" title="View 100%"></a>View 100%</h3><p>使用100%放大，即1个图片像素等于1个屏幕像素。将Edit-Options-Appearance中的Enable Open Images at 100%勾选后，即可设置图片在打开时就是100%显示。</p>
+<h3 id="To-Selection"><a href="#To-Selection" class="headerlink" title="To Selection"></a>To Selection</h3><p>基于当前的选区进行缩放。如果没有选区的话，就会使得图片缩放到fit to screen级别。</p>
+<h3 id="Set"><a href="#Set" class="headerlink" title="Set"></a>Set</h3><p>手动设定精确值供缩放，也可以同时设定缩放的中心点的坐标。</p>
+<h2 id="Overlay"><a href="#Overlay" class="headerlink" title="Overlay"></a>Overlay</h2><p>该菜单用于设置对图片无损的Overlay。Overlay包含一个或多个选区：箭头、线段、点、各种形状和文本等，也可以包含图片选区，即ImageROI。</p>
+<h3 id="Add-Selection"><a href="#Add-Selection" class="headerlink" title="Add Selection"></a>Add Selection</h3><p>该命令用于将选区立即加入当前的Overlay，快捷键是B。按住Alt+B将会显示一个对话框供设置Stroke Color、Width和Fill color。除了文本选区，Stroke color和width这两个与Fill color是不共存的。<br>如果勾选了New overlay，那么之前添加的Overlay将被删除。<br>如果在Analyze-Set Measurements中勾选了Add to overlay，那么要测量的选区(Analyze-Measure)将会自动添加到Overlay。</p>
+<h3 id="Add-Image"><a href="#Add-Image" class="headerlink" title="Add Image"></a>Add Image</h3><p>通过将一张图片添加到另一张图片的overlay而实现组合图片的效果。要组合的图片可以是任意类型，但不能比主图大。组合时可以设置透明度，初始的XY坐标是基于当前矩形选区。<br>默认情形下，创建的新图片不能随意在画布上移动，即不是一个图片选区ImageROI，它存在TIFF的header中。如果想得到一个图片选区，可以通过Edit-Selection-Image to Selection或者Image-Overlay-To ROI Manager。</p>
+<h3 id="Hide-Overlay"><a href="#Hide-Overlay" class="headerlink" title="Hide Overlay"></a>Hide Overlay</h3><p>隐藏Overlay</p>
+<h3 id="Show-Overlay"><a href="#Show-Overlay" class="headerlink" title="Show Overlay"></a>Show Overlay</h3><p>显示Overlay</p>
+<h3 id="From-ROI-Manager"><a href="#From-ROI-Manager" class="headerlink" title="From ROI Manager"></a>From ROI Manager</h3><p>从ROI管理器中的选区创建一个overlay，注意之前添加的overlay将被删除。</p>
+<h3 id="To-ROI-Manager"><a href="#To-ROI-Manager" class="headerlink" title="To ROI Manager"></a>To ROI Manager</h3><p>把当前Overlay中的选区复制到ROI管理器，这样就可以对其进行编辑。注意，ROI管理器中的之前项目会被删除。</p>
+<h3 id="Remove-Overlay"><a href="#Remove-Overlay" class="headerlink" title="Remove Overlay"></a>Remove Overlay</h3><p>永久清除overlay，使其不可被恢复</p>
+<h3 id="Flatten"><a href="#Flatten" class="headerlink" title="Flatten"></a>Flatten</h3><p>创建一个新的RGB图片，其中的overlay被渲染成图片数据，该RGB图片与原图片的尺寸相同，这跟Plugins-Utilities-Capture Image不同，后者是创建一个“所见即所得”的与当前窗口尺寸相同的图片。</p>
+<h3 id="Labels"><a href="#Labels" class="headerlink" title="Labels"></a>Labels</h3><p>定义怎样对overlay打标签。比如定义颜色、标签字体、标题、背景等。</p>
+<h3 id="Overlay-Options"><a href="#Overlay-Options" class="headerlink" title="Overlay Options"></a>Overlay Options</h3><p>定义默认的overlay的Stroke color、width和Fill Color。将Stroke width设为0，则选区的边缘的宽度就是1个像素，不管放大多少倍。</p>
+<h2 id="LookUp-Table"><a href="#LookUp-Table" class="headerlink" title="LookUp Table"></a>LookUp Table</h2><p>该菜单包含选择哪种色彩查询表用来将灰度图创建成伪彩色图。</p>
+<h3 id="Invert-LUT"><a href="#Invert-LUT" class="headerlink" title="Invert LUT"></a>Invert LUT</h3><p>反转当前的LUT。对于8-bit图片，表中的每一个值v都被255-v所替代。与Edit-Invert不同的是，像素值没有被改变，只是在屏幕上显示的方式改变了。</p>
+<h3 id="Apply-LUT"><a href="#Apply-LUT" class="headerlink" title="Apply LUT"></a>Apply LUT</h3><p>将当前的LUT施加到图片或选区的像素值上。该命令等价于Image-Adjust-Brightness/Contrast的Apply操作。对于阈值处理过的图片，等价于Image-Adjust-Threshold的Apply操作。</p>
+
+    </div>
+
+    
+    
+    
+        <div class="reward-container">
+  <div></div>
+  <button onclick="var qr = document.getElementById('qr'); qr.style.display = (qr.style.display === 'none') ? 'block' : 'none';">
+    Donate
+  </button>
+  <div id="qr" style="display: none;">
+      
+      <div style="display: inline-block;">
+        <img src="/images/wechat_reward.png" alt="Xin-Bo Qi(亓欣波) WeChat Pay">
+        <p>WeChat Pay</p>
+      </div>
+
+  </div>
+</div>
+
+
+      <footer class="post-footer">
+          <div class="post-tags">
+              <a href="/tags/ImageJ/" rel="tag"># ImageJ</a>
+          </div>
+
+        
+
+
+        
+    <div class="post-nav">
+      <div class="post-nav-item">
+    <a href="/2018/09/04/imagej-ui-menu-edit/" rel="prev" title="ImageJ 用户指南 -- 6. 菜单栏之Edit">
+      <i class="fa fa-chevron-left"></i> ImageJ 用户指南 -- 6. 菜单栏之Edit
+    </a></div>
+      <div class="post-nav-item">
+    <a href="/2018/09/08/imagej-ui-menu-process/" rel="next" title="ImageJ 用户指南 -- 8. 菜单栏之Process">
+      ImageJ 用户指南 -- 8. 菜单栏之Process <i class="fa fa-chevron-right"></i>
+    </a></div>
+    </div>
+      </footer>
+    
+  </article>
+  
+  
+  
+
+
+
+          </div>
+          
+    
+  <div class="comments">
+    <div id="disqus_thread">
+      <noscript>Please enable JavaScript to view the comments powered by Disqus.</noscript>
+    </div>
+  </div>
+  
+
+<script>
+  window.addEventListener('tabs:register', () => {
+    let { activeClass } = CONFIG.comments;
+    if (CONFIG.comments.storage) {
+      activeClass = localStorage.getItem('comments_active') || activeClass;
+    }
+    if (activeClass) {
+      let activeTab = document.querySelector(`a[href="#comment-${activeClass}"]`);
+      if (activeTab) {
+        activeTab.click();
+      }
+    }
+  });
+  if (CONFIG.comments.storage) {
+    window.addEventListener('tabs:click', event => {
+      if (!event.target.matches('.tabs-comment .tab-content .tab-pane')) return;
+      let commentClass = event.target.classList[1];
+      localStorage.setItem('comments_active', commentClass);
+    });
+  }
+</script>
+
+        </div>
+          
+  
+  <div class="toggle sidebar-toggle">
+    <span class="toggle-line toggle-line-first"></span>
+    <span class="toggle-line toggle-line-middle"></span>
+    <span class="toggle-line toggle-line-last"></span>
+  </div>
+
+  <aside class="sidebar">
+    <div class="sidebar-inner">
+
+      <ul class="sidebar-nav motion-element">
+        <li class="sidebar-nav-toc">
+          Table of Contents
+        </li>
+        <li class="sidebar-nav-overview">
+          Overview
+        </li>
+      </ul>
+
+      <!--noindex-->
+      <div class="post-toc-wrap sidebar-panel">
+          <div class="post-toc motion-element"><ol class="nav"><li class="nav-item nav-level-1"><a class="nav-link" href="#%E6%9C%AC%E7%AB%A0%E8%AF%B4%E6%98%8E"><span class="nav-number">1.</span> <span class="nav-text">本章说明</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#Image"><span class="nav-number">2.</span> <span class="nav-text">Image</span></a><ol class="nav-child"><li class="nav-item nav-level-2"><a class="nav-link" href="#Type"><span class="nav-number">2.1.</span> <span class="nav-text">Type</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#Adjust"><span class="nav-number">2.2.</span> <span class="nav-text">Adjust</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#Brightness-Contrast"><span class="nav-number">2.2.1.</span> <span class="nav-text">Brightness&#x2F;Contrast</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#Window-Level"><span class="nav-number">2.2.2.</span> <span class="nav-text">Window&#x2F;Level</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#Color-Balance"><span class="nav-number">2.2.3.</span> <span class="nav-text">Color Balance</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#Threshold"><span class="nav-number">2.2.4.</span> <span class="nav-text">Threshold</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#Color-Threshold"><span class="nav-number">2.2.5.</span> <span class="nav-text">Color Threshold</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#Size"><span class="nav-number">2.2.6.</span> <span class="nav-text">Size</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#Canvas-Size"><span class="nav-number">2.2.7.</span> <span class="nav-text">Canvas Size</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#Line-Width"><span class="nav-number">2.2.8.</span> <span class="nav-text">Line Width</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#Show-Info"><span class="nav-number">2.3.</span> <span class="nav-text">Show Info</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#Properties"><span class="nav-number">2.4.</span> <span class="nav-text">Properties</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#Color"><span class="nav-number">2.5.</span> <span class="nav-text">Color</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#Split-Channels"><span class="nav-number">2.5.1.</span> <span class="nav-text">Split Channels</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#Merge-Channels"><span class="nav-number">2.5.2.</span> <span class="nav-text">Merge Channels</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#Channels-Tool"><span class="nav-number">2.5.3.</span> <span class="nav-text">Channels Tool</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#Stack-to-RGB"><span class="nav-number">2.5.4.</span> <span class="nav-text">Stack to RGB</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#Make-Composite"><span class="nav-number">2.5.5.</span> <span class="nav-text">Make Composite</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#Show-LUT"><span class="nav-number">2.5.6.</span> <span class="nav-text">Show LUT</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#Edit-LUT"><span class="nav-number">2.5.7.</span> <span class="nav-text">Edit LUT</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#Color-Picker"><span class="nav-number">2.5.8.</span> <span class="nav-text">Color Picker</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#Stacks"><span class="nav-number">2.6.</span> <span class="nav-text">Stacks</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#Add-Slice"><span class="nav-number">2.6.1.</span> <span class="nav-text">Add Slice</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#Delete-Slice"><span class="nav-number">2.6.2.</span> <span class="nav-text">Delete Slice</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#Next-Slice"><span class="nav-number">2.6.3.</span> <span class="nav-text">Next Slice</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#Previous-Slice"><span class="nav-number">2.6.4.</span> <span class="nav-text">Previous Slice</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#Set-Slice"><span class="nav-number">2.6.5.</span> <span class="nav-text">Set Slice</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#Images-to-Stack"><span class="nav-number">2.6.6.</span> <span class="nav-text">Images to Stack</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#Stack-to-Images"><span class="nav-number">2.6.7.</span> <span class="nav-text">Stack to Images</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#Make-Montage"><span class="nav-number">2.6.8.</span> <span class="nav-text">Make Montage</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#Reslice"><span class="nav-number">2.6.9.</span> <span class="nav-text">Reslice</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#Orthogonal-Views"><span class="nav-number">2.6.10.</span> <span class="nav-text">Orthogonal Views</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#Z-Project"><span class="nav-number">2.6.11.</span> <span class="nav-text">Z Project</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#3D-Project"><span class="nav-number">2.6.12.</span> <span class="nav-text">3D Project</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#Plot-Z-Axis-Profile"><span class="nav-number">2.6.13.</span> <span class="nav-text">Plot Z-Axis Profile</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#Label"><span class="nav-number">2.6.14.</span> <span class="nav-text">Label</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#Tools"><span class="nav-number">2.6.15.</span> <span class="nav-text">Tools</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#Animation"><span class="nav-number">2.6.16.</span> <span class="nav-text">Animation</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#Hyperstacks"><span class="nav-number">2.7.</span> <span class="nav-text">Hyperstacks</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#New-Hyperstack"><span class="nav-number">2.7.1.</span> <span class="nav-text">New Hyperstack</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#Stack-to-Hyperstack"><span class="nav-number">2.7.2.</span> <span class="nav-text">Stack to Hyperstack</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#Hyperstack-to-Stack"><span class="nav-number">2.7.3.</span> <span class="nav-text">Hyperstack to Stack</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#Reduce-Dimensionality"><span class="nav-number">2.7.4.</span> <span class="nav-text">Reduce Dimensionality</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#Channels-Tool-1"><span class="nav-number">2.7.5.</span> <span class="nav-text">Channels Tool</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#Crop"><span class="nav-number">2.8.</span> <span class="nav-text">Crop</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#Duplicate"><span class="nav-number">2.9.</span> <span class="nav-text">Duplicate</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#Rename"><span class="nav-number">2.10.</span> <span class="nav-text">Rename</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#Scale"><span class="nav-number">2.11.</span> <span class="nav-text">Scale</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#Transform"><span class="nav-number">2.12.</span> <span class="nav-text">Transform</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#Flip-Horizontally"><span class="nav-number">2.12.1.</span> <span class="nav-text">Flip Horizontally</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#Flip-Vertically"><span class="nav-number">2.12.2.</span> <span class="nav-text">Flip Vertically</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#Flip-Z"><span class="nav-number">2.12.3.</span> <span class="nav-text">Flip Z</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#Rotate-90-Degrees-Right"><span class="nav-number">2.12.4.</span> <span class="nav-text">Rotate 90 Degrees Right</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#Rotate-90-Degrees-Left"><span class="nav-number">2.12.5.</span> <span class="nav-text">Rotate 90 Degrees Left</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#Rotate"><span class="nav-number">2.12.6.</span> <span class="nav-text">Rotate</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#Translate"><span class="nav-number">2.12.7.</span> <span class="nav-text">Translate</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#Bin"><span class="nav-number">2.12.8.</span> <span class="nav-text">Bin</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#Image-to-Results"><span class="nav-number">2.12.9.</span> <span class="nav-text">Image to Results</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#Results-to-Image"><span class="nav-number">2.12.10.</span> <span class="nav-text">Results to Image</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#Zoom"><span class="nav-number">2.13.</span> <span class="nav-text">Zoom</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#In"><span class="nav-number">2.13.1.</span> <span class="nav-text">In</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#Out"><span class="nav-number">2.13.2.</span> <span class="nav-text">Out</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#Original-Scale"><span class="nav-number">2.13.3.</span> <span class="nav-text">Original Scale</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#View-100"><span class="nav-number">2.13.4.</span> <span class="nav-text">View 100%</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#To-Selection"><span class="nav-number">2.13.5.</span> <span class="nav-text">To Selection</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#Set"><span class="nav-number">2.13.6.</span> <span class="nav-text">Set</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#Overlay"><span class="nav-number">2.14.</span> <span class="nav-text">Overlay</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#Add-Selection"><span class="nav-number">2.14.1.</span> <span class="nav-text">Add Selection</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#Add-Image"><span class="nav-number">2.14.2.</span> <span class="nav-text">Add Image</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#Hide-Overlay"><span class="nav-number">2.14.3.</span> <span class="nav-text">Hide Overlay</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#Show-Overlay"><span class="nav-number">2.14.4.</span> <span class="nav-text">Show Overlay</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#From-ROI-Manager"><span class="nav-number">2.14.5.</span> <span class="nav-text">From ROI Manager</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#To-ROI-Manager"><span class="nav-number">2.14.6.</span> <span class="nav-text">To ROI Manager</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#Remove-Overlay"><span class="nav-number">2.14.7.</span> <span class="nav-text">Remove Overlay</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#Flatten"><span class="nav-number">2.14.8.</span> <span class="nav-text">Flatten</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#Labels"><span class="nav-number">2.14.9.</span> <span class="nav-text">Labels</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#Overlay-Options"><span class="nav-number">2.14.10.</span> <span class="nav-text">Overlay Options</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#LookUp-Table"><span class="nav-number">2.15.</span> <span class="nav-text">LookUp Table</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#Invert-LUT"><span class="nav-number">2.15.1.</span> <span class="nav-text">Invert LUT</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#Apply-LUT"><span class="nav-number">2.15.2.</span> <span class="nav-text">Apply LUT</span></a></li></ol></li></ol></li></ol></div>
+      </div>
+      <!--/noindex-->
+
+      <div class="site-overview-wrap sidebar-panel">
+        <div class="site-author motion-element" itemprop="author" itemscope itemtype="http://schema.org/Person">
+    <img class="site-author-image" itemprop="image" alt="Xin-Bo Qi(亓欣波)"
+      src="/images/avatar.jpg">
+  <p class="site-author-name" itemprop="name">Xin-Bo Qi(亓欣波)</p>
+  <div class="site-description" itemprop="description">Be interesting!</div>
+</div>
+<div class="site-state-wrap motion-element">
+  <nav class="site-state">
+      <div class="site-state-item site-state-posts">
+          <a href="/archives/">
+        
+          <span class="site-state-item-count">120</span>
+          <span class="site-state-item-name">posts</span>
+        </a>
+      </div>
+      <div class="site-state-item site-state-categories">
+            <a href="/categories/">
+          
+        <span class="site-state-item-count">5</span>
+        <span class="site-state-item-name">categories</span></a>
+      </div>
+      <div class="site-state-item site-state-tags">
+            <a href="/tags/">
+          
+        <span class="site-state-item-count">41</span>
+        <span class="site-state-item-name">tags</span></a>
+      </div>
+  </nav>
+</div>
+  <div class="links-of-author motion-element">
+      <span class="links-of-author-item">
+        <a href="https://github.com/qixinbo" title="GitHub → https:&#x2F;&#x2F;github.com&#x2F;qixinbo" rel="noopener" target="_blank"><i class="github fa-fw"></i>GitHub</a>
+      </span>
+      <span class="links-of-author-item">
+        <a href="mailto:qixinbo@gmail.com" title="E-Mail → mailto:qixinbo@gmail.com" rel="noopener" target="_blank"><i class="envelope fa-fw"></i>E-Mail</a>
+      </span>
+  </div>
+
+
+  <div class="links-of-blogroll motion-element">
+    <div class="links-of-blogroll-title"><i class="fa fa-link fa-fw"></i>
+      Links
+    </div>
+    <ul class="links-of-blogroll-list">
+        <li class="links-of-blogroll-item">
+          <a href="https://www.tsinghua.edu.cn/" title="https:&#x2F;&#x2F;www.tsinghua.edu.cn" rel="noopener" target="_blank">THU</a>
+        </li>
+        <li class="links-of-blogroll-item">
+          <a href="http://www.imr.cas.cn/" title="http:&#x2F;&#x2F;www.imr.cas.cn" rel="noopener" target="_blank">IMR</a>
+        </li>
+        <li class="links-of-blogroll-item">
+          <a href="http://www.sdu.edu.cn/" title="http:&#x2F;&#x2F;www.sdu.edu.cn" rel="noopener" target="_blank">SDU</a>
+        </li>
+        <li class="links-of-blogroll-item">
+          <a href="http://liam0205.me/" title="http:&#x2F;&#x2F;liam0205.me&#x2F;" rel="noopener" target="_blank">黄晨成</a>
+        </li>
+    </ul>
+  </div>
+
+      </div>
+
+    </div>
+  </aside>
+  <div id="sidebar-dimmer"></div>
+
+
+      </div>
+    </main>
+
+    <footer class="footer">
+      <div class="footer-inner">
+        
+
+        
+
+<div class="copyright">
+  
+  &copy; 
+  <span itemprop="copyrightYear">2021</span>
+  <span class="with-love">
+    <i class="fa fa-heart"></i>
+  </span>
+  <span class="author" itemprop="copyrightHolder">Xin-Bo Qi(亓欣波)</span>
+</div>
+  <div class="powered-by">Powered by <a href="https://hexo.io/" class="theme-link" rel="noopener" target="_blank">Hexo</a> & <a href="https://theme-next.org/" class="theme-link" rel="noopener" target="_blank">NexT.Gemini</a>
+  </div>
+
+        
+
+
+
+
+
+
+
+
+      </div>
+    </footer>
+  </div>
+
+  
+  <script src="/lib/anime.min.js"></script>
+  <script src="/lib/velocity/velocity.min.js"></script>
+  <script src="/lib/velocity/velocity.ui.min.js"></script>
+
+<script src="/js/utils.js"></script>
+
+<script src="/js/motion.js"></script>
+
+
+<script src="/js/schemes/pisces.js"></script>
+
+
+<script src="/js/next-boot.js"></script>
+
+
+
+
+  
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+  
+
+  
+
+  
+
+<script>
+  function loadCount() {
+    var d = document, s = d.createElement('script');
+    s.src = 'https://qixinbo.disqus.com/count.js';
+    s.id = 'dsq-count-scr';
+    (d.head || d.body).appendChild(s);
+  }
+  // defer loading until the whole page loading is completed
+  window.addEventListener('load', loadCount, false);
+</script>
+<script>
+  var disqus_config = function() {
+    this.page.url = "http://qixinbo.github.io/2018/09/06/imagej-ui-menu-image/";
+    this.page.identifier = "2018/09/06/imagej-ui-menu-image/";
+    this.page.title = "ImageJ 用户指南 -- 7. 菜单栏之Image";
+    };
+  NexT.utils.loadComments(document.querySelector('#disqus_thread'), () => {
+    if (window.DISQUS) {
+      DISQUS.reset({
+        reload: true,
+        config: disqus_config
+      });
+    } else {
+      var d = document, s = d.createElement('script');
+      s.src = 'https://qixinbo.disqus.com/embed.js';
+      s.setAttribute('data-timestamp', '' + +new Date());
+      (d.head || d.body).appendChild(s);
+    }
+  });
+</script>
+
+</body>
+</html>

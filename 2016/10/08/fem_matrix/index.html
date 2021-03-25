@@ -1,0 +1,555 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=2">
+<meta name="theme-color" content="#222">
+<meta name="generator" content="Hexo 5.4.0">
+  <link rel="apple-touch-icon" sizes="180x180" href="/images/apple-touch-icon-next.png">
+  <link rel="icon" type="image/png" sizes="32x32" href="/favicon.ico">
+  <link rel="icon" type="image/png" sizes="16x16" href="/favicon.ico">
+  <link rel="mask-icon" href="/images/logo.svg" color="#222">
+
+<link rel="stylesheet" href="/css/main.css">
+
+
+<link rel="stylesheet" href="/lib/font-awesome/css/all.min.css">
+
+<script id="hexo-configurations">
+    var NexT = window.NexT || {};
+    var CONFIG = {"hostname":"qixinbo.github.io","root":"/","scheme":"Gemini","version":"7.8.0","exturl":false,"sidebar":{"position":"left","display":"post","padding":18,"offset":12,"onmobile":false},"copycode":{"enable":false,"show_result":false,"style":null},"back2top":{"enable":true,"sidebar":false,"scrollpercent":false},"bookmark":{"enable":false,"color":"#222","save":"auto"},"fancybox":false,"mediumzoom":false,"lazyload":false,"pangu":false,"comments":{"style":"tabs","active":null,"storage":true,"lazyload":false,"nav":null},"algolia":{"hits":{"per_page":10},"labels":{"input_placeholder":"Search for Posts","hits_empty":"We didn't find any results for the search: ${query}","hits_stats":"${hits} results found in ${time} ms"}},"localsearch":{"enable":false,"trigger":"auto","top_n_per_article":1,"unescape":false,"preload":false},"motion":{"enable":true,"async":false,"transition":{"post_block":"fadeIn","post_header":"slideDownIn","post_body":"slideDownIn","coll_header":"slideLeftIn","sidebar":"slideUpIn"}}};
+  </script>
+
+  <meta name="description" content="引子本文是对曾攀老师的《有限元分析及应用》和王勖成老师的《有限单元法》关于单元刚度矩阵和整体刚度矩阵部分的学习笔记。 刚度矩阵在有限元方法中占有最重要的位置，分析和了解其性质对于我们更深层次地掌握有限元法具有重要的作用。不同的方程对应不同的刚度矩阵，所以，具体刚度矩阵的性质需要针对具体的方程才能下定论。这里只对结构力学的刚度矩阵进行初探，以期对其他方程也能有更深的理解。 单元刚度矩阵的性质性质1:">
+<meta property="og:type" content="article">
+<meta property="og:title" content="结构力学有限元刚度矩阵的性质">
+<meta property="og:url" content="http://qixinbo.github.io/2016/10/08/fem_matrix/index.html">
+<meta property="og:site_name" content="亓欣波">
+<meta property="og:description" content="引子本文是对曾攀老师的《有限元分析及应用》和王勖成老师的《有限单元法》关于单元刚度矩阵和整体刚度矩阵部分的学习笔记。 刚度矩阵在有限元方法中占有最重要的位置，分析和了解其性质对于我们更深层次地掌握有限元法具有重要的作用。不同的方程对应不同的刚度矩阵，所以，具体刚度矩阵的性质需要针对具体的方程才能下定论。这里只对结构力学的刚度矩阵进行初探，以期对其他方程也能有更深的理解。 单元刚度矩阵的性质性质1:">
+<meta property="og:locale" content="en_US">
+<meta property="article:published_time" content="2016-10-07T16:00:00.000Z">
+<meta property="article:modified_time" content="2021-03-25T07:20:30.616Z">
+<meta property="article:author" content="Xin-Bo Qi(亓欣波)">
+<meta property="article:tag" content="fem">
+<meta name="twitter:card" content="summary">
+
+<link rel="canonical" href="http://qixinbo.github.io/2016/10/08/fem_matrix/">
+
+
+<script id="page-configurations">
+  // https://hexo.io/docs/variables.html
+  CONFIG.page = {
+    sidebar: "",
+    isHome : false,
+    isPost : true,
+    lang   : 'en'
+  };
+</script>
+
+  <title>结构力学有限元刚度矩阵的性质 | 亓欣波</title>
+  
+
+
+
+
+
+
+  <noscript>
+  <style>
+  .use-motion .brand,
+  .use-motion .menu-item,
+  .sidebar-inner,
+  .use-motion .post-block,
+  .use-motion .pagination,
+  .use-motion .comments,
+  .use-motion .post-header,
+  .use-motion .post-body,
+  .use-motion .collection-header { opacity: initial; }
+
+  .use-motion .site-title,
+  .use-motion .site-subtitle {
+    opacity: initial;
+    top: initial;
+  }
+
+  .use-motion .logo-line-before i { left: initial; }
+  .use-motion .logo-line-after i { right: initial; }
+  </style>
+</noscript>
+
+</head>
+
+<body itemscope itemtype="http://schema.org/WebPage">
+  <div class="container use-motion">
+    <div class="headband"></div>
+
+    <header class="header" itemscope itemtype="http://schema.org/WPHeader">
+      <div class="header-inner"><div class="site-brand-container">
+  <div class="site-nav-toggle">
+    <div class="toggle" aria-label="Toggle navigation bar">
+      <span class="toggle-line toggle-line-first"></span>
+      <span class="toggle-line toggle-line-middle"></span>
+      <span class="toggle-line toggle-line-last"></span>
+    </div>
+  </div>
+
+  <div class="site-meta">
+
+    <a href="/" class="brand" rel="start">
+      <span class="logo-line-before"><i></i></span>
+      <h1 class="site-title">亓欣波</h1>
+      <span class="logo-line-after"><i></i></span>
+    </a>
+      <p class="site-subtitle" itemprop="description">Hi, I am Xin-Bo Qi (亓欣波)</p>
+  </div>
+
+  <div class="site-nav-right">
+    <div class="toggle popup-trigger">
+    </div>
+  </div>
+</div>
+
+
+
+
+<nav class="site-nav">
+  <ul id="menu" class="main-menu menu">
+        <li class="menu-item menu-item-home">
+
+    <a href="/" rel="section"><i class="home fa-fw"></i>Home</a>
+
+  </li>
+        <li class="menu-item menu-item-categories">
+
+    <a href="/categories/" rel="section"><i class="th fa-fw"></i>Categories</a>
+
+  </li>
+        <li class="menu-item menu-item-archives">
+
+    <a href="/archives/" rel="section"><i class="archive fa-fw"></i>Archives</a>
+
+  </li>
+        <li class="menu-item menu-item-tags">
+
+    <a href="/tags/" rel="section"><i class="tags fa-fw"></i>Tags</a>
+
+  </li>
+        <li class="menu-item menu-item-scholar">
+
+    <a href="/scholar/" rel="section"><i class="bar-chart fa-fw"></i>scholar</a>
+
+  </li>
+        <li class="menu-item menu-item-sources">
+
+    <a href="/sources/" rel="section"><i class="rss fa-fw"></i>sources</a>
+
+  </li>
+        <li class="menu-item menu-item-gallery">
+
+    <a href="/gallery/" rel="section"><i class="file-image-o fa-fw"></i>gallery</a>
+
+  </li>
+        <li class="menu-item menu-item-about">
+
+    <a href="/about/" rel="section"><i class="user fa-fw"></i>About</a>
+
+  </li>
+        <li class="menu-item menu-item-commonweal">
+
+    <a href="/404.html" rel="section"><i class="heartbeat fa-fw"></i>Commonweal 404</a>
+
+  </li>
+  </ul>
+</nav>
+
+
+
+
+</div>
+    </header>
+
+    
+  <div class="back-to-top">
+    <i class="fa fa-arrow-up"></i>
+    <span>0%</span>
+  </div>
+
+
+    <main class="main">
+      <div class="main-inner">
+        <div class="content-wrap">
+          
+
+          <div class="content post posts-expand">
+            
+
+    
+  
+  
+  <article itemscope itemtype="http://schema.org/Article" class="post-block" lang="en">
+    <link itemprop="mainEntityOfPage" href="http://qixinbo.github.io/2016/10/08/fem_matrix/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="image" content="/images/avatar.jpg">
+      <meta itemprop="name" content="Xin-Bo Qi(亓欣波)">
+      <meta itemprop="description" content="Be interesting!">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="亓欣波">
+    </span>
+      <header class="post-header">
+        <h1 class="post-title" itemprop="name headline">
+          结构力学有限元刚度矩阵的性质
+        </h1>
+
+        <div class="post-meta">
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="far fa-calendar"></i>
+              </span>
+              <span class="post-meta-item-text">Posted on</span>
+
+              <time title="Created: 2016-10-08 00:00:00" itemprop="dateCreated datePublished" datetime="2016-10-08T00:00:00+08:00">2016-10-08</time>
+            </span>
+              <span class="post-meta-item">
+                <span class="post-meta-item-icon">
+                  <i class="far fa-calendar-check"></i>
+                </span>
+                <span class="post-meta-item-text">Edited on</span>
+                <time title="Modified: 2021-03-25 15:20:30" itemprop="dateModified" datetime="2021-03-25T15:20:30+08:00">2021-03-25</time>
+              </span>
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="far fa-folder"></i>
+              </span>
+              <span class="post-meta-item-text">In</span>
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+                  <a href="/categories/computational-material-science/" itemprop="url" rel="index"><span itemprop="name">computational material science</span></a>
+                </span>
+            </span>
+
+          
+  
+  <span class="post-meta-item">
+    
+      <span class="post-meta-item-icon">
+        <i class="far fa-comment"></i>
+      </span>
+      <span class="post-meta-item-text">Disqus: </span>
+    
+    <a title="disqus" href="/2016/10/08/fem_matrix/#disqus_thread" itemprop="discussionUrl">
+      <span class="post-comments-count disqus-comment-count" data-disqus-identifier="2016/10/08/fem_matrix/" itemprop="commentCount"></span>
+    </a>
+  </span>
+  
+  
+
+        </div>
+      </header>
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+        <h1 id="引子"><a href="#引子" class="headerlink" title="引子"></a>引子</h1><p>本文是对曾攀老师的《有限元分析及应用》和王勖成老师的《有限单元法》关于单元刚度矩阵和整体刚度矩阵部分的学习笔记。</p>
+<p>刚度矩阵在有限元方法中占有最重要的位置，分析和了解其性质对于我们更深层次地掌握有限元法具有重要的作用。不同的方程对应不同的刚度矩阵，所以，具体刚度矩阵的性质需要针对具体的方程才能下定论。这里只对结构力学的刚度矩阵进行初探，以期对其他方程也能有更深的理解。</p>
+<h1 id="单元刚度矩阵的性质"><a href="#单元刚度矩阵的性质" class="headerlink" title="单元刚度矩阵的性质"></a>单元刚度矩阵的性质</h1><h2 id="性质1-矩阵元素具有明确物理意义"><a href="#性质1-矩阵元素具有明确物理意义" class="headerlink" title="性质1:矩阵元素具有明确物理意义"></a>性质1:矩阵元素具有明确物理意义</h2><p>以一维2节点杆单元为例，其刚度方程为：<br>$$<br>\begin{bmatrix}<br>k_{11} &amp; k_{12} \<br>k_{21} &amp; k_{22}<br>\end{bmatrix}<br>\begin{bmatrix}<br>u_1 \<br>u_2<br>\end{bmatrix}<br>=<br>\begin{bmatrix}<br>f_1 \<br>f_2<br>\end{bmatrix}<br>$$<br>分两种情况进行具体讨论：<br>(1)考虑单元左端，即节点1，发生单位位移，而右端，即节点2，固定：<br>$$<br>u_1=1,\qquad u_2=0<br>$$<br>此时：<br>$$<br>k_{11}=f_1<br>$$<br>这说明，$k_{11}$是为保持这样一种状态，即使节点2的位移为0，使节点1产生单位位移，而需要在节点1上所施加的力。<br>推广到单元刚度矩阵的对角线元素，则有：<br>单元刚度矩阵的对角线元素$k_{ii}$表示要使单元的第i个节点产生单位位移，而其他节点不动时，需在节点i上所施加的力。</p>
+<p>同时，对角线元素还都大于0，因为在这个节点上，力与位移的方向必须相同，这是稳定的必然要求。</p>
+<p>(2)考虑单元左端，即节点1，固定，而右端，即节点2，固定：<br>$$<br>u_1=0,\qquad u_2=1<br>$$<br>此时：<br>$$<br>k_{12}=f_1<br>$$<br>这说明，$k_{12}$是为保持这样一种状态，即使节点1的位移为0，使节点2产生单位位移，而需要在节点1上所施加的力。<br>推广到单元刚度矩阵的非对角线元素，则有：<br>单元刚度矩阵的非对角线元素$k_{ji}(i\neq j)$表示要使单元的第j个节点产生单位位移，而其他节点不动时，需在节点i上所施加的力。</p>
+<h2 id="对称性"><a href="#对称性" class="headerlink" title="对称性"></a>对称性</h2><p>即：<br>$$<br>k_{ij}=k_{ji}<br>$$<br>因为：<br>$$<br>K^{eT}=[\int B^T D B d\Omega]^T=\int B^T D B d\Omega =K^e<br>$$</p>
+<h2 id="半正定性"><a href="#半正定性" class="headerlink" title="半正定性"></a>半正定性</h2><p>这里先理清一个概念：刚体位移。以平面杆单元为例，它除了在原地变形，还可以有刚体位移。它的刚体位移包括两个方向的移动和一个面内的转动。<br>将基于节点表达的应变能展开：<br>$$<br>\begin{split}<br>U&amp;=\frac{1}{2}q^{eT}K^e q^e \<br>&amp;=\frac{1}{2}(k_{11}u_1^2+…+k_{1i}u_1 u_i+…+k_{1n}u_1 u_n + … \<br>             +k_{j1}u_j^2+…+k_{ji}u_j u_i+…+k_{jn}u_j u_n + … \<br>             +k_{n1}u_n^2+…+k_{ni}u_n u_i+…+k_{nn}u_n u_n) \<br>&amp;=\frac{1}{2}\sum_{i=1}^{n}\sum_{j=1}^{n}k_{ij}u_i u_j<br>\end{split}<br>$$<br>其中，$q^e=[u_1 u_2 … u_n]^T$代表节点位移。<br>上式表明：应变能是位移的二次齐次多项式。在线性代数里，上式被称为矩阵$K^e$的二次型。<br>分两种情形考虑：<br>(1)不考虑刚体位移：不论位移列阵取何值，除非没有位移，因为应变能为一种能量，所以应变能总是正值。所以，此时，矩阵$K^e$是正定矩阵。<br>(2)考虑刚体位移：此时位移列阵不为0，因为刚体位移也是位移。而此时如果单元没有变形，那么应变能为0，那么只能$|K^e|=0$。</p>
+<p>综上两种情形，矩阵$K^e$是半正定的。</p>
+<h2 id="奇异性"><a href="#奇异性" class="headerlink" title="奇异性"></a>奇异性</h2><p>假设一个单元在受相同外载的情形下存在两种状态位移，即该单元可以任意移动，但所受的力是保持平衡的。仍以之前的一维杆单元为例说明。<br>在节点载荷$(f_1,f_2)$作用下，该单元有位移：<br>$$<br>\begin{split}<br>u_1 &amp;= c_1^{(1)} \<br>u_2 &amp;= c_2^{(1)}<br>\end{split}<br>$$<br>假设该单元在保持$(f_1,f_2)$作用下有一刚体位移，则此时位移有：<br>$$<br>\begin{split}<br>u_1 &amp;= c_1^{(1)}+u_0 = c_1^{(2)} \<br>u_2 &amp;= c_2^{(1)}+u_0 = c_2^{(2)}<br>\end{split}<br>$$<br>则对应于以上两种情形的单元刚度方程为：<br>$$<br>\begin{split}<br>\begin{bmatrix}<br>k_{11} &amp; k_{12} \<br>k_{21} &amp; k_{22}<br>\end{bmatrix}<br>\begin{bmatrix}<br>c_1^{(1)} \<br>c_2^{(1)}<br>\end{bmatrix}<br>&amp;=<br>\begin{bmatrix}<br>f_1 \<br>f_2<br>\end{bmatrix}  \<br>\begin{bmatrix}<br>k_{11} &amp; k_{12} \<br>k_{21} &amp; k_{22}<br>\end{bmatrix}<br>\begin{bmatrix}<br>c_1^{(2)} \<br>c_2^{(2)}<br>\end{bmatrix}<br>&amp;=<br>\begin{bmatrix}<br>f_1 \<br>f_2<br>\end{bmatrix}<br>\end{split}<br>$$<br>两式相减，有：<br>$$<br>\begin{bmatrix}<br>k_{11} &amp; k_{12} \<br>k_{21} &amp; k_{22}<br>\end{bmatrix}<br>\begin{bmatrix}<br>c_1^{(2)}-c_1^{(1)} \<br>c_2^{(2)}-c_2^{(1)}<br>\end{bmatrix}<br>=<br>\begin{bmatrix}<br>0 \<br>0<br>\end{bmatrix}<br>$$<br>由于刚体位移平移量$u_0$不为零，所以上式有非零解的条件是矩阵奇异。</p>
+<p>即：给定节点载荷，即使它们满足平衡，却不能由该方程确定单元节点位移，这是因为单元还可以有任意的刚体位移。</p>
+<h1 id="整体刚度矩阵的性质"><a href="#整体刚度矩阵的性质" class="headerlink" title="整体刚度矩阵的性质"></a>整体刚度矩阵的性质</h1><p>由单元刚度矩阵组装起来的整体刚度矩阵具有以下性质：</p>
+<h2 id="任一元素具有物理意义"><a href="#任一元素具有物理意义" class="headerlink" title="任一元素具有物理意义"></a>任一元素具有物理意义</h2><p>任一元素$k_{ji}(i\neq j)$表示要使单元的第j个节点产生单位位移，而其他节点不动时，需在节点i上所施加的力。<br>与单元不同之处在于：整体是单元的集合，每个单元都对整体起一定的作用。</p>
+<h2 id="对称性-1"><a href="#对称性-1" class="headerlink" title="对称性"></a>对称性</h2><h2 id="半正定性-1"><a href="#半正定性-1" class="headerlink" title="半正定性"></a>半正定性</h2><h2 id="奇异性-1"><a href="#奇异性-1" class="headerlink" title="奇异性"></a>奇异性</h2><h2 id="大型稀疏矩阵"><a href="#大型稀疏矩阵" class="headerlink" title="大型稀疏矩阵"></a>大型稀疏矩阵</h2><p>当连续体离散为有限个单元时，每个节点的相关单元只是围绕在该节点周围为数很少的几个，一个节点通过相关单元与之发生关系的相关节点也只是周围的少数几个，因此虽然整体单元数和节点数很多，整体刚度矩阵的阶数很高，但刚度系数中非零系数却很少，这就是刚度矩阵的大型和稀疏性。</p>
+<h2 id="非零元素呈带状分布"><a href="#非零元素呈带状分布" class="headerlink" title="非零元素呈带状分布"></a>非零元素呈带状分布</h2><p>当节点编号合理时，稀疏的非零元素将集中在以主对角线为中心的带状区域内，即呈现带状分布的特点。</p>
+<h1 id="位移边界条件的作用"><a href="#位移边界条件的作用" class="headerlink" title="位移边界条件的作用"></a>位移边界条件的作用</h1><p>由于刚度矩阵是奇异的，所以求解方程时，除了力的施加不当造成无解的情形(即力不在刚度矩阵的列空间内)外，会有无穷解。解的维数取决于自由变量的个数。<br>为了消除奇异性，需要引入位移边界条件，让其填充自由变量的位置，从而获得唯一解。<br>从物理图像上理解，就是位移边界条件限制了刚体位移，从而使位移量唯一。</p>
+<h1 id="其他方程的刚度矩阵的性质"><a href="#其他方程的刚度矩阵的性质" class="headerlink" title="其他方程的刚度矩阵的性质"></a>其他方程的刚度矩阵的性质</h1><p>其他方程不一定与上述结构力学的刚度方程的性质相同。<br>比如NS方程，由于其有对流项，其刚度矩阵是非对称的。<br>比如Possion方程，其刚度矩阵直接就是正定的？见这个<a target="_blank" rel="noopener" href="http://scicomp.stackexchange.com/questions/21423/in-fem-why-is-the-stiffness-matrix-positive-definite">讨论</a>。<br>所以一句话，具体问题具体分析。</p>
+
+    </div>
+
+    
+    
+    
+        <div class="reward-container">
+  <div></div>
+  <button onclick="var qr = document.getElementById('qr'); qr.style.display = (qr.style.display === 'none') ? 'block' : 'none';">
+    Donate
+  </button>
+  <div id="qr" style="display: none;">
+      
+      <div style="display: inline-block;">
+        <img src="/images/wechat_reward.png" alt="Xin-Bo Qi(亓欣波) WeChat Pay">
+        <p>WeChat Pay</p>
+      </div>
+
+  </div>
+</div>
+
+
+      <footer class="post-footer">
+          <div class="post-tags">
+              <a href="/tags/fem/" rel="tag"># fem</a>
+          </div>
+
+        
+
+
+        
+    <div class="post-nav">
+      <div class="post-nav-item">
+    <a href="/2016/09/29/dealii-link-petsc/" rel="prev" title="deal.II链接PETSc过程记录">
+      <i class="fa fa-chevron-left"></i> deal.II链接PETSc过程记录
+    </a></div>
+      <div class="post-nav-item">
+    <a href="/2016/11/29/dealii-learn-step48/" rel="next" title="求解偏微分方程开源有限元软件deal.II学习--Step 48">
+      求解偏微分方程开源有限元软件deal.II学习--Step 48 <i class="fa fa-chevron-right"></i>
+    </a></div>
+    </div>
+      </footer>
+    
+  </article>
+  
+  
+  
+
+
+
+          </div>
+          
+    
+  <div class="comments">
+    <div id="disqus_thread">
+      <noscript>Please enable JavaScript to view the comments powered by Disqus.</noscript>
+    </div>
+  </div>
+  
+
+<script>
+  window.addEventListener('tabs:register', () => {
+    let { activeClass } = CONFIG.comments;
+    if (CONFIG.comments.storage) {
+      activeClass = localStorage.getItem('comments_active') || activeClass;
+    }
+    if (activeClass) {
+      let activeTab = document.querySelector(`a[href="#comment-${activeClass}"]`);
+      if (activeTab) {
+        activeTab.click();
+      }
+    }
+  });
+  if (CONFIG.comments.storage) {
+    window.addEventListener('tabs:click', event => {
+      if (!event.target.matches('.tabs-comment .tab-content .tab-pane')) return;
+      let commentClass = event.target.classList[1];
+      localStorage.setItem('comments_active', commentClass);
+    });
+  }
+</script>
+
+        </div>
+          
+  
+  <div class="toggle sidebar-toggle">
+    <span class="toggle-line toggle-line-first"></span>
+    <span class="toggle-line toggle-line-middle"></span>
+    <span class="toggle-line toggle-line-last"></span>
+  </div>
+
+  <aside class="sidebar">
+    <div class="sidebar-inner">
+
+      <ul class="sidebar-nav motion-element">
+        <li class="sidebar-nav-toc">
+          Table of Contents
+        </li>
+        <li class="sidebar-nav-overview">
+          Overview
+        </li>
+      </ul>
+
+      <!--noindex-->
+      <div class="post-toc-wrap sidebar-panel">
+          <div class="post-toc motion-element"><ol class="nav"><li class="nav-item nav-level-1"><a class="nav-link" href="#%E5%BC%95%E5%AD%90"><span class="nav-number">1.</span> <span class="nav-text">引子</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#%E5%8D%95%E5%85%83%E5%88%9A%E5%BA%A6%E7%9F%A9%E9%98%B5%E7%9A%84%E6%80%A7%E8%B4%A8"><span class="nav-number">2.</span> <span class="nav-text">单元刚度矩阵的性质</span></a><ol class="nav-child"><li class="nav-item nav-level-2"><a class="nav-link" href="#%E6%80%A7%E8%B4%A81-%E7%9F%A9%E9%98%B5%E5%85%83%E7%B4%A0%E5%85%B7%E6%9C%89%E6%98%8E%E7%A1%AE%E7%89%A9%E7%90%86%E6%84%8F%E4%B9%89"><span class="nav-number">2.1.</span> <span class="nav-text">性质1:矩阵元素具有明确物理意义</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E5%AF%B9%E7%A7%B0%E6%80%A7"><span class="nav-number">2.2.</span> <span class="nav-text">对称性</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E5%8D%8A%E6%AD%A3%E5%AE%9A%E6%80%A7"><span class="nav-number">2.3.</span> <span class="nav-text">半正定性</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E5%A5%87%E5%BC%82%E6%80%A7"><span class="nav-number">2.4.</span> <span class="nav-text">奇异性</span></a></li></ol></li><li class="nav-item nav-level-1"><a class="nav-link" href="#%E6%95%B4%E4%BD%93%E5%88%9A%E5%BA%A6%E7%9F%A9%E9%98%B5%E7%9A%84%E6%80%A7%E8%B4%A8"><span class="nav-number">3.</span> <span class="nav-text">整体刚度矩阵的性质</span></a><ol class="nav-child"><li class="nav-item nav-level-2"><a class="nav-link" href="#%E4%BB%BB%E4%B8%80%E5%85%83%E7%B4%A0%E5%85%B7%E6%9C%89%E7%89%A9%E7%90%86%E6%84%8F%E4%B9%89"><span class="nav-number">3.1.</span> <span class="nav-text">任一元素具有物理意义</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E5%AF%B9%E7%A7%B0%E6%80%A7-1"><span class="nav-number">3.2.</span> <span class="nav-text">对称性</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E5%8D%8A%E6%AD%A3%E5%AE%9A%E6%80%A7-1"><span class="nav-number">3.3.</span> <span class="nav-text">半正定性</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E5%A5%87%E5%BC%82%E6%80%A7-1"><span class="nav-number">3.4.</span> <span class="nav-text">奇异性</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E5%A4%A7%E5%9E%8B%E7%A8%80%E7%96%8F%E7%9F%A9%E9%98%B5"><span class="nav-number">3.5.</span> <span class="nav-text">大型稀疏矩阵</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E9%9D%9E%E9%9B%B6%E5%85%83%E7%B4%A0%E5%91%88%E5%B8%A6%E7%8A%B6%E5%88%86%E5%B8%83"><span class="nav-number">3.6.</span> <span class="nav-text">非零元素呈带状分布</span></a></li></ol></li><li class="nav-item nav-level-1"><a class="nav-link" href="#%E4%BD%8D%E7%A7%BB%E8%BE%B9%E7%95%8C%E6%9D%A1%E4%BB%B6%E7%9A%84%E4%BD%9C%E7%94%A8"><span class="nav-number">4.</span> <span class="nav-text">位移边界条件的作用</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#%E5%85%B6%E4%BB%96%E6%96%B9%E7%A8%8B%E7%9A%84%E5%88%9A%E5%BA%A6%E7%9F%A9%E9%98%B5%E7%9A%84%E6%80%A7%E8%B4%A8"><span class="nav-number">5.</span> <span class="nav-text">其他方程的刚度矩阵的性质</span></a></li></ol></div>
+      </div>
+      <!--/noindex-->
+
+      <div class="site-overview-wrap sidebar-panel">
+        <div class="site-author motion-element" itemprop="author" itemscope itemtype="http://schema.org/Person">
+    <img class="site-author-image" itemprop="image" alt="Xin-Bo Qi(亓欣波)"
+      src="/images/avatar.jpg">
+  <p class="site-author-name" itemprop="name">Xin-Bo Qi(亓欣波)</p>
+  <div class="site-description" itemprop="description">Be interesting!</div>
+</div>
+<div class="site-state-wrap motion-element">
+  <nav class="site-state">
+      <div class="site-state-item site-state-posts">
+          <a href="/archives/">
+        
+          <span class="site-state-item-count">120</span>
+          <span class="site-state-item-name">posts</span>
+        </a>
+      </div>
+      <div class="site-state-item site-state-categories">
+            <a href="/categories/">
+          
+        <span class="site-state-item-count">5</span>
+        <span class="site-state-item-name">categories</span></a>
+      </div>
+      <div class="site-state-item site-state-tags">
+            <a href="/tags/">
+          
+        <span class="site-state-item-count">41</span>
+        <span class="site-state-item-name">tags</span></a>
+      </div>
+  </nav>
+</div>
+  <div class="links-of-author motion-element">
+      <span class="links-of-author-item">
+        <a href="https://github.com/qixinbo" title="GitHub → https:&#x2F;&#x2F;github.com&#x2F;qixinbo" rel="noopener" target="_blank"><i class="github fa-fw"></i>GitHub</a>
+      </span>
+      <span class="links-of-author-item">
+        <a href="mailto:qixinbo@gmail.com" title="E-Mail → mailto:qixinbo@gmail.com" rel="noopener" target="_blank"><i class="envelope fa-fw"></i>E-Mail</a>
+      </span>
+  </div>
+
+
+  <div class="links-of-blogroll motion-element">
+    <div class="links-of-blogroll-title"><i class="fa fa-link fa-fw"></i>
+      Links
+    </div>
+    <ul class="links-of-blogroll-list">
+        <li class="links-of-blogroll-item">
+          <a href="https://www.tsinghua.edu.cn/" title="https:&#x2F;&#x2F;www.tsinghua.edu.cn" rel="noopener" target="_blank">THU</a>
+        </li>
+        <li class="links-of-blogroll-item">
+          <a href="http://www.imr.cas.cn/" title="http:&#x2F;&#x2F;www.imr.cas.cn" rel="noopener" target="_blank">IMR</a>
+        </li>
+        <li class="links-of-blogroll-item">
+          <a href="http://www.sdu.edu.cn/" title="http:&#x2F;&#x2F;www.sdu.edu.cn" rel="noopener" target="_blank">SDU</a>
+        </li>
+        <li class="links-of-blogroll-item">
+          <a href="http://liam0205.me/" title="http:&#x2F;&#x2F;liam0205.me&#x2F;" rel="noopener" target="_blank">黄晨成</a>
+        </li>
+    </ul>
+  </div>
+
+      </div>
+
+    </div>
+  </aside>
+  <div id="sidebar-dimmer"></div>
+
+
+      </div>
+    </main>
+
+    <footer class="footer">
+      <div class="footer-inner">
+        
+
+        
+
+<div class="copyright">
+  
+  &copy; 
+  <span itemprop="copyrightYear">2021</span>
+  <span class="with-love">
+    <i class="fa fa-heart"></i>
+  </span>
+  <span class="author" itemprop="copyrightHolder">Xin-Bo Qi(亓欣波)</span>
+</div>
+  <div class="powered-by">Powered by <a href="https://hexo.io/" class="theme-link" rel="noopener" target="_blank">Hexo</a> & <a href="https://theme-next.org/" class="theme-link" rel="noopener" target="_blank">NexT.Gemini</a>
+  </div>
+
+        
+
+
+
+
+
+
+
+
+      </div>
+    </footer>
+  </div>
+
+  
+  <script src="/lib/anime.min.js"></script>
+  <script src="/lib/velocity/velocity.min.js"></script>
+  <script src="/lib/velocity/velocity.ui.min.js"></script>
+
+<script src="/js/utils.js"></script>
+
+<script src="/js/motion.js"></script>
+
+
+<script src="/js/schemes/pisces.js"></script>
+
+
+<script src="/js/next-boot.js"></script>
+
+
+
+
+  
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+  
+
+  
+
+  
+
+<script>
+  function loadCount() {
+    var d = document, s = d.createElement('script');
+    s.src = 'https://qixinbo.disqus.com/count.js';
+    s.id = 'dsq-count-scr';
+    (d.head || d.body).appendChild(s);
+  }
+  // defer loading until the whole page loading is completed
+  window.addEventListener('load', loadCount, false);
+</script>
+<script>
+  var disqus_config = function() {
+    this.page.url = "http://qixinbo.github.io/2016/10/08/fem_matrix/";
+    this.page.identifier = "2016/10/08/fem_matrix/";
+    this.page.title = "结构力学有限元刚度矩阵的性质";
+    };
+  NexT.utils.loadComments(document.querySelector('#disqus_thread'), () => {
+    if (window.DISQUS) {
+      DISQUS.reset({
+        reload: true,
+        config: disqus_config
+      });
+    } else {
+      var d = document, s = d.createElement('script');
+      s.src = 'https://qixinbo.disqus.com/embed.js';
+      s.setAttribute('data-timestamp', '' + +new Date());
+      (d.head || d.body).appendChild(s);
+    }
+  });
+</script>
+
+</body>
+</html>

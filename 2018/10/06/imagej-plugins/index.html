@@ -1,0 +1,591 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=2">
+<meta name="theme-color" content="#222">
+<meta name="generator" content="Hexo 5.4.0">
+  <link rel="apple-touch-icon" sizes="180x180" href="/images/apple-touch-icon-next.png">
+  <link rel="icon" type="image/png" sizes="32x32" href="/favicon.ico">
+  <link rel="icon" type="image/png" sizes="16x16" href="/favicon.ico">
+  <link rel="mask-icon" href="/images/logo.svg" color="#222">
+
+<link rel="stylesheet" href="/css/main.css">
+
+
+<link rel="stylesheet" href="/lib/font-awesome/css/all.min.css">
+
+<script id="hexo-configurations">
+    var NexT = window.NexT || {};
+    var CONFIG = {"hostname":"qixinbo.github.io","root":"/","scheme":"Gemini","version":"7.8.0","exturl":false,"sidebar":{"position":"left","display":"post","padding":18,"offset":12,"onmobile":false},"copycode":{"enable":false,"show_result":false,"style":null},"back2top":{"enable":true,"sidebar":false,"scrollpercent":false},"bookmark":{"enable":false,"color":"#222","save":"auto"},"fancybox":false,"mediumzoom":false,"lazyload":false,"pangu":false,"comments":{"style":"tabs","active":null,"storage":true,"lazyload":false,"nav":null},"algolia":{"hits":{"per_page":10},"labels":{"input_placeholder":"Search for Posts","hits_empty":"We didn't find any results for the search: ${query}","hits_stats":"${hits} results found in ${time} ms"}},"localsearch":{"enable":false,"trigger":"auto","top_n_per_article":1,"unescape":false,"preload":false},"motion":{"enable":true,"async":false,"transition":{"post_block":"fadeIn","post_header":"slideDownIn","post_body":"slideDownIn","coll_header":"slideLeftIn","sidebar":"slideUpIn"}}};
+  </script>
+
+  <meta name="description" content="开篇说明前面介绍过开发ImageJ的Python脚本的过程（在这里），这里介绍怎样开发ImageJ的插件。插件相对于脚本来说，一方面，它的功能更加强大，可以认为是寄生在ImageJ上面的一个完备的小程序；另一方面，它使用Java开发，格式可以采用编译好的class文件，有利于保护代码不被泄露。ImageJ由于历史原因，存在着ImageJ1和ImageJ2两个版本，且两者的API是迥然不同的，底层架">
+<meta property="og:type" content="article">
+<meta property="og:title" content="ImageJ的插件开发">
+<meta property="og:url" content="http://qixinbo.github.io/2018/10/06/imagej-plugins/index.html">
+<meta property="og:site_name" content="亓欣波">
+<meta property="og:description" content="开篇说明前面介绍过开发ImageJ的Python脚本的过程（在这里），这里介绍怎样开发ImageJ的插件。插件相对于脚本来说，一方面，它的功能更加强大，可以认为是寄生在ImageJ上面的一个完备的小程序；另一方面，它使用Java开发，格式可以采用编译好的class文件，有利于保护代码不被泄露。ImageJ由于历史原因，存在着ImageJ1和ImageJ2两个版本，且两者的API是迥然不同的，底层架">
+<meta property="og:locale" content="en_US">
+<meta property="og:image" content="https://ws1.sinaimg.cn/large/0072Lfvtly1fvylcrof71j30bg095wff.jpg">
+<meta property="og:image" content="https://ws1.sinaimg.cn/large/0072Lfvtly1fvyiyh836ej30lb0g9my8.jpg">
+<meta property="og:image" content="https://ws1.sinaimg.cn/large/0072Lfvtly1fvym64ybm2j31hc0suk0s.jpg">
+<meta property="article:published_time" content="2018-10-05T16:00:00.000Z">
+<meta property="article:modified_time" content="2021-03-25T07:20:30.648Z">
+<meta property="article:author" content="Xin-Bo Qi(亓欣波)">
+<meta property="article:tag" content="ImageJ">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:image" content="https://ws1.sinaimg.cn/large/0072Lfvtly1fvylcrof71j30bg095wff.jpg">
+
+<link rel="canonical" href="http://qixinbo.github.io/2018/10/06/imagej-plugins/">
+
+
+<script id="page-configurations">
+  // https://hexo.io/docs/variables.html
+  CONFIG.page = {
+    sidebar: "",
+    isHome : false,
+    isPost : true,
+    lang   : 'en'
+  };
+</script>
+
+  <title>ImageJ的插件开发 | 亓欣波</title>
+  
+
+
+
+
+
+
+  <noscript>
+  <style>
+  .use-motion .brand,
+  .use-motion .menu-item,
+  .sidebar-inner,
+  .use-motion .post-block,
+  .use-motion .pagination,
+  .use-motion .comments,
+  .use-motion .post-header,
+  .use-motion .post-body,
+  .use-motion .collection-header { opacity: initial; }
+
+  .use-motion .site-title,
+  .use-motion .site-subtitle {
+    opacity: initial;
+    top: initial;
+  }
+
+  .use-motion .logo-line-before i { left: initial; }
+  .use-motion .logo-line-after i { right: initial; }
+  </style>
+</noscript>
+
+</head>
+
+<body itemscope itemtype="http://schema.org/WebPage">
+  <div class="container use-motion">
+    <div class="headband"></div>
+
+    <header class="header" itemscope itemtype="http://schema.org/WPHeader">
+      <div class="header-inner"><div class="site-brand-container">
+  <div class="site-nav-toggle">
+    <div class="toggle" aria-label="Toggle navigation bar">
+      <span class="toggle-line toggle-line-first"></span>
+      <span class="toggle-line toggle-line-middle"></span>
+      <span class="toggle-line toggle-line-last"></span>
+    </div>
+  </div>
+
+  <div class="site-meta">
+
+    <a href="/" class="brand" rel="start">
+      <span class="logo-line-before"><i></i></span>
+      <h1 class="site-title">亓欣波</h1>
+      <span class="logo-line-after"><i></i></span>
+    </a>
+      <p class="site-subtitle" itemprop="description">Hi, I am Xin-Bo Qi (亓欣波)</p>
+  </div>
+
+  <div class="site-nav-right">
+    <div class="toggle popup-trigger">
+    </div>
+  </div>
+</div>
+
+
+
+
+<nav class="site-nav">
+  <ul id="menu" class="main-menu menu">
+        <li class="menu-item menu-item-home">
+
+    <a href="/" rel="section"><i class="home fa-fw"></i>Home</a>
+
+  </li>
+        <li class="menu-item menu-item-categories">
+
+    <a href="/categories/" rel="section"><i class="th fa-fw"></i>Categories</a>
+
+  </li>
+        <li class="menu-item menu-item-archives">
+
+    <a href="/archives/" rel="section"><i class="archive fa-fw"></i>Archives</a>
+
+  </li>
+        <li class="menu-item menu-item-tags">
+
+    <a href="/tags/" rel="section"><i class="tags fa-fw"></i>Tags</a>
+
+  </li>
+        <li class="menu-item menu-item-scholar">
+
+    <a href="/scholar/" rel="section"><i class="bar-chart fa-fw"></i>scholar</a>
+
+  </li>
+        <li class="menu-item menu-item-sources">
+
+    <a href="/sources/" rel="section"><i class="rss fa-fw"></i>sources</a>
+
+  </li>
+        <li class="menu-item menu-item-gallery">
+
+    <a href="/gallery/" rel="section"><i class="file-image-o fa-fw"></i>gallery</a>
+
+  </li>
+        <li class="menu-item menu-item-about">
+
+    <a href="/about/" rel="section"><i class="user fa-fw"></i>About</a>
+
+  </li>
+        <li class="menu-item menu-item-commonweal">
+
+    <a href="/404.html" rel="section"><i class="heartbeat fa-fw"></i>Commonweal 404</a>
+
+  </li>
+  </ul>
+</nav>
+
+
+
+
+</div>
+    </header>
+
+    
+  <div class="back-to-top">
+    <i class="fa fa-arrow-up"></i>
+    <span>0%</span>
+  </div>
+
+
+    <main class="main">
+      <div class="main-inner">
+        <div class="content-wrap">
+          
+
+          <div class="content post posts-expand">
+            
+
+    
+  
+  
+  <article itemscope itemtype="http://schema.org/Article" class="post-block" lang="en">
+    <link itemprop="mainEntityOfPage" href="http://qixinbo.github.io/2018/10/06/imagej-plugins/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="image" content="/images/avatar.jpg">
+      <meta itemprop="name" content="Xin-Bo Qi(亓欣波)">
+      <meta itemprop="description" content="Be interesting!">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="亓欣波">
+    </span>
+      <header class="post-header">
+        <h1 class="post-title" itemprop="name headline">
+          ImageJ的插件开发
+        </h1>
+
+        <div class="post-meta">
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="far fa-calendar"></i>
+              </span>
+              <span class="post-meta-item-text">Posted on</span>
+
+              <time title="Created: 2018-10-06 00:00:00" itemprop="dateCreated datePublished" datetime="2018-10-06T00:00:00+08:00">2018-10-06</time>
+            </span>
+              <span class="post-meta-item">
+                <span class="post-meta-item-icon">
+                  <i class="far fa-calendar-check"></i>
+                </span>
+                <span class="post-meta-item-text">Edited on</span>
+                <time title="Modified: 2021-03-25 15:20:30" itemprop="dateModified" datetime="2021-03-25T15:20:30+08:00">2021-03-25</time>
+              </span>
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="far fa-folder"></i>
+              </span>
+              <span class="post-meta-item-text">In</span>
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+                  <a href="/categories/programming/" itemprop="url" rel="index"><span itemprop="name">programming</span></a>
+                </span>
+            </span>
+
+          
+  
+  <span class="post-meta-item">
+    
+      <span class="post-meta-item-icon">
+        <i class="far fa-comment"></i>
+      </span>
+      <span class="post-meta-item-text">Disqus: </span>
+    
+    <a title="disqus" href="/2018/10/06/imagej-plugins/#disqus_thread" itemprop="discussionUrl">
+      <span class="post-comments-count disqus-comment-count" data-disqus-identifier="2018/10/06/imagej-plugins/" itemprop="commentCount"></span>
+    </a>
+  </span>
+  
+  
+
+        </div>
+      </header>
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+        <h1 id="开篇说明"><a href="#开篇说明" class="headerlink" title="开篇说明"></a>开篇说明</h1><p>前面介绍过开发ImageJ的Python脚本的过程（<a target="_blank" rel="noopener" href="http://qixinbo.info/2018/09/15/imagej-python/">在这里</a>），这里介绍怎样开发ImageJ的插件。<br>插件相对于脚本来说，一方面，它的功能更加强大，可以认为是寄生在ImageJ上面的一个完备的小程序；另一方面，它使用Java开发，格式可以采用编译好的class文件，有利于保护代码不被泄露。<br>ImageJ由于历史原因，存在着ImageJ1和ImageJ2两个版本，且两者的API是迥然不同的，底层架构更是不同，导致两者的开发套路有很大差别。在写这篇tutorial时，深感两者在网上的文档资源相互交叉，论坛里的答案在不同版本间有时不适用。所以这里尝试从零开始一步步地记录ImageJ2的插件开发过程。<br>所基于的Fiji/ImageJ版本为：<br><img src="https://ws1.sinaimg.cn/large/0072Lfvtly1fvylcrof71j30bg095wff.jpg"><br>参考资源有：</p>
+<ul>
+<li><a target="_blank" rel="noopener" href="https://imagej.net/Writing_plugins">Writing plugins</a></li>
+<li><a target="_blank" rel="noopener" href="https://imagej.net/Developing_Fiji">Developing Fiji</a></li>
+</ul>
+<p>ImageJ1的开发的参考资源有：</p>
+<ul>
+<li><a target="_blank" rel="noopener" href="https://imagej.net/Developing_Plugins_for_ImageJ_1.x">Developing Plugins for ImageJ 1.x</a></li>
+<li><a target="_blank" rel="noopener" href="https://github.com/imagej/example-legacy-plugin/">A simple Maven project implementing an ImageJ 1.x plugin</a></li>
+</ul>
+<h1 id="上手例子"><a href="#上手例子" class="headerlink" title="上手例子"></a>上手例子</h1><p>下载ImageJ的一个简单事例（在<a target="_blank" rel="noopener" href="https://github.com/imagej/example-imagej-command">这里</a>），看看插件的源代码是什么样子以及怎样编译和安装。</p>
+<h2 id="编译"><a href="#编译" class="headerlink" title="编译"></a>编译</h2><p>这个例子是一个Maven工程（Maven是Java的一种项目管理软件），即遵循了Maven的代码约定：有一个关键的配置文件pom.xml，以及源代码放在src文件夹下。pom.xml文件中指明了src目录下的java源码的依赖，如果直接使用传统的javac编译该源码，就会报“找不到ij包”的错误，所以这里要使用Maven进行编译（Maven的下载、安装和配置不在这里赘述）。</p>
+<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">mvn package</span><br></pre></td></tr></table></figure>
+<p>上述命令就是使用Maven进行打包，结果就是生成target文件夹及下面的“GaussFiltering-0.1.0-SNAPSHOT.jar”这个jar包。<br>（Attention!!：这里生成的jar包中并没有下划线，这是ImageJ2允许的，它可以通过在源码的Plugin注解中指明menuPath即可在ImageJ对应菜单下显示，而ImageJ1则不允许，其明确要求jar包中必须有下划线，且它自定义在菜单中的显示是通过plugins.config配置文件指定，说明在<a target="_blank" rel="noopener" href="https://imagej.net/Description_of_ImageJ%27s_plugin_architecture">这里</a>）</p>
+<h2 id="安装"><a href="#安装" class="headerlink" title="安装"></a>安装</h2><p>第二步是将该jar包“安装”到Fiji目录中，这里就是直接复制过去就行：</p>
+<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">copy target/GaussFiltering-0.1.0-SNAPSHOT.jar /Path/to/Fiji.app/plugins/</span><br></pre></td></tr></table></figure>
+<p>然后启动Fiji（如果Fiji本来就运行着，则退出重启）。</p>
+<h2 id="运行"><a href="#运行" class="headerlink" title="运行"></a>运行</h2><p>那么，这个插件怎么在Fiji中调用呢？有两种方法：</p>
+<ul>
+<li>直接使用命令查找功能，即Ctrl+l（小写的字母L），然后输入该插件的名字Gauss Filtering，这是最快捷的一种方式。</li>
+<li>第二种方式是可以在Plugins菜单下找到Gauss Filtering该插件。默认情形下插件是安装在Plugins菜单下，但也可以在java源码中自定义，即在Plugin注解中指定参数menuPath，前面已提到过）。</li>
+</ul>
+<h2 id="使用IDE编译"><a href="#使用IDE编译" class="headerlink" title="使用IDE编译"></a>使用IDE编译</h2><p>上面是使用Maven的命令行进行编译，实际上Maven已经与常用的Java集成开发环境IDE进行了集成，同时IDE还方便对代码的编辑，所以推荐使用IDE进行源码编写和编译。<br>常用的Java开发的IDE有Eclipse、NetBeans和IDEA等，以下是三种软件打开Maven工程的方法：</p>
+<ul>
+<li>Eclipse：File &gt; Import &gt; Existing Maven Projects</li>
+<li>NetBeans：File &gt; Open Project</li>
+<li>IDEA：File &gt; Open Project (Select pom.xml)</li>
+</ul>
+<p>这里使用IDEA-2018-2进行操作，将pom.xml作为Project打开后，IDEA会根据pom中指定的依赖dependencies联网下载所依赖的jar包。然后点击左侧的Maven Projects，选择LifeCycle下面的Package，双击即可进行打包操作，如下：<br><img src="https://ws1.sinaimg.cn/large/0072Lfvtly1fvyiyh836ej30lb0g9my8.jpg"></p>
+<h1 id="ImageJ插件开发的“Hello-World”"><a href="#ImageJ插件开发的“Hello-World”" class="headerlink" title="ImageJ插件开发的“Hello World”"></a>ImageJ插件开发的“Hello World”</h1><p>学习任何一名编程语言，第一个例子肯定是向新世界打招呼——“Hello, World!”。基于ImageJ开发的插件也不例外。从<a target="_blank" rel="noopener" href="https://github.com/imagej/tutorials/">这里</a>下载ImageJ的入门例子，其中就包含了“Hello, World!”的书写方式。</p>
+<h2 id="编译运行"><a href="#编译运行" class="headerlink" title="编译运行"></a>编译运行</h2><p>依然是用IDEA-2018-2来打开该项目的pom.xml文件，点击窗口左侧的Maven Projects，找到”Simple ImageJ Commands”这个项目，然后在LifeCycle下双击package命令进行打包，如图：<br><img src="https://ws1.sinaimg.cn/large/0072Lfvtly1fvym64ybm2j31hc0suk0s.jpg"><br>生成jar包后，复制到Fiji的plugins文件夹下，重启Fiji，然后可以在Help菜单下发现”Hello, World!”命令。</p>
+<h2 id="代码解析"><a href="#代码解析" class="headerlink" title="代码解析"></a>代码解析</h2><p>下面是一步步地分析HelloWorld的代码。</p>
+<h3 id="插件声明"><a href="#插件声明" class="headerlink" title="插件声明"></a>插件声明</h3><figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">@Plugin(type = Command.class, headless = true, menuPath = &quot;Help&gt;Hello, World!&quot;)</span></span><br></pre></td></tr></table></figure>
+<p>技术上讲，ImageJ插件是一个名为Plugin的注解（ImageJ基于SciJava插件系统），这样注解的类可以在运行时自动查找到并索引。有很多种插件类型，HelloWorld用的是Command类型的插件，这种类型的插件是应用最广泛的：Command接收输入，然后产生输出。Command插件最常用的就是与菜单绑定，这里使用menuPath指定在哪个菜单下显示及其显示名称。<br>关于插件，多说两句：<br>（1）插件类型<br>除了上面的Command类型的插件，还有一些基于Service的插件。显式地指定插件type后，可以有效地找到某种类型的插件。比如：</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">@Plugin(type=Service.class)</span></span><br><span class="line"><span class="keyword">public</span> <span class="class"><span class="keyword">class</span> <span class="title">MyService</span> <span class="keyword">implements</span> <span class="title">Service</span> </span>&#123; &#125;</span><br><span class="line"></span><br><span class="line"><span class="meta">@Plugin(type=SpecialService.class)</span></span><br><span class="line"><span class="keyword">public</span> <span class="class"><span class="keyword">class</span> <span class="title">SpecialService</span> <span class="keyword">implements</span> <span class="title">Service</span> </span>&#123; &#125;</span><br></pre></td></tr></table></figure>
+<p>那么问题来了，上述代码中，如果软件上下文想要的插件是Service，那么将会找到哪个插件？<br>答案是MyService和SpecialService都会返回，因为SpecialService是Service的Service的一个子类；而如果想要的是SpecialService插件，那么就只返回SpecialService类。<br>（2）插件优先级<br>当匹配的插件有很多时，插件会按类的priority的顺序来呈现，这个变量是double类型的数值，也可以使用已规定好的静态常量来表示：</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">@Plugin(priority=Priority.HIGH_PRIORITY)</span></span><br><span class="line"><span class="keyword">public</span> <span class="class"><span class="keyword">class</span> <span class="title">MyService</span> <span class="keyword">implements</span> <span class="title">Service</span> </span>&#123; &#125;</span><br><span class="line"></span><br><span class="line"><span class="meta">@Plugin(priority=224)</span></span><br><span class="line"><span class="keyword">public</span> <span class="class"><span class="keyword">class</span> <span class="title">SpecialService</span> <span class="keyword">implements</span> <span class="title">Service</span> </span>&#123; &#125;</span><br></pre></td></tr></table></figure>
+<p>那么问题是，当寻找Service插件时，上面哪个插件会排在前面？<br>答案是SpecialService，因为从<a target="_blank" rel="noopener" href="https://github.com/scijava/scijava-common/blob/scijava-common-2.47.0/src/main/java/org/scijava/Priority.java">SciJava-Common的源码</a>上可以看出HIGH_PRIORITY的数值是100。<br>更好的一种方式是使用相对优先级，比如：</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">@Plugin(priority=Priority.HIGH_PRIORITY+124)</span></span><br><span class="line"><span class="keyword">public</span> <span class="class"><span class="keyword">class</span> <span class="title">SpecialService</span> <span class="keyword">implements</span> <span class="title">Service</span> </span>&#123; &#125;</span><br></pre></td></tr></table></figure>
+<h3 id="该命令的输入输出，两者都是使用Parameter注解。"><a href="#该命令的输入输出，两者都是使用Parameter注解。" class="headerlink" title="该命令的输入输出，两者都是使用Parameter注解。"></a>该命令的输入输出，两者都是使用Parameter注解。</h3><figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">public</span> <span class="class"><span class="keyword">class</span> <span class="title">HelloWorld</span> <span class="keyword">implements</span> <span class="title">Command</span> </span>&#123;</span><br><span class="line"></span><br><span class="line">	<span class="meta">@Parameter(label = &quot;What is your name?&quot;)</span></span><br><span class="line">	<span class="keyword">private</span> String name = <span class="string">&quot;J. Doe&quot;</span>;</span><br><span class="line"></span><br><span class="line">	<span class="meta">@Parameter(type = ItemIO.OUTPUT)</span></span><br><span class="line">	<span class="keyword">private</span> String greeting;</span><br></pre></td></tr></table></figure>
+<p>从command类中派生出helloWorld类。每个command类都有input和output，所以这里使用两个成员变量来承载，两者都要用Parameter来注解，所不同的是output需要Parameter的type明确指定为”ItemIO.OUTPUT”。<br>即，使用Parameter来注解的变量都是该命令的输入或输出，其中非Service类的变量会明确显示出来，而Service类的变量是用来隐式地调用。</p>
+<h3 id="命令的运行函数"><a href="#命令的运行函数" class="headerlink" title="命令的运行函数"></a>命令的运行函数</h3><figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">@Override</span></span><br><span class="line"><span class="function"><span class="keyword">public</span> <span class="keyword">void</span> <span class="title">run</span><span class="params">()</span> </span>&#123;</span><br><span class="line">	greeting = <span class="string">&quot;Hello, &quot;</span> + name + <span class="string">&quot;!&quot;</span>;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p>上面的run函数是ImageJ的每个command的入口点，当用户点击菜单上的该命令时，先让用户输入input值，然后就会执行该函数。</p>
+<h3 id="命令的调试"><a href="#命令的调试" class="headerlink" title="命令的调试"></a>命令的调试</h3><figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br></pre></td><td class="code"><pre><span class="line">	<span class="function"><span class="keyword">public</span> <span class="keyword">static</span> <span class="keyword">void</span> <span class="title">main</span><span class="params">(<span class="keyword">final</span> String... args)</span> </span>&#123;</span><br><span class="line">		<span class="comment">// Launch ImageJ as usual.</span></span><br><span class="line">		<span class="keyword">final</span> ImageJ ij = <span class="keyword">new</span> ImageJ();</span><br><span class="line">		ij.launch(args);</span><br><span class="line"></span><br><span class="line">		<span class="comment">// Launch our &quot;Hello World&quot; command right away.</span></span><br><span class="line">		ij.command().run(HelloWorld.class, <span class="keyword">true</span>);</span><br><span class="line">	&#125;</span><br><span class="line"></span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p>上面的代码是用来在IDE中调试所用。通过创建main函数，使得IDE创建一个ImageJ的上下文环境，然后调用该插件。<br>更一般的调用方式是：</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">ij.command().run(MyPlugin.class, <span class="string">&quot;inputImage&quot;</span>, myImage)&#125;</span><br></pre></td></tr></table></figure>
+
+<p>这就是最基本的ImageJ插件。<br>上面的代码中除了HelloWorld，还包含了更多ImageJ插件开发的入门例子，自行探索吧！</p>
+
+    </div>
+
+    
+    
+    
+        <div class="reward-container">
+  <div></div>
+  <button onclick="var qr = document.getElementById('qr'); qr.style.display = (qr.style.display === 'none') ? 'block' : 'none';">
+    Donate
+  </button>
+  <div id="qr" style="display: none;">
+      
+      <div style="display: inline-block;">
+        <img src="/images/wechat_reward.png" alt="Xin-Bo Qi(亓欣波) WeChat Pay">
+        <p>WeChat Pay</p>
+      </div>
+
+  </div>
+</div>
+
+
+      <footer class="post-footer">
+          <div class="post-tags">
+              <a href="/tags/ImageJ/" rel="tag"># ImageJ</a>
+          </div>
+
+        
+
+
+        
+    <div class="post-nav">
+      <div class="post-nav-item">
+    <a href="/2018/09/18/skopt/" rel="prev" title="使用skopt贝叶斯搜索寻找scikit-learn中算法的最优超参数">
+      <i class="fa fa-chevron-left"></i> 使用skopt贝叶斯搜索寻找scikit-learn中算法的最优超参数
+    </a></div>
+      <div class="post-nav-item">
+    <a href="/2019/03/17/ImagePy_1/" rel="next" title="ImagePy解析：1 -- 简介、安装和启动">
+      ImagePy解析：1 -- 简介、安装和启动 <i class="fa fa-chevron-right"></i>
+    </a></div>
+    </div>
+      </footer>
+    
+  </article>
+  
+  
+  
+
+
+
+          </div>
+          
+    
+  <div class="comments">
+    <div id="disqus_thread">
+      <noscript>Please enable JavaScript to view the comments powered by Disqus.</noscript>
+    </div>
+  </div>
+  
+
+<script>
+  window.addEventListener('tabs:register', () => {
+    let { activeClass } = CONFIG.comments;
+    if (CONFIG.comments.storage) {
+      activeClass = localStorage.getItem('comments_active') || activeClass;
+    }
+    if (activeClass) {
+      let activeTab = document.querySelector(`a[href="#comment-${activeClass}"]`);
+      if (activeTab) {
+        activeTab.click();
+      }
+    }
+  });
+  if (CONFIG.comments.storage) {
+    window.addEventListener('tabs:click', event => {
+      if (!event.target.matches('.tabs-comment .tab-content .tab-pane')) return;
+      let commentClass = event.target.classList[1];
+      localStorage.setItem('comments_active', commentClass);
+    });
+  }
+</script>
+
+        </div>
+          
+  
+  <div class="toggle sidebar-toggle">
+    <span class="toggle-line toggle-line-first"></span>
+    <span class="toggle-line toggle-line-middle"></span>
+    <span class="toggle-line toggle-line-last"></span>
+  </div>
+
+  <aside class="sidebar">
+    <div class="sidebar-inner">
+
+      <ul class="sidebar-nav motion-element">
+        <li class="sidebar-nav-toc">
+          Table of Contents
+        </li>
+        <li class="sidebar-nav-overview">
+          Overview
+        </li>
+      </ul>
+
+      <!--noindex-->
+      <div class="post-toc-wrap sidebar-panel">
+          <div class="post-toc motion-element"><ol class="nav"><li class="nav-item nav-level-1"><a class="nav-link" href="#%E5%BC%80%E7%AF%87%E8%AF%B4%E6%98%8E"><span class="nav-number">1.</span> <span class="nav-text">开篇说明</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#%E4%B8%8A%E6%89%8B%E4%BE%8B%E5%AD%90"><span class="nav-number">2.</span> <span class="nav-text">上手例子</span></a><ol class="nav-child"><li class="nav-item nav-level-2"><a class="nav-link" href="#%E7%BC%96%E8%AF%91"><span class="nav-number">2.1.</span> <span class="nav-text">编译</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E5%AE%89%E8%A3%85"><span class="nav-number">2.2.</span> <span class="nav-text">安装</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E8%BF%90%E8%A1%8C"><span class="nav-number">2.3.</span> <span class="nav-text">运行</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E4%BD%BF%E7%94%A8IDE%E7%BC%96%E8%AF%91"><span class="nav-number">2.4.</span> <span class="nav-text">使用IDE编译</span></a></li></ol></li><li class="nav-item nav-level-1"><a class="nav-link" href="#ImageJ%E6%8F%92%E4%BB%B6%E5%BC%80%E5%8F%91%E7%9A%84%E2%80%9CHello-World%E2%80%9D"><span class="nav-number">3.</span> <span class="nav-text">ImageJ插件开发的“Hello World”</span></a><ol class="nav-child"><li class="nav-item nav-level-2"><a class="nav-link" href="#%E7%BC%96%E8%AF%91%E8%BF%90%E8%A1%8C"><span class="nav-number">3.1.</span> <span class="nav-text">编译运行</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E4%BB%A3%E7%A0%81%E8%A7%A3%E6%9E%90"><span class="nav-number">3.2.</span> <span class="nav-text">代码解析</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#%E6%8F%92%E4%BB%B6%E5%A3%B0%E6%98%8E"><span class="nav-number">3.2.1.</span> <span class="nav-text">插件声明</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E8%AF%A5%E5%91%BD%E4%BB%A4%E7%9A%84%E8%BE%93%E5%85%A5%E8%BE%93%E5%87%BA%EF%BC%8C%E4%B8%A4%E8%80%85%E9%83%BD%E6%98%AF%E4%BD%BF%E7%94%A8Parameter%E6%B3%A8%E8%A7%A3%E3%80%82"><span class="nav-number">3.2.2.</span> <span class="nav-text">该命令的输入输出，两者都是使用Parameter注解。</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E5%91%BD%E4%BB%A4%E7%9A%84%E8%BF%90%E8%A1%8C%E5%87%BD%E6%95%B0"><span class="nav-number">3.2.3.</span> <span class="nav-text">命令的运行函数</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E5%91%BD%E4%BB%A4%E7%9A%84%E8%B0%83%E8%AF%95"><span class="nav-number">3.2.4.</span> <span class="nav-text">命令的调试</span></a></li></ol></li></ol></li></ol></div>
+      </div>
+      <!--/noindex-->
+
+      <div class="site-overview-wrap sidebar-panel">
+        <div class="site-author motion-element" itemprop="author" itemscope itemtype="http://schema.org/Person">
+    <img class="site-author-image" itemprop="image" alt="Xin-Bo Qi(亓欣波)"
+      src="/images/avatar.jpg">
+  <p class="site-author-name" itemprop="name">Xin-Bo Qi(亓欣波)</p>
+  <div class="site-description" itemprop="description">Be interesting!</div>
+</div>
+<div class="site-state-wrap motion-element">
+  <nav class="site-state">
+      <div class="site-state-item site-state-posts">
+          <a href="/archives/">
+        
+          <span class="site-state-item-count">120</span>
+          <span class="site-state-item-name">posts</span>
+        </a>
+      </div>
+      <div class="site-state-item site-state-categories">
+            <a href="/categories/">
+          
+        <span class="site-state-item-count">5</span>
+        <span class="site-state-item-name">categories</span></a>
+      </div>
+      <div class="site-state-item site-state-tags">
+            <a href="/tags/">
+          
+        <span class="site-state-item-count">41</span>
+        <span class="site-state-item-name">tags</span></a>
+      </div>
+  </nav>
+</div>
+  <div class="links-of-author motion-element">
+      <span class="links-of-author-item">
+        <a href="https://github.com/qixinbo" title="GitHub → https:&#x2F;&#x2F;github.com&#x2F;qixinbo" rel="noopener" target="_blank"><i class="github fa-fw"></i>GitHub</a>
+      </span>
+      <span class="links-of-author-item">
+        <a href="mailto:qixinbo@gmail.com" title="E-Mail → mailto:qixinbo@gmail.com" rel="noopener" target="_blank"><i class="envelope fa-fw"></i>E-Mail</a>
+      </span>
+  </div>
+
+
+  <div class="links-of-blogroll motion-element">
+    <div class="links-of-blogroll-title"><i class="fa fa-link fa-fw"></i>
+      Links
+    </div>
+    <ul class="links-of-blogroll-list">
+        <li class="links-of-blogroll-item">
+          <a href="https://www.tsinghua.edu.cn/" title="https:&#x2F;&#x2F;www.tsinghua.edu.cn" rel="noopener" target="_blank">THU</a>
+        </li>
+        <li class="links-of-blogroll-item">
+          <a href="http://www.imr.cas.cn/" title="http:&#x2F;&#x2F;www.imr.cas.cn" rel="noopener" target="_blank">IMR</a>
+        </li>
+        <li class="links-of-blogroll-item">
+          <a href="http://www.sdu.edu.cn/" title="http:&#x2F;&#x2F;www.sdu.edu.cn" rel="noopener" target="_blank">SDU</a>
+        </li>
+        <li class="links-of-blogroll-item">
+          <a href="http://liam0205.me/" title="http:&#x2F;&#x2F;liam0205.me&#x2F;" rel="noopener" target="_blank">黄晨成</a>
+        </li>
+    </ul>
+  </div>
+
+      </div>
+
+    </div>
+  </aside>
+  <div id="sidebar-dimmer"></div>
+
+
+      </div>
+    </main>
+
+    <footer class="footer">
+      <div class="footer-inner">
+        
+
+        
+
+<div class="copyright">
+  
+  &copy; 
+  <span itemprop="copyrightYear">2021</span>
+  <span class="with-love">
+    <i class="fa fa-heart"></i>
+  </span>
+  <span class="author" itemprop="copyrightHolder">Xin-Bo Qi(亓欣波)</span>
+</div>
+  <div class="powered-by">Powered by <a href="https://hexo.io/" class="theme-link" rel="noopener" target="_blank">Hexo</a> & <a href="https://theme-next.org/" class="theme-link" rel="noopener" target="_blank">NexT.Gemini</a>
+  </div>
+
+        
+
+
+
+
+
+
+
+
+      </div>
+    </footer>
+  </div>
+
+  
+  <script src="/lib/anime.min.js"></script>
+  <script src="/lib/velocity/velocity.min.js"></script>
+  <script src="/lib/velocity/velocity.ui.min.js"></script>
+
+<script src="/js/utils.js"></script>
+
+<script src="/js/motion.js"></script>
+
+
+<script src="/js/schemes/pisces.js"></script>
+
+
+<script src="/js/next-boot.js"></script>
+
+
+
+
+  
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+  
+
+  
+
+  
+
+<script>
+  function loadCount() {
+    var d = document, s = d.createElement('script');
+    s.src = 'https://qixinbo.disqus.com/count.js';
+    s.id = 'dsq-count-scr';
+    (d.head || d.body).appendChild(s);
+  }
+  // defer loading until the whole page loading is completed
+  window.addEventListener('load', loadCount, false);
+</script>
+<script>
+  var disqus_config = function() {
+    this.page.url = "http://qixinbo.github.io/2018/10/06/imagej-plugins/";
+    this.page.identifier = "2018/10/06/imagej-plugins/";
+    this.page.title = "ImageJ的插件开发";
+    };
+  NexT.utils.loadComments(document.querySelector('#disqus_thread'), () => {
+    if (window.DISQUS) {
+      DISQUS.reset({
+        reload: true,
+        config: disqus_config
+      });
+    } else {
+      var d = document, s = d.createElement('script');
+      s.src = 'https://qixinbo.disqus.com/embed.js';
+      s.setAttribute('data-timestamp', '' + +new Date());
+      (d.head || d.body).appendChild(s);
+    }
+  });
+</script>
+
+</body>
+</html>

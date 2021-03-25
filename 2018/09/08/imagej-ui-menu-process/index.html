@@ -1,0 +1,675 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=2">
+<meta name="theme-color" content="#222">
+<meta name="generator" content="Hexo 5.4.0">
+  <link rel="apple-touch-icon" sizes="180x180" href="/images/apple-touch-icon-next.png">
+  <link rel="icon" type="image/png" sizes="32x32" href="/favicon.ico">
+  <link rel="icon" type="image/png" sizes="16x16" href="/favicon.ico">
+  <link rel="mask-icon" href="/images/logo.svg" color="#222">
+
+<link rel="stylesheet" href="/css/main.css">
+
+
+<link rel="stylesheet" href="/lib/font-awesome/css/all.min.css">
+
+<script id="hexo-configurations">
+    var NexT = window.NexT || {};
+    var CONFIG = {"hostname":"qixinbo.github.io","root":"/","scheme":"Gemini","version":"7.8.0","exturl":false,"sidebar":{"position":"left","display":"post","padding":18,"offset":12,"onmobile":false},"copycode":{"enable":false,"show_result":false,"style":null},"back2top":{"enable":true,"sidebar":false,"scrollpercent":false},"bookmark":{"enable":false,"color":"#222","save":"auto"},"fancybox":false,"mediumzoom":false,"lazyload":false,"pangu":false,"comments":{"style":"tabs","active":null,"storage":true,"lazyload":false,"nav":null},"algolia":{"hits":{"per_page":10},"labels":{"input_placeholder":"Search for Posts","hits_empty":"We didn't find any results for the search: ${query}","hits_stats":"${hits} results found in ${time} ms"}},"localsearch":{"enable":false,"trigger":"auto","top_n_per_article":1,"unescape":false,"preload":false},"motion":{"enable":true,"async":false,"transition":{"post_block":"fadeIn","post_header":"slideDownIn","post_body":"slideDownIn","coll_header":"slideLeftIn","sidebar":"slideUpIn"}}};
+  </script>
+
+  <meta name="description" content="本章说明这里详解Process菜单的功能。 ProcessSmooth对当前图片或选区进行模糊处理。该过滤器将每个像素值设为它的3*3邻居的平均值。 Sharpen对当前图片或选区进行锐化，即增加对比度和强调细节，但有可能对噪点进行了加强。该滤波器使用下面的权重因子：$$\begin{matrix}-1 &amp; -1 &amp; -1 \-1 &amp; 12 &amp; -1 \-1 &amp;am">
+<meta property="og:type" content="article">
+<meta property="og:title" content="ImageJ 用户指南 -- 8. 菜单栏之Process">
+<meta property="og:url" content="http://qixinbo.github.io/2018/09/08/imagej-ui-menu-process/index.html">
+<meta property="og:site_name" content="亓欣波">
+<meta property="og:description" content="本章说明这里详解Process菜单的功能。 ProcessSmooth对当前图片或选区进行模糊处理。该过滤器将每个像素值设为它的3*3邻居的平均值。 Sharpen对当前图片或选区进行锐化，即增加对比度和强调细节，但有可能对噪点进行了加强。该滤波器使用下面的权重因子：$$\begin{matrix}-1 &amp; -1 &amp; -1 \-1 &amp; 12 &amp; -1 \-1 &amp;am">
+<meta property="og:locale" content="en_US">
+<meta property="article:published_time" content="2018-09-07T16:00:00.000Z">
+<meta property="article:modified_time" content="2021-03-25T07:20:30.685Z">
+<meta property="article:author" content="Xin-Bo Qi(亓欣波)">
+<meta property="article:tag" content="ImageJ">
+<meta name="twitter:card" content="summary">
+
+<link rel="canonical" href="http://qixinbo.github.io/2018/09/08/imagej-ui-menu-process/">
+
+
+<script id="page-configurations">
+  // https://hexo.io/docs/variables.html
+  CONFIG.page = {
+    sidebar: "",
+    isHome : false,
+    isPost : true,
+    lang   : 'en'
+  };
+</script>
+
+  <title>ImageJ 用户指南 -- 8. 菜单栏之Process | 亓欣波</title>
+  
+
+
+
+
+
+
+  <noscript>
+  <style>
+  .use-motion .brand,
+  .use-motion .menu-item,
+  .sidebar-inner,
+  .use-motion .post-block,
+  .use-motion .pagination,
+  .use-motion .comments,
+  .use-motion .post-header,
+  .use-motion .post-body,
+  .use-motion .collection-header { opacity: initial; }
+
+  .use-motion .site-title,
+  .use-motion .site-subtitle {
+    opacity: initial;
+    top: initial;
+  }
+
+  .use-motion .logo-line-before i { left: initial; }
+  .use-motion .logo-line-after i { right: initial; }
+  </style>
+</noscript>
+
+</head>
+
+<body itemscope itemtype="http://schema.org/WebPage">
+  <div class="container use-motion">
+    <div class="headband"></div>
+
+    <header class="header" itemscope itemtype="http://schema.org/WPHeader">
+      <div class="header-inner"><div class="site-brand-container">
+  <div class="site-nav-toggle">
+    <div class="toggle" aria-label="Toggle navigation bar">
+      <span class="toggle-line toggle-line-first"></span>
+      <span class="toggle-line toggle-line-middle"></span>
+      <span class="toggle-line toggle-line-last"></span>
+    </div>
+  </div>
+
+  <div class="site-meta">
+
+    <a href="/" class="brand" rel="start">
+      <span class="logo-line-before"><i></i></span>
+      <h1 class="site-title">亓欣波</h1>
+      <span class="logo-line-after"><i></i></span>
+    </a>
+      <p class="site-subtitle" itemprop="description">Hi, I am Xin-Bo Qi (亓欣波)</p>
+  </div>
+
+  <div class="site-nav-right">
+    <div class="toggle popup-trigger">
+    </div>
+  </div>
+</div>
+
+
+
+
+<nav class="site-nav">
+  <ul id="menu" class="main-menu menu">
+        <li class="menu-item menu-item-home">
+
+    <a href="/" rel="section"><i class="home fa-fw"></i>Home</a>
+
+  </li>
+        <li class="menu-item menu-item-categories">
+
+    <a href="/categories/" rel="section"><i class="th fa-fw"></i>Categories</a>
+
+  </li>
+        <li class="menu-item menu-item-archives">
+
+    <a href="/archives/" rel="section"><i class="archive fa-fw"></i>Archives</a>
+
+  </li>
+        <li class="menu-item menu-item-tags">
+
+    <a href="/tags/" rel="section"><i class="tags fa-fw"></i>Tags</a>
+
+  </li>
+        <li class="menu-item menu-item-scholar">
+
+    <a href="/scholar/" rel="section"><i class="bar-chart fa-fw"></i>scholar</a>
+
+  </li>
+        <li class="menu-item menu-item-sources">
+
+    <a href="/sources/" rel="section"><i class="rss fa-fw"></i>sources</a>
+
+  </li>
+        <li class="menu-item menu-item-gallery">
+
+    <a href="/gallery/" rel="section"><i class="file-image-o fa-fw"></i>gallery</a>
+
+  </li>
+        <li class="menu-item menu-item-about">
+
+    <a href="/about/" rel="section"><i class="user fa-fw"></i>About</a>
+
+  </li>
+        <li class="menu-item menu-item-commonweal">
+
+    <a href="/404.html" rel="section"><i class="heartbeat fa-fw"></i>Commonweal 404</a>
+
+  </li>
+  </ul>
+</nav>
+
+
+
+
+</div>
+    </header>
+
+    
+  <div class="back-to-top">
+    <i class="fa fa-arrow-up"></i>
+    <span>0%</span>
+  </div>
+
+
+    <main class="main">
+      <div class="main-inner">
+        <div class="content-wrap">
+          
+
+          <div class="content post posts-expand">
+            
+
+    
+  
+  
+  <article itemscope itemtype="http://schema.org/Article" class="post-block" lang="en">
+    <link itemprop="mainEntityOfPage" href="http://qixinbo.github.io/2018/09/08/imagej-ui-menu-process/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="image" content="/images/avatar.jpg">
+      <meta itemprop="name" content="Xin-Bo Qi(亓欣波)">
+      <meta itemprop="description" content="Be interesting!">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="亓欣波">
+    </span>
+      <header class="post-header">
+        <h1 class="post-title" itemprop="name headline">
+          ImageJ 用户指南 -- 8. 菜单栏之Process
+        </h1>
+
+        <div class="post-meta">
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="far fa-calendar"></i>
+              </span>
+              <span class="post-meta-item-text">Posted on</span>
+
+              <time title="Created: 2018-09-08 00:00:00" itemprop="dateCreated datePublished" datetime="2018-09-08T00:00:00+08:00">2018-09-08</time>
+            </span>
+              <span class="post-meta-item">
+                <span class="post-meta-item-icon">
+                  <i class="far fa-calendar-check"></i>
+                </span>
+                <span class="post-meta-item-text">Edited on</span>
+                <time title="Modified: 2021-03-25 15:20:30" itemprop="dateModified" datetime="2021-03-25T15:20:30+08:00">2021-03-25</time>
+              </span>
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="far fa-folder"></i>
+              </span>
+              <span class="post-meta-item-text">In</span>
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+                  <a href="/categories/programming/" itemprop="url" rel="index"><span itemprop="name">programming</span></a>
+                </span>
+            </span>
+
+          
+  
+  <span class="post-meta-item">
+    
+      <span class="post-meta-item-icon">
+        <i class="far fa-comment"></i>
+      </span>
+      <span class="post-meta-item-text">Disqus: </span>
+    
+    <a title="disqus" href="/2018/09/08/imagej-ui-menu-process/#disqus_thread" itemprop="discussionUrl">
+      <span class="post-comments-count disqus-comment-count" data-disqus-identifier="2018/09/08/imagej-ui-menu-process/" itemprop="commentCount"></span>
+    </a>
+  </span>
+  
+  
+
+        </div>
+      </header>
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+        <h1 id="本章说明"><a href="#本章说明" class="headerlink" title="本章说明"></a>本章说明</h1><p>这里详解Process菜单的功能。</p>
+<h1 id="Process"><a href="#Process" class="headerlink" title="Process"></a>Process</h1><h2 id="Smooth"><a href="#Smooth" class="headerlink" title="Smooth"></a>Smooth</h2><p>对当前图片或选区进行模糊处理。该过滤器将每个像素值设为它的3*3邻居的平均值。</p>
+<h2 id="Sharpen"><a href="#Sharpen" class="headerlink" title="Sharpen"></a>Sharpen</h2><p>对当前图片或选区进行锐化，即增加对比度和强调细节，但有可能对噪点进行了加强。该滤波器使用下面的权重因子：<br>$$<br>\begin{matrix}<br>-1 &amp; -1 &amp; -1 \<br>-1 &amp; 12 &amp; -1 \<br>-1 &amp; -1 &amp; -1<br>\end{matrix}<br>$$</p>
+<h2 id="Find-Edges"><a href="#Find-Edges" class="headerlink" title="Find Edges"></a>Find Edges</h2><p>使用Sobel边缘检测器来高粱像素值强度的剧烈变化。使用下面的两个3*3的卷积核来产生垂直和水平的梯度。最终的图片是计算两个梯度的平方的和的平方根得到：<br>$$<br>\begin{matrix}<br>1 &amp; 2 &amp; 1 \quad \quad &amp; 1 &amp; 0 &amp; -1 \<br>0 &amp; 0 &amp; 0 \quad \quad &amp; 2 &amp; 0 &amp; -2 \<br>-1 &amp; -2 &amp; -1 \quad \quad &amp; 1 &amp; 0 &amp; -1<br>\end{matrix}<br>$$</p>
+<h2 id="Find-Maxima"><a href="#Find-Maxima" class="headerlink" title="Find Maxima"></a>Find Maxima</h2><p>计算当前图片的局部最大值，然后创建一个含最大值等形式的二值图片。对于RGB图片，挑选的是luminance的最大值，luminance是根据Edit-Options-Conversions中的平均或加权平均计算出来的。</p>
+<ul>
+<li>Noise Tolerance：如果最大值没有比周围的数值大这个tolerance，那么该最大值会被忽略。即，设置了一个最大值减去该tolerance的阈值，超过该阈值的区域才被分析。</li>
+<li>Output Type：Single Points：图片是每个最大值所对应的点；Maxima Within Tolerance：每个最大值周围在Tolerance范围之内的所有点；Segmented Particles：假定每个最大值都属于一个颗粒，然后使用一个泛洪算法将图片分割，与之对比的是，Process-Binary-Watershed使用的是欧拉空间距离；Point Selection：在每个最大值点上显示一个多点选区；List：在Results窗口中显示每个最大值点的坐标；Count：显示最大值的数目。</li>
+<li>Exclude Edge Maxima：排除边缘上的最大值点</li>
+<li>Above Lower Threshold：仅适用于阈值处理过的图片，仅寻找在阈值下界以上的最大值，图片的阈值上界被忽略。如果在Output Type中选择Segmented Particles，那么在阈值下界以下的区域处理成背景。</li>
+<li>Light Backgroud：如果图片背景要比要寻找的对象亮，则勾选。</li>
+</ul>
+<p>该命令不适用于stacks，但FindStackMaxima宏可以作用于stack的所有图片。</p>
+<h2 id="Enhance-Contrast"><a href="#Enhance-Contrast" class="headerlink" title="Enhance Contrast"></a>Enhance Contrast</h2><p>通过使用histogram stretching或histogram equalization来增强图片对比。该命令不会改变像素值，只要Normalize、Equalize Histogram等不勾选。</p>
+<ul>
+<li>Saturated Pixels：决定图片中要饱和处理（即转成黑色或白色）的像素的个数。增大这个值会增加对比度。</li>
+<li>Normalize：勾选后，ImageJ将会重新计算像素值使得范围等于该图片类型的最大范围，或者对于浮点图片，范围是0-1.0。比如，对于8-bit图片，该最大范围是0-255，对于16-bit图片，范围是0-65535。对于RGB图，该项不显示。</li>
+<li>Equalize Histogram：勾选后，ImageJ将会使用histogram equalization来加强图片。勾选此项后，上面两项将失效。</li>
+<li>Use stack histogram：勾选后，ImageJ将会使用整体的stack的histogram，而不是单个slice的histogram。</li>
+</ul>
+<h2 id="Noise"><a href="#Noise" class="headerlink" title="Noise"></a>Noise</h2><h3 id="Add-noise"><a href="#Add-noise" class="headerlink" title="Add noise"></a>Add noise</h3><p>对图片增加随机噪声，噪声服从均值为0、标准差为25的高斯分布。</p>
+<h3 id="Add-Specified-Noise"><a href="#Add-Specified-Noise" class="headerlink" title="Add Specified Noise"></a>Add Specified Noise</h3><p>增加一个均值为0、手动输入标准差的高斯噪声。</p>
+<h3 id="Salt-and-Pepper"><a href="#Salt-and-Pepper" class="headerlink" title="Salt and Pepper"></a>Salt and Pepper</h3><p>通过随机替换2.5%的黑色像素和2.5%的白色像素来增加椒盐噪声。该命令仅适用于8-bit图片。</p>
+<h3 id="Despeckle"><a href="#Despeckle" class="headerlink" title="Despeckle"></a>Despeckle</h3><p>这是一种中值滤波器，它将像素值替换为它周围3*3的像素点的均值。中值滤波器对于去掉上面的椒盐噪声很有用。</p>
+<h3 id="Remove-Outliers"><a href="#Remove-Outliers" class="headerlink" title="Remove Outliers"></a>Remove Outliers</h3><p>如果一个像素点离它周围点的均值超过一定数值，该命令就会去除这个像素点。该命令对CCD相机的hot pixels或dead pixels很有用。</p>
+<ul>
+<li>Radius：决定计算均值的范围（单位是像素）。使用Process-Filter-Show Circular Masks来显示半径是如何转变为面积的。</li>
+<li>Threshold：决定阈值（单位是像素）</li>
+<li>Which Outliers：决定比均值更亮还是更暗的像素点去除。</li>
+</ul>
+<h3 id="Remove-NANs"><a href="#Remove-NANs" class="headerlink" title="Remove NANs"></a>Remove NANs</h3><p>该滤波器将32-bit图片中的NaN像素点替换成由Radius定义的圆形kernel区域内部的像素点的平均值。</p>
+<h2 id="Shadows"><a href="#Shadows" class="headerlink" title="Shadows"></a>Shadows</h2><p>创建阴影效果，使得光看起来从不同的方向照来。这些操作实际上是使用了不同的3*3的卷积核。</p>
+<h2 id="Binary"><a href="#Binary" class="headerlink" title="Binary"></a>Binary</h2><p>创建或处理二值图片，图片里仅有两个值，ImageJ处理成0和255，也有软件处理成0和1。这里假设对象是黑色的，背景是白色的，除非Process-Binary-Options中的Black Background被勾选。</p>
+<h3 id="Make-Binary"><a href="#Make-Binary" class="headerlink" title="Make Binary"></a>Make Binary</h3><p>将一张图片转化为黑白二值图片。如果之前使用Image-Adjust-Threshold设置了阈值，就会跳出一个对话框使设置怎样处理阈值以外和以内的像素。如果没有设置阈值，就会分析当前选区或整个图片的直方图，然后自动设置阈值进行二值化。如果是Stack，就会显示Convert to Mask对话框。注意，对于未经过阈值处理的图片和stack，Make Binary和Convert to Mask表现类似。</p>
+<h3 id="Convert-to-Mask"><a href="#Convert-to-Mask" class="headerlink" title="Convert to Mask"></a>Convert to Mask</h3><p>将图片转为黑白二值图片。该mask有一个反转的LUT（即白色是0，黑色是255），除非在Process-Binary-Options中勾选了Black Background。效果跟上面的Make Binary近似。</p>
+<h3 id="Erode"><a href="#Erode" class="headerlink" title="Erode"></a>Erode</h3><p>在二值图片中在图像边缘去除像素，在非阈值化的图片上使用Filters-Minimum来腐蚀灰度图。</p>
+<h3 id="Dilate"><a href="#Dilate" class="headerlink" title="Dilate"></a>Dilate</h3><p>在二值图片中在图像边缘增加像素，在非阈值化的图片上使用Filters-Maximum来膨胀灰度图。</p>
+<h3 id="Open"><a href="#Open" class="headerlink" title="Open"></a>Open</h3><p>开操作，即先腐蚀后膨胀。这将平滑对象及去除独立的像素点。</p>
+<h3 id="Close"><a href="#Close" class="headerlink" title="Close"></a>Close</h3><p>闭操作，即先膨胀后腐蚀。这将平滑对象及填充小洞。</p>
+<h3 id="Outline"><a href="#Outline" class="headerlink" title="Outline"></a>Outline</h3><p>在二值图片中在前景图片中产生一个像素宽的轮廓。</p>
+<h3 id="Fill-Holes"><a href="#Fill-Holes" class="headerlink" title="Fill Holes"></a>Fill Holes</h3><p>填充小洞（4个相连的背景色的元素）。</p>
+<h3 id="Skeletonize"><a href="#Skeletonize" class="headerlink" title="Skeletonize"></a>Skeletonize</h3><p>在二值图片中对对象边缘不断地去除像素点知道形成一个单像素宽的形状。</p>
+<h3 id="Distance-Map"><a href="#Distance-Map" class="headerlink" title="Distance Map"></a>Distance Map</h3><p>从二值图片中产生一个欧氏距离映射EDM。每一个前景像素被设为等于其离最近的背景像素的距离。下面的Ultimate Points、Watershed和Voronoi操作都是基于EDM算法。<br>该命令的输出类型需要在Binary-Options中设定，注意当选择Overwrite或8-bit output时，大于255的距离会被设为255。</p>
+<h3 id="Ultimate-Points"><a href="#Ultimate-Points" class="headerlink" title="Ultimate Points"></a>Ultimate Points</h3><p>产生极限腐蚀点，这种点是上面EDM的最大值。</p>
+<h3 id="Watershed"><a href="#Watershed" class="headerlink" title="Watershed"></a>Watershed</h3><p>泛洪分割可以自动分割两个碰撞的颗粒。它首先计算欧氏距离映射EDM，然后找到极限腐蚀点。接着尽可能膨胀每一个极限腐蚀点，直到达到颗粒的边缘或者达到另一个正在膨胀的极限腐蚀点。泛洪分割对重叠不严重的平滑凸包对象的分割很有用。<br>在Edit-Options-Misc中开启debug模式后，该命令可以创建一个泛洪算法怎样工作的动画。</p>
+<h3 id="Voronoi"><a href="#Voronoi" class="headerlink" title="Voronoi"></a>Voronoi</h3><p>将图片分割成与两个最近邻颗粒的边界有相等距离的一系列的点连成的线。因此，每个颗粒的Voronoi包含了与该颗粒更近的所有点。当颗粒是单个的点时，这个过程称为Voronoi镶嵌或称Dirichlet镶嵌。<br>在输出中，在Voronoi胞内部的值是0，分割线上的点的像素值等于两个最近邻颗粒的距离。</p>
+<h3 id="Options"><a href="#Options" class="headerlink" title="Options"></a>Options</h3><p>指定Binary命令的有关设置：</p>
+<ul>
+<li>Iterations：指定腐蚀、膨胀、开、闭操作的迭代次数，迭代过程可以被Esc打断。</li>
+<li>Count：指定腐蚀或膨胀时在边缘上去除或添加的像素的临近背景像素个数。</li>
+<li>Black Background：指定背景为黑色。</li>
+<li>Pad edges when eroding：勾选后，不会在图片的边缘进行腐蚀，该选项也会影响闭操作。</li>
+<li>EDM output：决定输出类型。</li>
+<li>Do：预览一下上述设置的影响。</li>
+</ul>
+<h2 id="Math"><a href="#Math" class="headerlink" title="Math"></a>Math</h2><p>该菜单对当前图片或选区上的每个像素加减乘除一个常数。</p>
+<h3 id="Add"><a href="#Add" class="headerlink" title="Add"></a>Add</h3><p>相加一个常数。对于8-bit图片，大于255的结果被置为255；对于16-bit图片，大于65535的结果被置为65535。</p>
+<h3 id="Subtract"><a href="#Subtract" class="headerlink" title="Subtract"></a>Subtract</h3><p>减去一个常数。对于8-bit和16-bit图片，小于0的结果被置为0。</p>
+<h3 id="Multiply"><a href="#Multiply" class="headerlink" title="Multiply"></a>Multiply</h3><p>乘以一个常数。对于8-bit图片，大于255的结果被置为255；对于16-bit图片，大于65535的结果被置为65535。</p>
+<h3 id="Divide"><a href="#Divide" class="headerlink" title="Divide"></a>Divide</h3><p>除以一个常数。对于非32-bit的图片，忽略除以0的操作；对于32-bit图片，如果源像素分别是正值、负值或零，那么默认除以0的结果是正无穷、负无穷和NaN。可以Edit-Options-Misc重新定义除以0的结果。</p>
+<h3 id="And"><a href="#And" class="headerlink" title="And"></a>And</h3><p>与一个特定的二进制常数进行逐位与运算</p>
+<h3 id="OR"><a href="#OR" class="headerlink" title="OR"></a>OR</h3><p>与一个特定的二进制常数进行逐位或运算</p>
+<h3 id="XOR"><a href="#XOR" class="headerlink" title="XOR"></a>XOR</h3><p>与一个特定的二进制常数进行逐位异或运算</p>
+<h3 id="Min"><a href="#Min" class="headerlink" title="Min"></a>Min</h3><p>如果像素值小于某特定常数，则该像素值被替换为该常数</p>
+<h3 id="Max"><a href="#Max" class="headerlink" title="Max"></a>Max</h3><p>如果像素值大于某特定常数，则该像素值被替换为该常数</p>
+<h3 id="Gamma"><a href="#Gamma" class="headerlink" title="Gamma"></a>Gamma</h3><p>对每一个像素值施加$f(p)=(p/255)^\gamma *255$，其中$\gamma$在0.1和5.0之间。对于RGB图片，该函数作用于所有的3个通道，对于16-bit图片，图片的最小和最大值将代替255用于缩放。</p>
+<h3 id="Set"><a href="#Set" class="headerlink" title="Set"></a>Set</h3><p>用特定值来填充图片或选区。</p>
+<h3 id="Log"><a href="#Log" class="headerlink" title="Log"></a>Log</h3><p>对于8-bit图片，对图片或选区中的每个像素施加$f(p)=\ln (p)*255/ \ln(255)$；对于RGB图片，该函数作用于三个通道；对于16-bit图片，图片的最小和最大值将代替255；对于float型图片，不进行缩放。如果想计算$\log_{10}$，则对该结果乘以0.4343。</p>
+<h3 id="Exp"><a href="#Exp" class="headerlink" title="Exp"></a>Exp</h3><p>对当前图片或选区进行指数变换</p>
+<h3 id="Square"><a href="#Square" class="headerlink" title="Square"></a>Square</h3><p>对当前图片或选区进行平方变换</p>
+<h3 id="Square-Root"><a href="#Square-Root" class="headerlink" title="Square Root"></a>Square Root</h3><p>对当前图片或选区进行平方根变换</p>
+<h3 id="Reciprocal"><a href="#Reciprocal" class="headerlink" title="Reciprocal"></a>Reciprocal</h3><p>对当前图片或选区进行倒数变换</p>
+<h3 id="NaN-Background"><a href="#NaN-Background" class="headerlink" title="NaN Background"></a>NaN Background</h3><p>将32-bit浮点型图片的非阈值的像素设为NaN。对于浮点型图片，Image-Adjust-Threshold的Apply就是执行的该命令。</p>
+<h3 id="Abs"><a href="#Abs" class="headerlink" title="Abs"></a>Abs</h3><p>产生当前图片或选区的绝对值，仅对32-bit浮点型图片或signed 16-bit图片有效。</p>
+<h3 id="Macro"><a href="#Macro" class="headerlink" title="Macro"></a>Macro</h3><p>可以自定义算术运算。</p>
+<h2 id="FFT"><a href="#FFT" class="headerlink" title="FFT"></a>FFT</h2><p>该菜单支持频域显示、编辑和处理，基于二维快速哈特利变换FHT。三维的FHT可以通过3D Fast Hartley Transform插件来实现。</p>
+<h3 id="FFT-1"><a href="#FFT-1" class="headerlink" title="FFT"></a>FFT</h3><p>进行傅里叶变换，显示功率谱。测量的点的极坐标由Anayze-Measure所记录。如果鼠标在当前频谱窗口上悬停，那么它的位置是通过极坐标显示。</p>
+<h3 id="Inverse-FFT"><a href="#Inverse-FFT" class="headerlink" title="Inverse FFT"></a>Inverse FFT</h3><p>进行逆向傅里叶变换。</p>
+<h3 id="Redisplay-Power-Spectrum"><a href="#Redisplay-Power-Spectrum" class="headerlink" title="Redisplay Power Spectrum"></a>Redisplay Power Spectrum</h3><p>从频谱图片中重新计算功率谱。</p>
+<h3 id="FFT-Options"><a href="#FFT-Options" class="headerlink" title="FFT Options"></a>FFT Options</h3><p>显示快速傅里叶变换的选项。</p>
+<h3 id="Bandpass-Filter"><a href="#Bandpass-Filter" class="headerlink" title="Bandpass Filter"></a>Bandpass Filter</h3><p>去除高频和低频。</p>
+<h3 id="Custom-Filter"><a href="#Custom-Filter" class="headerlink" title="Custom Filter"></a>Custom Filter</h3><p>使用用户自定义的空间域图片作为滤波器。</p>
+<h3 id="FD-Math"><a href="#FD-Math" class="headerlink" title="FD Math"></a>FD Math</h3><p>对两张图片进行convolve或deconvolve。</p>
+<h3 id="Swap-Quadrants"><a href="#Swap-Quadrants" class="headerlink" title="Swap Quadrants"></a>Swap Quadrants</h3><p>交换象限。</p>
+<h2 id="Filters"><a href="#Filters" class="headerlink" title="Filters"></a>Filters</h2><p>该菜单包含五花八门的滤波器。</p>
+<h3 id="Convolve"><a href="#Convolve" class="headerlink" title="Convolve"></a>Convolve</h3><p>使用填入文本区域的kernel进行空间卷积。<br>一个kernel就是一个矩阵，它的中心是源像素，其他的元素是该像素的邻居。通过对像素点乘以相应的kernel中的系数然后相加得到结果。对kernel的尺寸没有限制，但它必须是方形，且必须是奇数宽度。<br>勾选Normalize Kernel可以使得每个系数都除以所有系数的和，从而保持图片的亮度。</p>
+<h3 id="Gaussian-Blur"><a href="#Gaussian-Blur" class="headerlink" title="Gaussian Blur"></a>Gaussian Blur</h3><p>该过滤器使用一个高斯函数进行卷积，从而实现平滑效果。</p>
+<h3 id="Gaussian-Blur-3D"><a href="#Gaussian-Blur-3D" class="headerlink" title="Gaussian Blur 3D"></a>Gaussian Blur 3D</h3><p>计算一个三维高斯低通滤波。</p>
+<h3 id="Median"><a href="#Median" class="headerlink" title="Median"></a>Median</h3><p>将像素替换为周围点的平均像素值，从而实现降噪效果。</p>
+<h3 id="Mean"><a href="#Mean" class="headerlink" title="Mean"></a>Mean</h3><p>怎么感觉跟上面的Median是一个意思呢。。</p>
+<h3 id="Minimum"><a href="#Minimum" class="headerlink" title="Minimum"></a>Minimum</h3><p>将像素替换为周围点的最小值，从而实现灰度腐蚀。</p>
+<h3 id="Maximum"><a href="#Maximum" class="headerlink" title="Maximum"></a>Maximum</h3><p>将像素替换为周围点的最大值，从而实现灰度膨胀。</p>
+<h3 id="Unsharp-Mask"><a href="#Unsharp-Mask" class="headerlink" title="Unsharp Mask"></a>Unsharp Mask</h3><p>通过从原图片中提出一个模糊的版本，从而锐化和加强边缘。</p>
+<h3 id="Variance"><a href="#Variance" class="headerlink" title="Variance"></a>Variance</h3><p>将每个像素替换为邻居的方差，从而高亮边缘。</p>
+<h3 id="Show-Circular-Masks"><a href="#Show-Circular-Masks" class="headerlink" title="Show Circular Masks"></a>Show Circular Masks</h3><p>产生一个包含上面Median、Mean、Minimum、Maximum和Variance滤波器使用的圆形mask产生的事例。</p>
+<h2 id="Batch"><a href="#Batch" class="headerlink" title="Batch"></a>Batch</h2><p>包含批量处理一系列图片的命令。<br>Batch命令是非递归的，即命令是施加在当前Input文件夹的所有图片上，但不作用于它的子文件夹，除非使用BatchProcessFolders宏中定义了目录遗传树。<br>关于批处理有三个重要提醒：</p>
+<ul>
+<li>文件很容易被覆盖，因为批处理器总是静默地覆盖有同样名称的已有文件；</li>
+<li>目标Output文件夹应该有足够的硬盘空间来存储所创建的图片；</li>
+<li>对于非原始格式的图片，批处理操作会被那个读取该文件格式的插件或库所影响。</li>
+</ul>
+<h3 id="Convert"><a href="#Convert" class="headerlink" title="Convert"></a>Convert</h3><p>在指定文件夹中批量转换或调整文件尺寸。</p>
+<ul>
+<li>Input：选择源文件夹</li>
+<li>Output：选择目标文件夹</li>
+<li>Output Format：选择输出图片的格式</li>
+<li>Interpolation：如果Scale Factor不设为1，那么将会使用重采样方法。</li>
+<li>Scale Factor：是否缩放。</li>
+</ul>
+<h3 id="Macro-1"><a href="#Macro-1" class="headerlink" title="Macro"></a>Macro</h3><p>运行指定文件夹中的一个宏，最近使用的宏存储在/ImageJ/macros/batchmacro.ijm文件中，可以在重启时记忆住。</p>
+<ul>
+<li>Input：选择要处理的图片所在的文件夹</li>
+<li>Output：选择目标文件夹。如果为空，源文件不会被存储</li>
+<li>Output format：指定输出格式</li>
+<li>Add Macro Code：下拉菜单中包含了一些宏片段，可以组合起来形成一个宏。其他的代码可以粘贴进下面的编辑器中。之前写的宏可以通过下面的Open导入。</li>
+<li>Test：用Input文件夹中的第一张图片进行测试</li>
+<li>Open：导入之前写的宏</li>
+<li>Save：保存组装好的宏</li>
+</ul>
+<h3 id="Virtual-Stack"><a href="#Virtual-Stack" class="headerlink" title="Virtual Stack"></a>Virtual Stack</h3><p>该命令与上面的macro的界面相同，允许操作virtual stack。</p>
+<h3 id="Image-Calculator"><a href="#Image-Calculator" class="headerlink" title="Image Calculator"></a>Image Calculator</h3><p>对两张图片进行逻辑或算术运算，Image1可以是stack，或者Image1和Image2同时是stacks。如果两者都是stacks，那么都是有相同数目的slice。两张图片不一定有相同的文件类型或尺寸。</p>
+<ul>
+<li>Operation：选择13种操作中的一种</li>
+<li>Create New Window：勾选后，就会创建一个新的图片，如果不勾选，则结果作用在Image1上。</li>
+<li>32-bit Result：勾选后，源图片在操作前会转换为32-bit float型</li>
+</ul>
+<h2 id="Subtract-background"><a href="#Subtract-background" class="headerlink" title="Subtract background"></a>Subtract background</h2><p>去除平滑的连续的背景，基于“rolling ball”算法。想象一个二维灰度图有一个第三维度，其值是每个点的像素值的大小，一个有特定半径的球在这个表面下面滚动，碰到该图的点就是要去除的背景。</p>
+<ul>
+<li>Rolling Ball Radius：抛物线的曲率半径。</li>
+<li>Light Background：允许处理明亮背景、对象深色的情形。</li>
+<li>Separate colors：仅适用于RGB图像，如果未勾选，则操作仅影响亮度，而不对灰度和饱和度进行操作。</li>
+<li>Create background (Don’t subtract)：勾选后，输出不再是扣除了背景的图片，而是背景本身。</li>
+<li>Sliding Paraboloid：勾选后，球被一个有相同曲率的的抛物面所替代。</li>
+<li>Disable Smoothing：为了计算背景，图片会先用一个3*3的最大值滤波器进行滤波，从而去除异常值和噪点的影响。勾选后，使用原始值进行操作。</li>
+</ul>
+<h2 id="Repeat-Command"><a href="#Repeat-Command" class="headerlink" title="Repeat Command"></a>Repeat Command</h2><p>重复之前的命令。忽略Edit-Undo和File-Open这两个命令。</p>
+
+    </div>
+
+    
+    
+    
+        <div class="reward-container">
+  <div></div>
+  <button onclick="var qr = document.getElementById('qr'); qr.style.display = (qr.style.display === 'none') ? 'block' : 'none';">
+    Donate
+  </button>
+  <div id="qr" style="display: none;">
+      
+      <div style="display: inline-block;">
+        <img src="/images/wechat_reward.png" alt="Xin-Bo Qi(亓欣波) WeChat Pay">
+        <p>WeChat Pay</p>
+      </div>
+
+  </div>
+</div>
+
+
+      <footer class="post-footer">
+          <div class="post-tags">
+              <a href="/tags/ImageJ/" rel="tag"># ImageJ</a>
+          </div>
+
+        
+
+
+        
+    <div class="post-nav">
+      <div class="post-nav-item">
+    <a href="/2018/09/06/imagej-ui-menu-image/" rel="prev" title="ImageJ 用户指南 -- 7. 菜单栏之Image">
+      <i class="fa fa-chevron-left"></i> ImageJ 用户指南 -- 7. 菜单栏之Image
+    </a></div>
+      <div class="post-nav-item">
+    <a href="/2018/09/09/imagej-ui-menu-analyze/" rel="next" title="ImageJ 用户指南 -- 9. 菜单栏之Analyze">
+      ImageJ 用户指南 -- 9. 菜单栏之Analyze <i class="fa fa-chevron-right"></i>
+    </a></div>
+    </div>
+      </footer>
+    
+  </article>
+  
+  
+  
+
+
+
+          </div>
+          
+    
+  <div class="comments">
+    <div id="disqus_thread">
+      <noscript>Please enable JavaScript to view the comments powered by Disqus.</noscript>
+    </div>
+  </div>
+  
+
+<script>
+  window.addEventListener('tabs:register', () => {
+    let { activeClass } = CONFIG.comments;
+    if (CONFIG.comments.storage) {
+      activeClass = localStorage.getItem('comments_active') || activeClass;
+    }
+    if (activeClass) {
+      let activeTab = document.querySelector(`a[href="#comment-${activeClass}"]`);
+      if (activeTab) {
+        activeTab.click();
+      }
+    }
+  });
+  if (CONFIG.comments.storage) {
+    window.addEventListener('tabs:click', event => {
+      if (!event.target.matches('.tabs-comment .tab-content .tab-pane')) return;
+      let commentClass = event.target.classList[1];
+      localStorage.setItem('comments_active', commentClass);
+    });
+  }
+</script>
+
+        </div>
+          
+  
+  <div class="toggle sidebar-toggle">
+    <span class="toggle-line toggle-line-first"></span>
+    <span class="toggle-line toggle-line-middle"></span>
+    <span class="toggle-line toggle-line-last"></span>
+  </div>
+
+  <aside class="sidebar">
+    <div class="sidebar-inner">
+
+      <ul class="sidebar-nav motion-element">
+        <li class="sidebar-nav-toc">
+          Table of Contents
+        </li>
+        <li class="sidebar-nav-overview">
+          Overview
+        </li>
+      </ul>
+
+      <!--noindex-->
+      <div class="post-toc-wrap sidebar-panel">
+          <div class="post-toc motion-element"><ol class="nav"><li class="nav-item nav-level-1"><a class="nav-link" href="#%E6%9C%AC%E7%AB%A0%E8%AF%B4%E6%98%8E"><span class="nav-number">1.</span> <span class="nav-text">本章说明</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#Process"><span class="nav-number">2.</span> <span class="nav-text">Process</span></a><ol class="nav-child"><li class="nav-item nav-level-2"><a class="nav-link" href="#Smooth"><span class="nav-number">2.1.</span> <span class="nav-text">Smooth</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#Sharpen"><span class="nav-number">2.2.</span> <span class="nav-text">Sharpen</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#Find-Edges"><span class="nav-number">2.3.</span> <span class="nav-text">Find Edges</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#Find-Maxima"><span class="nav-number">2.4.</span> <span class="nav-text">Find Maxima</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#Enhance-Contrast"><span class="nav-number">2.5.</span> <span class="nav-text">Enhance Contrast</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#Noise"><span class="nav-number">2.6.</span> <span class="nav-text">Noise</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#Add-noise"><span class="nav-number">2.6.1.</span> <span class="nav-text">Add noise</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#Add-Specified-Noise"><span class="nav-number">2.6.2.</span> <span class="nav-text">Add Specified Noise</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#Salt-and-Pepper"><span class="nav-number">2.6.3.</span> <span class="nav-text">Salt and Pepper</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#Despeckle"><span class="nav-number">2.6.4.</span> <span class="nav-text">Despeckle</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#Remove-Outliers"><span class="nav-number">2.6.5.</span> <span class="nav-text">Remove Outliers</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#Remove-NANs"><span class="nav-number">2.6.6.</span> <span class="nav-text">Remove NANs</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#Shadows"><span class="nav-number">2.7.</span> <span class="nav-text">Shadows</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#Binary"><span class="nav-number">2.8.</span> <span class="nav-text">Binary</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#Make-Binary"><span class="nav-number">2.8.1.</span> <span class="nav-text">Make Binary</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#Convert-to-Mask"><span class="nav-number">2.8.2.</span> <span class="nav-text">Convert to Mask</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#Erode"><span class="nav-number">2.8.3.</span> <span class="nav-text">Erode</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#Dilate"><span class="nav-number">2.8.4.</span> <span class="nav-text">Dilate</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#Open"><span class="nav-number">2.8.5.</span> <span class="nav-text">Open</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#Close"><span class="nav-number">2.8.6.</span> <span class="nav-text">Close</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#Outline"><span class="nav-number">2.8.7.</span> <span class="nav-text">Outline</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#Fill-Holes"><span class="nav-number">2.8.8.</span> <span class="nav-text">Fill Holes</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#Skeletonize"><span class="nav-number">2.8.9.</span> <span class="nav-text">Skeletonize</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#Distance-Map"><span class="nav-number">2.8.10.</span> <span class="nav-text">Distance Map</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#Ultimate-Points"><span class="nav-number">2.8.11.</span> <span class="nav-text">Ultimate Points</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#Watershed"><span class="nav-number">2.8.12.</span> <span class="nav-text">Watershed</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#Voronoi"><span class="nav-number">2.8.13.</span> <span class="nav-text">Voronoi</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#Options"><span class="nav-number">2.8.14.</span> <span class="nav-text">Options</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#Math"><span class="nav-number">2.9.</span> <span class="nav-text">Math</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#Add"><span class="nav-number">2.9.1.</span> <span class="nav-text">Add</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#Subtract"><span class="nav-number">2.9.2.</span> <span class="nav-text">Subtract</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#Multiply"><span class="nav-number">2.9.3.</span> <span class="nav-text">Multiply</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#Divide"><span class="nav-number">2.9.4.</span> <span class="nav-text">Divide</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#And"><span class="nav-number">2.9.5.</span> <span class="nav-text">And</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#OR"><span class="nav-number">2.9.6.</span> <span class="nav-text">OR</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#XOR"><span class="nav-number">2.9.7.</span> <span class="nav-text">XOR</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#Min"><span class="nav-number">2.9.8.</span> <span class="nav-text">Min</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#Max"><span class="nav-number">2.9.9.</span> <span class="nav-text">Max</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#Gamma"><span class="nav-number">2.9.10.</span> <span class="nav-text">Gamma</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#Set"><span class="nav-number">2.9.11.</span> <span class="nav-text">Set</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#Log"><span class="nav-number">2.9.12.</span> <span class="nav-text">Log</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#Exp"><span class="nav-number">2.9.13.</span> <span class="nav-text">Exp</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#Square"><span class="nav-number">2.9.14.</span> <span class="nav-text">Square</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#Square-Root"><span class="nav-number">2.9.15.</span> <span class="nav-text">Square Root</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#Reciprocal"><span class="nav-number">2.9.16.</span> <span class="nav-text">Reciprocal</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#NaN-Background"><span class="nav-number">2.9.17.</span> <span class="nav-text">NaN Background</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#Abs"><span class="nav-number">2.9.18.</span> <span class="nav-text">Abs</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#Macro"><span class="nav-number">2.9.19.</span> <span class="nav-text">Macro</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#FFT"><span class="nav-number">2.10.</span> <span class="nav-text">FFT</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#FFT-1"><span class="nav-number">2.10.1.</span> <span class="nav-text">FFT</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#Inverse-FFT"><span class="nav-number">2.10.2.</span> <span class="nav-text">Inverse FFT</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#Redisplay-Power-Spectrum"><span class="nav-number">2.10.3.</span> <span class="nav-text">Redisplay Power Spectrum</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#FFT-Options"><span class="nav-number">2.10.4.</span> <span class="nav-text">FFT Options</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#Bandpass-Filter"><span class="nav-number">2.10.5.</span> <span class="nav-text">Bandpass Filter</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#Custom-Filter"><span class="nav-number">2.10.6.</span> <span class="nav-text">Custom Filter</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#FD-Math"><span class="nav-number">2.10.7.</span> <span class="nav-text">FD Math</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#Swap-Quadrants"><span class="nav-number">2.10.8.</span> <span class="nav-text">Swap Quadrants</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#Filters"><span class="nav-number">2.11.</span> <span class="nav-text">Filters</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#Convolve"><span class="nav-number">2.11.1.</span> <span class="nav-text">Convolve</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#Gaussian-Blur"><span class="nav-number">2.11.2.</span> <span class="nav-text">Gaussian Blur</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#Gaussian-Blur-3D"><span class="nav-number">2.11.3.</span> <span class="nav-text">Gaussian Blur 3D</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#Median"><span class="nav-number">2.11.4.</span> <span class="nav-text">Median</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#Mean"><span class="nav-number">2.11.5.</span> <span class="nav-text">Mean</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#Minimum"><span class="nav-number">2.11.6.</span> <span class="nav-text">Minimum</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#Maximum"><span class="nav-number">2.11.7.</span> <span class="nav-text">Maximum</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#Unsharp-Mask"><span class="nav-number">2.11.8.</span> <span class="nav-text">Unsharp Mask</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#Variance"><span class="nav-number">2.11.9.</span> <span class="nav-text">Variance</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#Show-Circular-Masks"><span class="nav-number">2.11.10.</span> <span class="nav-text">Show Circular Masks</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#Batch"><span class="nav-number">2.12.</span> <span class="nav-text">Batch</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#Convert"><span class="nav-number">2.12.1.</span> <span class="nav-text">Convert</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#Macro-1"><span class="nav-number">2.12.2.</span> <span class="nav-text">Macro</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#Virtual-Stack"><span class="nav-number">2.12.3.</span> <span class="nav-text">Virtual Stack</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#Image-Calculator"><span class="nav-number">2.12.4.</span> <span class="nav-text">Image Calculator</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#Subtract-background"><span class="nav-number">2.13.</span> <span class="nav-text">Subtract background</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#Repeat-Command"><span class="nav-number">2.14.</span> <span class="nav-text">Repeat Command</span></a></li></ol></li></ol></div>
+      </div>
+      <!--/noindex-->
+
+      <div class="site-overview-wrap sidebar-panel">
+        <div class="site-author motion-element" itemprop="author" itemscope itemtype="http://schema.org/Person">
+    <img class="site-author-image" itemprop="image" alt="Xin-Bo Qi(亓欣波)"
+      src="/images/avatar.jpg">
+  <p class="site-author-name" itemprop="name">Xin-Bo Qi(亓欣波)</p>
+  <div class="site-description" itemprop="description">Be interesting!</div>
+</div>
+<div class="site-state-wrap motion-element">
+  <nav class="site-state">
+      <div class="site-state-item site-state-posts">
+          <a href="/archives/">
+        
+          <span class="site-state-item-count">120</span>
+          <span class="site-state-item-name">posts</span>
+        </a>
+      </div>
+      <div class="site-state-item site-state-categories">
+            <a href="/categories/">
+          
+        <span class="site-state-item-count">5</span>
+        <span class="site-state-item-name">categories</span></a>
+      </div>
+      <div class="site-state-item site-state-tags">
+            <a href="/tags/">
+          
+        <span class="site-state-item-count">41</span>
+        <span class="site-state-item-name">tags</span></a>
+      </div>
+  </nav>
+</div>
+  <div class="links-of-author motion-element">
+      <span class="links-of-author-item">
+        <a href="https://github.com/qixinbo" title="GitHub → https:&#x2F;&#x2F;github.com&#x2F;qixinbo" rel="noopener" target="_blank"><i class="github fa-fw"></i>GitHub</a>
+      </span>
+      <span class="links-of-author-item">
+        <a href="mailto:qixinbo@gmail.com" title="E-Mail → mailto:qixinbo@gmail.com" rel="noopener" target="_blank"><i class="envelope fa-fw"></i>E-Mail</a>
+      </span>
+  </div>
+
+
+  <div class="links-of-blogroll motion-element">
+    <div class="links-of-blogroll-title"><i class="fa fa-link fa-fw"></i>
+      Links
+    </div>
+    <ul class="links-of-blogroll-list">
+        <li class="links-of-blogroll-item">
+          <a href="https://www.tsinghua.edu.cn/" title="https:&#x2F;&#x2F;www.tsinghua.edu.cn" rel="noopener" target="_blank">THU</a>
+        </li>
+        <li class="links-of-blogroll-item">
+          <a href="http://www.imr.cas.cn/" title="http:&#x2F;&#x2F;www.imr.cas.cn" rel="noopener" target="_blank">IMR</a>
+        </li>
+        <li class="links-of-blogroll-item">
+          <a href="http://www.sdu.edu.cn/" title="http:&#x2F;&#x2F;www.sdu.edu.cn" rel="noopener" target="_blank">SDU</a>
+        </li>
+        <li class="links-of-blogroll-item">
+          <a href="http://liam0205.me/" title="http:&#x2F;&#x2F;liam0205.me&#x2F;" rel="noopener" target="_blank">黄晨成</a>
+        </li>
+    </ul>
+  </div>
+
+      </div>
+
+    </div>
+  </aside>
+  <div id="sidebar-dimmer"></div>
+
+
+      </div>
+    </main>
+
+    <footer class="footer">
+      <div class="footer-inner">
+        
+
+        
+
+<div class="copyright">
+  
+  &copy; 
+  <span itemprop="copyrightYear">2021</span>
+  <span class="with-love">
+    <i class="fa fa-heart"></i>
+  </span>
+  <span class="author" itemprop="copyrightHolder">Xin-Bo Qi(亓欣波)</span>
+</div>
+  <div class="powered-by">Powered by <a href="https://hexo.io/" class="theme-link" rel="noopener" target="_blank">Hexo</a> & <a href="https://theme-next.org/" class="theme-link" rel="noopener" target="_blank">NexT.Gemini</a>
+  </div>
+
+        
+
+
+
+
+
+
+
+
+      </div>
+    </footer>
+  </div>
+
+  
+  <script src="/lib/anime.min.js"></script>
+  <script src="/lib/velocity/velocity.min.js"></script>
+  <script src="/lib/velocity/velocity.ui.min.js"></script>
+
+<script src="/js/utils.js"></script>
+
+<script src="/js/motion.js"></script>
+
+
+<script src="/js/schemes/pisces.js"></script>
+
+
+<script src="/js/next-boot.js"></script>
+
+
+
+
+  
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+  
+
+  
+
+  
+
+<script>
+  function loadCount() {
+    var d = document, s = d.createElement('script');
+    s.src = 'https://qixinbo.disqus.com/count.js';
+    s.id = 'dsq-count-scr';
+    (d.head || d.body).appendChild(s);
+  }
+  // defer loading until the whole page loading is completed
+  window.addEventListener('load', loadCount, false);
+</script>
+<script>
+  var disqus_config = function() {
+    this.page.url = "http://qixinbo.github.io/2018/09/08/imagej-ui-menu-process/";
+    this.page.identifier = "2018/09/08/imagej-ui-menu-process/";
+    this.page.title = "ImageJ 用户指南 -- 8. 菜单栏之Process";
+    };
+  NexT.utils.loadComments(document.querySelector('#disqus_thread'), () => {
+    if (window.DISQUS) {
+      DISQUS.reset({
+        reload: true,
+        config: disqus_config
+      });
+    } else {
+      var d = document, s = d.createElement('script');
+      s.src = 'https://qixinbo.disqus.com/embed.js';
+      s.setAttribute('data-timestamp', '' + +new Date());
+      (d.head || d.body).appendChild(s);
+    }
+  });
+</script>
+
+</body>
+</html>

@@ -1,0 +1,605 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=2">
+<meta name="theme-color" content="#222">
+<meta name="generator" content="Hexo 5.4.0">
+  <link rel="apple-touch-icon" sizes="180x180" href="/images/apple-touch-icon-next.png">
+  <link rel="icon" type="image/png" sizes="32x32" href="/favicon.ico">
+  <link rel="icon" type="image/png" sizes="16x16" href="/favicon.ico">
+  <link rel="mask-icon" href="/images/logo.svg" color="#222">
+
+<link rel="stylesheet" href="/css/main.css">
+
+
+<link rel="stylesheet" href="/lib/font-awesome/css/all.min.css">
+
+<script id="hexo-configurations">
+    var NexT = window.NexT || {};
+    var CONFIG = {"hostname":"qixinbo.github.io","root":"/","scheme":"Gemini","version":"7.8.0","exturl":false,"sidebar":{"position":"left","display":"post","padding":18,"offset":12,"onmobile":false},"copycode":{"enable":false,"show_result":false,"style":null},"back2top":{"enable":true,"sidebar":false,"scrollpercent":false},"bookmark":{"enable":false,"color":"#222","save":"auto"},"fancybox":false,"mediumzoom":false,"lazyload":false,"pangu":false,"comments":{"style":"tabs","active":null,"storage":true,"lazyload":false,"nav":null},"algolia":{"hits":{"per_page":10},"labels":{"input_placeholder":"Search for Posts","hits_empty":"We didn't find any results for the search: ${query}","hits_stats":"${hits} results found in ${time} ms"}},"localsearch":{"enable":false,"trigger":"auto","top_n_per_article":1,"unescape":false,"preload":false},"motion":{"enable":true,"async":false,"transition":{"post_block":"fadeIn","post_header":"slideDownIn","post_body":"slideDownIn","coll_header":"slideLeftIn","sidebar":"slideUpIn"}}};
+  </script>
+
+  <meta name="description" content="本章说明这里详解Edit菜单的功能。 EditUndo撤销上一步操作。 Cut将当前选区中的内容复制到内部剪贴板，然后用当前背景色填充选区。 Copy将当前选区中的内容复制到内部剪贴板，如果没有选区，则复制整个图片。 Copy to system将当前选区中的内容复制到系统剪贴板。 Paste将内部剪贴板的内容（如果为空，则是系统剪贴板）粘贴到当前图片。 Paste Control粘贴以后，使用该">
+<meta property="og:type" content="article">
+<meta property="og:title" content="ImageJ 用户指南 -- 6. 菜单栏之Edit">
+<meta property="og:url" content="http://qixinbo.github.io/2018/09/04/imagej-ui-menu-edit/index.html">
+<meta property="og:site_name" content="亓欣波">
+<meta property="og:description" content="本章说明这里详解Edit菜单的功能。 EditUndo撤销上一步操作。 Cut将当前选区中的内容复制到内部剪贴板，然后用当前背景色填充选区。 Copy将当前选区中的内容复制到内部剪贴板，如果没有选区，则复制整个图片。 Copy to system将当前选区中的内容复制到系统剪贴板。 Paste将内部剪贴板的内容（如果为空，则是系统剪贴板）粘贴到当前图片。 Paste Control粘贴以后，使用该">
+<meta property="og:locale" content="en_US">
+<meta property="article:published_time" content="2018-09-03T16:00:00.000Z">
+<meta property="article:modified_time" content="2021-03-25T07:20:30.670Z">
+<meta property="article:author" content="Xin-Bo Qi(亓欣波)">
+<meta property="article:tag" content="ImageJ">
+<meta name="twitter:card" content="summary">
+
+<link rel="canonical" href="http://qixinbo.github.io/2018/09/04/imagej-ui-menu-edit/">
+
+
+<script id="page-configurations">
+  // https://hexo.io/docs/variables.html
+  CONFIG.page = {
+    sidebar: "",
+    isHome : false,
+    isPost : true,
+    lang   : 'en'
+  };
+</script>
+
+  <title>ImageJ 用户指南 -- 6. 菜单栏之Edit | 亓欣波</title>
+  
+
+
+
+
+
+
+  <noscript>
+  <style>
+  .use-motion .brand,
+  .use-motion .menu-item,
+  .sidebar-inner,
+  .use-motion .post-block,
+  .use-motion .pagination,
+  .use-motion .comments,
+  .use-motion .post-header,
+  .use-motion .post-body,
+  .use-motion .collection-header { opacity: initial; }
+
+  .use-motion .site-title,
+  .use-motion .site-subtitle {
+    opacity: initial;
+    top: initial;
+  }
+
+  .use-motion .logo-line-before i { left: initial; }
+  .use-motion .logo-line-after i { right: initial; }
+  </style>
+</noscript>
+
+</head>
+
+<body itemscope itemtype="http://schema.org/WebPage">
+  <div class="container use-motion">
+    <div class="headband"></div>
+
+    <header class="header" itemscope itemtype="http://schema.org/WPHeader">
+      <div class="header-inner"><div class="site-brand-container">
+  <div class="site-nav-toggle">
+    <div class="toggle" aria-label="Toggle navigation bar">
+      <span class="toggle-line toggle-line-first"></span>
+      <span class="toggle-line toggle-line-middle"></span>
+      <span class="toggle-line toggle-line-last"></span>
+    </div>
+  </div>
+
+  <div class="site-meta">
+
+    <a href="/" class="brand" rel="start">
+      <span class="logo-line-before"><i></i></span>
+      <h1 class="site-title">亓欣波</h1>
+      <span class="logo-line-after"><i></i></span>
+    </a>
+      <p class="site-subtitle" itemprop="description">Hi, I am Xin-Bo Qi (亓欣波)</p>
+  </div>
+
+  <div class="site-nav-right">
+    <div class="toggle popup-trigger">
+    </div>
+  </div>
+</div>
+
+
+
+
+<nav class="site-nav">
+  <ul id="menu" class="main-menu menu">
+        <li class="menu-item menu-item-home">
+
+    <a href="/" rel="section"><i class="home fa-fw"></i>Home</a>
+
+  </li>
+        <li class="menu-item menu-item-categories">
+
+    <a href="/categories/" rel="section"><i class="th fa-fw"></i>Categories</a>
+
+  </li>
+        <li class="menu-item menu-item-archives">
+
+    <a href="/archives/" rel="section"><i class="archive fa-fw"></i>Archives</a>
+
+  </li>
+        <li class="menu-item menu-item-tags">
+
+    <a href="/tags/" rel="section"><i class="tags fa-fw"></i>Tags</a>
+
+  </li>
+        <li class="menu-item menu-item-scholar">
+
+    <a href="/scholar/" rel="section"><i class="bar-chart fa-fw"></i>scholar</a>
+
+  </li>
+        <li class="menu-item menu-item-sources">
+
+    <a href="/sources/" rel="section"><i class="rss fa-fw"></i>sources</a>
+
+  </li>
+        <li class="menu-item menu-item-gallery">
+
+    <a href="/gallery/" rel="section"><i class="file-image-o fa-fw"></i>gallery</a>
+
+  </li>
+        <li class="menu-item menu-item-about">
+
+    <a href="/about/" rel="section"><i class="user fa-fw"></i>About</a>
+
+  </li>
+        <li class="menu-item menu-item-commonweal">
+
+    <a href="/404.html" rel="section"><i class="heartbeat fa-fw"></i>Commonweal 404</a>
+
+  </li>
+  </ul>
+</nav>
+
+
+
+
+</div>
+    </header>
+
+    
+  <div class="back-to-top">
+    <i class="fa fa-arrow-up"></i>
+    <span>0%</span>
+  </div>
+
+
+    <main class="main">
+      <div class="main-inner">
+        <div class="content-wrap">
+          
+
+          <div class="content post posts-expand">
+            
+
+    
+  
+  
+  <article itemscope itemtype="http://schema.org/Article" class="post-block" lang="en">
+    <link itemprop="mainEntityOfPage" href="http://qixinbo.github.io/2018/09/04/imagej-ui-menu-edit/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="image" content="/images/avatar.jpg">
+      <meta itemprop="name" content="Xin-Bo Qi(亓欣波)">
+      <meta itemprop="description" content="Be interesting!">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="亓欣波">
+    </span>
+      <header class="post-header">
+        <h1 class="post-title" itemprop="name headline">
+          ImageJ 用户指南 -- 6. 菜单栏之Edit
+        </h1>
+
+        <div class="post-meta">
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="far fa-calendar"></i>
+              </span>
+              <span class="post-meta-item-text">Posted on</span>
+
+              <time title="Created: 2018-09-04 00:00:00" itemprop="dateCreated datePublished" datetime="2018-09-04T00:00:00+08:00">2018-09-04</time>
+            </span>
+              <span class="post-meta-item">
+                <span class="post-meta-item-icon">
+                  <i class="far fa-calendar-check"></i>
+                </span>
+                <span class="post-meta-item-text">Edited on</span>
+                <time title="Modified: 2021-03-25 15:20:30" itemprop="dateModified" datetime="2021-03-25T15:20:30+08:00">2021-03-25</time>
+              </span>
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="far fa-folder"></i>
+              </span>
+              <span class="post-meta-item-text">In</span>
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+                  <a href="/categories/programming/" itemprop="url" rel="index"><span itemprop="name">programming</span></a>
+                </span>
+            </span>
+
+          
+  
+  <span class="post-meta-item">
+    
+      <span class="post-meta-item-icon">
+        <i class="far fa-comment"></i>
+      </span>
+      <span class="post-meta-item-text">Disqus: </span>
+    
+    <a title="disqus" href="/2018/09/04/imagej-ui-menu-edit/#disqus_thread" itemprop="discussionUrl">
+      <span class="post-comments-count disqus-comment-count" data-disqus-identifier="2018/09/04/imagej-ui-menu-edit/" itemprop="commentCount"></span>
+    </a>
+  </span>
+  
+  
+
+        </div>
+      </header>
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+        <h1 id="本章说明"><a href="#本章说明" class="headerlink" title="本章说明"></a>本章说明</h1><p>这里详解Edit菜单的功能。</p>
+<h1 id="Edit"><a href="#Edit" class="headerlink" title="Edit"></a>Edit</h1><h2 id="Undo"><a href="#Undo" class="headerlink" title="Undo"></a>Undo</h2><p>撤销上一步操作。</p>
+<h2 id="Cut"><a href="#Cut" class="headerlink" title="Cut"></a>Cut</h2><p>将当前选区中的内容复制到内部剪贴板，然后用当前背景色填充选区。</p>
+<h2 id="Copy"><a href="#Copy" class="headerlink" title="Copy"></a>Copy</h2><p>将当前选区中的内容复制到内部剪贴板，如果没有选区，则复制整个图片。</p>
+<h2 id="Copy-to-system"><a href="#Copy-to-system" class="headerlink" title="Copy to system"></a>Copy to system</h2><p>将当前选区中的内容复制到系统剪贴板。</p>
+<h2 id="Paste"><a href="#Paste" class="headerlink" title="Paste"></a>Paste</h2><p>将内部剪贴板的内容（如果为空，则是系统剪贴板）粘贴到当前图片。</p>
+<h2 id="Paste-Control"><a href="#Paste-Control" class="headerlink" title="Paste Control"></a>Paste Control</h2><p>粘贴以后，使用该菜单控制图片的粘贴方式。</p>
+<h2 id="Clear"><a href="#Clear" class="headerlink" title="Clear"></a>Clear</h2><p>将选区中的内容清除，换成当前的背景色。Backspace和Del是该操作的快捷键。</p>
+<h2 id="Clear-Outside"><a href="#Clear-Outside" class="headerlink" title="Clear Outside"></a>Clear Outside</h2><p>将当前选区以外的区域清除，换成背景色。</p>
+<h2 id="Fill"><a href="#Fill" class="headerlink" title="Fill"></a>Fill</h2><p>将当前前景色填充进当前选区。</p>
+<h2 id="Draw"><a href="#Draw" class="headerlink" title="Draw"></a>Draw</h2><p>使用当前的前景色和线宽绘制当前选区的轮廓。使用Edit-Options-Colors设定前景色和背景色，使用Edit-Options-Line Width设定线宽。</p>
+<h2 id="Invert"><a href="#Invert" class="headerlink" title="Invert"></a>Invert</h2><p>对当前选区或当前图片进行取反。对于8-bit和RGB图片，Invert总是使用$min=0$和$max=255$。对于16-bit和32-bit的图片，分别使用真实的最小和最大值。</p>
+<h2 id="Selection"><a href="#Selection" class="headerlink" title="Selection"></a>Selection</h2><h3 id="Select-All"><a href="#Select-All" class="headerlink" title="Select All"></a>Select All</h3><p>创建一个与图片相同大小的矩形选区</p>
+<h3 id="Select-None"><a href="#Select-None" class="headerlink" title="Select None"></a>Select None</h3><p>使当前图片的选区失效</p>
+<h3 id="Restore-Selection"><a href="#Restore-Selection" class="headerlink" title="Restore Selection"></a>Restore Selection</h3><p>恢复之前的寻去到它原先的位置。该命令可以用于在不同图片之间传递选区，也可以用于恢复之前不小心删除的ROI。<br>在不同图片之间传递ROI的方式有：</p>
+<ul>
+<li>激活有当前选区的图片，然后激活要传递选区的图片，然后Edit-Selection-Restore Selection</li>
+<li>使用ROI管理器</li>
+<li>使用Analyze-Tools-Synchronize Windows</li>
+</ul>
+<h3 id="Fit-Spline"><a href="#Fit-Spline" class="headerlink" title="Fit Spline"></a>Fit Spline</h3><p>用一个三次样条(cubic spline)曲线拟合一个多边形polygon或多线polyline选区。</p>
+<h3 id="Fit-Circle"><a href="#Fit-Circle" class="headerlink" title="Fit Circle"></a>Fit Circle</h3><p>用一个圆circle拟合一个多点（至少三个点）或区域。不支持复合选区。如果是一个非闭合选区（比如点或线），拟合算法用的是基于Netwon的Pratt拟合；如果是一个闭合选区，该命令就是创建一个与该选区面积相同、重心相同的圆。</p>
+<h3 id="Fit-Ellipse"><a href="#Fit-Ellipse" class="headerlink" title="Fit Ellipse"></a>Fit Ellipse</h3><p>用一个椭圆拟合一个选区，该椭圆与原始选区有相同的面积、取向和重心。</p>
+<h3 id="Interpolate"><a href="#Interpolate" class="headerlink" title="Interpolate"></a>Interpolate</h3><p>把当前选区转化成一个亚像素的ROI。</p>
+<h3 id="Convex-Hull"><a href="#Convex-Hull" class="headerlink" title="Convex Hull"></a>Convex Hull</h3><p>将多边形选区转成它的凸包（凸包可看成紧紧套在选区的各个角点上的橡胶带）。</p>
+<h3 id="Make-Inverse"><a href="#Make-Inverse" class="headerlink" title="Make Inverse"></a>Make Inverse</h3><p>反选选区，将原先选区的“内部”变成了“外部”。</p>
+<h3 id="Create-Mask"><a href="#Create-Mask" class="headerlink" title="Create Mask"></a>Create Mask</h3><p>创建一个新的名为“Mask”的8-bit图片，内部的像素是255，外部是0。默认下该图片的LUT是反的，所以黑色是255，白色是0，除非Process-Binary-Options中的Black Background勾选。</p>
+<h3 id="Create-Selection"><a href="#Create-Selection" class="headerlink" title="Create Selection"></a>Create Selection</h3><p>从一个做过阈值处理的图片或一个二值mask中创建一个选区。</p>
+<h3 id="Properties"><a href="#Properties" class="headerlink" title="Properties"></a>Properties</h3><p>打开一个对话框，使得用户设置画笔颜色Stroke color和画笔宽度，或者设置填充颜色。注意，选区只能被填充或绘制轮廓，不能两者同时设定。<br>也能通过勾选List coordiantes显示选区的XY坐标。<br>注意，该命令仅对当前活动选区有效。而ROI管理器的Properties（在Analyze-Tools-ROI Manager）对多个ROI有效。</p>
+<h3 id="Rotate"><a href="#Rotate" class="headerlink" title="Rotate"></a>Rotate</h3><p>旋转选区</p>
+<h3 id="Enlarge"><a href="#Enlarge" class="headerlink" title="Enlarge"></a>Enlarge</h3><p>通过设定特定数目的像素来扩大或缩小选区。<br>该项设为0可以讲一个复合选区转为一个多边形选区。</p>
+<h3 id="Make-Band"><a href="#Make-Band" class="headerlink" title="Make Band"></a>Make Band</h3><p>基于当前的选区形成一个条带，即可视为在当前选区上长出了一个条带。</p>
+<h3 id="Specify"><a href="#Specify" class="headerlink" title="Specify"></a>Specify</h3><p>打开一个对话框，允许用户定义一个矩形或椭圆形选区。可以定义大小和位置。</p>
+<h3 id="Straighten"><a href="#Straighten" class="headerlink" title="Straighten"></a>Straighten</h3><p>该命令可以把图片中的弯曲的对象变直，比如图片中有条弯曲的河，通过该命令将该河拉直并提取成一张新的图片。该对象必须提前用分段直线工具标示出来。</p>
+<h3 id="To-Bounding-Box"><a href="#To-Bounding-Box" class="headerlink" title="To Bounding Box"></a>To Bounding Box</h3><p>将一个非矩形的寻去转为完全包含它的最小的矩形。</p>
+<h3 id="Line-to-Area"><a href="#Line-to-Area" class="headerlink" title="Line to Area"></a>Line to Area</h3><p>将一个线段选择转为一个选区。</p>
+<h3 id="Area-to-Line"><a href="#Area-to-Line" class="headerlink" title="Area to Line"></a>Area to Line</h3><p>将一个选区转为它的轮廓。</p>
+<h3 id="Image-to-Selection"><a href="#Image-to-Selection" class="headerlink" title="Image to Selection"></a>Image to Selection</h3><p>创建一个图像选区ImageROI。</p>
+<h3 id="Add-to-Manager"><a href="#Add-to-Manager" class="headerlink" title="Add to Manager"></a>Add to Manager</h3><p>将当前选区加入ROI管理器。</p>
+<h2 id="Options"><a href="#Options" class="headerlink" title="Options"></a>Options</h2><p>使用该命令来改变ImageJ的用户偏好设置。</p>
+<h3 id="Line-Width"><a href="#Line-Width" class="headerlink" title="Line Width"></a>Line Width</h3><p>改变线宽，用来改变Line Selections的线宽和Edit-Draw的线宽。</p>
+<h3 id="Input-Output"><a href="#Input-Output" class="headerlink" title="Input/Output"></a>Input/Output</h3><p>改变某些输入和输出的设置，比如JPEG的质量、table的后缀名、Results Table的选项。</p>
+<h3 id="Fonts"><a href="#Fonts" class="headerlink" title="Fonts"></a>Fonts</h3><p>改变字体，改变Text Tool的文本显示和Image-Stacks-Label。</p>
+<h3 id="Plots"><a href="#Plots" class="headerlink" title="Plots"></a>Plots</h3><p>使用该对话框来控制ImageJ所产生的各种Plots的显示形式，如Image-Stacks-Plot Z-axis Profile、Analyze-Plot Profile。<br>比如坐标轴的长度、y轴的范围、是否绘制网格线等。</p>
+<h3 id="Rounded-Rect-Tool"><a href="#Rounded-Rect-Tool" class="headerlink" title="Rounded Rect Tool"></a>Rounded Rect Tool</h3><p>设置圆角矩阵选择工具的属性。</p>
+<h3 id="Arrow-Tool"><a href="#Arrow-Tool" class="headerlink" title="Arrow Tool"></a>Arrow Tool</h3><p>设置箭头工具的属性</p>
+<h3 id="Point-Tool"><a href="#Point-Tool" class="headerlink" title="Point Tool"></a>Point Tool</h3><p>设置点工具的属性</p>
+<h3 id="Wand-Tool"><a href="#Wand-Tool" class="headerlink" title="Wand Tool"></a>Wand Tool</h3><p>设置魔棒工具的属性</p>
+<h3 id="Colors"><a href="#Colors" class="headerlink" title="Colors"></a>Colors</h3><p>设置前景色、背景色和选区工具的颜色。</p>
+<h3 id="Appearance"><a href="#Appearance" class="headerlink" title="Appearance"></a>Appearance</h3><p>控制图片怎样被显示，工具条怎样显示更好，以及设置菜单字体尺寸等。</p>
+<h3 id="Conversions"><a href="#Conversions" class="headerlink" title="Conversions"></a>Conversions</h3><p>控制图片怎样从一种格式转换为另一种格式，比如转换过程中是否缩放，RGB怎样转成灰度等。</p>
+<h3 id="Memory-amp-Threads"><a href="#Memory-amp-Threads" class="headerlink" title="Memory &amp; Threads"></a>Memory &amp; Threads</h3><p>设置ImageJ可用的最大内存，以及当处理stack时线程数目。</p>
+<h3 id="Proxy-Settings"><a href="#Proxy-Settings" class="headerlink" title="Proxy Settings"></a>Proxy Settings</h3><p>修改Java虚拟机的代理。</p>
+<h3 id="Complier"><a href="#Complier" class="headerlink" title="Complier"></a>Complier</h3><p>设置所编译的插件的Java版本。</p>
+<h3 id="DICOM"><a href="#DICOM" class="headerlink" title="DICOM"></a>DICOM</h3><p>设置与DICOM图片相关的参数。</p>
+<h3 id="Misc"><a href="#Misc" class="headerlink" title="Misc"></a>Misc</h3><p>设置其他的一些选项，有：</p>
+<ul>
+<li>Divide by zero value：设置当除以0时怎样处理，默认是infinity无穷大，也可以设置max（最大的正值）和NaN（不是一个数字）。</li>
+<li>Use pointer cursor：如果勾选了，ImageJ将会使用一个箭头指针，而不是默认的交叉十字类型的指针。</li>
+<li>Hide “Process Stack?” dialog：勾选后，ImageJ将不会显示询问是否处理所有的slices，而是直接仅仅处理当前slice。</li>
+<li>Require control/command key for shortcuts：勾选后，按快捷键时需要按下Ctrl。</li>
+<li>Move isolated plugins to Misc. menu：可以有效降低Plugin菜单的大小，防止一直显示到屏幕底部</li>
+<li>Run single instance listener：勾选后，ImageJ将会使用sockets来阻止多个实例开启。</li>
+<li>Debug mode：勾选后，ImageJ将会把调试信息显示在Log窗口中。</li>
+</ul>
+<h3 id="Reset"><a href="#Reset" class="headerlink" title="Reset"></a>Reset</h3><p>将会在ImageJ退出后，删除”IJ_pref.txt”这个文件，然后在ImageJ重启后使用所有参数的默认值。</p>
+
+    </div>
+
+    
+    
+    
+        <div class="reward-container">
+  <div></div>
+  <button onclick="var qr = document.getElementById('qr'); qr.style.display = (qr.style.display === 'none') ? 'block' : 'none';">
+    Donate
+  </button>
+  <div id="qr" style="display: none;">
+      
+      <div style="display: inline-block;">
+        <img src="/images/wechat_reward.png" alt="Xin-Bo Qi(亓欣波) WeChat Pay">
+        <p>WeChat Pay</p>
+      </div>
+
+  </div>
+</div>
+
+
+      <footer class="post-footer">
+          <div class="post-tags">
+              <a href="/tags/ImageJ/" rel="tag"># ImageJ</a>
+          </div>
+
+        
+
+
+        
+    <div class="post-nav">
+      <div class="post-nav-item">
+    <a href="/2018/09/03/imagej-ui-menu-file/" rel="prev" title="ImageJ 用户指南 -- 5. 菜单栏之File">
+      <i class="fa fa-chevron-left"></i> ImageJ 用户指南 -- 5. 菜单栏之File
+    </a></div>
+      <div class="post-nav-item">
+    <a href="/2018/09/06/imagej-ui-menu-image/" rel="next" title="ImageJ 用户指南 -- 7. 菜单栏之Image">
+      ImageJ 用户指南 -- 7. 菜单栏之Image <i class="fa fa-chevron-right"></i>
+    </a></div>
+    </div>
+      </footer>
+    
+  </article>
+  
+  
+  
+
+
+
+          </div>
+          
+    
+  <div class="comments">
+    <div id="disqus_thread">
+      <noscript>Please enable JavaScript to view the comments powered by Disqus.</noscript>
+    </div>
+  </div>
+  
+
+<script>
+  window.addEventListener('tabs:register', () => {
+    let { activeClass } = CONFIG.comments;
+    if (CONFIG.comments.storage) {
+      activeClass = localStorage.getItem('comments_active') || activeClass;
+    }
+    if (activeClass) {
+      let activeTab = document.querySelector(`a[href="#comment-${activeClass}"]`);
+      if (activeTab) {
+        activeTab.click();
+      }
+    }
+  });
+  if (CONFIG.comments.storage) {
+    window.addEventListener('tabs:click', event => {
+      if (!event.target.matches('.tabs-comment .tab-content .tab-pane')) return;
+      let commentClass = event.target.classList[1];
+      localStorage.setItem('comments_active', commentClass);
+    });
+  }
+</script>
+
+        </div>
+          
+  
+  <div class="toggle sidebar-toggle">
+    <span class="toggle-line toggle-line-first"></span>
+    <span class="toggle-line toggle-line-middle"></span>
+    <span class="toggle-line toggle-line-last"></span>
+  </div>
+
+  <aside class="sidebar">
+    <div class="sidebar-inner">
+
+      <ul class="sidebar-nav motion-element">
+        <li class="sidebar-nav-toc">
+          Table of Contents
+        </li>
+        <li class="sidebar-nav-overview">
+          Overview
+        </li>
+      </ul>
+
+      <!--noindex-->
+      <div class="post-toc-wrap sidebar-panel">
+          <div class="post-toc motion-element"><ol class="nav"><li class="nav-item nav-level-1"><a class="nav-link" href="#%E6%9C%AC%E7%AB%A0%E8%AF%B4%E6%98%8E"><span class="nav-number">1.</span> <span class="nav-text">本章说明</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#Edit"><span class="nav-number">2.</span> <span class="nav-text">Edit</span></a><ol class="nav-child"><li class="nav-item nav-level-2"><a class="nav-link" href="#Undo"><span class="nav-number">2.1.</span> <span class="nav-text">Undo</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#Cut"><span class="nav-number">2.2.</span> <span class="nav-text">Cut</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#Copy"><span class="nav-number">2.3.</span> <span class="nav-text">Copy</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#Copy-to-system"><span class="nav-number">2.4.</span> <span class="nav-text">Copy to system</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#Paste"><span class="nav-number">2.5.</span> <span class="nav-text">Paste</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#Paste-Control"><span class="nav-number">2.6.</span> <span class="nav-text">Paste Control</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#Clear"><span class="nav-number">2.7.</span> <span class="nav-text">Clear</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#Clear-Outside"><span class="nav-number">2.8.</span> <span class="nav-text">Clear Outside</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#Fill"><span class="nav-number">2.9.</span> <span class="nav-text">Fill</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#Draw"><span class="nav-number">2.10.</span> <span class="nav-text">Draw</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#Invert"><span class="nav-number">2.11.</span> <span class="nav-text">Invert</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#Selection"><span class="nav-number">2.12.</span> <span class="nav-text">Selection</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#Select-All"><span class="nav-number">2.12.1.</span> <span class="nav-text">Select All</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#Select-None"><span class="nav-number">2.12.2.</span> <span class="nav-text">Select None</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#Restore-Selection"><span class="nav-number">2.12.3.</span> <span class="nav-text">Restore Selection</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#Fit-Spline"><span class="nav-number">2.12.4.</span> <span class="nav-text">Fit Spline</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#Fit-Circle"><span class="nav-number">2.12.5.</span> <span class="nav-text">Fit Circle</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#Fit-Ellipse"><span class="nav-number">2.12.6.</span> <span class="nav-text">Fit Ellipse</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#Interpolate"><span class="nav-number">2.12.7.</span> <span class="nav-text">Interpolate</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#Convex-Hull"><span class="nav-number">2.12.8.</span> <span class="nav-text">Convex Hull</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#Make-Inverse"><span class="nav-number">2.12.9.</span> <span class="nav-text">Make Inverse</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#Create-Mask"><span class="nav-number">2.12.10.</span> <span class="nav-text">Create Mask</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#Create-Selection"><span class="nav-number">2.12.11.</span> <span class="nav-text">Create Selection</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#Properties"><span class="nav-number">2.12.12.</span> <span class="nav-text">Properties</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#Rotate"><span class="nav-number">2.12.13.</span> <span class="nav-text">Rotate</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#Enlarge"><span class="nav-number">2.12.14.</span> <span class="nav-text">Enlarge</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#Make-Band"><span class="nav-number">2.12.15.</span> <span class="nav-text">Make Band</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#Specify"><span class="nav-number">2.12.16.</span> <span class="nav-text">Specify</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#Straighten"><span class="nav-number">2.12.17.</span> <span class="nav-text">Straighten</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#To-Bounding-Box"><span class="nav-number">2.12.18.</span> <span class="nav-text">To Bounding Box</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#Line-to-Area"><span class="nav-number">2.12.19.</span> <span class="nav-text">Line to Area</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#Area-to-Line"><span class="nav-number">2.12.20.</span> <span class="nav-text">Area to Line</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#Image-to-Selection"><span class="nav-number">2.12.21.</span> <span class="nav-text">Image to Selection</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#Add-to-Manager"><span class="nav-number">2.12.22.</span> <span class="nav-text">Add to Manager</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#Options"><span class="nav-number">2.13.</span> <span class="nav-text">Options</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#Line-Width"><span class="nav-number">2.13.1.</span> <span class="nav-text">Line Width</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#Input-Output"><span class="nav-number">2.13.2.</span> <span class="nav-text">Input&#x2F;Output</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#Fonts"><span class="nav-number">2.13.3.</span> <span class="nav-text">Fonts</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#Plots"><span class="nav-number">2.13.4.</span> <span class="nav-text">Plots</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#Rounded-Rect-Tool"><span class="nav-number">2.13.5.</span> <span class="nav-text">Rounded Rect Tool</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#Arrow-Tool"><span class="nav-number">2.13.6.</span> <span class="nav-text">Arrow Tool</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#Point-Tool"><span class="nav-number">2.13.7.</span> <span class="nav-text">Point Tool</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#Wand-Tool"><span class="nav-number">2.13.8.</span> <span class="nav-text">Wand Tool</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#Colors"><span class="nav-number">2.13.9.</span> <span class="nav-text">Colors</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#Appearance"><span class="nav-number">2.13.10.</span> <span class="nav-text">Appearance</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#Conversions"><span class="nav-number">2.13.11.</span> <span class="nav-text">Conversions</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#Memory-amp-Threads"><span class="nav-number">2.13.12.</span> <span class="nav-text">Memory &amp; Threads</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#Proxy-Settings"><span class="nav-number">2.13.13.</span> <span class="nav-text">Proxy Settings</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#Complier"><span class="nav-number">2.13.14.</span> <span class="nav-text">Complier</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#DICOM"><span class="nav-number">2.13.15.</span> <span class="nav-text">DICOM</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#Misc"><span class="nav-number">2.13.16.</span> <span class="nav-text">Misc</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#Reset"><span class="nav-number">2.13.17.</span> <span class="nav-text">Reset</span></a></li></ol></li></ol></li></ol></div>
+      </div>
+      <!--/noindex-->
+
+      <div class="site-overview-wrap sidebar-panel">
+        <div class="site-author motion-element" itemprop="author" itemscope itemtype="http://schema.org/Person">
+    <img class="site-author-image" itemprop="image" alt="Xin-Bo Qi(亓欣波)"
+      src="/images/avatar.jpg">
+  <p class="site-author-name" itemprop="name">Xin-Bo Qi(亓欣波)</p>
+  <div class="site-description" itemprop="description">Be interesting!</div>
+</div>
+<div class="site-state-wrap motion-element">
+  <nav class="site-state">
+      <div class="site-state-item site-state-posts">
+          <a href="/archives/">
+        
+          <span class="site-state-item-count">120</span>
+          <span class="site-state-item-name">posts</span>
+        </a>
+      </div>
+      <div class="site-state-item site-state-categories">
+            <a href="/categories/">
+          
+        <span class="site-state-item-count">5</span>
+        <span class="site-state-item-name">categories</span></a>
+      </div>
+      <div class="site-state-item site-state-tags">
+            <a href="/tags/">
+          
+        <span class="site-state-item-count">41</span>
+        <span class="site-state-item-name">tags</span></a>
+      </div>
+  </nav>
+</div>
+  <div class="links-of-author motion-element">
+      <span class="links-of-author-item">
+        <a href="https://github.com/qixinbo" title="GitHub → https:&#x2F;&#x2F;github.com&#x2F;qixinbo" rel="noopener" target="_blank"><i class="github fa-fw"></i>GitHub</a>
+      </span>
+      <span class="links-of-author-item">
+        <a href="mailto:qixinbo@gmail.com" title="E-Mail → mailto:qixinbo@gmail.com" rel="noopener" target="_blank"><i class="envelope fa-fw"></i>E-Mail</a>
+      </span>
+  </div>
+
+
+  <div class="links-of-blogroll motion-element">
+    <div class="links-of-blogroll-title"><i class="fa fa-link fa-fw"></i>
+      Links
+    </div>
+    <ul class="links-of-blogroll-list">
+        <li class="links-of-blogroll-item">
+          <a href="https://www.tsinghua.edu.cn/" title="https:&#x2F;&#x2F;www.tsinghua.edu.cn" rel="noopener" target="_blank">THU</a>
+        </li>
+        <li class="links-of-blogroll-item">
+          <a href="http://www.imr.cas.cn/" title="http:&#x2F;&#x2F;www.imr.cas.cn" rel="noopener" target="_blank">IMR</a>
+        </li>
+        <li class="links-of-blogroll-item">
+          <a href="http://www.sdu.edu.cn/" title="http:&#x2F;&#x2F;www.sdu.edu.cn" rel="noopener" target="_blank">SDU</a>
+        </li>
+        <li class="links-of-blogroll-item">
+          <a href="http://liam0205.me/" title="http:&#x2F;&#x2F;liam0205.me&#x2F;" rel="noopener" target="_blank">黄晨成</a>
+        </li>
+    </ul>
+  </div>
+
+      </div>
+
+    </div>
+  </aside>
+  <div id="sidebar-dimmer"></div>
+
+
+      </div>
+    </main>
+
+    <footer class="footer">
+      <div class="footer-inner">
+        
+
+        
+
+<div class="copyright">
+  
+  &copy; 
+  <span itemprop="copyrightYear">2021</span>
+  <span class="with-love">
+    <i class="fa fa-heart"></i>
+  </span>
+  <span class="author" itemprop="copyrightHolder">Xin-Bo Qi(亓欣波)</span>
+</div>
+  <div class="powered-by">Powered by <a href="https://hexo.io/" class="theme-link" rel="noopener" target="_blank">Hexo</a> & <a href="https://theme-next.org/" class="theme-link" rel="noopener" target="_blank">NexT.Gemini</a>
+  </div>
+
+        
+
+
+
+
+
+
+
+
+      </div>
+    </footer>
+  </div>
+
+  
+  <script src="/lib/anime.min.js"></script>
+  <script src="/lib/velocity/velocity.min.js"></script>
+  <script src="/lib/velocity/velocity.ui.min.js"></script>
+
+<script src="/js/utils.js"></script>
+
+<script src="/js/motion.js"></script>
+
+
+<script src="/js/schemes/pisces.js"></script>
+
+
+<script src="/js/next-boot.js"></script>
+
+
+
+
+  
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+  
+
+  
+
+  
+
+<script>
+  function loadCount() {
+    var d = document, s = d.createElement('script');
+    s.src = 'https://qixinbo.disqus.com/count.js';
+    s.id = 'dsq-count-scr';
+    (d.head || d.body).appendChild(s);
+  }
+  // defer loading until the whole page loading is completed
+  window.addEventListener('load', loadCount, false);
+</script>
+<script>
+  var disqus_config = function() {
+    this.page.url = "http://qixinbo.github.io/2018/09/04/imagej-ui-menu-edit/";
+    this.page.identifier = "2018/09/04/imagej-ui-menu-edit/";
+    this.page.title = "ImageJ 用户指南 -- 6. 菜单栏之Edit";
+    };
+  NexT.utils.loadComments(document.querySelector('#disqus_thread'), () => {
+    if (window.DISQUS) {
+      DISQUS.reset({
+        reload: true,
+        config: disqus_config
+      });
+    } else {
+      var d = document, s = d.createElement('script');
+      s.src = 'https://qixinbo.disqus.com/embed.js';
+      s.setAttribute('data-timestamp', '' + +new Date());
+      (d.head || d.body).appendChild(s);
+    }
+  });
+</script>
+
+</body>
+</html>

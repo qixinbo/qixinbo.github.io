@@ -1,0 +1,588 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=2">
+<meta name="theme-color" content="#222">
+<meta name="generator" content="Hexo 5.4.0">
+  <link rel="apple-touch-icon" sizes="180x180" href="/images/apple-touch-icon-next.png">
+  <link rel="icon" type="image/png" sizes="32x32" href="/favicon.ico">
+  <link rel="icon" type="image/png" sizes="16x16" href="/favicon.ico">
+  <link rel="mask-icon" href="/images/logo.svg" color="#222">
+
+<link rel="stylesheet" href="/css/main.css">
+
+
+<link rel="stylesheet" href="/lib/font-awesome/css/all.min.css">
+
+<script id="hexo-configurations">
+    var NexT = window.NexT || {};
+    var CONFIG = {"hostname":"qixinbo.github.io","root":"/","scheme":"Gemini","version":"7.8.0","exturl":false,"sidebar":{"position":"left","display":"post","padding":18,"offset":12,"onmobile":false},"copycode":{"enable":false,"show_result":false,"style":null},"back2top":{"enable":true,"sidebar":false,"scrollpercent":false},"bookmark":{"enable":false,"color":"#222","save":"auto"},"fancybox":false,"mediumzoom":false,"lazyload":false,"pangu":false,"comments":{"style":"tabs","active":null,"storage":true,"lazyload":false,"nav":null},"algolia":{"hits":{"per_page":10},"labels":{"input_placeholder":"Search for Posts","hits_empty":"We didn't find any results for the search: ${query}","hits_stats":"${hits} results found in ${time} ms"}},"localsearch":{"enable":false,"trigger":"auto","top_n_per_article":1,"unescape":false,"preload":false},"motion":{"enable":true,"async":false,"transition":{"post_block":"fadeIn","post_header":"slideDownIn","post_body":"slideDownIn","coll_header":"slideLeftIn","sidebar":"slideUpIn"}}};
+  </script>
+
+  <meta name="description" content="本文是对TutorialsPoint上的教程的翻译。 概述PyQt是一个GUI控件工具箱，是Qt的Python接口。PyQt有两个主要版本：PyQt 4.x和PyQt 5.x，两者不兼容，且前者基于Python 2和Python 3，后者仅基于Python 3。 Linux下载安装： 123sudo apt-get install python-qt4or sudo apt-get install">
+<meta property="og:type" content="article">
+<meta property="og:title" content="PyQt4教程系列一：基本介绍和入门">
+<meta property="og:url" content="http://qixinbo.github.io/2017/12/02/pyqt4-intro/index.html">
+<meta property="og:site_name" content="亓欣波">
+<meta property="og:description" content="本文是对TutorialsPoint上的教程的翻译。 概述PyQt是一个GUI控件工具箱，是Qt的Python接口。PyQt有两个主要版本：PyQt 4.x和PyQt 5.x，两者不兼容，且前者基于Python 2和Python 3，后者仅基于Python 3。 Linux下载安装： 123sudo apt-get install python-qt4or sudo apt-get install">
+<meta property="og:locale" content="en_US">
+<meta property="article:published_time" content="2017-12-01T16:00:00.000Z">
+<meta property="article:modified_time" content="2021-03-25T07:20:30.848Z">
+<meta property="article:author" content="Xin-Bo Qi(亓欣波)">
+<meta property="article:tag" content="PyQt">
+<meta name="twitter:card" content="summary">
+
+<link rel="canonical" href="http://qixinbo.github.io/2017/12/02/pyqt4-intro/">
+
+
+<script id="page-configurations">
+  // https://hexo.io/docs/variables.html
+  CONFIG.page = {
+    sidebar: "",
+    isHome : false,
+    isPost : true,
+    lang   : 'en'
+  };
+</script>
+
+  <title>PyQt4教程系列一：基本介绍和入门 | 亓欣波</title>
+  
+
+
+
+
+
+
+  <noscript>
+  <style>
+  .use-motion .brand,
+  .use-motion .menu-item,
+  .sidebar-inner,
+  .use-motion .post-block,
+  .use-motion .pagination,
+  .use-motion .comments,
+  .use-motion .post-header,
+  .use-motion .post-body,
+  .use-motion .collection-header { opacity: initial; }
+
+  .use-motion .site-title,
+  .use-motion .site-subtitle {
+    opacity: initial;
+    top: initial;
+  }
+
+  .use-motion .logo-line-before i { left: initial; }
+  .use-motion .logo-line-after i { right: initial; }
+  </style>
+</noscript>
+
+</head>
+
+<body itemscope itemtype="http://schema.org/WebPage">
+  <div class="container use-motion">
+    <div class="headband"></div>
+
+    <header class="header" itemscope itemtype="http://schema.org/WPHeader">
+      <div class="header-inner"><div class="site-brand-container">
+  <div class="site-nav-toggle">
+    <div class="toggle" aria-label="Toggle navigation bar">
+      <span class="toggle-line toggle-line-first"></span>
+      <span class="toggle-line toggle-line-middle"></span>
+      <span class="toggle-line toggle-line-last"></span>
+    </div>
+  </div>
+
+  <div class="site-meta">
+
+    <a href="/" class="brand" rel="start">
+      <span class="logo-line-before"><i></i></span>
+      <h1 class="site-title">亓欣波</h1>
+      <span class="logo-line-after"><i></i></span>
+    </a>
+      <p class="site-subtitle" itemprop="description">Hi, I am Xin-Bo Qi (亓欣波)</p>
+  </div>
+
+  <div class="site-nav-right">
+    <div class="toggle popup-trigger">
+    </div>
+  </div>
+</div>
+
+
+
+
+<nav class="site-nav">
+  <ul id="menu" class="main-menu menu">
+        <li class="menu-item menu-item-home">
+
+    <a href="/" rel="section"><i class="home fa-fw"></i>Home</a>
+
+  </li>
+        <li class="menu-item menu-item-categories">
+
+    <a href="/categories/" rel="section"><i class="th fa-fw"></i>Categories</a>
+
+  </li>
+        <li class="menu-item menu-item-archives">
+
+    <a href="/archives/" rel="section"><i class="archive fa-fw"></i>Archives</a>
+
+  </li>
+        <li class="menu-item menu-item-tags">
+
+    <a href="/tags/" rel="section"><i class="tags fa-fw"></i>Tags</a>
+
+  </li>
+        <li class="menu-item menu-item-scholar">
+
+    <a href="/scholar/" rel="section"><i class="bar-chart fa-fw"></i>scholar</a>
+
+  </li>
+        <li class="menu-item menu-item-sources">
+
+    <a href="/sources/" rel="section"><i class="rss fa-fw"></i>sources</a>
+
+  </li>
+        <li class="menu-item menu-item-gallery">
+
+    <a href="/gallery/" rel="section"><i class="file-image-o fa-fw"></i>gallery</a>
+
+  </li>
+        <li class="menu-item menu-item-about">
+
+    <a href="/about/" rel="section"><i class="user fa-fw"></i>About</a>
+
+  </li>
+        <li class="menu-item menu-item-commonweal">
+
+    <a href="/404.html" rel="section"><i class="heartbeat fa-fw"></i>Commonweal 404</a>
+
+  </li>
+  </ul>
+</nav>
+
+
+
+
+</div>
+    </header>
+
+    
+  <div class="back-to-top">
+    <i class="fa fa-arrow-up"></i>
+    <span>0%</span>
+  </div>
+
+
+    <main class="main">
+      <div class="main-inner">
+        <div class="content-wrap">
+          
+
+          <div class="content post posts-expand">
+            
+
+    
+  
+  
+  <article itemscope itemtype="http://schema.org/Article" class="post-block" lang="en">
+    <link itemprop="mainEntityOfPage" href="http://qixinbo.github.io/2017/12/02/pyqt4-intro/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="image" content="/images/avatar.jpg">
+      <meta itemprop="name" content="Xin-Bo Qi(亓欣波)">
+      <meta itemprop="description" content="Be interesting!">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="亓欣波">
+    </span>
+      <header class="post-header">
+        <h1 class="post-title" itemprop="name headline">
+          PyQt4教程系列一：基本介绍和入门
+        </h1>
+
+        <div class="post-meta">
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="far fa-calendar"></i>
+              </span>
+              <span class="post-meta-item-text">Posted on</span>
+
+              <time title="Created: 2017-12-02 00:00:00" itemprop="dateCreated datePublished" datetime="2017-12-02T00:00:00+08:00">2017-12-02</time>
+            </span>
+              <span class="post-meta-item">
+                <span class="post-meta-item-icon">
+                  <i class="far fa-calendar-check"></i>
+                </span>
+                <span class="post-meta-item-text">Edited on</span>
+                <time title="Modified: 2021-03-25 15:20:30" itemprop="dateModified" datetime="2021-03-25T15:20:30+08:00">2021-03-25</time>
+              </span>
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="far fa-folder"></i>
+              </span>
+              <span class="post-meta-item-text">In</span>
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+                  <a href="/categories/programming/" itemprop="url" rel="index"><span itemprop="name">programming</span></a>
+                </span>
+            </span>
+
+          
+  
+  <span class="post-meta-item">
+    
+      <span class="post-meta-item-icon">
+        <i class="far fa-comment"></i>
+      </span>
+      <span class="post-meta-item-text">Disqus: </span>
+    
+    <a title="disqus" href="/2017/12/02/pyqt4-intro/#disqus_thread" itemprop="discussionUrl">
+      <span class="post-comments-count disqus-comment-count" data-disqus-identifier="2017/12/02/pyqt4-intro/" itemprop="commentCount"></span>
+    </a>
+  </span>
+  
+  
+
+        </div>
+      </header>
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+        <p>本文是对<a target="_blank" rel="noopener" href="https://www.tutorialspoint.com/pyqt/">TutorialsPoint</a>上的教程的翻译。</p>
+<h1 id="概述"><a href="#概述" class="headerlink" title="概述"></a>概述</h1><p>PyQt是一个GUI控件工具箱，是Qt的Python接口。<br>PyQt有两个主要版本：PyQt 4.x和PyQt 5.x，两者不兼容，且前者基于Python 2和Python 3，后者仅基于Python 3。</p>
+<p>Linux下载安装：</p>
+<figure class="highlight cpp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">sudo apt-get install python-qt4</span><br><span class="line"><span class="keyword">or</span> </span><br><span class="line">sudo apt-get install pyqt5-dev-tools</span><br></pre></td></tr></table></figure>
+
+<p>PyQt4由以下Modules组成：QtCore、QtGui、QtNetwork、QtXml、QtSvg、QtOpenGL、QtSql。</p>
+<ul>
+<li>QtCore包含非GUI的核心功能，用来处理时间、文件和目录、数据类型、流、URL、MIME类型、线程和进程。</li>
+<li>QtGui包含图形组件及相关类，比如按钮、窗口、状态栏、工具栏、滑块、位图、颜色、字体等。</li>
+<li>QtNetwork包含网络编程的相关类，比如用于TCP/IP和UDP服务端和客户端的编程。</li>
+<li>QtXml包含处理XML文件的类，提供了用于SAX和DOM这些API的实现。</li>
+<li>QtSvg提供了显示SVG文件内容的类。</li>
+<li>QtOpenGL使用OpenGL库来处理2D和3D的图像，将Qt GUI库和OpenGL库无缝链接起来。</li>
+<li>QtSql包含处理数据库的类。</li>
+</ul>
+<h1 id="Hello-World"><a href="#Hello-World" class="headerlink" title="Hello World"></a>Hello World</h1><p>使用PyQt创建”Hello World”的步骤如下：</p>
+<ol>
+<li>导入QtGui模块</li>
+<li>创建一个应用对象app</li>
+<li>创建一个QWidget对象w来创建最顶层的窗口，在上面添加一个QLabel对象b</li>
+<li>设置label的标题为“Hello World”</li>
+<li>通过setGeometry()方法定义窗口的尺寸和位置</li>
+<li>通过app.exec()方法来进入应用对象的主体</li>
+</ol>
+<p>源码为：</p>
+<figure class="highlight cpp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br></pre></td><td class="code"><pre><span class="line">#! /usr/bin/python</span><br><span class="line"># -*- coding: utf<span class="number">-8</span> -*-</span><br><span class="line"></span><br><span class="line"><span class="keyword">import</span> sys</span><br><span class="line">from PyQt4 <span class="keyword">import</span> QtGui</span><br><span class="line"></span><br><span class="line"><span class="function">def <span class="title">window</span><span class="params">()</span>:</span></span><br><span class="line"><span class="function">   app =</span> QtGui.<span class="built_in">QApplication</span>(sys.argv)</span><br><span class="line">   w = QtGui.<span class="built_in">QWidget</span>()</span><br><span class="line">   b = QtGui.<span class="built_in">QLabel</span>(w)</span><br><span class="line">   b.<span class="built_in">setText</span>(<span class="string">&quot;Hello World!&quot;</span>)</span><br><span class="line">   w.<span class="built_in">setGeometry</span>(<span class="number">100</span>,<span class="number">100</span>,<span class="number">200</span>,<span class="number">50</span>)</span><br><span class="line">   b.<span class="built_in">move</span>(<span class="number">50</span>,<span class="number">20</span>)</span><br><span class="line">   w.<span class="built_in">setWindowTitle</span>(<span class="string">&quot;PyQt&quot;</span>)</span><br><span class="line">   w.<span class="built_in">show</span>()</span><br><span class="line">   sys.<span class="built_in">exit</span>(app.<span class="built_in">exec_</span>())</span><br><span class="line">	</span><br><span class="line">if __name__ == &#x27;__main__&#x27;:</span><br><span class="line">   <span class="built_in">window</span>()</span><br></pre></td></tr></table></figure>
+
+<h1 id="信号和槽"><a href="#信号和槽" class="headerlink" title="信号和槽"></a>信号和槽</h1><p>与一般按顺序执行的控制台模式的应用程序不同，基于GUI的程序是由事件驱动的。事件events是响应用户动作的函数或方法，比如点击按钮、选择项目、鼠标点击等。用来构建GUI界面的挂件Widgets是这些事件的来源。每个PyQt Widget，都派生自QObject类，用来发射“信号”signals来响应一个或多个事件。信号本身不执行动作，它们连接到“槽”slot上。“槽”是可调用的Python函数。<br>在PyQt中，信号和槽的连接有多种方式。<br>最常用的方式是：</p>
+<figure class="highlight cpp"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">QtCore.QObject.<span class="built_in">connect</span>(widget, QtCore.<span class="built_in">SIGNAL</span>(‘signalname’), slot_function)</span><br></pre></td></tr></table></figure>
+<p>更方便的方式是当widget发射signal时，调用slot函数：</p>
+<figure class="highlight cpp"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">widget.signal.<span class="built_in">connect</span>(slot_function)</span><br></pre></td></tr></table></figure>
+<p>以下是两种方式的举例：</p>
+<figure class="highlight cpp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br></pre></td><td class="code"><pre><span class="line">#!/usr/bin/python</span><br><span class="line"># -*- coding: utf<span class="number">-8</span> -*-</span><br><span class="line"> </span><br><span class="line"><span class="keyword">import</span> sys</span><br><span class="line">from PyQt4.QtCore <span class="keyword">import</span> *</span><br><span class="line">from PyQt4.QtGui <span class="keyword">import</span> *</span><br><span class="line"></span><br><span class="line"><span class="function">def <span class="title">window</span><span class="params">()</span>:</span></span><br><span class="line"><span class="function">   app =</span> <span class="built_in">QApplication</span>(sys.argv)</span><br><span class="line">   win = <span class="built_in">QDialog</span>()</span><br><span class="line">   b1 = <span class="built_in">QPushButton</span>(win)</span><br><span class="line">   b1.<span class="built_in">setText</span>(<span class="string">&quot;Button1&quot;</span>)</span><br><span class="line">   b1.<span class="built_in">move</span>(<span class="number">50</span>,<span class="number">20</span>)</span><br><span class="line">   b1.clicked.<span class="built_in">connect</span>(b1_clicked)</span><br><span class="line"></span><br><span class="line">   b2 = <span class="built_in">QPushButton</span>(win)</span><br><span class="line">   b2.<span class="built_in">setText</span>(<span class="string">&quot;Button2&quot;</span>)</span><br><span class="line">   b2.<span class="built_in">move</span>(<span class="number">50</span>,<span class="number">50</span>)</span><br><span class="line">   QObject.<span class="built_in">connect</span>(b2,<span class="built_in">SIGNAL</span>(<span class="string">&quot;clicked()&quot;</span>),b2_clicked)</span><br><span class="line"></span><br><span class="line">   win.<span class="built_in">setGeometry</span>(<span class="number">100</span>,<span class="number">100</span>,<span class="number">200</span>,<span class="number">100</span>)</span><br><span class="line">   win.<span class="built_in">setWindowTitle</span>(<span class="string">&quot;PyQt&quot;</span>)</span><br><span class="line">   win.<span class="built_in">show</span>()</span><br><span class="line">   sys.<span class="built_in">exit</span>(app.<span class="built_in">exec_</span>())</span><br><span class="line"></span><br><span class="line">def <span class="built_in">b1_clicked</span>():</span><br><span class="line">   print <span class="string">&quot;Button 1 clicked&quot;</span></span><br><span class="line"></span><br><span class="line">def <span class="built_in">b2_clicked</span>():</span><br><span class="line">   print <span class="string">&quot;Button 2 clicked&quot;</span></span><br><span class="line"></span><br><span class="line">if __name__ == &#x27;__main__&#x27;:</span><br><span class="line">   <span class="built_in">window</span>()</span><br></pre></td></tr></table></figure>
+<h1 id="布局管理"><a href="#布局管理" class="headerlink" title="布局管理"></a>布局管理</h1><p>一个widget在窗口中的位置可以通过指定以像素为单位的绝对坐标，该坐标是相对于使用setGeometry()方法定义的窗口的尺寸:</p>
+<figure class="highlight cpp"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">QWidget.<span class="built_in">setGeometry</span>(xpos, ypos, width, height)</span><br></pre></td></tr></table></figure>
+<p>上面这句代码设定了窗口位于显示器的坐标点，以及它的尺寸。<br>具体的某个widget的位置代码如下：</p>
+<figure class="highlight cpp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br></pre></td><td class="code"><pre><span class="line">#!/usr/bin/python</span><br><span class="line"># -*- coding: utf<span class="number">-8</span> -*-</span><br><span class="line"><span class="keyword">import</span> sys</span><br><span class="line">from PyQt4 <span class="keyword">import</span> QtGui</span><br><span class="line"></span><br><span class="line"><span class="function">def <span class="title">window</span><span class="params">()</span>:</span></span><br><span class="line"><span class="function">   app =</span> QtGui.<span class="built_in">QApplication</span>(sys.argv)</span><br><span class="line">   w = QtGui.<span class="built_in">QWidget</span>()</span><br><span class="line">	</span><br><span class="line">   b = QtGui.<span class="built_in">QPushButton</span>(w)</span><br><span class="line">   b.<span class="built_in">setText</span>(<span class="string">&quot;Hello World!&quot;</span>)</span><br><span class="line">   b.<span class="built_in">move</span>(<span class="number">50</span>,<span class="number">20</span>)</span><br><span class="line">	</span><br><span class="line">   w.<span class="built_in">setGeometry</span>(<span class="number">10</span>,<span class="number">10</span>,<span class="number">300</span>,<span class="number">200</span>)</span><br><span class="line">   w.<span class="built_in">setWindowTitle</span>(“PyQt”)</span><br><span class="line">   w.<span class="built_in">show</span>()</span><br><span class="line">   sys.<span class="built_in">exit</span>(app.<span class="built_in">exec_</span>())</span><br><span class="line">	</span><br><span class="line">if __name__ == &#x27;__main__&#x27;:</span><br><span class="line">   <span class="built_in">window</span>()</span><br></pre></td></tr></table></figure>
+<p>但是这种绝对坐标的方式有一些缺点：</p>
+<ol>
+<li>当window尺寸改变的时候，该widget的位置却不变</li>
+<li>在有不同分辨率的设备上可能显示不统一</li>
+<li>当布局需要改变时，该更改会很费劲，因为需要重新设置位置</li>
+</ol>
+<p>PyQt的API针对上述问题提供了一些更优雅的管理widget位置的方法：</p>
+<ol>
+<li>QBoxLayout类：垂直或水平地排列widgets。它的派生类是QVBoxLayout（垂直排列）和QHBoxLayout（水平排列）</li>
+<li>QGridLayout类：以网格单元的形式排列，包含addWidget()方法。任何Widget都可以通过指定单元的行数和列数来添加</li>
+<li>QFormLayout类：可以很方便地创建两列的表格，一列（通常是右列）是输入栏，一列（通常是左列）是相应的标签。</li>
+</ol>
+
+    </div>
+
+    
+    
+    
+        <div class="reward-container">
+  <div></div>
+  <button onclick="var qr = document.getElementById('qr'); qr.style.display = (qr.style.display === 'none') ? 'block' : 'none';">
+    Donate
+  </button>
+  <div id="qr" style="display: none;">
+      
+      <div style="display: inline-block;">
+        <img src="/images/wechat_reward.png" alt="Xin-Bo Qi(亓欣波) WeChat Pay">
+        <p>WeChat Pay</p>
+      </div>
+
+  </div>
+</div>
+
+
+      <footer class="post-footer">
+          <div class="post-tags">
+              <a href="/tags/PyQt/" rel="tag"># PyQt</a>
+          </div>
+
+        
+
+
+        
+    <div class="post-nav">
+      <div class="post-nav-item">
+    <a href="/2017/11/29/icme/" rel="prev" title="对ICME的理解">
+      <i class="fa fa-chevron-left"></i> 对ICME的理解
+    </a></div>
+      <div class="post-nav-item">
+    <a href="/2017/12/04/pyqt4-widgets/" rel="next" title="PyQt4教程系列二：基本控件">
+      PyQt4教程系列二：基本控件 <i class="fa fa-chevron-right"></i>
+    </a></div>
+    </div>
+      </footer>
+    
+  </article>
+  
+  
+  
+
+
+
+          </div>
+          
+    
+  <div class="comments">
+    <div id="disqus_thread">
+      <noscript>Please enable JavaScript to view the comments powered by Disqus.</noscript>
+    </div>
+  </div>
+  
+
+<script>
+  window.addEventListener('tabs:register', () => {
+    let { activeClass } = CONFIG.comments;
+    if (CONFIG.comments.storage) {
+      activeClass = localStorage.getItem('comments_active') || activeClass;
+    }
+    if (activeClass) {
+      let activeTab = document.querySelector(`a[href="#comment-${activeClass}"]`);
+      if (activeTab) {
+        activeTab.click();
+      }
+    }
+  });
+  if (CONFIG.comments.storage) {
+    window.addEventListener('tabs:click', event => {
+      if (!event.target.matches('.tabs-comment .tab-content .tab-pane')) return;
+      let commentClass = event.target.classList[1];
+      localStorage.setItem('comments_active', commentClass);
+    });
+  }
+</script>
+
+        </div>
+          
+  
+  <div class="toggle sidebar-toggle">
+    <span class="toggle-line toggle-line-first"></span>
+    <span class="toggle-line toggle-line-middle"></span>
+    <span class="toggle-line toggle-line-last"></span>
+  </div>
+
+  <aside class="sidebar">
+    <div class="sidebar-inner">
+
+      <ul class="sidebar-nav motion-element">
+        <li class="sidebar-nav-toc">
+          Table of Contents
+        </li>
+        <li class="sidebar-nav-overview">
+          Overview
+        </li>
+      </ul>
+
+      <!--noindex-->
+      <div class="post-toc-wrap sidebar-panel">
+          <div class="post-toc motion-element"><ol class="nav"><li class="nav-item nav-level-1"><a class="nav-link" href="#%E6%A6%82%E8%BF%B0"><span class="nav-number">1.</span> <span class="nav-text">概述</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#Hello-World"><span class="nav-number">2.</span> <span class="nav-text">Hello World</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#%E4%BF%A1%E5%8F%B7%E5%92%8C%E6%A7%BD"><span class="nav-number">3.</span> <span class="nav-text">信号和槽</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#%E5%B8%83%E5%B1%80%E7%AE%A1%E7%90%86"><span class="nav-number">4.</span> <span class="nav-text">布局管理</span></a></li></ol></div>
+      </div>
+      <!--/noindex-->
+
+      <div class="site-overview-wrap sidebar-panel">
+        <div class="site-author motion-element" itemprop="author" itemscope itemtype="http://schema.org/Person">
+    <img class="site-author-image" itemprop="image" alt="Xin-Bo Qi(亓欣波)"
+      src="/images/avatar.jpg">
+  <p class="site-author-name" itemprop="name">Xin-Bo Qi(亓欣波)</p>
+  <div class="site-description" itemprop="description">Be interesting!</div>
+</div>
+<div class="site-state-wrap motion-element">
+  <nav class="site-state">
+      <div class="site-state-item site-state-posts">
+          <a href="/archives/">
+        
+          <span class="site-state-item-count">120</span>
+          <span class="site-state-item-name">posts</span>
+        </a>
+      </div>
+      <div class="site-state-item site-state-categories">
+            <a href="/categories/">
+          
+        <span class="site-state-item-count">5</span>
+        <span class="site-state-item-name">categories</span></a>
+      </div>
+      <div class="site-state-item site-state-tags">
+            <a href="/tags/">
+          
+        <span class="site-state-item-count">41</span>
+        <span class="site-state-item-name">tags</span></a>
+      </div>
+  </nav>
+</div>
+  <div class="links-of-author motion-element">
+      <span class="links-of-author-item">
+        <a href="https://github.com/qixinbo" title="GitHub → https:&#x2F;&#x2F;github.com&#x2F;qixinbo" rel="noopener" target="_blank"><i class="github fa-fw"></i>GitHub</a>
+      </span>
+      <span class="links-of-author-item">
+        <a href="mailto:qixinbo@gmail.com" title="E-Mail → mailto:qixinbo@gmail.com" rel="noopener" target="_blank"><i class="envelope fa-fw"></i>E-Mail</a>
+      </span>
+  </div>
+
+
+  <div class="links-of-blogroll motion-element">
+    <div class="links-of-blogroll-title"><i class="fa fa-link fa-fw"></i>
+      Links
+    </div>
+    <ul class="links-of-blogroll-list">
+        <li class="links-of-blogroll-item">
+          <a href="https://www.tsinghua.edu.cn/" title="https:&#x2F;&#x2F;www.tsinghua.edu.cn" rel="noopener" target="_blank">THU</a>
+        </li>
+        <li class="links-of-blogroll-item">
+          <a href="http://www.imr.cas.cn/" title="http:&#x2F;&#x2F;www.imr.cas.cn" rel="noopener" target="_blank">IMR</a>
+        </li>
+        <li class="links-of-blogroll-item">
+          <a href="http://www.sdu.edu.cn/" title="http:&#x2F;&#x2F;www.sdu.edu.cn" rel="noopener" target="_blank">SDU</a>
+        </li>
+        <li class="links-of-blogroll-item">
+          <a href="http://liam0205.me/" title="http:&#x2F;&#x2F;liam0205.me&#x2F;" rel="noopener" target="_blank">黄晨成</a>
+        </li>
+    </ul>
+  </div>
+
+      </div>
+
+    </div>
+  </aside>
+  <div id="sidebar-dimmer"></div>
+
+
+      </div>
+    </main>
+
+    <footer class="footer">
+      <div class="footer-inner">
+        
+
+        
+
+<div class="copyright">
+  
+  &copy; 
+  <span itemprop="copyrightYear">2021</span>
+  <span class="with-love">
+    <i class="fa fa-heart"></i>
+  </span>
+  <span class="author" itemprop="copyrightHolder">Xin-Bo Qi(亓欣波)</span>
+</div>
+  <div class="powered-by">Powered by <a href="https://hexo.io/" class="theme-link" rel="noopener" target="_blank">Hexo</a> & <a href="https://theme-next.org/" class="theme-link" rel="noopener" target="_blank">NexT.Gemini</a>
+  </div>
+
+        
+
+
+
+
+
+
+
+
+      </div>
+    </footer>
+  </div>
+
+  
+  <script src="/lib/anime.min.js"></script>
+  <script src="/lib/velocity/velocity.min.js"></script>
+  <script src="/lib/velocity/velocity.ui.min.js"></script>
+
+<script src="/js/utils.js"></script>
+
+<script src="/js/motion.js"></script>
+
+
+<script src="/js/schemes/pisces.js"></script>
+
+
+<script src="/js/next-boot.js"></script>
+
+
+
+
+  
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+  
+
+  
+
+  
+
+<script>
+  function loadCount() {
+    var d = document, s = d.createElement('script');
+    s.src = 'https://qixinbo.disqus.com/count.js';
+    s.id = 'dsq-count-scr';
+    (d.head || d.body).appendChild(s);
+  }
+  // defer loading until the whole page loading is completed
+  window.addEventListener('load', loadCount, false);
+</script>
+<script>
+  var disqus_config = function() {
+    this.page.url = "http://qixinbo.github.io/2017/12/02/pyqt4-intro/";
+    this.page.identifier = "2017/12/02/pyqt4-intro/";
+    this.page.title = "PyQt4教程系列一：基本介绍和入门";
+    };
+  NexT.utils.loadComments(document.querySelector('#disqus_thread'), () => {
+    if (window.DISQUS) {
+      DISQUS.reset({
+        reload: true,
+        config: disqus_config
+      });
+    } else {
+      var d = document, s = d.createElement('script');
+      s.src = 'https://qixinbo.disqus.com/embed.js';
+      s.setAttribute('data-timestamp', '' + +new Date());
+      (d.head || d.body).appendChild(s);
+    }
+  });
+</script>
+
+</body>
+</html>

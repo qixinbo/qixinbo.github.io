@@ -1,0 +1,575 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=2">
+<meta name="theme-color" content="#222">
+<meta name="generator" content="Hexo 5.4.0">
+  <link rel="apple-touch-icon" sizes="180x180" href="/images/apple-touch-icon-next.png">
+  <link rel="icon" type="image/png" sizes="32x32" href="/favicon.ico">
+  <link rel="icon" type="image/png" sizes="16x16" href="/favicon.ico">
+  <link rel="mask-icon" href="/images/logo.svg" color="#222">
+
+<link rel="stylesheet" href="/css/main.css">
+
+
+<link rel="stylesheet" href="/lib/font-awesome/css/all.min.css">
+
+<script id="hexo-configurations">
+    var NexT = window.NexT || {};
+    var CONFIG = {"hostname":"qixinbo.github.io","root":"/","scheme":"Gemini","version":"7.8.0","exturl":false,"sidebar":{"position":"left","display":"post","padding":18,"offset":12,"onmobile":false},"copycode":{"enable":false,"show_result":false,"style":null},"back2top":{"enable":true,"sidebar":false,"scrollpercent":false},"bookmark":{"enable":false,"color":"#222","save":"auto"},"fancybox":false,"mediumzoom":false,"lazyload":false,"pangu":false,"comments":{"style":"tabs","active":null,"storage":true,"lazyload":false,"nav":null},"algolia":{"hits":{"per_page":10},"labels":{"input_placeholder":"Search for Posts","hits_empty":"We didn't find any results for the search: ${query}","hits_stats":"${hits} results found in ${time} ms"}},"localsearch":{"enable":false,"trigger":"auto","top_n_per_article":1,"unescape":false,"preload":false},"motion":{"enable":true,"async":false,"transition":{"post_block":"fadeIn","post_header":"slideDownIn","post_body":"slideDownIn","coll_header":"slideLeftIn","sidebar":"slideUpIn"}}};
+  </script>
+
+  <meta name="description" content="本文是对Mathematica有限元分析与工程应用一书的学习笔记。 这里的杆单元是总体坐标与局部坐标一致的一维有限元，因此不需要坐标变换，更易分析。 线性杆单元的形函数线性杆单元的位移函数是坐标x的一次函数，可用以下代码求解： 1234Clear[u1, u2];u &#x3D; a1 + a2 x;solut &#x3D; Solve[&amp;#123;u1 &#x3D;&#x3D; (u &#x2F;. x -&gt; 0), u2 &#x3D;&#x3D; (u &#x2F;">
+<meta property="og:type" content="article">
+<meta property="og:title" content="利用Mathematica进行有限元编程(一)：杆单元分析">
+<meta property="og:url" content="http://qixinbo.github.io/2016/08/17/mathematica-fem/index.html">
+<meta property="og:site_name" content="亓欣波">
+<meta property="og:description" content="本文是对Mathematica有限元分析与工程应用一书的学习笔记。 这里的杆单元是总体坐标与局部坐标一致的一维有限元，因此不需要坐标变换，更易分析。 线性杆单元的形函数线性杆单元的位移函数是坐标x的一次函数，可用以下代码求解： 1234Clear[u1, u2];u &#x3D; a1 + a2 x;solut &#x3D; Solve[&amp;#123;u1 &#x3D;&#x3D; (u &#x2F;. x -&gt; 0), u2 &#x3D;&#x3D; (u &#x2F;">
+<meta property="og:locale" content="en_US">
+<meta property="og:image" content="https://ws1.sinaimg.cn/large/0072Lfvtly1fvjj7einyuj30a405wt8q.jpg">
+<meta property="og:image" content="https://ws1.sinaimg.cn/large/0072Lfvtly1fvjj7okixoj308y034t8m.jpg">
+<meta property="article:published_time" content="2016-08-16T16:00:00.000Z">
+<meta property="article:modified_time" content="2021-03-25T07:20:30.748Z">
+<meta property="article:author" content="Xin-Bo Qi(亓欣波)">
+<meta property="article:tag" content="mathematica">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:image" content="https://ws1.sinaimg.cn/large/0072Lfvtly1fvjj7einyuj30a405wt8q.jpg">
+
+<link rel="canonical" href="http://qixinbo.github.io/2016/08/17/mathematica-fem/">
+
+
+<script id="page-configurations">
+  // https://hexo.io/docs/variables.html
+  CONFIG.page = {
+    sidebar: "",
+    isHome : false,
+    isPost : true,
+    lang   : 'en'
+  };
+</script>
+
+  <title>利用Mathematica进行有限元编程(一)：杆单元分析 | 亓欣波</title>
+  
+
+
+
+
+
+
+  <noscript>
+  <style>
+  .use-motion .brand,
+  .use-motion .menu-item,
+  .sidebar-inner,
+  .use-motion .post-block,
+  .use-motion .pagination,
+  .use-motion .comments,
+  .use-motion .post-header,
+  .use-motion .post-body,
+  .use-motion .collection-header { opacity: initial; }
+
+  .use-motion .site-title,
+  .use-motion .site-subtitle {
+    opacity: initial;
+    top: initial;
+  }
+
+  .use-motion .logo-line-before i { left: initial; }
+  .use-motion .logo-line-after i { right: initial; }
+  </style>
+</noscript>
+
+</head>
+
+<body itemscope itemtype="http://schema.org/WebPage">
+  <div class="container use-motion">
+    <div class="headband"></div>
+
+    <header class="header" itemscope itemtype="http://schema.org/WPHeader">
+      <div class="header-inner"><div class="site-brand-container">
+  <div class="site-nav-toggle">
+    <div class="toggle" aria-label="Toggle navigation bar">
+      <span class="toggle-line toggle-line-first"></span>
+      <span class="toggle-line toggle-line-middle"></span>
+      <span class="toggle-line toggle-line-last"></span>
+    </div>
+  </div>
+
+  <div class="site-meta">
+
+    <a href="/" class="brand" rel="start">
+      <span class="logo-line-before"><i></i></span>
+      <h1 class="site-title">亓欣波</h1>
+      <span class="logo-line-after"><i></i></span>
+    </a>
+      <p class="site-subtitle" itemprop="description">Hi, I am Xin-Bo Qi (亓欣波)</p>
+  </div>
+
+  <div class="site-nav-right">
+    <div class="toggle popup-trigger">
+    </div>
+  </div>
+</div>
+
+
+
+
+<nav class="site-nav">
+  <ul id="menu" class="main-menu menu">
+        <li class="menu-item menu-item-home">
+
+    <a href="/" rel="section"><i class="home fa-fw"></i>Home</a>
+
+  </li>
+        <li class="menu-item menu-item-categories">
+
+    <a href="/categories/" rel="section"><i class="th fa-fw"></i>Categories</a>
+
+  </li>
+        <li class="menu-item menu-item-archives">
+
+    <a href="/archives/" rel="section"><i class="archive fa-fw"></i>Archives</a>
+
+  </li>
+        <li class="menu-item menu-item-tags">
+
+    <a href="/tags/" rel="section"><i class="tags fa-fw"></i>Tags</a>
+
+  </li>
+        <li class="menu-item menu-item-scholar">
+
+    <a href="/scholar/" rel="section"><i class="bar-chart fa-fw"></i>scholar</a>
+
+  </li>
+        <li class="menu-item menu-item-sources">
+
+    <a href="/sources/" rel="section"><i class="rss fa-fw"></i>sources</a>
+
+  </li>
+        <li class="menu-item menu-item-gallery">
+
+    <a href="/gallery/" rel="section"><i class="file-image-o fa-fw"></i>gallery</a>
+
+  </li>
+        <li class="menu-item menu-item-about">
+
+    <a href="/about/" rel="section"><i class="user fa-fw"></i>About</a>
+
+  </li>
+        <li class="menu-item menu-item-commonweal">
+
+    <a href="/404.html" rel="section"><i class="heartbeat fa-fw"></i>Commonweal 404</a>
+
+  </li>
+  </ul>
+</nav>
+
+
+
+
+</div>
+    </header>
+
+    
+  <div class="back-to-top">
+    <i class="fa fa-arrow-up"></i>
+    <span>0%</span>
+  </div>
+
+
+    <main class="main">
+      <div class="main-inner">
+        <div class="content-wrap">
+          
+
+          <div class="content post posts-expand">
+            
+
+    
+  
+  
+  <article itemscope itemtype="http://schema.org/Article" class="post-block" lang="en">
+    <link itemprop="mainEntityOfPage" href="http://qixinbo.github.io/2016/08/17/mathematica-fem/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="image" content="/images/avatar.jpg">
+      <meta itemprop="name" content="Xin-Bo Qi(亓欣波)">
+      <meta itemprop="description" content="Be interesting!">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="亓欣波">
+    </span>
+      <header class="post-header">
+        <h1 class="post-title" itemprop="name headline">
+          利用Mathematica进行有限元编程(一)：杆单元分析
+        </h1>
+
+        <div class="post-meta">
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="far fa-calendar"></i>
+              </span>
+              <span class="post-meta-item-text">Posted on</span>
+
+              <time title="Created: 2016-08-17 00:00:00" itemprop="dateCreated datePublished" datetime="2016-08-17T00:00:00+08:00">2016-08-17</time>
+            </span>
+              <span class="post-meta-item">
+                <span class="post-meta-item-icon">
+                  <i class="far fa-calendar-check"></i>
+                </span>
+                <span class="post-meta-item-text">Edited on</span>
+                <time title="Modified: 2021-03-25 15:20:30" itemprop="dateModified" datetime="2021-03-25T15:20:30+08:00">2021-03-25</time>
+              </span>
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="far fa-folder"></i>
+              </span>
+              <span class="post-meta-item-text">In</span>
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+                  <a href="/categories/programming/" itemprop="url" rel="index"><span itemprop="name">programming</span></a>
+                </span>
+            </span>
+
+          
+  
+  <span class="post-meta-item">
+    
+      <span class="post-meta-item-icon">
+        <i class="far fa-comment"></i>
+      </span>
+      <span class="post-meta-item-text">Disqus: </span>
+    
+    <a title="disqus" href="/2016/08/17/mathematica-fem/#disqus_thread" itemprop="discussionUrl">
+      <span class="post-comments-count disqus-comment-count" data-disqus-identifier="2016/08/17/mathematica-fem/" itemprop="commentCount"></span>
+    </a>
+  </span>
+  
+  
+
+        </div>
+      </header>
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+        <p>本文是对<a target="_blank" rel="noopener" href="https://www.amazon.cn/Mathematica%E6%9C%89%E9%99%90%E5%85%83%E5%88%86%E6%9E%90%E4%B8%8E%E5%B7%A5%E7%A8%8B%E5%BA%94%E7%94%A8-%E9%B2%8D%E5%9B%9B%E5%85%83/dp/B00328IIOC">Mathematica有限元分析与工程应用</a>一书的学习笔记。</p>
+<p>这里的杆单元是总体坐标与局部坐标一致的一维有限元，因此不需要坐标变换，更易分析。</p>
+<h1 id="线性杆单元的形函数"><a href="#线性杆单元的形函数" class="headerlink" title="线性杆单元的形函数"></a>线性杆单元的形函数</h1><p>线性杆单元的位移函数是坐标x的一次函数，可用以下代码求解：</p>
+<figure class="highlight cpp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line">Clear[u1, u2];</span><br><span class="line">u = a1 + a2 x;</span><br><span class="line">solut = Solve[&#123;u1 == (u /. x -&gt; <span class="number">0</span>), u2 == (u /. x -&gt; <span class="number">1</span>)&#125;, &#123;a1, a2&#125;];</span><br><span class="line">u = u /. solut[[<span class="number">1</span>]]</span><br></pre></td></tr></table></figure>
+<p>其中u1和u2是杆端点x=0和x=1处的位移，结果为：</p>
+<figure class="highlight cpp"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">u1 + (-u1 + u2) x</span><br></pre></td></tr></table></figure>
+<p>形函数则可以通过取系数函数Coefficient获得：</p>
+<figure class="highlight cpp"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">NShape = &#123;Coefficient[u, u1], Coefficient[u, u2]&#125;</span><br></pre></td></tr></table></figure>
+<p>结果为：</p>
+<figure class="highlight cpp"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">&#123;<span class="number">1</span> - x, x&#125;</span><br></pre></td></tr></table></figure>
+<h1 id="二次杆单元的形函数"><a href="#二次杆单元的形函数" class="headerlink" title="二次杆单元的形函数"></a>二次杆单元的形函数</h1><p>二次杆单元的位移函数是坐标x的二次函数，求解代码为：</p>
+<figure class="highlight cpp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line">Clear[u1, u2, u3, a1, a2, a3];</span><br><span class="line">u = a1 + a2 x + a3 x^<span class="number">2</span>;</span><br><span class="line">solut = Solve[&#123;u1 == (u /. x -&gt; <span class="number">0</span>), u2 == (u /. x -&gt; <span class="number">1</span>/<span class="number">2</span>), </span><br><span class="line">        u3 == &#123;u /. x -&gt; <span class="number">1</span>&#125;&#125;, &#123;a1, a2, a3&#125;];</span><br><span class="line">u = u /. solut[[<span class="number">1</span>]]</span><br></pre></td></tr></table></figure>
+<p>结果为：</p>
+<figure class="highlight cpp"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">u1 + (<span class="number">-3</span> u1 + <span class="number">4</span> u2 - u3) x + <span class="number">2</span> (u1 - <span class="number">2</span> u2 + u3) x^<span class="number">2</span></span><br></pre></td></tr></table></figure>
+<p>其中u1、u2和u3分别是杆端点x=0、杆中点x=0.5、杆端点x=1处的位移。<br>那么形函数就是：</p>
+<figure class="highlight cpp"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">NShape = Coefficient[u, &#123;u1, u2, u3&#125;]</span><br></pre></td></tr></table></figure>
+<p>结果为：</p>
+<figure class="highlight cpp"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">&#123;<span class="number">1</span> - <span class="number">3</span> x + <span class="number">2</span> x^<span class="number">2</span>, <span class="number">4</span> x - <span class="number">4</span> x^<span class="number">2</span>, -x + <span class="number">2</span> x^<span class="number">2</span>&#125;</span><br></pre></td></tr></table></figure>
+<h1 id="单元刚度矩阵"><a href="#单元刚度矩阵" class="headerlink" title="单元刚度矩阵"></a>单元刚度矩阵</h1><p>一次杆单元的刚度矩阵可以类比弹簧元的刚度矩阵。<br>设弹簧的刚度系数为k，节点i，j的位移分别为$u_i$和$u_j$，受到的力分别为$F_i$，$F_j$。易知：<br>$$<br>\begin{equation}<br>\begin{split}<br>F_i &amp;= ku_i-ku_j \<br>F_j &amp;= ku_j-ku_i<br>\end{split}<br>\end{equation}<br>$$<br>写成矩阵形式为：<br>$$<br>\begin{bmatrix}<br>k &amp; -k \<br>-k &amp; k<br>\end{bmatrix}<br>\begin{bmatrix}<br>u_i \<br>u_j<br>\end{bmatrix}<br>=<br>\begin{bmatrix}<br>F_i \<br>F_j<br>\end{bmatrix}<br>$$<br>所以单元刚度矩阵为：<br>$$<br>k_{ij}=<br>\begin{bmatrix}<br>k &amp; -k \<br>-k &amp; k<br>\end{bmatrix}<br>$$<br>同理，一次杆单元的刚度矩阵为：<br>$$<br>k_{ij}=\frac{EA}{L}<br>\begin{bmatrix}<br>1 &amp; -1 \<br>-1 &amp; 1<br>\end{bmatrix}<br>$$<br>二次杆单元的刚度矩阵可通过能量法求解。应用能量法的示意图：<br><img src="https://ws1.sinaimg.cn/large/0072Lfvtly1fvjj7einyuj30a405wt8q.jpg"><br>应变能为：<br>$$<br>U=\int_\Omega \frac{1}{2}\sigma\epsilon dV=\int_0^L\frac{1}{2}EA\epsilon^2dx<br>=\int_0^L\frac{1}{2}EAa^T\frac{dN^T}{dx}\frac{dN}{dx}adx=\frac{1}{2}a^TKa<br>$$<br>其中：<br>$$<br>\sigma=E\epsilon; \epsilon=\frac{du}{dx}=\frac{dN}{dx}a, a=[u_1,u_2,u_3]^T<br>$$<br>所以单元刚度矩阵为：<br>$$<br>K=EA\int_{0}^L[\frac{dN}{dx}]^T[\frac{dN}{dx}]dx<br>$$<br>代入上面的形函数，那么求解代码为：</p>
+<figure class="highlight cpp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">dNx = L D[NShape, x];</span><br><span class="line">K = EA Integrate[Transpose[&#123;dNx&#125;].&#123;dNx&#125;, &#123;x, <span class="number">0</span>, <span class="number">1</span>&#125;]/L;</span><br><span class="line">K <span class="comment">// MatrixForm</span></span><br></pre></td></tr></table></figure>
+<p>注意：代码中的L这个系数是因为使用了之前位于0到1上的形函数，如果直接采用0到L，则形函数的具体形式会发生改变。<br>输出结果为：<br><img src="https://ws1.sinaimg.cn/large/0072Lfvtly1fvjj7okixoj308y034t8m.jpg"></p>
+<h1 id="模块分析"><a href="#模块分析" class="headerlink" title="模块分析"></a>模块分析</h1><h2 id="模块1-建立单元刚度矩阵"><a href="#模块1-建立单元刚度矩阵" class="headerlink" title="模块1:建立单元刚度矩阵"></a>模块1:建立单元刚度矩阵</h2><p>以下分别建立了弹簧元、线性杆单元、二次杆单元的单元刚度矩阵：</p>
+<figure class="highlight cpp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line">GenerateSpringKm[k_] := </span><br><span class="line"> Module[&#123;y&#125;, y = k*&#123;&#123;<span class="number">1</span>, <span class="number">-1</span>&#125;, &#123;<span class="number">-1</span>, <span class="number">1</span>&#125;&#125;; y]</span><br><span class="line">GenerateLinearRodKm[k_] := </span><br><span class="line"> Module[&#123;y&#125;, y = EE*AA/L*&#123;&#123;<span class="number">1</span>, <span class="number">-1</span>&#125;, &#123;<span class="number">-1</span>, <span class="number">1</span>&#125;&#125;; y]</span><br><span class="line">GenerateQuadraticRodKm[k_] := </span><br><span class="line"> Module[&#123;y&#125;, y = EE*AA/L*&#123;&#123;<span class="number">7</span>, <span class="number">1</span>, <span class="number">-8</span>&#125;, &#123;<span class="number">1</span>, <span class="number">7</span>, <span class="number">-8</span>&#125;, &#123;<span class="number">-8</span>, <span class="number">-8</span>, <span class="number">16</span>&#125;&#125;; y]</span><br></pre></td></tr></table></figure>
+<h2 id="模块2-组装整体刚度矩阵"><a href="#模块2-组装整体刚度矩阵" class="headerlink" title="模块2:组装整体刚度矩阵"></a>模块2:组装整体刚度矩阵</h2><p>以弹簧元为例，单独的一个弹簧元有两个节点，其单元刚度矩阵是2行2列的矩阵。对于含有n个节点的弹簧元系统，则是n行n列的整体刚度矩阵。组装过程为：假设某个弹簧元的节点的整体编号为i和j，其单刚中的四个元素要分别找到其对应的整体编号位置，然后叠加上去，即11对应ii，12对应ij，21对应ji，22对应jj。代码为：</p>
+<figure class="highlight cpp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><span class="line">GlobalK = <span class="number">0</span> IdentityMatrix[<span class="number">3</span>];</span><br><span class="line">AssembleSpringKm[p1_, p2_, m_] := Module[&#123;j, k&#125;, f = &#123;p1, p2&#125;;</span><br><span class="line">  For[j = <span class="number">1</span>, j &lt;= <span class="number">2</span>, j++,</span><br><span class="line">     For[k = <span class="number">1</span>, k &lt;= <span class="number">2</span>, k++,</span><br><span class="line">         GlobalK[[f[[j]], f[[k]]]] += m[[j, k]];</span><br><span class="line">    ]];</span><br><span class="line">      GlobalK]</span><br></pre></td></tr></table></figure>
+<p>代码中p1和p2是节点的整体编号(输入时要注意节点号的顺序)，m是该单元的单刚，GlobalK是整刚。<br>二次杆单元的整体刚度矩阵则为：</p>
+<figure class="highlight cpp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><span class="line">AssembleQuadraticRod[p1_, p2_, p3_, m_] := </span><br><span class="line"> Module[&#123;i, j, k&#125;, f = &#123;p1, p2&#125;;</span><br><span class="line">  For[i = <span class="number">1</span>, i &lt;= <span class="number">3</span>, i++,</span><br><span class="line">     For[j = <span class="number">1</span>, j &lt;= <span class="number">3</span>, j++,</span><br><span class="line">         For[k = <span class="number">1</span>, k &lt;= <span class="number">3</span>, k++,</span><br><span class="line">              GlobalK[[f[[j]], f[[k]]]] += m[[j, k]];</span><br><span class="line">     ]]];</span><br><span class="line">       GlobalK]</span><br></pre></td></tr></table></figure>
+<p>建立好整体刚度矩阵后，代入边界条件，即可求出位移量，比如：</p>
+<figure class="highlight cpp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><span class="line">U = &#123;u1x, u2x, u3x&#125;;</span><br><span class="line">u1x = u3x = <span class="number">0</span>;</span><br><span class="line">F2x = <span class="number">17.5</span>;</span><br><span class="line">Load = &#123;F1x, F2x, F3x&#125;;</span><br><span class="line">tmp = Sort[Join[U, Load]];</span><br><span class="line">unknown = Drop[tmp, <span class="number">3</span>];</span><br><span class="line">solut = Solve[GlobalK.U == Load, unknown]</span><br></pre></td></tr></table></figure>
+<p>这里使用的边界条件是编号1和3上的位移为0,2上的力为17.5，然后利用Solve求解。</p>
+<h2 id="模块3-得到单元应力"><a href="#模块3-得到单元应力" class="headerlink" title="模块3:得到单元应力"></a>模块3:得到单元应力</h2><p>已知单元的位移向量u(在整体坐标系下的值)，求单元上的力：</p>
+<figure class="highlight cpp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br></pre></td><td class="code"><pre><span class="line">SpringElementForce[k_, u_, i_] := Module[&#123;force&#125;,</span><br><span class="line">      force = k.u;</span><br><span class="line">  Print[<span class="string">&quot;The spring force of the ele&quot;</span>, i, <span class="string">&quot; is &quot;</span>, force, <span class="string">&quot;kN&quot;</span>];</span><br><span class="line">    ];</span><br><span class="line">RodElementForce[k_, u_, AA_, i_] := Module[&#123;force&#125;,</span><br><span class="line">      force = k.u;</span><br><span class="line">  sigma = force/AA;</span><br><span class="line">    Print[<span class="string">&quot;The force of the ele&quot;</span>, i, <span class="string">&quot; is &quot;</span>, force, <span class="string">&quot;kN, &quot;</span>, </span><br><span class="line">       <span class="string">&quot;the stress is &quot;</span>, sigma, <span class="string">&quot; Pa.&quot;</span>];</span><br><span class="line">  ]</span><br></pre></td></tr></table></figure>
+<p>i是单元编号，u是位移向量，k是单刚。</p>
+
+    </div>
+
+    
+    
+    
+        <div class="reward-container">
+  <div></div>
+  <button onclick="var qr = document.getElementById('qr'); qr.style.display = (qr.style.display === 'none') ? 'block' : 'none';">
+    Donate
+  </button>
+  <div id="qr" style="display: none;">
+      
+      <div style="display: inline-block;">
+        <img src="/images/wechat_reward.png" alt="Xin-Bo Qi(亓欣波) WeChat Pay">
+        <p>WeChat Pay</p>
+      </div>
+
+  </div>
+</div>
+
+
+      <footer class="post-footer">
+          <div class="post-tags">
+              <a href="/tags/mathematica/" rel="tag"># mathematica</a>
+          </div>
+
+        
+
+
+        
+    <div class="post-nav">
+      <div class="post-nav-item">
+    <a href="/2016/08/04/dealii-learn-step2/" rel="prev" title="求解偏微分方程开源有限元软件deal.II学习--Step 2">
+      <i class="fa fa-chevron-left"></i> 求解偏微分方程开源有限元软件deal.II学习--Step 2
+    </a></div>
+      <div class="post-nav-item">
+    <a href="/2016/08/18/mathematica-fem-ch3/" rel="next" title="利用Mathematica进行有限元编程(二)：桁架元分析">
+      利用Mathematica进行有限元编程(二)：桁架元分析 <i class="fa fa-chevron-right"></i>
+    </a></div>
+    </div>
+      </footer>
+    
+  </article>
+  
+  
+  
+
+
+
+          </div>
+          
+    
+  <div class="comments">
+    <div id="disqus_thread">
+      <noscript>Please enable JavaScript to view the comments powered by Disqus.</noscript>
+    </div>
+  </div>
+  
+
+<script>
+  window.addEventListener('tabs:register', () => {
+    let { activeClass } = CONFIG.comments;
+    if (CONFIG.comments.storage) {
+      activeClass = localStorage.getItem('comments_active') || activeClass;
+    }
+    if (activeClass) {
+      let activeTab = document.querySelector(`a[href="#comment-${activeClass}"]`);
+      if (activeTab) {
+        activeTab.click();
+      }
+    }
+  });
+  if (CONFIG.comments.storage) {
+    window.addEventListener('tabs:click', event => {
+      if (!event.target.matches('.tabs-comment .tab-content .tab-pane')) return;
+      let commentClass = event.target.classList[1];
+      localStorage.setItem('comments_active', commentClass);
+    });
+  }
+</script>
+
+        </div>
+          
+  
+  <div class="toggle sidebar-toggle">
+    <span class="toggle-line toggle-line-first"></span>
+    <span class="toggle-line toggle-line-middle"></span>
+    <span class="toggle-line toggle-line-last"></span>
+  </div>
+
+  <aside class="sidebar">
+    <div class="sidebar-inner">
+
+      <ul class="sidebar-nav motion-element">
+        <li class="sidebar-nav-toc">
+          Table of Contents
+        </li>
+        <li class="sidebar-nav-overview">
+          Overview
+        </li>
+      </ul>
+
+      <!--noindex-->
+      <div class="post-toc-wrap sidebar-panel">
+          <div class="post-toc motion-element"><ol class="nav"><li class="nav-item nav-level-1"><a class="nav-link" href="#%E7%BA%BF%E6%80%A7%E6%9D%86%E5%8D%95%E5%85%83%E7%9A%84%E5%BD%A2%E5%87%BD%E6%95%B0"><span class="nav-number">1.</span> <span class="nav-text">线性杆单元的形函数</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#%E4%BA%8C%E6%AC%A1%E6%9D%86%E5%8D%95%E5%85%83%E7%9A%84%E5%BD%A2%E5%87%BD%E6%95%B0"><span class="nav-number">2.</span> <span class="nav-text">二次杆单元的形函数</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#%E5%8D%95%E5%85%83%E5%88%9A%E5%BA%A6%E7%9F%A9%E9%98%B5"><span class="nav-number">3.</span> <span class="nav-text">单元刚度矩阵</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#%E6%A8%A1%E5%9D%97%E5%88%86%E6%9E%90"><span class="nav-number">4.</span> <span class="nav-text">模块分析</span></a><ol class="nav-child"><li class="nav-item nav-level-2"><a class="nav-link" href="#%E6%A8%A1%E5%9D%971-%E5%BB%BA%E7%AB%8B%E5%8D%95%E5%85%83%E5%88%9A%E5%BA%A6%E7%9F%A9%E9%98%B5"><span class="nav-number">4.1.</span> <span class="nav-text">模块1:建立单元刚度矩阵</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E6%A8%A1%E5%9D%972-%E7%BB%84%E8%A3%85%E6%95%B4%E4%BD%93%E5%88%9A%E5%BA%A6%E7%9F%A9%E9%98%B5"><span class="nav-number">4.2.</span> <span class="nav-text">模块2:组装整体刚度矩阵</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E6%A8%A1%E5%9D%973-%E5%BE%97%E5%88%B0%E5%8D%95%E5%85%83%E5%BA%94%E5%8A%9B"><span class="nav-number">4.3.</span> <span class="nav-text">模块3:得到单元应力</span></a></li></ol></li></ol></div>
+      </div>
+      <!--/noindex-->
+
+      <div class="site-overview-wrap sidebar-panel">
+        <div class="site-author motion-element" itemprop="author" itemscope itemtype="http://schema.org/Person">
+    <img class="site-author-image" itemprop="image" alt="Xin-Bo Qi(亓欣波)"
+      src="/images/avatar.jpg">
+  <p class="site-author-name" itemprop="name">Xin-Bo Qi(亓欣波)</p>
+  <div class="site-description" itemprop="description">Be interesting!</div>
+</div>
+<div class="site-state-wrap motion-element">
+  <nav class="site-state">
+      <div class="site-state-item site-state-posts">
+          <a href="/archives/">
+        
+          <span class="site-state-item-count">120</span>
+          <span class="site-state-item-name">posts</span>
+        </a>
+      </div>
+      <div class="site-state-item site-state-categories">
+            <a href="/categories/">
+          
+        <span class="site-state-item-count">5</span>
+        <span class="site-state-item-name">categories</span></a>
+      </div>
+      <div class="site-state-item site-state-tags">
+            <a href="/tags/">
+          
+        <span class="site-state-item-count">41</span>
+        <span class="site-state-item-name">tags</span></a>
+      </div>
+  </nav>
+</div>
+  <div class="links-of-author motion-element">
+      <span class="links-of-author-item">
+        <a href="https://github.com/qixinbo" title="GitHub → https:&#x2F;&#x2F;github.com&#x2F;qixinbo" rel="noopener" target="_blank"><i class="github fa-fw"></i>GitHub</a>
+      </span>
+      <span class="links-of-author-item">
+        <a href="mailto:qixinbo@gmail.com" title="E-Mail → mailto:qixinbo@gmail.com" rel="noopener" target="_blank"><i class="envelope fa-fw"></i>E-Mail</a>
+      </span>
+  </div>
+
+
+  <div class="links-of-blogroll motion-element">
+    <div class="links-of-blogroll-title"><i class="fa fa-link fa-fw"></i>
+      Links
+    </div>
+    <ul class="links-of-blogroll-list">
+        <li class="links-of-blogroll-item">
+          <a href="https://www.tsinghua.edu.cn/" title="https:&#x2F;&#x2F;www.tsinghua.edu.cn" rel="noopener" target="_blank">THU</a>
+        </li>
+        <li class="links-of-blogroll-item">
+          <a href="http://www.imr.cas.cn/" title="http:&#x2F;&#x2F;www.imr.cas.cn" rel="noopener" target="_blank">IMR</a>
+        </li>
+        <li class="links-of-blogroll-item">
+          <a href="http://www.sdu.edu.cn/" title="http:&#x2F;&#x2F;www.sdu.edu.cn" rel="noopener" target="_blank">SDU</a>
+        </li>
+        <li class="links-of-blogroll-item">
+          <a href="http://liam0205.me/" title="http:&#x2F;&#x2F;liam0205.me&#x2F;" rel="noopener" target="_blank">黄晨成</a>
+        </li>
+    </ul>
+  </div>
+
+      </div>
+
+    </div>
+  </aside>
+  <div id="sidebar-dimmer"></div>
+
+
+      </div>
+    </main>
+
+    <footer class="footer">
+      <div class="footer-inner">
+        
+
+        
+
+<div class="copyright">
+  
+  &copy; 
+  <span itemprop="copyrightYear">2021</span>
+  <span class="with-love">
+    <i class="fa fa-heart"></i>
+  </span>
+  <span class="author" itemprop="copyrightHolder">Xin-Bo Qi(亓欣波)</span>
+</div>
+  <div class="powered-by">Powered by <a href="https://hexo.io/" class="theme-link" rel="noopener" target="_blank">Hexo</a> & <a href="https://theme-next.org/" class="theme-link" rel="noopener" target="_blank">NexT.Gemini</a>
+  </div>
+
+        
+
+
+
+
+
+
+
+
+      </div>
+    </footer>
+  </div>
+
+  
+  <script src="/lib/anime.min.js"></script>
+  <script src="/lib/velocity/velocity.min.js"></script>
+  <script src="/lib/velocity/velocity.ui.min.js"></script>
+
+<script src="/js/utils.js"></script>
+
+<script src="/js/motion.js"></script>
+
+
+<script src="/js/schemes/pisces.js"></script>
+
+
+<script src="/js/next-boot.js"></script>
+
+
+
+
+  
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+  
+
+  
+
+  
+
+<script>
+  function loadCount() {
+    var d = document, s = d.createElement('script');
+    s.src = 'https://qixinbo.disqus.com/count.js';
+    s.id = 'dsq-count-scr';
+    (d.head || d.body).appendChild(s);
+  }
+  // defer loading until the whole page loading is completed
+  window.addEventListener('load', loadCount, false);
+</script>
+<script>
+  var disqus_config = function() {
+    this.page.url = "http://qixinbo.github.io/2016/08/17/mathematica-fem/";
+    this.page.identifier = "2016/08/17/mathematica-fem/";
+    this.page.title = "利用Mathematica进行有限元编程(一)：杆单元分析";
+    };
+  NexT.utils.loadComments(document.querySelector('#disqus_thread'), () => {
+    if (window.DISQUS) {
+      DISQUS.reset({
+        reload: true,
+        config: disqus_config
+      });
+    } else {
+      var d = document, s = d.createElement('script');
+      s.src = 'https://qixinbo.disqus.com/embed.js';
+      s.setAttribute('data-timestamp', '' + +new Date());
+      (d.head || d.body).appendChild(s);
+    }
+  });
+</script>
+
+</body>
+</html>

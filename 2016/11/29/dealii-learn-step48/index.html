@@ -1,0 +1,588 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=2">
+<meta name="theme-color" content="#222">
+<meta name="generator" content="Hexo 5.4.0">
+  <link rel="apple-touch-icon" sizes="180x180" href="/images/apple-touch-icon-next.png">
+  <link rel="icon" type="image/png" sizes="32x32" href="/favicon.ico">
+  <link rel="icon" type="image/png" sizes="16x16" href="/favicon.ico">
+  <link rel="mask-icon" href="/images/logo.svg" color="#222">
+
+<link rel="stylesheet" href="/css/main.css">
+
+
+<link rel="stylesheet" href="/lib/font-awesome/css/all.min.css">
+
+<script id="hexo-configurations">
+    var NexT = window.NexT || {};
+    var CONFIG = {"hostname":"qixinbo.github.io","root":"/","scheme":"Gemini","version":"7.8.0","exturl":false,"sidebar":{"position":"left","display":"post","padding":18,"offset":12,"onmobile":false},"copycode":{"enable":false,"show_result":false,"style":null},"back2top":{"enable":true,"sidebar":false,"scrollpercent":false},"bookmark":{"enable":false,"color":"#222","save":"auto"},"fancybox":false,"mediumzoom":false,"lazyload":false,"pangu":false,"comments":{"style":"tabs","active":null,"storage":true,"lazyload":false,"nav":null},"algolia":{"hits":{"per_page":10},"labels":{"input_placeholder":"Search for Posts","hits_empty":"We didn't find any results for the search: ${query}","hits_stats":"${hits} results found in ${time} ms"}},"localsearch":{"enable":false,"trigger":"auto","top_n_per_article":1,"unescape":false,"preload":false},"motion":{"enable":true,"async":false,"transition":{"post_block":"fadeIn","post_header":"slideDownIn","post_body":"slideDownIn","coll_header":"slideLeftIn","sidebar":"slideUpIn"}}};
+  </script>
+
+  <meta name="description" content="引子本例提供了一个框架来应用MatrixFree类，既包括求解非线性偏微分方程过程，同时演示MatrixFree类怎样处理“constraints”以及如何在分布式节点上并行。这个算例显示基于单元的运算在六面体单元的二阶或更高阶插值上要比稀疏矩阵-向量乘法快得多，能达到后者10倍的浮点运算速率。使用MatrixFree类，可以不用组装一个大型的稀疏矩阵，其运算都是基于单元。这里的并行也充分利用了现">
+<meta property="og:type" content="article">
+<meta property="og:title" content="求解偏微分方程开源有限元软件deal.II学习--Step 48">
+<meta property="og:url" content="http://qixinbo.github.io/2016/11/29/dealii-learn-step48/index.html">
+<meta property="og:site_name" content="亓欣波">
+<meta property="og:description" content="引子本例提供了一个框架来应用MatrixFree类，既包括求解非线性偏微分方程过程，同时演示MatrixFree类怎样处理“constraints”以及如何在分布式节点上并行。这个算例显示基于单元的运算在六面体单元的二阶或更高阶插值上要比稀疏矩阵-向量乘法快得多，能达到后者10倍的浮点运算速率。使用MatrixFree类，可以不用组装一个大型的稀疏矩阵，其运算都是基于单元。这里的并行也充分利用了现">
+<meta property="og:locale" content="en_US">
+<meta property="article:published_time" content="2016-11-28T16:00:00.000Z">
+<meta property="article:modified_time" content="2021-03-25T07:20:30.569Z">
+<meta property="article:author" content="Xin-Bo Qi(亓欣波)">
+<meta property="article:tag" content="deal.II">
+<meta name="twitter:card" content="summary">
+
+<link rel="canonical" href="http://qixinbo.github.io/2016/11/29/dealii-learn-step48/">
+
+
+<script id="page-configurations">
+  // https://hexo.io/docs/variables.html
+  CONFIG.page = {
+    sidebar: "",
+    isHome : false,
+    isPost : true,
+    lang   : 'en'
+  };
+</script>
+
+  <title>求解偏微分方程开源有限元软件deal.II学习--Step 48 | 亓欣波</title>
+  
+
+
+
+
+
+
+  <noscript>
+  <style>
+  .use-motion .brand,
+  .use-motion .menu-item,
+  .sidebar-inner,
+  .use-motion .post-block,
+  .use-motion .pagination,
+  .use-motion .comments,
+  .use-motion .post-header,
+  .use-motion .post-body,
+  .use-motion .collection-header { opacity: initial; }
+
+  .use-motion .site-title,
+  .use-motion .site-subtitle {
+    opacity: initial;
+    top: initial;
+  }
+
+  .use-motion .logo-line-before i { left: initial; }
+  .use-motion .logo-line-after i { right: initial; }
+  </style>
+</noscript>
+
+</head>
+
+<body itemscope itemtype="http://schema.org/WebPage">
+  <div class="container use-motion">
+    <div class="headband"></div>
+
+    <header class="header" itemscope itemtype="http://schema.org/WPHeader">
+      <div class="header-inner"><div class="site-brand-container">
+  <div class="site-nav-toggle">
+    <div class="toggle" aria-label="Toggle navigation bar">
+      <span class="toggle-line toggle-line-first"></span>
+      <span class="toggle-line toggle-line-middle"></span>
+      <span class="toggle-line toggle-line-last"></span>
+    </div>
+  </div>
+
+  <div class="site-meta">
+
+    <a href="/" class="brand" rel="start">
+      <span class="logo-line-before"><i></i></span>
+      <h1 class="site-title">亓欣波</h1>
+      <span class="logo-line-after"><i></i></span>
+    </a>
+      <p class="site-subtitle" itemprop="description">Hi, I am Xin-Bo Qi (亓欣波)</p>
+  </div>
+
+  <div class="site-nav-right">
+    <div class="toggle popup-trigger">
+    </div>
+  </div>
+</div>
+
+
+
+
+<nav class="site-nav">
+  <ul id="menu" class="main-menu menu">
+        <li class="menu-item menu-item-home">
+
+    <a href="/" rel="section"><i class="home fa-fw"></i>Home</a>
+
+  </li>
+        <li class="menu-item menu-item-categories">
+
+    <a href="/categories/" rel="section"><i class="th fa-fw"></i>Categories</a>
+
+  </li>
+        <li class="menu-item menu-item-archives">
+
+    <a href="/archives/" rel="section"><i class="archive fa-fw"></i>Archives</a>
+
+  </li>
+        <li class="menu-item menu-item-tags">
+
+    <a href="/tags/" rel="section"><i class="tags fa-fw"></i>Tags</a>
+
+  </li>
+        <li class="menu-item menu-item-scholar">
+
+    <a href="/scholar/" rel="section"><i class="bar-chart fa-fw"></i>scholar</a>
+
+  </li>
+        <li class="menu-item menu-item-sources">
+
+    <a href="/sources/" rel="section"><i class="rss fa-fw"></i>sources</a>
+
+  </li>
+        <li class="menu-item menu-item-gallery">
+
+    <a href="/gallery/" rel="section"><i class="file-image-o fa-fw"></i>gallery</a>
+
+  </li>
+        <li class="menu-item menu-item-about">
+
+    <a href="/about/" rel="section"><i class="user fa-fw"></i>About</a>
+
+  </li>
+        <li class="menu-item menu-item-commonweal">
+
+    <a href="/404.html" rel="section"><i class="heartbeat fa-fw"></i>Commonweal 404</a>
+
+  </li>
+  </ul>
+</nav>
+
+
+
+
+</div>
+    </header>
+
+    
+  <div class="back-to-top">
+    <i class="fa fa-arrow-up"></i>
+    <span>0%</span>
+  </div>
+
+
+    <main class="main">
+      <div class="main-inner">
+        <div class="content-wrap">
+          
+
+          <div class="content post posts-expand">
+            
+
+    
+  
+  
+  <article itemscope itemtype="http://schema.org/Article" class="post-block" lang="en">
+    <link itemprop="mainEntityOfPage" href="http://qixinbo.github.io/2016/11/29/dealii-learn-step48/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="image" content="/images/avatar.jpg">
+      <meta itemprop="name" content="Xin-Bo Qi(亓欣波)">
+      <meta itemprop="description" content="Be interesting!">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="亓欣波">
+    </span>
+      <header class="post-header">
+        <h1 class="post-title" itemprop="name headline">
+          求解偏微分方程开源有限元软件deal.II学习--Step 48
+        </h1>
+
+        <div class="post-meta">
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="far fa-calendar"></i>
+              </span>
+              <span class="post-meta-item-text">Posted on</span>
+
+              <time title="Created: 2016-11-29 00:00:00" itemprop="dateCreated datePublished" datetime="2016-11-29T00:00:00+08:00">2016-11-29</time>
+            </span>
+              <span class="post-meta-item">
+                <span class="post-meta-item-icon">
+                  <i class="far fa-calendar-check"></i>
+                </span>
+                <span class="post-meta-item-text">Edited on</span>
+                <time title="Modified: 2021-03-25 15:20:30" itemprop="dateModified" datetime="2021-03-25T15:20:30+08:00">2021-03-25</time>
+              </span>
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="far fa-folder"></i>
+              </span>
+              <span class="post-meta-item-text">In</span>
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+                  <a href="/categories/computational-material-science/" itemprop="url" rel="index"><span itemprop="name">computational material science</span></a>
+                </span>
+            </span>
+
+          
+  
+  <span class="post-meta-item">
+    
+      <span class="post-meta-item-icon">
+        <i class="far fa-comment"></i>
+      </span>
+      <span class="post-meta-item-text">Disqus: </span>
+    
+    <a title="disqus" href="/2016/11/29/dealii-learn-step48/#disqus_thread" itemprop="discussionUrl">
+      <span class="post-comments-count disqus-comment-count" data-disqus-identifier="2016/11/29/dealii-learn-step48/" itemprop="commentCount"></span>
+    </a>
+  </span>
+  
+  
+
+        </div>
+      </header>
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+        <h1 id="引子"><a href="#引子" class="headerlink" title="引子"></a>引子</h1><p>本例提供了一个框架来应用MatrixFree类，既包括求解非线性偏微分方程过程，同时演示MatrixFree类怎样处理“constraints”以及如何在分布式节点上并行。这个算例显示基于单元的运算在六面体单元的二阶或更高阶插值上要比稀疏矩阵-向量乘法快得多，能达到后者10倍的浮点运算速率。<br>使用MatrixFree类，可以不用组装一个大型的稀疏矩阵，其运算都是基于单元。这里的并行也充分利用了现代超算机器的架构，分为三个层级：</p>
+<ul>
+<li>不同节点之间使用MPI并行</li>
+<li>单个节点内使用“动态任务规划”进行线程并行</li>
+<li>单个核心内使用处理器的向量单元进行显式向量化并行</li>
+</ul>
+<p>很多通用有限元包，比如deal.II、libMesh等都将有限元计算和线性代数分开，然后依赖迭代型求解器的稀疏矩阵-向量乘法的内核，比如直接应用特定线性代数包PETSc或Trilinos等。这个算例想要挑战这种传统的将线性代数和有限元组装分开的思路。</p>
+<p>具体来说，就是不组装一个全局的稀疏矩阵，仅仅存储参考单元形函数信息、自由度的枚举、从参考单元到真实单元的变换。通常情况下这个方法能够显著降低存储需求，在数值结算操作上比系数矩阵稍有增大，但有时甚至会更少。降低内存需求会提高浮点运算速率，因为稀疏矩阵运算通常受限于内存带宽，而不是浮点运算。尽管可以将稀疏矩阵优化成比如只运算非零元素的模式，但此时的浮点运算速率很少能超过峰值运算的2%-20%。<br>除了稀疏矩阵-向量乘法较差的计算性能，对于一个d维的(p-1)次的有限单元来说，矩阵中每排的非零元素的数目与p的d次方成正比，这样对于很高次的方法的开销就很大。如果我们将有限元算子分割成用参考单元的形函数值及其导数表示的函数计算和积分步，那么就可以通过一个张量乘法一次就对一个维度上的形函数信息同时计算，这使得计算复杂度变为每个自由度计算d^2p此，这在文献中称为sum-factorization方法。<br>之前的有限元方法应用中通常存储单元矩阵及其指标，这些单元矩阵再组成总体刚度矩阵，这是一种“一个元素一个元素”的存储方法。然后这种方法增大了内存消耗量。最近，不明确存储矩阵、基于单元的方法已经用在GPU运算和一些应用导向的软件包如SPEC-FEM 3D中。</p>
+<h1 id="算法"><a href="#算法" class="headerlink" title="算法"></a>算法</h1><p>这里还是选择一个通用问题：算子A对一个向量u作用。<br>如果用了MPI并行，那么算法就是：<br>(1)从其他MPI进程中导入向量值，用于当前MPI进程在自己所拥有的单元上的计算。</p>
+<figure class="highlight cpp"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">update_ghost_values</span><br></pre></td></tr></table></figure>
+<p>(2)对当前拥有的单元进行循环(在当前MPI进程中进行线程并行)<br>(2.1)取得当前单元上向量的局部值<br>(2.2)通过积分计算当前单元上矩阵与向量的值<br>(2.3)将当前单元的贡献叠加到全局目标向量中<br>(3)与另一个MPI进程所拥有的单元交换所计算的信息</p>
+<figure class="highlight cpp"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">compress</span><br></pre></td></tr></table></figure>
+<p>第(2.2)步可以通过显式地构建单元矩阵A来实现，这就是通常的存储矩阵的所有元素的方法。为了避免这种显式地存储，就可以用无矩阵方式(还有另外一种方法，是FEniCs软件包中用的方式，但其局限于线性算子和简单几何上，即雅各比变换是常量，所以不如下面更通用)：<br>在单元上通过积分计算“算子作用在向量上”：计算有限元函数u在所有积分点上的值和/或它的导数，然后用所有与此单元相关的试函数来测试。<br>下面是对方法的具体分析。</p>
+<h2 id="局部积分方法"><a href="#局部积分方法" class="headerlink" title="局部积分方法"></a>局部积分方法</h2><p>为了方便说明，这里特化算子A为变系数的拉普拉斯算子：<br>$$<br>-\nabla \cdot K(x) \nabla<br>$$<br>其中，K是d乘d的对称矩阵。<br>相应的有限元弱形式为：<br>$$<br>(\nabla \phi_j, K\nabla u^h), \qquad j=1,…,n<br>$$<br>其中，$u^h(x)=\sum_{i=1}^n \phi_i (x)u^{(i)}$是全局有限元函数u的离散插值，${\phi_j,j=1,…,n}$是试探函数。n是总自由度个数。<br>再定义参考单元上的基函数$\hat{\phi}_j(\hat{x}),j=1,…,p^d$。对应于全局的积分点$x_q$，其在参考单元上的对应的积分点就是$\hat{x}_q$。即在参考单元上的对应量都加上个冒，其中$(p-1)$是有限单元的“度”，即p是每个方向上自由度的个数，d是维度。<br>，在某个单元k上，在积分点$x_q$上，有限元函数u的插值就是：<br>$$<br>u_k^h(x_q)=\sum_{i=1}^{p^d}\hat{\phi}_i (\hat{x}_q)u_k^{(i)}<br>$$<br>在新方法中，显式地计算该局部有限元插值的梯度：<br>$$<br>\nabla u_k^h(x_q)=\sum_{i=1}^{p^d}J_k^{-T}(\hat{x}_q) \hat{\nabla}\hat{\phi}_i (\hat{x}_q)u_k^{(i)}=J_k^{-T}(\hat{x}_q) \sum_{i=1}^{p^d} \hat{\nabla}\hat{\phi}_i (\hat{x}_q)u_k^{(i)}<br>$$<br>其中，$\nabla$代表真实坐标系中的梯度，$\hat{\nabla}$代表参考单元上的梯度，$J_k^{-T}(\hat{x}_q)$是从参考单元到真实单元的逆转置的雅各比矩阵。注意：上面先求梯度，即先求和，再施加几何变换。<br>目标向量$v_k=A_k u_k$的每一个分量i都是一个积分，通过数值积分来获得：<br>$$<br>\begin{split}<br>v_k^{(i)}&amp;=\sum_q (\nabla \phi_i (x_q)^T K(x_q)\nabla u^h(x_q))w_q |\text{det}J_K(\hat{x}_q)| \<br>&amp;=\sum_q (\hat{\nabla}\hat{\phi}_i (\hat{x}_q)^T (J_k^{-T}(\hat{x}_q))^T K(x_q)\nabla u^h (x_q))w_q |\text{det}J_k (\hat{x}_q)|<br>\end{split}<br>$$</p>
+<p>因此，对于拉普拉斯算子的局部算法可以表述为：<br>(1)计算参考单元上所有积分点上的梯度值，即第一个公式的求和部分<br>(2)在每个积分点上：</p>
+<ul>
+<li>施加雅各比变换，从而根据第一个公式得到真实空间上的离散函数u的梯度</li>
+<li>乘以变系数矩阵</li>
+<li>再乘以雅各比行列式和积分权重</li>
+<li>再次施加雅各比矩阵变换</li>
+</ul>
+<p>(3)乘以参考单元上形函数的梯度，然后遍历所有积分点求和</p>
+<p>这种算法相比于传统的矩阵组装算法有如下特点：</p>
+<ul>
+<li>将梯度的计算分成两部分：在参考单元上计算梯度，然后再施加雅各比变换。而不是直接在真实空间中计算形函数梯度。</li>
+<li>参考单元上的计算对所有单元都是相同的，所以很多单元可以组合在一块同时计算</li>
+<li>对于张量积单元，可以应用下面的“sum-factorization”算法，其相比于传统的直接运算方法(对所有积分点和局部基函数嵌套循环)有更小的复杂度</li>
+</ul>
+<h2 id="FEEvaluation类"><a href="#FEEvaluation类" class="headerlink" title="FEEvaluation类"></a>FEEvaluation类</h2><p>上面给出了在每个单元上的局部积分算法，这些基于单元的操作全部在FEEvaluation类中实现：</p>
+<ul>
+<li>读取源向量，然后再组装回全局目标向量中</li>
+<li>使用“sum-factorization”算法计算参考单元上的函数值、梯度及二阶导数，并对其积分</li>
+<li>应用雅各比变换、与变系数向量相乘等。</li>
+</ul>
+<h1 id="问题描述"><a href="#问题描述" class="headerlink" title="问题描述"></a>问题描述</h1><p>这里要求解Sine-Gordon方程：<br>$$<br>\begin{split}<br>u_{tt} &amp;= \Delta u -\sin(u) \quad\mbox{for}\quad (x,t) \in \Omega \times (t_0,t_f],\<br>{\mathbf n} \cdot \nabla u &amp;= 0 \quad\mbox{for}\quad (x,t) \in \partial\Omega \times (t_0,t_f],\\<br>u(x,t_0) &amp;= u_0(x).<br>\end{split}<br>$$</p>
+<p>这里采用显式的时间步进离散方法：<br>$$<br>(v,u^{n+1}) = (v,2 u^n-u^{n-1} - (\Delta t)^2 \sin(u^n)) - (\nabla v, (\Delta t)^2 \nabla u^n)<br>$$</p>
+<p>如果使用Gauss-Lobatto单元，将会产生一个对角质量矩阵M，那么更新方程就变成：<br>$$<br>U^{n+1}=M^{-1}L(U^n,U^{n-1})<br>$$<br>其中，非线性算子$L(U^n,U^{n-1})$就是上式右端项。</p>
+<h1 id="注意点"><a href="#注意点" class="headerlink" title="注意点"></a>注意点</h1><h2 id="返回类型"><a href="#返回类型" class="headerlink" title="返回类型"></a>返回类型</h2><p>FEEvaluation取得某个自由度和某个积分点上的函数值的返回类型都是value_type类型，其定义为：</p>
+<figure class="highlight cpp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">typedef</span> FEEvaluationAccess&lt;dim,n_components_,Number&gt; BaseClass;</span><br><span class="line"><span class="keyword">typedef</span> <span class="keyword">typename</span> BaseClass::value_type value_type;</span><br></pre></td></tr></table></figure>
+<p>而此处用到的FEEvaluationAccess类是：</p>
+<figure class="highlight cpp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line"><span class="class"><span class="keyword">class</span> <span class="title">FEEvaluationAccess</span>&lt;</span>dim,<span class="number">1</span>,Number&gt;</span><br><span class="line"><span class="keyword">typedef</span> VectorizedArray&lt;Number&gt; value_type;</span><br></pre></td></tr></table></figure>
+<p>所以，此处得到返回值的类型都是VectorizeArray类型的。</p>
+<p>同理，对于返回的梯度类型：</p>
+<figure class="highlight cpp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">typedef</span> FEEvaluationAccess&lt;dim,n_components_,Number&gt; BaseClass;</span><br><span class="line"><span class="keyword">typedef</span> <span class="keyword">typename</span> BaseClass::gradient_type gradient_type;</span><br><span class="line"></span><br><span class="line"><span class="keyword">typedef</span> Tensor&lt;<span class="number">1</span>,dim,VectorizedArray&lt;Number&gt; &gt; gradient_type;</span><br></pre></td></tr></table></figure>
+<p>即，返回的梯度是一个一阶张量，即矢量，它有dim个分量。</p>
+<h2 id="梯度计算"><a href="#梯度计算" class="headerlink" title="梯度计算"></a>梯度计算</h2><p>真实单元中的函数值和梯度与参考单元中的不同，两者要进行矩阵变换，同时梯度之间的变换还要再多一道，这在FEEvaluation的submit_gradient函数中能够明确地体现出来：</p>
+<figure class="highlight cpp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">this</span>-&gt;gradients_quad[<span class="number">0</span>][d][q_point] = (grad_in[d] *</span><br><span class="line">  <span class="keyword">this</span>-&gt;cartesian_data[<span class="number">0</span>][d] *</span><br><span class="line">  JxW);</span><br></pre></td></tr></table></figure>
+<p>而在计算函数值时则不需要加中间的数值：</p>
+<figure class="highlight cpp"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">this</span>-&gt;values_quad[<span class="number">0</span>][q_point] = val_in * JxW;</span><br></pre></td></tr></table></figure>
+
+    </div>
+
+    
+    
+    
+        <div class="reward-container">
+  <div></div>
+  <button onclick="var qr = document.getElementById('qr'); qr.style.display = (qr.style.display === 'none') ? 'block' : 'none';">
+    Donate
+  </button>
+  <div id="qr" style="display: none;">
+      
+      <div style="display: inline-block;">
+        <img src="/images/wechat_reward.png" alt="Xin-Bo Qi(亓欣波) WeChat Pay">
+        <p>WeChat Pay</p>
+      </div>
+
+  </div>
+</div>
+
+
+      <footer class="post-footer">
+          <div class="post-tags">
+              <a href="/tags/deal-II/" rel="tag"># deal.II</a>
+          </div>
+
+        
+
+
+        
+    <div class="post-nav">
+      <div class="post-nav-item">
+    <a href="/2016/10/08/fem_matrix/" rel="prev" title="结构力学有限元刚度矩阵的性质">
+      <i class="fa fa-chevron-left"></i> 结构力学有限元刚度矩阵的性质
+    </a></div>
+      <div class="post-nav-item">
+    <a href="/2016/12/01/prisms-phasefield-allencahn/" rel="next" title="PRISMS-PF学习手册——AllenCahn方程求解">
+      PRISMS-PF学习手册——AllenCahn方程求解 <i class="fa fa-chevron-right"></i>
+    </a></div>
+    </div>
+      </footer>
+    
+  </article>
+  
+  
+  
+
+
+
+          </div>
+          
+    
+  <div class="comments">
+    <div id="disqus_thread">
+      <noscript>Please enable JavaScript to view the comments powered by Disqus.</noscript>
+    </div>
+  </div>
+  
+
+<script>
+  window.addEventListener('tabs:register', () => {
+    let { activeClass } = CONFIG.comments;
+    if (CONFIG.comments.storage) {
+      activeClass = localStorage.getItem('comments_active') || activeClass;
+    }
+    if (activeClass) {
+      let activeTab = document.querySelector(`a[href="#comment-${activeClass}"]`);
+      if (activeTab) {
+        activeTab.click();
+      }
+    }
+  });
+  if (CONFIG.comments.storage) {
+    window.addEventListener('tabs:click', event => {
+      if (!event.target.matches('.tabs-comment .tab-content .tab-pane')) return;
+      let commentClass = event.target.classList[1];
+      localStorage.setItem('comments_active', commentClass);
+    });
+  }
+</script>
+
+        </div>
+          
+  
+  <div class="toggle sidebar-toggle">
+    <span class="toggle-line toggle-line-first"></span>
+    <span class="toggle-line toggle-line-middle"></span>
+    <span class="toggle-line toggle-line-last"></span>
+  </div>
+
+  <aside class="sidebar">
+    <div class="sidebar-inner">
+
+      <ul class="sidebar-nav motion-element">
+        <li class="sidebar-nav-toc">
+          Table of Contents
+        </li>
+        <li class="sidebar-nav-overview">
+          Overview
+        </li>
+      </ul>
+
+      <!--noindex-->
+      <div class="post-toc-wrap sidebar-panel">
+          <div class="post-toc motion-element"><ol class="nav"><li class="nav-item nav-level-1"><a class="nav-link" href="#%E5%BC%95%E5%AD%90"><span class="nav-number">1.</span> <span class="nav-text">引子</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#%E7%AE%97%E6%B3%95"><span class="nav-number">2.</span> <span class="nav-text">算法</span></a><ol class="nav-child"><li class="nav-item nav-level-2"><a class="nav-link" href="#%E5%B1%80%E9%83%A8%E7%A7%AF%E5%88%86%E6%96%B9%E6%B3%95"><span class="nav-number">2.1.</span> <span class="nav-text">局部积分方法</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#FEEvaluation%E7%B1%BB"><span class="nav-number">2.2.</span> <span class="nav-text">FEEvaluation类</span></a></li></ol></li><li class="nav-item nav-level-1"><a class="nav-link" href="#%E9%97%AE%E9%A2%98%E6%8F%8F%E8%BF%B0"><span class="nav-number">3.</span> <span class="nav-text">问题描述</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#%E6%B3%A8%E6%84%8F%E7%82%B9"><span class="nav-number">4.</span> <span class="nav-text">注意点</span></a><ol class="nav-child"><li class="nav-item nav-level-2"><a class="nav-link" href="#%E8%BF%94%E5%9B%9E%E7%B1%BB%E5%9E%8B"><span class="nav-number">4.1.</span> <span class="nav-text">返回类型</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E6%A2%AF%E5%BA%A6%E8%AE%A1%E7%AE%97"><span class="nav-number">4.2.</span> <span class="nav-text">梯度计算</span></a></li></ol></li></ol></div>
+      </div>
+      <!--/noindex-->
+
+      <div class="site-overview-wrap sidebar-panel">
+        <div class="site-author motion-element" itemprop="author" itemscope itemtype="http://schema.org/Person">
+    <img class="site-author-image" itemprop="image" alt="Xin-Bo Qi(亓欣波)"
+      src="/images/avatar.jpg">
+  <p class="site-author-name" itemprop="name">Xin-Bo Qi(亓欣波)</p>
+  <div class="site-description" itemprop="description">Be interesting!</div>
+</div>
+<div class="site-state-wrap motion-element">
+  <nav class="site-state">
+      <div class="site-state-item site-state-posts">
+          <a href="/archives/">
+        
+          <span class="site-state-item-count">120</span>
+          <span class="site-state-item-name">posts</span>
+        </a>
+      </div>
+      <div class="site-state-item site-state-categories">
+            <a href="/categories/">
+          
+        <span class="site-state-item-count">5</span>
+        <span class="site-state-item-name">categories</span></a>
+      </div>
+      <div class="site-state-item site-state-tags">
+            <a href="/tags/">
+          
+        <span class="site-state-item-count">41</span>
+        <span class="site-state-item-name">tags</span></a>
+      </div>
+  </nav>
+</div>
+  <div class="links-of-author motion-element">
+      <span class="links-of-author-item">
+        <a href="https://github.com/qixinbo" title="GitHub → https:&#x2F;&#x2F;github.com&#x2F;qixinbo" rel="noopener" target="_blank"><i class="github fa-fw"></i>GitHub</a>
+      </span>
+      <span class="links-of-author-item">
+        <a href="mailto:qixinbo@gmail.com" title="E-Mail → mailto:qixinbo@gmail.com" rel="noopener" target="_blank"><i class="envelope fa-fw"></i>E-Mail</a>
+      </span>
+  </div>
+
+
+  <div class="links-of-blogroll motion-element">
+    <div class="links-of-blogroll-title"><i class="fa fa-link fa-fw"></i>
+      Links
+    </div>
+    <ul class="links-of-blogroll-list">
+        <li class="links-of-blogroll-item">
+          <a href="https://www.tsinghua.edu.cn/" title="https:&#x2F;&#x2F;www.tsinghua.edu.cn" rel="noopener" target="_blank">THU</a>
+        </li>
+        <li class="links-of-blogroll-item">
+          <a href="http://www.imr.cas.cn/" title="http:&#x2F;&#x2F;www.imr.cas.cn" rel="noopener" target="_blank">IMR</a>
+        </li>
+        <li class="links-of-blogroll-item">
+          <a href="http://www.sdu.edu.cn/" title="http:&#x2F;&#x2F;www.sdu.edu.cn" rel="noopener" target="_blank">SDU</a>
+        </li>
+        <li class="links-of-blogroll-item">
+          <a href="http://liam0205.me/" title="http:&#x2F;&#x2F;liam0205.me&#x2F;" rel="noopener" target="_blank">黄晨成</a>
+        </li>
+    </ul>
+  </div>
+
+      </div>
+
+    </div>
+  </aside>
+  <div id="sidebar-dimmer"></div>
+
+
+      </div>
+    </main>
+
+    <footer class="footer">
+      <div class="footer-inner">
+        
+
+        
+
+<div class="copyright">
+  
+  &copy; 
+  <span itemprop="copyrightYear">2021</span>
+  <span class="with-love">
+    <i class="fa fa-heart"></i>
+  </span>
+  <span class="author" itemprop="copyrightHolder">Xin-Bo Qi(亓欣波)</span>
+</div>
+  <div class="powered-by">Powered by <a href="https://hexo.io/" class="theme-link" rel="noopener" target="_blank">Hexo</a> & <a href="https://theme-next.org/" class="theme-link" rel="noopener" target="_blank">NexT.Gemini</a>
+  </div>
+
+        
+
+
+
+
+
+
+
+
+      </div>
+    </footer>
+  </div>
+
+  
+  <script src="/lib/anime.min.js"></script>
+  <script src="/lib/velocity/velocity.min.js"></script>
+  <script src="/lib/velocity/velocity.ui.min.js"></script>
+
+<script src="/js/utils.js"></script>
+
+<script src="/js/motion.js"></script>
+
+
+<script src="/js/schemes/pisces.js"></script>
+
+
+<script src="/js/next-boot.js"></script>
+
+
+
+
+  
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+  
+
+  
+
+  
+
+<script>
+  function loadCount() {
+    var d = document, s = d.createElement('script');
+    s.src = 'https://qixinbo.disqus.com/count.js';
+    s.id = 'dsq-count-scr';
+    (d.head || d.body).appendChild(s);
+  }
+  // defer loading until the whole page loading is completed
+  window.addEventListener('load', loadCount, false);
+</script>
+<script>
+  var disqus_config = function() {
+    this.page.url = "http://qixinbo.github.io/2016/11/29/dealii-learn-step48/";
+    this.page.identifier = "2016/11/29/dealii-learn-step48/";
+    this.page.title = "求解偏微分方程开源有限元软件deal.II学习--Step 48";
+    };
+  NexT.utils.loadComments(document.querySelector('#disqus_thread'), () => {
+    if (window.DISQUS) {
+      DISQUS.reset({
+        reload: true,
+        config: disqus_config
+      });
+    } else {
+      var d = document, s = d.createElement('script');
+      s.src = 'https://qixinbo.disqus.com/embed.js';
+      s.setAttribute('data-timestamp', '' + +new Date());
+      (d.head || d.body).appendChild(s);
+    }
+  });
+</script>
+
+</body>
+</html>

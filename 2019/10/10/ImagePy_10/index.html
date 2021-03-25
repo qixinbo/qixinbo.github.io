@@ -1,0 +1,579 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=2">
+<meta name="theme-color" content="#222">
+<meta name="generator" content="Hexo 5.4.0">
+  <link rel="apple-touch-icon" sizes="180x180" href="/images/apple-touch-icon-next.png">
+  <link rel="icon" type="image/png" sizes="32x32" href="/favicon.ico">
+  <link rel="icon" type="image/png" sizes="16x16" href="/favicon.ico">
+  <link rel="mask-icon" href="/images/logo.svg" color="#222">
+
+<link rel="stylesheet" href="/css/main.css">
+
+
+<link rel="stylesheet" href="/lib/font-awesome/css/all.min.css">
+
+<script id="hexo-configurations">
+    var NexT = window.NexT || {};
+    var CONFIG = {"hostname":"qixinbo.github.io","root":"/","scheme":"Gemini","version":"7.8.0","exturl":false,"sidebar":{"position":"left","display":"post","padding":18,"offset":12,"onmobile":false},"copycode":{"enable":false,"show_result":false,"style":null},"back2top":{"enable":true,"sidebar":false,"scrollpercent":false},"bookmark":{"enable":false,"color":"#222","save":"auto"},"fancybox":false,"mediumzoom":false,"lazyload":false,"pangu":false,"comments":{"style":"tabs","active":null,"storage":true,"lazyload":false,"nav":null},"algolia":{"hits":{"per_page":10},"labels":{"input_placeholder":"Search for Posts","hits_empty":"We didn't find any results for the search: ${query}","hits_stats":"${hits} results found in ${time} ms"}},"localsearch":{"enable":false,"trigger":"auto","top_n_per_article":1,"unescape":false,"preload":false},"motion":{"enable":true,"async":false,"transition":{"post_block":"fadeIn","post_header":"slideDownIn","post_body":"slideDownIn","coll_header":"slideLeftIn","sidebar":"slideUpIn"}}};
+  </script>
+
+  <meta name="description" content="参考文献：ImagePy开发文档 —— 工具Tool 插件 Filter、Simple 都可以处理图像，但有时候我们需要用鼠标交互对图像进行一些操作。比如我们的选区操作，绘图操作等。ImagePlus 被绘制在一个 Canvas 上，Canvas 是 wxpython 的 Panel 子类，当然我们可以对其添加鼠标事件，但我们并不推荐这样做，原因之一是这样做比较繁琐，其次，多工具同时注册事件，会引">
+<meta property="og:type" content="article">
+<meta property="og:title" content="ImagePy解析：10 -- Tool引擎及其衍生的画笔工具">
+<meta property="og:url" content="http://qixinbo.github.io/2019/10/10/ImagePy_10/index.html">
+<meta property="og:site_name" content="亓欣波">
+<meta property="og:description" content="参考文献：ImagePy开发文档 —— 工具Tool 插件 Filter、Simple 都可以处理图像，但有时候我们需要用鼠标交互对图像进行一些操作。比如我们的选区操作，绘图操作等。ImagePlus 被绘制在一个 Canvas 上，Canvas 是 wxpython 的 Panel 子类，当然我们可以对其添加鼠标事件，但我们并不推荐这样做，原因之一是这样做比较繁琐，其次，多工具同时注册事件，会引">
+<meta property="og:locale" content="en_US">
+<meta property="article:published_time" content="2019-10-09T16:00:00.000Z">
+<meta property="article:modified_time" content="2021-03-25T07:20:30.331Z">
+<meta property="article:author" content="Xin-Bo Qi(亓欣波)">
+<meta property="article:tag" content="ImagePy">
+<meta name="twitter:card" content="summary">
+
+<link rel="canonical" href="http://qixinbo.github.io/2019/10/10/ImagePy_10/">
+
+
+<script id="page-configurations">
+  // https://hexo.io/docs/variables.html
+  CONFIG.page = {
+    sidebar: "",
+    isHome : false,
+    isPost : true,
+    lang   : 'en'
+  };
+</script>
+
+  <title>ImagePy解析：10 -- Tool引擎及其衍生的画笔工具 | 亓欣波</title>
+  
+
+
+
+
+
+
+  <noscript>
+  <style>
+  .use-motion .brand,
+  .use-motion .menu-item,
+  .sidebar-inner,
+  .use-motion .post-block,
+  .use-motion .pagination,
+  .use-motion .comments,
+  .use-motion .post-header,
+  .use-motion .post-body,
+  .use-motion .collection-header { opacity: initial; }
+
+  .use-motion .site-title,
+  .use-motion .site-subtitle {
+    opacity: initial;
+    top: initial;
+  }
+
+  .use-motion .logo-line-before i { left: initial; }
+  .use-motion .logo-line-after i { right: initial; }
+  </style>
+</noscript>
+
+</head>
+
+<body itemscope itemtype="http://schema.org/WebPage">
+  <div class="container use-motion">
+    <div class="headband"></div>
+
+    <header class="header" itemscope itemtype="http://schema.org/WPHeader">
+      <div class="header-inner"><div class="site-brand-container">
+  <div class="site-nav-toggle">
+    <div class="toggle" aria-label="Toggle navigation bar">
+      <span class="toggle-line toggle-line-first"></span>
+      <span class="toggle-line toggle-line-middle"></span>
+      <span class="toggle-line toggle-line-last"></span>
+    </div>
+  </div>
+
+  <div class="site-meta">
+
+    <a href="/" class="brand" rel="start">
+      <span class="logo-line-before"><i></i></span>
+      <h1 class="site-title">亓欣波</h1>
+      <span class="logo-line-after"><i></i></span>
+    </a>
+      <p class="site-subtitle" itemprop="description">Hi, I am Xin-Bo Qi (亓欣波)</p>
+  </div>
+
+  <div class="site-nav-right">
+    <div class="toggle popup-trigger">
+    </div>
+  </div>
+</div>
+
+
+
+
+<nav class="site-nav">
+  <ul id="menu" class="main-menu menu">
+        <li class="menu-item menu-item-home">
+
+    <a href="/" rel="section"><i class="home fa-fw"></i>Home</a>
+
+  </li>
+        <li class="menu-item menu-item-categories">
+
+    <a href="/categories/" rel="section"><i class="th fa-fw"></i>Categories</a>
+
+  </li>
+        <li class="menu-item menu-item-archives">
+
+    <a href="/archives/" rel="section"><i class="archive fa-fw"></i>Archives</a>
+
+  </li>
+        <li class="menu-item menu-item-tags">
+
+    <a href="/tags/" rel="section"><i class="tags fa-fw"></i>Tags</a>
+
+  </li>
+        <li class="menu-item menu-item-scholar">
+
+    <a href="/scholar/" rel="section"><i class="bar-chart fa-fw"></i>scholar</a>
+
+  </li>
+        <li class="menu-item menu-item-sources">
+
+    <a href="/sources/" rel="section"><i class="rss fa-fw"></i>sources</a>
+
+  </li>
+        <li class="menu-item menu-item-gallery">
+
+    <a href="/gallery/" rel="section"><i class="file-image-o fa-fw"></i>gallery</a>
+
+  </li>
+        <li class="menu-item menu-item-about">
+
+    <a href="/about/" rel="section"><i class="user fa-fw"></i>About</a>
+
+  </li>
+        <li class="menu-item menu-item-commonweal">
+
+    <a href="/404.html" rel="section"><i class="heartbeat fa-fw"></i>Commonweal 404</a>
+
+  </li>
+  </ul>
+</nav>
+
+
+
+
+</div>
+    </header>
+
+    
+  <div class="back-to-top">
+    <i class="fa fa-arrow-up"></i>
+    <span>0%</span>
+  </div>
+
+
+    <main class="main">
+      <div class="main-inner">
+        <div class="content-wrap">
+          
+
+          <div class="content post posts-expand">
+            
+
+    
+  
+  
+  <article itemscope itemtype="http://schema.org/Article" class="post-block" lang="en">
+    <link itemprop="mainEntityOfPage" href="http://qixinbo.github.io/2019/10/10/ImagePy_10/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="image" content="/images/avatar.jpg">
+      <meta itemprop="name" content="Xin-Bo Qi(亓欣波)">
+      <meta itemprop="description" content="Be interesting!">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="亓欣波">
+    </span>
+      <header class="post-header">
+        <h1 class="post-title" itemprop="name headline">
+          ImagePy解析：10 -- Tool引擎及其衍生的画笔工具
+        </h1>
+
+        <div class="post-meta">
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="far fa-calendar"></i>
+              </span>
+              <span class="post-meta-item-text">Posted on</span>
+
+              <time title="Created: 2019-10-10 00:00:00" itemprop="dateCreated datePublished" datetime="2019-10-10T00:00:00+08:00">2019-10-10</time>
+            </span>
+              <span class="post-meta-item">
+                <span class="post-meta-item-icon">
+                  <i class="far fa-calendar-check"></i>
+                </span>
+                <span class="post-meta-item-text">Edited on</span>
+                <time title="Modified: 2021-03-25 15:20:30" itemprop="dateModified" datetime="2021-03-25T15:20:30+08:00">2021-03-25</time>
+              </span>
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="far fa-folder"></i>
+              </span>
+              <span class="post-meta-item-text">In</span>
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+                  <a href="/categories/computational-material-science/" itemprop="url" rel="index"><span itemprop="name">computational material science</span></a>
+                </span>
+            </span>
+
+          
+  
+  <span class="post-meta-item">
+    
+      <span class="post-meta-item-icon">
+        <i class="far fa-comment"></i>
+      </span>
+      <span class="post-meta-item-text">Disqus: </span>
+    
+    <a title="disqus" href="/2019/10/10/ImagePy_10/#disqus_thread" itemprop="discussionUrl">
+      <span class="post-comments-count disqus-comment-count" data-disqus-identifier="2019/10/10/ImagePy_10/" itemprop="commentCount"></span>
+    </a>
+  </span>
+  
+  
+
+        </div>
+      </header>
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+        <p>参考文献：<br><a target="_blank" rel="noopener" href="https://zhuanlan.zhihu.com/p/25483900">ImagePy开发文档 —— 工具</a><br><a target="_blank" rel="noopener" href="https://github.com/Image-Py/demoplugin/blob/master/doc/chinese/tool.md">Tool 插件</a></p>
+<p>Filter、Simple 都可以处理图像，但有时候我们需要用鼠标交互对图像进行一些操作。比如我们的选区操作，绘图操作等。ImagePlus 被绘制在一个 Canvas 上，Canvas 是 wxpython 的 Panel 子类，当然我们可以对其添加鼠标事件，但我们并不推荐这样做，原因之一是这样做比较繁琐，其次，多工具同时注册事件，会引起管理混乱和事件冲突。（语出上面的参考文献）<br>这一篇来解析一下Tool引擎，先分析一下这个基类，然后通过基于它编写的画笔工具深入理解。<br>注意，Tool引擎与前面的Free、Filter等交互逻辑上有挺多区别，比如入口函数中不触发一系列的连贯操作，而是强烈依赖于鼠标事件，因此需要仔细地区别对待。</p>
+<h1 id="Tool引擎"><a href="#Tool引擎" class="headerlink" title="Tool引擎"></a>Tool引擎</h1><p>看一下Tool引擎的全貌：</p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">from</span> ... <span class="keyword">import</span> IPy</span><br><span class="line"><span class="keyword">from</span> ...core.manager <span class="keyword">import</span> ToolsManager</span><br><span class="line"></span><br><span class="line"><span class="class"><span class="keyword">class</span> <span class="title">Tool</span>:</span></span><br><span class="line">    title = <span class="string">&#x27;Tool&#x27;</span></span><br><span class="line">    view, para = <span class="literal">None</span>, <span class="literal">None</span></span><br><span class="line"></span><br><span class="line">    <span class="function"><span class="keyword">def</span> <span class="title">show</span>(<span class="params">self</span>):</span></span><br><span class="line">        …   </span><br><span class="line">    <span class="function"><span class="keyword">def</span> <span class="title">config</span>(<span class="params">self</span>):</span><span class="keyword">pass</span></span><br><span class="line">    <span class="function"><span class="keyword">def</span> <span class="title">load</span>(<span class="params">self</span>):</span><span class="keyword">pass</span></span><br><span class="line">    <span class="function"><span class="keyword">def</span> <span class="title">switch</span>(<span class="params">self</span>):</span><span class="keyword">pass</span></span><br><span class="line"></span><br><span class="line">    <span class="function"><span class="keyword">def</span> <span class="title">start</span>(<span class="params">self</span>):</span></span><br><span class="line">        …       </span><br><span class="line">    <span class="function"><span class="keyword">def</span> <span class="title">mouse_down</span>(<span class="params">self, ips, x, y, btn, **key</span>):</span> <span class="keyword">pass</span></span><br><span class="line">    <span class="function"><span class="keyword">def</span> <span class="title">mouse_up</span>(<span class="params">self, ips, x, y, btn, **key</span>):</span> <span class="keyword">pass</span></span><br><span class="line">    <span class="function"><span class="keyword">def</span> <span class="title">mouse_move</span>(<span class="params">self, ips, x, y, btn, **key</span>):</span> <span class="keyword">pass</span></span><br><span class="line">    <span class="function"><span class="keyword">def</span> <span class="title">mouse_wheel</span>(<span class="params">self, ips, x, y, d, **key</span>):</span> <span class="keyword">pass</span></span><br></pre></td></tr></table></figure>
+<p>然后再细看一下它的具体属性和方法。</p>
+<h2 id="para和view属性"><a href="#para和view属性" class="headerlink" title="para和view属性"></a>para和view属性</h2><p>这两位朋友很熟悉了，用于设置输入的参数和交互界面样式，默认为None，代表不需要交互。这里的para与前面Free和Filter中的para有些不一样，它是用来设置工具的自身特性，比如画笔的宽度、颜色等。</p>
+<h2 id="show-方法"><a href="#show-方法" class="headerlink" title="show()方法"></a>show()方法</h2><p>Tool引擎的show()方法与Free和Filter的都不同，它不会在入口函数start()中进行触发，而是在鼠标左键双击时触发。那么机理来自于哪里？奥妙就在于在第一步构建主界面的加载工具条时对鼠标事件的绑定，来自于toolsloader.py的add_tools()函数：</p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="keyword">def</span> <span class="title">f</span>(<span class="params">plg, e</span>):</span></span><br><span class="line">    plg.start()</span><br><span class="line">    <span class="keyword">if</span> <span class="built_in">isinstance</span>(plg, Tool):</span><br><span class="line">        e.Skip()</span><br><span class="line"><span class="function"><span class="keyword">def</span> <span class="title">set_info</span>(<span class="params">value</span>):</span></span><br><span class="line">    IPy.curapp.set_info(value)</span><br><span class="line"></span><br><span class="line"><span class="function"><span class="keyword">def</span> <span class="title">add_tools</span>(<span class="params">bar, datas, clear=<span class="literal">False</span>, curids=[]</span>):</span></span><br><span class="line">    …</span><br><span class="line">        btn.Bind( wx.EVT_LEFT_DOWN, <span class="keyword">lambda</span> x, p=data[<span class="number">0</span>]:f(p(), x))</span><br><span class="line">        btn.Bind( wx.EVT_RIGHT_DOWN, <span class="keyword">lambda</span> x, p=data[<span class="number">0</span>]: IPy.show_md(p.title, DocumentManager.get(p.title)))</span><br><span class="line">        btn.Bind( wx.EVT_ENTER_WINDOW,</span><br><span class="line">                  <span class="keyword">lambda</span> x, p=<span class="string">&#x27;&quot;&#123;&#125;&quot; Tool&#x27;</span>.<span class="built_in">format</span>(data[<span class="number">0</span>].title): set_info(p))       </span><br><span class="line">        <span class="keyword">if</span> <span class="keyword">not</span> <span class="built_in">isinstance</span>(data[<span class="number">0</span>], Macros) <span class="keyword">and</span> <span class="built_in">issubclass</span>(data[<span class="number">0</span>], Tool):</span><br><span class="line">            btn.Bind(wx.EVT_LEFT_DCLICK, <span class="keyword">lambda</span> x, p=data[<span class="number">0</span>]:p().show())</span><br><span class="line">        btn.SetDefault()</span><br><span class="line">    …</span><br></pre></td></tr></table></figure>
+<p>可以看出，这里将左键双击事件绑定到了Tool引擎的show()方法上。<br>同时可以看出，对于界面上的每一个tool，还有其他的鼠标事件绑定：<br>（1）左键单击：执行f()函数，即执行了Tool引擎的start()函数<br>（2）右键单击：调用IPy的显示MarkDown帮助文件<br>（3）鼠标进入窗口：在状态栏显示该tool的title</p>
+<p>说回show()方法，看它的源码：</p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="keyword">def</span> <span class="title">show</span>(<span class="params">self</span>):</span></span><br><span class="line">    <span class="keyword">if</span> self.view == <span class="literal">None</span>:<span class="keyword">return</span></span><br><span class="line">    rst = IPy.get_para(self.title, self.view, self.para)</span><br><span class="line">    <span class="keyword">if</span> rst!=<span class="literal">None</span> : self.config()</span><br></pre></td></tr></table></figure>
+<p>可以看出，如果view为None，即不交互，则不做什么动作；反之，则调用IPy的get_para()方法，此时就会蹦出参数对话框用于设置参数。然后接着调用下面的config()方法，该方法默认是什么也不做。</p>
+<h2 id="config-方法"><a href="#config-方法" class="headerlink" title="config()方法"></a>config()方法</h2><p>当交互对话框确认时将会被调用，用于生效我们的设置。一些时候参数值的改变本身就会生效，例如调整画笔宽度，但有些时候，需要对外部进行一些通讯，比如设置全局颜色，就需要和 ColorManager 通讯。（语出上面的参考文献）</p>
+<h2 id="load-和switch-方法"><a href="#load-和switch-方法" class="headerlink" title="load()和switch()方法"></a>load()和switch()方法</h2><p>load是工具被选中时调用，switch是由当前工具切换到另一个工具时调用（可以处理绘制了一半还没有闭合的多边形选区等）。（语出上面的参考文献）</p>
+<h2 id="start-方法"><a href="#start-方法" class="headerlink" title="start()方法"></a>start()方法</h2><p>前已述及，它在鼠标左键单击时调用，具体操作是：</p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="keyword">def</span> <span class="title">start</span>(<span class="params">self</span>):</span></span><br><span class="line">    ips = IPy.get_ips()</span><br><span class="line">    <span class="keyword">if</span> <span class="keyword">not</span> ips <span class="keyword">is</span> <span class="literal">None</span> <span class="keyword">and</span> <span class="keyword">not</span> ips.tool <span class="keyword">is</span> <span class="literal">None</span>:</span><br><span class="line">        ips.tool = <span class="literal">None</span></span><br><span class="line">        ips.update()</span><br><span class="line">    ToolsManager.<span class="built_in">set</span>(self)</span><br></pre></td></tr></table></figure>
+<p>可以看出，首先得到了ips对象，然后还有一个重要操作是调用ToolsManager（ToolsManager在pluginmanager.py中定义）的set()方法，里面就调用了上面的switch()方法。</p>
+<h2 id="mouse-down-、mouse-up-、mouse-move-和mouse-wheel-方法"><a href="#mouse-down-、mouse-up-、mouse-move-和mouse-wheel-方法" class="headerlink" title="mouse_down()、mouse_up()、mouse_move()和mouse_wheel()方法"></a>mouse_down()、mouse_up()、mouse_move()和mouse_wheel()方法</h2><p>这四个方法一看名字就知道是与鼠标操作有关，具体地，与鼠标按下、弹起、移动、滚轮相关。<br>那么，它们是怎样被调用的呢？<br>从前面的那篇“由新建图像谈起”文章可知，ImagePy中图像是呈现在Canvasl中的。虽然Canvas能够作为独立组件单独调用，但在ImagePy整个框架中，Canvas是通过CanvasPanel来调用的，所以在图像中的鼠标操作事件最开始都是由CanvasPanel所调用的Canvas来捕获和激发的，即下面这句话：</p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">self.canvas = Canvas(self, autofit = IPy.uimode()==<span class="string">&#x27;ij&#x27;</span>)</span><br><span class="line">self.canvas.Bind(wx.EVT_MOUSE_EVENTS, self.on_mouse)</span><br></pre></td></tr></table></figure>
+
+<p>这里插一句，为了保证Canvas能够被单独调用，在Canvas类中也写了这么一个鼠标事件绑定，所以如果仅仅是在ImagePy中使用Canvas，可以把那句删掉。<br>再插一句，Canvas所捕获的鼠标事件与上面提到的加载工具条时捕获的鼠标事件要区分开，这是两个不同的wxPython的Panel。比如，虽然都会捕获鼠标左键按下，但是不同的Panel所做的动作是不一样的。</p>
+<p>然后在具体的事件处理函数on_mouse()中，开头是这样的：</p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="keyword">def</span> <span class="title">on_mouse</span>(<span class="params">self, me</span>):</span></span><br><span class="line">    tool = self.ips.tool</span><br><span class="line">    <span class="keyword">if</span> tool == <span class="literal">None</span> : tool = ToolsManager.curtool</span><br></pre></td></tr></table></figure>
+<p>这样就解释了上面的参考文献中的这句话：</p>
+<blockquote>
+<p>事件的调用遵循如下规则：<br>1.事件最初由 Canvas 类触发。<br>2.如果 Canvas 持有的 ImagePlus 有一个 CustomTool，则交给它来处理。（一般来说，比如选区，画笔等工具，是全局有效的，但有时我们需要与单一图像做特定交互，比如当某个图像栈进入了三视图观察状态时，这时CustomTool 就变得很有用。）<br>3.如果没有，则交给 ToolsManager 的当前工具来处理。</p>
+</blockquote>
+<p>然后如果真是交给了当前工具，那么Tool引擎的这四个方法就开始调用了：</p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br></pre></td><td class="code"><pre><span class="line">sta = [me.AltDown(), me.ControlDown(), me.ShiftDown()]</span><br><span class="line"><span class="keyword">if</span> me.ButtonDown():tool.mouse_down(self.ips, x, y, me.GetButton(),</span><br><span class="line">    alt=sta[<span class="number">0</span>], ctrl=sta[<span class="number">1</span>], shift=sta[<span class="number">2</span>], canvas=self.canvas)</span><br><span class="line"><span class="keyword">if</span> me.ButtonUp():tool.mouse_up(self.ips, x, y, me.GetButton(),</span><br><span class="line">    alt=sta[<span class="number">0</span>], ctrl=sta[<span class="number">1</span>], shift=sta[<span class="number">2</span>], canvas=self.canvas)</span><br><span class="line"><span class="keyword">if</span> me.Moving():tool.mouse_move(self.ips, x, y, <span class="literal">None</span>,</span><br><span class="line">    alt=sta[<span class="number">0</span>], ctrl=sta[<span class="number">1</span>], shift=sta[<span class="number">2</span>], canvas=self.canvas)</span><br><span class="line">btn = [me.LeftIsDown(), me.MiddleIsDown(), me.RightIsDown(),<span class="literal">True</span>].index(<span class="literal">True</span>)</span><br><span class="line"><span class="keyword">if</span> me.Dragging():tool.mouse_move(self.ips, x, y, <span class="number">0</span> <span class="keyword">if</span> btn==<span class="number">3</span> <span class="keyword">else</span> btn+<span class="number">1</span>,</span><br><span class="line">    alt=sta[<span class="number">0</span>], ctrl=sta[<span class="number">1</span>], shift=sta[<span class="number">2</span>], canvas=self.canvas)</span><br><span class="line">wheel = np.sign(me.GetWheelRotation())</span><br><span class="line"><span class="keyword">if</span> wheel!=<span class="number">0</span>:tool.mouse_wheel(self.ips, x, y, wheel,</span><br><span class="line">    alt=sta[<span class="number">0</span>], ctrl=sta[<span class="number">1</span>], shift=sta[<span class="number">2</span>], canvas=self.canvas)</span><br><span class="line"><span class="keyword">if</span> <span class="built_in">hasattr</span>(tool, <span class="string">&#x27;cursor&#x27;</span>):</span><br><span class="line">    self.canvas.SetCursor(wx.Cursor(tool.cursor))</span><br><span class="line"><span class="keyword">else</span> : self.canvas.SetCursor(wx.Cursor(wx.CURSOR_ARROW))</span><br></pre></td></tr></table></figure>
+
+<p>具体地分析一下这四个方法所需要的参数：（语出上面的参考文献）</p>
+<ol>
+<li>mouse_down()<br>鼠标按下时调用，其参数意义如下：<br>（1）ips:与事件相关的 ImagePlus，可以通过ips.img获取当前图像，也可以ips.lut, ips.roi, ips.unit获取图像的索引表，roi，比例尺和单位等附加信息。<br>（2）x:数据坐标系下的 x<br>（3）y:数据坐标系下的 y<br>（4）btn:按下的按钮（1：左键，2：中键，3：右键）<br>（5）key其他参数：可以通过key[‘alt’]、key[‘ctrl’]、key[‘shift’]获取相应功能键是否按下，通过key[‘canvas’]获取触发事件的Canvas对象。</li>
+<li>mouse_up()<br>参数和意义与 mouse_down 完全相同</li>
+<li>mouse_move()<br>参数和意义与 mouse_down 完全相同，另外附加如果没有按键按下，btn=0</li>
+<li>mouse_wheel()<br>参数和意义与 mouse_down 基本相同，除了btn参数变成了d，代表滚动量</li>
+</ol>
+<p>下面以画笔工具看看怎样编写基于Tool的插件。</p>
+<h1 id="Pencil画笔工具"><a href="#Pencil画笔工具" class="headerlink" title="Pencil画笔工具"></a>Pencil画笔工具</h1><figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">from</span> imagepy.core.engine <span class="keyword">import</span> Tool</span><br><span class="line"><span class="keyword">from</span> imagepy.core.manager <span class="keyword">import</span> ColorManager</span><br><span class="line"><span class="keyword">from</span> skimage.draw <span class="keyword">import</span> line, circle</span><br><span class="line"></span><br><span class="line"><span class="function"><span class="keyword">def</span> <span class="title">drawline</span>(<span class="params">img, oldp, newp, w, value</span>):</span></span><br><span class="line">    <span class="keyword">if</span> img.ndim == <span class="number">2</span>: value = <span class="built_in">sum</span>(value)/<span class="number">3</span></span><br><span class="line">    oy, ox = line(*[<span class="built_in">int</span>(<span class="built_in">round</span>(i)) <span class="keyword">for</span> i <span class="keyword">in</span> oldp+newp])</span><br><span class="line">    cy, cx = circle(<span class="number">0</span>, <span class="number">0</span>, w/<span class="number">2</span>+<span class="number">1e-6</span>)</span><br><span class="line">    ys = (oy.reshape((-<span class="number">1</span>,<span class="number">1</span>))+cy).clip(<span class="number">0</span>, img.shape[<span class="number">0</span>]-<span class="number">1</span>)</span><br><span class="line">    xs = (ox.reshape((-<span class="number">1</span>,<span class="number">1</span>))+cx).clip(<span class="number">0</span>, img.shape[<span class="number">1</span>]-<span class="number">1</span>)</span><br><span class="line">    img[ys.ravel(), xs.ravel()] = value</span><br><span class="line"> </span><br><span class="line"><span class="class"><span class="keyword">class</span> <span class="title">Plugin</span>(<span class="params">Tool</span>):</span></span><br><span class="line">    title = <span class="string">&#x27;Pencil&#x27;</span></span><br><span class="line">    para = &#123;<span class="string">&#x27;width&#x27;</span>:<span class="number">1</span>&#125;</span><br><span class="line">    view = [(<span class="built_in">int</span>, <span class="string">&#x27;width&#x27;</span>, (<span class="number">0</span>,<span class="number">30</span>), <span class="number">0</span>,  <span class="string">&#x27;width&#x27;</span>, <span class="string">&#x27;pix&#x27;</span>)]</span><br><span class="line"></span><br><span class="line">    <span class="function"><span class="keyword">def</span> <span class="title">__init__</span>(<span class="params">self</span>):</span></span><br><span class="line">        self.status = <span class="literal">False</span></span><br><span class="line">        self.oldp = (<span class="number">0</span>,<span class="number">0</span>)</span><br><span class="line"></span><br><span class="line">    <span class="function"><span class="keyword">def</span> <span class="title">mouse_down</span>(<span class="params">self, ips, x, y, btn, **key</span>):</span></span><br><span class="line">        self.status = <span class="literal">True</span></span><br><span class="line">        self.oldp = (y, x)</span><br><span class="line">        ips.snapshot()</span><br><span class="line"></span><br><span class="line">    <span class="function"><span class="keyword">def</span> <span class="title">mouse_up</span>(<span class="params">self, ips, x, y, btn, **key</span>):</span></span><br><span class="line">        self.status = <span class="literal">False</span></span><br><span class="line"></span><br><span class="line">    <span class="function"><span class="keyword">def</span> <span class="title">mouse_move</span>(<span class="params">self, ips, x, y, btn, **key</span>):</span></span><br><span class="line">        <span class="keyword">if</span> <span class="keyword">not</span> self.status:<span class="keyword">return</span></span><br><span class="line">        w = self.para[<span class="string">&#x27;width&#x27;</span>]</span><br><span class="line">        value = ColorManager.get_front()</span><br><span class="line">        drawline(ips.img, self.oldp, (y, x), w, value)</span><br><span class="line">        self.oldp = (y, x)</span><br><span class="line">        ips.update()</span><br><span class="line"></span><br><span class="line">    <span class="function"><span class="keyword">def</span> <span class="title">mouse_wheel</span>(<span class="params">self, ips, x, y, d, **key</span>):</span><span class="keyword">pass</span></span><br></pre></td></tr></table></figure>
+<p>可以看出，para中定义了线宽。在这个画笔工具中，当鼠标按下时，将status属性置为True，同时将当前坐标点存下来作为oldp，以及也存一个快照。<br>注意存坐标点时将x和y的顺序互换，这在之前一篇解析文章中已提到，这是因为图像在坐标系中的顺序与实际的Numpy数组的顺序是相反地，前者是先列后行，后者的读取则是先行后列。<br>然后在鼠标移动过程中绘图，线宽可以通过双击该画笔工具进行设定。</p>
+
+    </div>
+
+    
+    
+    
+        <div class="reward-container">
+  <div></div>
+  <button onclick="var qr = document.getElementById('qr'); qr.style.display = (qr.style.display === 'none') ? 'block' : 'none';">
+    Donate
+  </button>
+  <div id="qr" style="display: none;">
+      
+      <div style="display: inline-block;">
+        <img src="/images/wechat_reward.png" alt="Xin-Bo Qi(亓欣波) WeChat Pay">
+        <p>WeChat Pay</p>
+      </div>
+
+  </div>
+</div>
+
+
+      <footer class="post-footer">
+          <div class="post-tags">
+              <a href="/tags/ImagePy/" rel="tag"># ImagePy</a>
+          </div>
+
+        
+
+
+        
+    <div class="post-nav">
+      <div class="post-nav-item">
+    <a href="/2019/10/06/ImagePy_9/" rel="prev" title="ImagePy解析：9 -- Filter引擎及其衍生的图像取反插件">
+      <i class="fa fa-chevron-left"></i> ImagePy解析：9 -- Filter引擎及其衍生的图像取反插件
+    </a></div>
+      <div class="post-nav-item">
+    <a href="/2019/10/13/python-import/" rel="next" title="Python3的Import理解">
+      Python3的Import理解 <i class="fa fa-chevron-right"></i>
+    </a></div>
+    </div>
+      </footer>
+    
+  </article>
+  
+  
+  
+
+
+
+          </div>
+          
+    
+  <div class="comments">
+    <div id="disqus_thread">
+      <noscript>Please enable JavaScript to view the comments powered by Disqus.</noscript>
+    </div>
+  </div>
+  
+
+<script>
+  window.addEventListener('tabs:register', () => {
+    let { activeClass } = CONFIG.comments;
+    if (CONFIG.comments.storage) {
+      activeClass = localStorage.getItem('comments_active') || activeClass;
+    }
+    if (activeClass) {
+      let activeTab = document.querySelector(`a[href="#comment-${activeClass}"]`);
+      if (activeTab) {
+        activeTab.click();
+      }
+    }
+  });
+  if (CONFIG.comments.storage) {
+    window.addEventListener('tabs:click', event => {
+      if (!event.target.matches('.tabs-comment .tab-content .tab-pane')) return;
+      let commentClass = event.target.classList[1];
+      localStorage.setItem('comments_active', commentClass);
+    });
+  }
+</script>
+
+        </div>
+          
+  
+  <div class="toggle sidebar-toggle">
+    <span class="toggle-line toggle-line-first"></span>
+    <span class="toggle-line toggle-line-middle"></span>
+    <span class="toggle-line toggle-line-last"></span>
+  </div>
+
+  <aside class="sidebar">
+    <div class="sidebar-inner">
+
+      <ul class="sidebar-nav motion-element">
+        <li class="sidebar-nav-toc">
+          Table of Contents
+        </li>
+        <li class="sidebar-nav-overview">
+          Overview
+        </li>
+      </ul>
+
+      <!--noindex-->
+      <div class="post-toc-wrap sidebar-panel">
+          <div class="post-toc motion-element"><ol class="nav"><li class="nav-item nav-level-1"><a class="nav-link" href="#Tool%E5%BC%95%E6%93%8E"><span class="nav-number">1.</span> <span class="nav-text">Tool引擎</span></a><ol class="nav-child"><li class="nav-item nav-level-2"><a class="nav-link" href="#para%E5%92%8Cview%E5%B1%9E%E6%80%A7"><span class="nav-number">1.1.</span> <span class="nav-text">para和view属性</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#show-%E6%96%B9%E6%B3%95"><span class="nav-number">1.2.</span> <span class="nav-text">show()方法</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#config-%E6%96%B9%E6%B3%95"><span class="nav-number">1.3.</span> <span class="nav-text">config()方法</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#load-%E5%92%8Cswitch-%E6%96%B9%E6%B3%95"><span class="nav-number">1.4.</span> <span class="nav-text">load()和switch()方法</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#start-%E6%96%B9%E6%B3%95"><span class="nav-number">1.5.</span> <span class="nav-text">start()方法</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#mouse-down-%E3%80%81mouse-up-%E3%80%81mouse-move-%E5%92%8Cmouse-wheel-%E6%96%B9%E6%B3%95"><span class="nav-number">1.6.</span> <span class="nav-text">mouse_down()、mouse_up()、mouse_move()和mouse_wheel()方法</span></a></li></ol></li><li class="nav-item nav-level-1"><a class="nav-link" href="#Pencil%E7%94%BB%E7%AC%94%E5%B7%A5%E5%85%B7"><span class="nav-number">2.</span> <span class="nav-text">Pencil画笔工具</span></a></li></ol></div>
+      </div>
+      <!--/noindex-->
+
+      <div class="site-overview-wrap sidebar-panel">
+        <div class="site-author motion-element" itemprop="author" itemscope itemtype="http://schema.org/Person">
+    <img class="site-author-image" itemprop="image" alt="Xin-Bo Qi(亓欣波)"
+      src="/images/avatar.jpg">
+  <p class="site-author-name" itemprop="name">Xin-Bo Qi(亓欣波)</p>
+  <div class="site-description" itemprop="description">Be interesting!</div>
+</div>
+<div class="site-state-wrap motion-element">
+  <nav class="site-state">
+      <div class="site-state-item site-state-posts">
+          <a href="/archives/">
+        
+          <span class="site-state-item-count">120</span>
+          <span class="site-state-item-name">posts</span>
+        </a>
+      </div>
+      <div class="site-state-item site-state-categories">
+            <a href="/categories/">
+          
+        <span class="site-state-item-count">5</span>
+        <span class="site-state-item-name">categories</span></a>
+      </div>
+      <div class="site-state-item site-state-tags">
+            <a href="/tags/">
+          
+        <span class="site-state-item-count">41</span>
+        <span class="site-state-item-name">tags</span></a>
+      </div>
+  </nav>
+</div>
+  <div class="links-of-author motion-element">
+      <span class="links-of-author-item">
+        <a href="https://github.com/qixinbo" title="GitHub → https:&#x2F;&#x2F;github.com&#x2F;qixinbo" rel="noopener" target="_blank"><i class="github fa-fw"></i>GitHub</a>
+      </span>
+      <span class="links-of-author-item">
+        <a href="mailto:qixinbo@gmail.com" title="E-Mail → mailto:qixinbo@gmail.com" rel="noopener" target="_blank"><i class="envelope fa-fw"></i>E-Mail</a>
+      </span>
+  </div>
+
+
+  <div class="links-of-blogroll motion-element">
+    <div class="links-of-blogroll-title"><i class="fa fa-link fa-fw"></i>
+      Links
+    </div>
+    <ul class="links-of-blogroll-list">
+        <li class="links-of-blogroll-item">
+          <a href="https://www.tsinghua.edu.cn/" title="https:&#x2F;&#x2F;www.tsinghua.edu.cn" rel="noopener" target="_blank">THU</a>
+        </li>
+        <li class="links-of-blogroll-item">
+          <a href="http://www.imr.cas.cn/" title="http:&#x2F;&#x2F;www.imr.cas.cn" rel="noopener" target="_blank">IMR</a>
+        </li>
+        <li class="links-of-blogroll-item">
+          <a href="http://www.sdu.edu.cn/" title="http:&#x2F;&#x2F;www.sdu.edu.cn" rel="noopener" target="_blank">SDU</a>
+        </li>
+        <li class="links-of-blogroll-item">
+          <a href="http://liam0205.me/" title="http:&#x2F;&#x2F;liam0205.me&#x2F;" rel="noopener" target="_blank">黄晨成</a>
+        </li>
+    </ul>
+  </div>
+
+      </div>
+
+    </div>
+  </aside>
+  <div id="sidebar-dimmer"></div>
+
+
+      </div>
+    </main>
+
+    <footer class="footer">
+      <div class="footer-inner">
+        
+
+        
+
+<div class="copyright">
+  
+  &copy; 
+  <span itemprop="copyrightYear">2021</span>
+  <span class="with-love">
+    <i class="fa fa-heart"></i>
+  </span>
+  <span class="author" itemprop="copyrightHolder">Xin-Bo Qi(亓欣波)</span>
+</div>
+  <div class="powered-by">Powered by <a href="https://hexo.io/" class="theme-link" rel="noopener" target="_blank">Hexo</a> & <a href="https://theme-next.org/" class="theme-link" rel="noopener" target="_blank">NexT.Gemini</a>
+  </div>
+
+        
+
+
+
+
+
+
+
+
+      </div>
+    </footer>
+  </div>
+
+  
+  <script src="/lib/anime.min.js"></script>
+  <script src="/lib/velocity/velocity.min.js"></script>
+  <script src="/lib/velocity/velocity.ui.min.js"></script>
+
+<script src="/js/utils.js"></script>
+
+<script src="/js/motion.js"></script>
+
+
+<script src="/js/schemes/pisces.js"></script>
+
+
+<script src="/js/next-boot.js"></script>
+
+
+
+
+  
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+  
+
+  
+
+  
+
+<script>
+  function loadCount() {
+    var d = document, s = d.createElement('script');
+    s.src = 'https://qixinbo.disqus.com/count.js';
+    s.id = 'dsq-count-scr';
+    (d.head || d.body).appendChild(s);
+  }
+  // defer loading until the whole page loading is completed
+  window.addEventListener('load', loadCount, false);
+</script>
+<script>
+  var disqus_config = function() {
+    this.page.url = "http://qixinbo.github.io/2019/10/10/ImagePy_10/";
+    this.page.identifier = "2019/10/10/ImagePy_10/";
+    this.page.title = "ImagePy解析：10 -- Tool引擎及其衍生的画笔工具";
+    };
+  NexT.utils.loadComments(document.querySelector('#disqus_thread'), () => {
+    if (window.DISQUS) {
+      DISQUS.reset({
+        reload: true,
+        config: disqus_config
+      });
+    } else {
+      var d = document, s = d.createElement('script');
+      s.src = 'https://qixinbo.disqus.com/embed.js';
+      s.setAttribute('data-timestamp', '' + +new Date());
+      (d.head || d.body).appendChild(s);
+    }
+  });
+</script>
+
+</body>
+</html>

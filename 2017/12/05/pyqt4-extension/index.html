@@ -1,0 +1,619 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=2">
+<meta name="theme-color" content="#222">
+<meta name="generator" content="Hexo 5.4.0">
+  <link rel="apple-touch-icon" sizes="180x180" href="/images/apple-touch-icon-next.png">
+  <link rel="icon" type="image/png" sizes="32x32" href="/favicon.ico">
+  <link rel="icon" type="image/png" sizes="16x16" href="/favicon.ico">
+  <link rel="mask-icon" href="/images/logo.svg" color="#222">
+
+<link rel="stylesheet" href="/css/main.css">
+
+
+<link rel="stylesheet" href="/lib/font-awesome/css/all.min.css">
+
+<script id="hexo-configurations">
+    var NexT = window.NexT || {};
+    var CONFIG = {"hostname":"qixinbo.github.io","root":"/","scheme":"Gemini","version":"7.8.0","exturl":false,"sidebar":{"position":"left","display":"post","padding":18,"offset":12,"onmobile":false},"copycode":{"enable":false,"show_result":false,"style":null},"back2top":{"enable":true,"sidebar":false,"scrollpercent":false},"bookmark":{"enable":false,"color":"#222","save":"auto"},"fancybox":false,"mediumzoom":false,"lazyload":false,"pangu":false,"comments":{"style":"tabs","active":null,"storage":true,"lazyload":false,"nav":null},"algolia":{"hits":{"per_page":10},"labels":{"input_placeholder":"Search for Posts","hits_empty":"We didn't find any results for the search: ${query}","hits_stats":"${hits} results found in ${time} ms"}},"localsearch":{"enable":false,"trigger":"auto","top_n_per_article":1,"unescape":false,"preload":false},"motion":{"enable":true,"async":false,"transition":{"post_block":"fadeIn","post_header":"slideDownIn","post_body":"slideDownIn","coll_header":"slideLeftIn","sidebar":"slideUpIn"}}};
+  </script>
+
+  <meta name="description" content="本文是对TutorialsPoint上的教程的翻译。 QDialogQDialog通常提供一个窗口用来收集用户的响应。它可以设为模态（阻塞其父窗口）和非模态（可以绕过该对话窗口）。PyQt API也提供了一些配置好的对话框控件，如之前提到的InputDialog、FileDialog、FontDialog。 举例12345678910111213141516171819202122232425im">
+<meta property="og:type" content="article">
+<meta property="og:title" content="PyQt4教程系列三：扩展功能">
+<meta property="og:url" content="http://qixinbo.github.io/2017/12/05/pyqt4-extension/index.html">
+<meta property="og:site_name" content="亓欣波">
+<meta property="og:description" content="本文是对TutorialsPoint上的教程的翻译。 QDialogQDialog通常提供一个窗口用来收集用户的响应。它可以设为模态（阻塞其父窗口）和非模态（可以绕过该对话窗口）。PyQt API也提供了一些配置好的对话框控件，如之前提到的InputDialog、FileDialog、FontDialog。 举例12345678910111213141516171819202122232425im">
+<meta property="og:locale" content="en_US">
+<meta property="article:published_time" content="2017-12-04T16:00:00.000Z">
+<meta property="article:modified_time" content="2021-03-25T07:20:30.848Z">
+<meta property="article:author" content="Xin-Bo Qi(亓欣波)">
+<meta property="article:tag" content="PyQt">
+<meta name="twitter:card" content="summary">
+
+<link rel="canonical" href="http://qixinbo.github.io/2017/12/05/pyqt4-extension/">
+
+
+<script id="page-configurations">
+  // https://hexo.io/docs/variables.html
+  CONFIG.page = {
+    sidebar: "",
+    isHome : false,
+    isPost : true,
+    lang   : 'en'
+  };
+</script>
+
+  <title>PyQt4教程系列三：扩展功能 | 亓欣波</title>
+  
+
+
+
+
+
+
+  <noscript>
+  <style>
+  .use-motion .brand,
+  .use-motion .menu-item,
+  .sidebar-inner,
+  .use-motion .post-block,
+  .use-motion .pagination,
+  .use-motion .comments,
+  .use-motion .post-header,
+  .use-motion .post-body,
+  .use-motion .collection-header { opacity: initial; }
+
+  .use-motion .site-title,
+  .use-motion .site-subtitle {
+    opacity: initial;
+    top: initial;
+  }
+
+  .use-motion .logo-line-before i { left: initial; }
+  .use-motion .logo-line-after i { right: initial; }
+  </style>
+</noscript>
+
+</head>
+
+<body itemscope itemtype="http://schema.org/WebPage">
+  <div class="container use-motion">
+    <div class="headband"></div>
+
+    <header class="header" itemscope itemtype="http://schema.org/WPHeader">
+      <div class="header-inner"><div class="site-brand-container">
+  <div class="site-nav-toggle">
+    <div class="toggle" aria-label="Toggle navigation bar">
+      <span class="toggle-line toggle-line-first"></span>
+      <span class="toggle-line toggle-line-middle"></span>
+      <span class="toggle-line toggle-line-last"></span>
+    </div>
+  </div>
+
+  <div class="site-meta">
+
+    <a href="/" class="brand" rel="start">
+      <span class="logo-line-before"><i></i></span>
+      <h1 class="site-title">亓欣波</h1>
+      <span class="logo-line-after"><i></i></span>
+    </a>
+      <p class="site-subtitle" itemprop="description">Hi, I am Xin-Bo Qi (亓欣波)</p>
+  </div>
+
+  <div class="site-nav-right">
+    <div class="toggle popup-trigger">
+    </div>
+  </div>
+</div>
+
+
+
+
+<nav class="site-nav">
+  <ul id="menu" class="main-menu menu">
+        <li class="menu-item menu-item-home">
+
+    <a href="/" rel="section"><i class="home fa-fw"></i>Home</a>
+
+  </li>
+        <li class="menu-item menu-item-categories">
+
+    <a href="/categories/" rel="section"><i class="th fa-fw"></i>Categories</a>
+
+  </li>
+        <li class="menu-item menu-item-archives">
+
+    <a href="/archives/" rel="section"><i class="archive fa-fw"></i>Archives</a>
+
+  </li>
+        <li class="menu-item menu-item-tags">
+
+    <a href="/tags/" rel="section"><i class="tags fa-fw"></i>Tags</a>
+
+  </li>
+        <li class="menu-item menu-item-scholar">
+
+    <a href="/scholar/" rel="section"><i class="bar-chart fa-fw"></i>scholar</a>
+
+  </li>
+        <li class="menu-item menu-item-sources">
+
+    <a href="/sources/" rel="section"><i class="rss fa-fw"></i>sources</a>
+
+  </li>
+        <li class="menu-item menu-item-gallery">
+
+    <a href="/gallery/" rel="section"><i class="file-image-o fa-fw"></i>gallery</a>
+
+  </li>
+        <li class="menu-item menu-item-about">
+
+    <a href="/about/" rel="section"><i class="user fa-fw"></i>About</a>
+
+  </li>
+        <li class="menu-item menu-item-commonweal">
+
+    <a href="/404.html" rel="section"><i class="heartbeat fa-fw"></i>Commonweal 404</a>
+
+  </li>
+  </ul>
+</nav>
+
+
+
+
+</div>
+    </header>
+
+    
+  <div class="back-to-top">
+    <i class="fa fa-arrow-up"></i>
+    <span>0%</span>
+  </div>
+
+
+    <main class="main">
+      <div class="main-inner">
+        <div class="content-wrap">
+          
+
+          <div class="content post posts-expand">
+            
+
+    
+  
+  
+  <article itemscope itemtype="http://schema.org/Article" class="post-block" lang="en">
+    <link itemprop="mainEntityOfPage" href="http://qixinbo.github.io/2017/12/05/pyqt4-extension/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="image" content="/images/avatar.jpg">
+      <meta itemprop="name" content="Xin-Bo Qi(亓欣波)">
+      <meta itemprop="description" content="Be interesting!">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="亓欣波">
+    </span>
+      <header class="post-header">
+        <h1 class="post-title" itemprop="name headline">
+          PyQt4教程系列三：扩展功能
+        </h1>
+
+        <div class="post-meta">
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="far fa-calendar"></i>
+              </span>
+              <span class="post-meta-item-text">Posted on</span>
+
+              <time title="Created: 2017-12-05 00:00:00" itemprop="dateCreated datePublished" datetime="2017-12-05T00:00:00+08:00">2017-12-05</time>
+            </span>
+              <span class="post-meta-item">
+                <span class="post-meta-item-icon">
+                  <i class="far fa-calendar-check"></i>
+                </span>
+                <span class="post-meta-item-text">Edited on</span>
+                <time title="Modified: 2021-03-25 15:20:30" itemprop="dateModified" datetime="2021-03-25T15:20:30+08:00">2021-03-25</time>
+              </span>
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="far fa-folder"></i>
+              </span>
+              <span class="post-meta-item-text">In</span>
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+                  <a href="/categories/programming/" itemprop="url" rel="index"><span itemprop="name">programming</span></a>
+                </span>
+            </span>
+
+          
+  
+  <span class="post-meta-item">
+    
+      <span class="post-meta-item-icon">
+        <i class="far fa-comment"></i>
+      </span>
+      <span class="post-meta-item-text">Disqus: </span>
+    
+    <a title="disqus" href="/2017/12/05/pyqt4-extension/#disqus_thread" itemprop="discussionUrl">
+      <span class="post-comments-count disqus-comment-count" data-disqus-identifier="2017/12/05/pyqt4-extension/" itemprop="commentCount"></span>
+    </a>
+  </span>
+  
+  
+
+        </div>
+      </header>
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+        <p>本文是对<a target="_blank" rel="noopener" href="https://www.tutorialspoint.com/pyqt/">TutorialsPoint</a>上的教程的翻译。</p>
+<h1 id="QDialog"><a href="#QDialog" class="headerlink" title="QDialog"></a>QDialog</h1><p>QDialog通常提供一个窗口用来收集用户的响应。它可以设为模态（阻塞其父窗口）和非模态（可以绕过该对话窗口）。<br>PyQt API也提供了一些配置好的对话框控件，如之前提到的InputDialog、FileDialog、FontDialog。</p>
+<h2 id="举例"><a href="#举例" class="headerlink" title="举例"></a>举例</h2><figure class="highlight cpp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">import</span> sys</span><br><span class="line">from PyQt4.QtGui <span class="keyword">import</span> *</span><br><span class="line">from PyQt4.QtCore <span class="keyword">import</span> *</span><br><span class="line"></span><br><span class="line"><span class="function">def <span class="title">window</span><span class="params">()</span>:</span></span><br><span class="line"><span class="function">   app =</span> <span class="built_in">QApplication</span>(sys.argv)</span><br><span class="line">   w = <span class="built_in">QWidget</span>()</span><br><span class="line">   b = <span class="built_in">QPushButton</span>(w)</span><br><span class="line">   b.<span class="built_in">setText</span>(<span class="string">&quot;Hello World!&quot;</span>)</span><br><span class="line">   b.<span class="built_in">move</span>(<span class="number">50</span>,<span class="number">50</span>)</span><br><span class="line">   b.clicked.<span class="built_in">connect</span>(showdialog)</span><br><span class="line">   w.<span class="built_in">setWindowTitle</span>(<span class="string">&quot;PyQt Dialog demo&quot;</span>)</span><br><span class="line">   w.<span class="built_in">show</span>()</span><br><span class="line">   sys.<span class="built_in">exit</span>(app.<span class="built_in">exec_</span>())</span><br><span class="line">	</span><br><span class="line">def <span class="built_in">showdialog</span>():</span><br><span class="line">   d = <span class="built_in">QDialog</span>()</span><br><span class="line">   b1 = <span class="built_in">QPushButton</span>(<span class="string">&quot;ok&quot;</span>,d)</span><br><span class="line">   b1.<span class="built_in">move</span>(<span class="number">50</span>,<span class="number">50</span>)</span><br><span class="line">   d.<span class="built_in">setWindowTitle</span>(<span class="string">&quot;Dialog&quot;</span>)</span><br><span class="line">   d.<span class="built_in">setWindowModality</span>(Qt.ApplicationModal)  # 这里设置模态与否</span><br><span class="line">   d.<span class="built_in">exec_</span>()</span><br><span class="line">	</span><br><span class="line">if __name__ == &#x27;__main__&#x27;:</span><br><span class="line">   <span class="built_in">window</span>()</span><br></pre></td></tr></table></figure>
+
+<h1 id="QMessageBox"><a href="#QMessageBox" class="headerlink" title="QMessageBox"></a>QMessageBox</h1><p>QMessageBox是一个常用的模态对话框，用来显示一些信息类消息，可以让用户通过点击任意一个标准按钮来响应。每个标准按钮都有一个预定义的标题、角色，并且返回一个预定义的十六进制数字。</p>
+<h2 id="QMessageBox的函数"><a href="#QMessageBox的函数" class="headerlink" title="QMessageBox的函数"></a>QMessageBox的函数</h2><ol>
+<li>setIcon()：显示预定义的图标</li>
+<li>setText()：设置主消息的文字</li>
+<li>setInformativeText()：显示额外信息</li>
+<li>setDetailText()：显示一个Details按钮</li>
+<li>setTitle()：显示自定义标题</li>
+<li>setStandardButtons()：标准按钮及其对应的十六进制数字是QMessageBox.Ok 0x00000400、QMessageBox.Open 0x00002000、QMessageBox.Save 0x00000800、QMessageBox.Cancel 0x00400000、QMessageBox.Close 0x00200000、QMessageBox.Yes 0x00004000、QMessageBox.No 0x00010000、QMessageBox.Abort 0x00040000、QMessageBox.Retry 0x00080000、QMessageBox.Ignore 0x00100000。</li>
+<li>setDefaultButton()：设置默认按钮。当回车时它会发射clicked信号</li>
+<li>setEscapeButton()：当按下Escape键时，该按钮会发出clicked信号</li>
+</ol>
+<h2 id="举例-1"><a href="#举例-1" class="headerlink" title="举例"></a>举例</h2><figure class="highlight cpp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br></pre></td><td class="code"><pre><span class="line">mport sys</span><br><span class="line">from PyQt4.QtGui <span class="keyword">import</span> *</span><br><span class="line">from PyQt4.QtCore <span class="keyword">import</span> *</span><br><span class="line"></span><br><span class="line"><span class="function">def <span class="title">window</span><span class="params">()</span>:</span></span><br><span class="line"><span class="function">   app =</span> <span class="built_in">QApplication</span>(sys.argv)</span><br><span class="line">   w = <span class="built_in">QWidget</span>()</span><br><span class="line">   b = <span class="built_in">QPushButton</span>(w)</span><br><span class="line">   b.<span class="built_in">setText</span>(<span class="string">&quot;Show message!&quot;</span>)</span><br><span class="line"></span><br><span class="line">   b.<span class="built_in">move</span>(<span class="number">50</span>,<span class="number">50</span>)</span><br><span class="line">   b.clicked.<span class="built_in">connect</span>(showdialog)</span><br><span class="line">   w.<span class="built_in">setWindowTitle</span>(<span class="string">&quot;PyQt Dialog demo&quot;</span>)</span><br><span class="line">   w.<span class="built_in">show</span>()</span><br><span class="line">   sys.<span class="built_in">exit</span>(app.<span class="built_in">exec_</span>())</span><br><span class="line">	</span><br><span class="line">def <span class="built_in">showdialog</span>():</span><br><span class="line">   msg = <span class="built_in">QMessageBox</span>()</span><br><span class="line">   msg.<span class="built_in">setIcon</span>(QMessageBox.Information)</span><br><span class="line"></span><br><span class="line">   msg.<span class="built_in">setText</span>(<span class="string">&quot;This is a message box&quot;</span>)</span><br><span class="line">   msg.<span class="built_in">setInformativeText</span>(<span class="string">&quot;This is additional information&quot;</span>)</span><br><span class="line">   msg.<span class="built_in">setWindowTitle</span>(<span class="string">&quot;MessageBox demo&quot;</span>)</span><br><span class="line">   msg.<span class="built_in">setDetailedText</span>(<span class="string">&quot;The details are as follows:&quot;</span>)</span><br><span class="line">   msg.<span class="built_in">setStandardButtons</span>(QMessageBox.Ok | QMessageBox.Cancel)</span><br><span class="line">   msg.buttonClicked.<span class="built_in">connect</span>(msgbtn)</span><br><span class="line">	</span><br><span class="line">   retval = msg.<span class="built_in">exec_</span>()</span><br><span class="line">   print <span class="string">&quot;value of pressed message box button:&quot;</span>, retval</span><br><span class="line">	</span><br><span class="line">def <span class="built_in">msgbtn</span>(i):</span><br><span class="line">   print <span class="string">&quot;Button pressed is:&quot;</span>,i.<span class="built_in">text</span>()</span><br><span class="line">	</span><br><span class="line">if __name__ == &#x27;__main__&#x27;: </span><br><span class="line">   <span class="built_in">window</span>()</span><br></pre></td></tr></table></figure>
+
+<h1 id="多文档界面QMdiArea和QMdiSubWindow"><a href="#多文档界面QMdiArea和QMdiSubWindow" class="headerlink" title="多文档界面QMdiArea和QMdiSubWindow"></a>多文档界面QMdiArea和QMdiSubWindow</h1><p>一个通常的GUI可能具有多个窗口，之前的标签页和堆栈控件可以允许点击一次激活某个窗口，但是这两种方法有时不适用，因为它们一次只能查看一个窗口。<br>同时显示多个窗口的方法有：一是把这些窗口创建成独立的，称为SDI (Single Document Interface)，但因为每个窗口都有自己的菜单栏、工具栏等，开销比较大；另外一种方法是MDI (Multiple Document Interface)，比较节省开销，子窗口彼此相对放置在主容器中，这个主容器控件叫做QMdiArea。<br>QMdiArea通常占据QMainWindow对象的中心地位，在此区域内的子窗口都是QMdiSubWindow类的实例，可以在这些子窗口中设置任意的控件，这些子窗口可以以级联或者瓦片的形式排列。</p>
+<h2 id="QMdiArea和QMdiSubWindow的函数"><a href="#QMdiArea和QMdiSubWindow的函数" class="headerlink" title="QMdiArea和QMdiSubWindow的函数"></a>QMdiArea和QMdiSubWindow的函数</h2><ol>
+<li>addSubWindow()：添加一个控件作为子窗口</li>
+<li>removeSubWindow()：删除子窗口</li>
+<li>setActiveSubWindow()：激活子窗口</li>
+<li>cascadeSubWindows()：以级联的形式排列子窗口</li>
+<li>tileSubWindows()：以瓦片的形式排列子窗口</li>
+<li>closeActiveSubWindow()：关闭活跃的子窗口</li>
+<li>subWindowList()：返回子窗口列表</li>
+<li>setWidget()：在子窗口中添加空间</li>
+</ol>
+<h2 id="QMdiArea和QMdiSubWindow的信号"><a href="#QMdiArea和QMdiSubWindow的信号" class="headerlink" title="QMdiArea和QMdiSubWindow的信号"></a>QMdiArea和QMdiSubWindow的信号</h2><p>QMdiArea的对象发射subWindowActivated()信号，而QMdiSubWindow的对象发射windowStateChanged()信号。</p>
+<h2 id="举例-2"><a href="#举例-2" class="headerlink" title="举例"></a>举例</h2><figure class="highlight cpp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">import</span> sys</span><br><span class="line">from PyQt4.QtCore <span class="keyword">import</span> *</span><br><span class="line">from PyQt4.QtGui <span class="keyword">import</span> *</span><br><span class="line"></span><br><span class="line"><span class="function">class <span class="title">MainWindow</span><span class="params">(QMainWindow)</span>:</span></span><br><span class="line"><span class="function">   count =</span> <span class="number">0</span></span><br><span class="line">	</span><br><span class="line">   def __init__(self, parent = None):</span><br><span class="line">      <span class="built_in">super</span>(MainWindow, self).__init__(parent)</span><br><span class="line">      self.mdi = <span class="built_in">QMdiArea</span>()</span><br><span class="line">      self.<span class="built_in">setCentralWidget</span>(self.mdi)</span><br><span class="line">      bar = self.<span class="built_in">menuBar</span>()</span><br><span class="line">		</span><br><span class="line">      file = bar.<span class="built_in">addMenu</span>(<span class="string">&quot;File&quot;</span>)</span><br><span class="line">      file.<span class="built_in">addAction</span>(<span class="string">&quot;New&quot;</span>)</span><br><span class="line">      file.<span class="built_in">addAction</span>(<span class="string">&quot;cascade&quot;</span>)</span><br><span class="line">      file.<span class="built_in">addAction</span>(<span class="string">&quot;Tiled&quot;</span>)</span><br><span class="line">      file.triggered[QAction].<span class="built_in">connect</span>(self.windowaction)</span><br><span class="line">      self.<span class="built_in">setWindowTitle</span>(<span class="string">&quot;MDI demo&quot;</span>)</span><br><span class="line">		</span><br><span class="line">   def <span class="built_in">windowaction</span>(self, q):</span><br><span class="line">      print <span class="string">&quot;triggered&quot;</span></span><br><span class="line">		</span><br><span class="line">      <span class="keyword">if</span> q.<span class="built_in">text</span>() == <span class="string">&quot;New&quot;</span>:</span><br><span class="line">         MainWindow.count = MainWindow.count+<span class="number">1</span></span><br><span class="line">         sub = <span class="built_in">QMdiSubWindow</span>()</span><br><span class="line">         sub.<span class="built_in">setWidget</span>(<span class="built_in">QTextEdit</span>())</span><br><span class="line">         sub.<span class="built_in">setWindowTitle</span>(<span class="string">&quot;subwindow&quot;</span>+<span class="built_in">str</span>(MainWindow.count))</span><br><span class="line">         self.mdi.<span class="built_in">addSubWindow</span>(sub)</span><br><span class="line">         sub.<span class="built_in">show</span>()</span><br><span class="line">   		</span><br><span class="line">      <span class="keyword">if</span> q.<span class="built_in">text</span>() == <span class="string">&quot;cascade&quot;</span>:</span><br><span class="line">         self.mdi.<span class="built_in">cascadeSubWindows</span>()</span><br><span class="line">   		</span><br><span class="line">      <span class="keyword">if</span> q.<span class="built_in">text</span>() == <span class="string">&quot;Tiled&quot;</span>:</span><br><span class="line">         self.mdi.<span class="built_in">tileSubWindows</span>()</span><br><span class="line">   		</span><br><span class="line">def <span class="built_in">main</span>():</span><br><span class="line">   app = <span class="built_in">QApplication</span>(sys.argv)</span><br><span class="line">   ex = <span class="built_in">MainWindow</span>()</span><br><span class="line">   ex.<span class="built_in">show</span>()</span><br><span class="line">   sys.<span class="built_in">exit</span>(app.<span class="built_in">exec_</span>())</span><br><span class="line">	</span><br><span class="line">if __name__ == &#x27;__main__&#x27;:</span><br><span class="line">   <span class="built_in">main</span>()</span><br></pre></td></tr></table></figure>
+
+<h1 id="拖放QDrag和QMimeData"><a href="#拖放QDrag和QMimeData" class="headerlink" title="拖放QDrag和QMimeData"></a>拖放QDrag和QMimeData</h1><p>对于用户来说，能够拖放对象有时是很有用的。<br>MIME (Multipurpose Internet Mail Extensions) 是描述消息内容类型的因特网标准。 MIME 消息能包含文本、图像、音频、视频以及其他应用程序专用的数据。MIME类型的拖放而进行的文件传输是基于QDrag类。QMimeData将数据及其相应的MIME类型相关联。数据是存于剪贴板中，然后用于拖放过程。</p>
+<h2 id="QMimeData的函数"><a href="#QMimeData的函数" class="headerlink" title="QMimeData的函数"></a>QMimeData的函数</h2><table>
+<thead>
+<tr>
+<th>Tester</th>
+<th>Getter</th>
+<th>Setter</th>
+<th>MIME Types</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>hasText()</td>
+<td>text()</td>
+<td>setText()</td>
+<td>text/plain</td>
+</tr>
+<tr>
+<td>hasHtml()</td>
+<td>html()</td>
+<td>setHtml()</td>
+<td>text/html</td>
+</tr>
+<tr>
+<td>hasUrls()</td>
+<td>urls()</td>
+<td>setUrls()</td>
+<td>text/uri-list</td>
+</tr>
+<tr>
+<td>hasImage()</td>
+<td>imageData()</td>
+<td>setImageData()</td>
+<td>image/ *</td>
+</tr>
+<tr>
+<td>hasColor()</td>
+<td>colorData()</td>
+<td>setColorData()</td>
+<td>application/x-color</td>
+</tr>
+</tbody></table>
+<p>很多控件都支持拖放动作。那些允许数据被拖动的控件必须设置setDragEnabled()为true。<br>另一方面，接收数据的控件也必须响应拖放动作才能顺利存储数据：</p>
+<ol>
+<li>DragEnterEvent在拖放动作进入目标控件时，向该控件提供一个事件</li>
+<li>当拖放动作进行时DragMoveEvent被使用</li>
+<li>当拖放动作离开控件时DragLeaveEvent会生成</li>
+<li>当松开鼠标时DropEvent会发生。该事件的响应动作会根据条件接收或拒绝。</li>
+</ol>
+<h2 id="举例-3"><a href="#举例-3" class="headerlink" title="举例"></a>举例</h2><figure class="highlight cpp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">import</span> sys</span><br><span class="line">from PyQt4.QtGui <span class="keyword">import</span> *</span><br><span class="line">from PyQt4.QtCore <span class="keyword">import</span> *</span><br><span class="line"></span><br><span class="line"><span class="function">class <span class="title">combo</span><span class="params">(QComboBox)</span>:</span></span><br><span class="line"><span class="function"></span></span><br><span class="line"><span class="function">   def __init__(self, title, parent):</span></span><br><span class="line"><span class="function">      super(combo, self).__init__( parent)</span></span><br><span class="line"><span class="function">	</span></span><br><span class="line"><span class="function">      self.setAcceptDrops(True)</span></span><br><span class="line"><span class="function">		</span></span><br><span class="line"><span class="function">   def dragEnterEvent(self, e):</span></span><br><span class="line"><span class="function">      print e</span></span><br><span class="line"><span class="function">		</span></span><br><span class="line"><span class="function">      if e.mimeData().hasText():</span></span><br><span class="line"><span class="function">         e.accept()</span></span><br><span class="line"><span class="function">      else:</span></span><br><span class="line"><span class="function">         e.ignore()</span></span><br><span class="line"><span class="function">			</span></span><br><span class="line"><span class="function">   def dropEvent(self, e):</span></span><br><span class="line"><span class="function">      self.addItem(e.mimeData().text())</span></span><br><span class="line"><span class="function">		</span></span><br><span class="line"><span class="function">class Example(QWidget):</span></span><br><span class="line"><span class="function"></span></span><br><span class="line"><span class="function">   def __init__(self):</span></span><br><span class="line"><span class="function">      super(Example, self).__init__()</span></span><br><span class="line"><span class="function">		</span></span><br><span class="line"><span class="function">      self.initUI()</span></span><br><span class="line"><span class="function">		</span></span><br><span class="line"><span class="function">   def initUI(self):</span></span><br><span class="line"><span class="function">      lo =</span> <span class="built_in">QFormLayout</span>()</span><br><span class="line">      lo.<span class="built_in">addRow</span>(<span class="built_in">QLabel</span>(<span class="string">&quot;Type some text in textbox and drag it into combo box&quot;</span>))</span><br><span class="line">		</span><br><span class="line">      edit = <span class="built_in">QLineEdit</span>()</span><br><span class="line">      edit.<span class="built_in">setDragEnabled</span>(True)</span><br><span class="line">      com = <span class="built_in">combo</span>(<span class="string">&quot;Button&quot;</span>, self)</span><br><span class="line">      lo.<span class="built_in">addRow</span>(edit,com)</span><br><span class="line">      self.<span class="built_in">setLayout</span>(lo)</span><br><span class="line">      self.setWindowTitle(&#x27;Simple drag &amp; drop&#x27;)</span><br><span class="line">		</span><br><span class="line"><span class="function">def <span class="title">main</span><span class="params">()</span>:</span></span><br><span class="line"><span class="function">   app =</span> <span class="built_in">QApplication</span>(sys.argv)</span><br><span class="line">   ex = <span class="built_in">Example</span>()</span><br><span class="line">   ex.<span class="built_in">show</span>()</span><br><span class="line">   app.<span class="built_in">exec_</span>()</span><br><span class="line">	</span><br><span class="line">if __name__ == &#x27;__main__&#x27;:</span><br><span class="line">   <span class="built_in">main</span>()</span><br></pre></td></tr></table></figure>
+
+    </div>
+
+    
+    
+    
+        <div class="reward-container">
+  <div></div>
+  <button onclick="var qr = document.getElementById('qr'); qr.style.display = (qr.style.display === 'none') ? 'block' : 'none';">
+    Donate
+  </button>
+  <div id="qr" style="display: none;">
+      
+      <div style="display: inline-block;">
+        <img src="/images/wechat_reward.png" alt="Xin-Bo Qi(亓欣波) WeChat Pay">
+        <p>WeChat Pay</p>
+      </div>
+
+  </div>
+</div>
+
+
+      <footer class="post-footer">
+          <div class="post-tags">
+              <a href="/tags/PyQt/" rel="tag"># PyQt</a>
+          </div>
+
+        
+
+
+        
+    <div class="post-nav">
+      <div class="post-nav-item">
+    <a href="/2017/12/04/pyqt4-widgets/" rel="prev" title="PyQt4教程系列二：基本控件">
+      <i class="fa fa-chevron-left"></i> PyQt4教程系列二：基本控件
+    </a></div>
+      <div class="post-nav-item">
+    <a href="/2017/12/06/pyqt4-sophisticated/" rel="next" title="PyQt4教程系列四：高阶功能">
+      PyQt4教程系列四：高阶功能 <i class="fa fa-chevron-right"></i>
+    </a></div>
+    </div>
+      </footer>
+    
+  </article>
+  
+  
+  
+
+
+
+          </div>
+          
+    
+  <div class="comments">
+    <div id="disqus_thread">
+      <noscript>Please enable JavaScript to view the comments powered by Disqus.</noscript>
+    </div>
+  </div>
+  
+
+<script>
+  window.addEventListener('tabs:register', () => {
+    let { activeClass } = CONFIG.comments;
+    if (CONFIG.comments.storage) {
+      activeClass = localStorage.getItem('comments_active') || activeClass;
+    }
+    if (activeClass) {
+      let activeTab = document.querySelector(`a[href="#comment-${activeClass}"]`);
+      if (activeTab) {
+        activeTab.click();
+      }
+    }
+  });
+  if (CONFIG.comments.storage) {
+    window.addEventListener('tabs:click', event => {
+      if (!event.target.matches('.tabs-comment .tab-content .tab-pane')) return;
+      let commentClass = event.target.classList[1];
+      localStorage.setItem('comments_active', commentClass);
+    });
+  }
+</script>
+
+        </div>
+          
+  
+  <div class="toggle sidebar-toggle">
+    <span class="toggle-line toggle-line-first"></span>
+    <span class="toggle-line toggle-line-middle"></span>
+    <span class="toggle-line toggle-line-last"></span>
+  </div>
+
+  <aside class="sidebar">
+    <div class="sidebar-inner">
+
+      <ul class="sidebar-nav motion-element">
+        <li class="sidebar-nav-toc">
+          Table of Contents
+        </li>
+        <li class="sidebar-nav-overview">
+          Overview
+        </li>
+      </ul>
+
+      <!--noindex-->
+      <div class="post-toc-wrap sidebar-panel">
+          <div class="post-toc motion-element"><ol class="nav"><li class="nav-item nav-level-1"><a class="nav-link" href="#QDialog"><span class="nav-number">1.</span> <span class="nav-text">QDialog</span></a><ol class="nav-child"><li class="nav-item nav-level-2"><a class="nav-link" href="#%E4%B8%BE%E4%BE%8B"><span class="nav-number">1.1.</span> <span class="nav-text">举例</span></a></li></ol></li><li class="nav-item nav-level-1"><a class="nav-link" href="#QMessageBox"><span class="nav-number">2.</span> <span class="nav-text">QMessageBox</span></a><ol class="nav-child"><li class="nav-item nav-level-2"><a class="nav-link" href="#QMessageBox%E7%9A%84%E5%87%BD%E6%95%B0"><span class="nav-number">2.1.</span> <span class="nav-text">QMessageBox的函数</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E4%B8%BE%E4%BE%8B-1"><span class="nav-number">2.2.</span> <span class="nav-text">举例</span></a></li></ol></li><li class="nav-item nav-level-1"><a class="nav-link" href="#%E5%A4%9A%E6%96%87%E6%A1%A3%E7%95%8C%E9%9D%A2QMdiArea%E5%92%8CQMdiSubWindow"><span class="nav-number">3.</span> <span class="nav-text">多文档界面QMdiArea和QMdiSubWindow</span></a><ol class="nav-child"><li class="nav-item nav-level-2"><a class="nav-link" href="#QMdiArea%E5%92%8CQMdiSubWindow%E7%9A%84%E5%87%BD%E6%95%B0"><span class="nav-number">3.1.</span> <span class="nav-text">QMdiArea和QMdiSubWindow的函数</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#QMdiArea%E5%92%8CQMdiSubWindow%E7%9A%84%E4%BF%A1%E5%8F%B7"><span class="nav-number">3.2.</span> <span class="nav-text">QMdiArea和QMdiSubWindow的信号</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E4%B8%BE%E4%BE%8B-2"><span class="nav-number">3.3.</span> <span class="nav-text">举例</span></a></li></ol></li><li class="nav-item nav-level-1"><a class="nav-link" href="#%E6%8B%96%E6%94%BEQDrag%E5%92%8CQMimeData"><span class="nav-number">4.</span> <span class="nav-text">拖放QDrag和QMimeData</span></a><ol class="nav-child"><li class="nav-item nav-level-2"><a class="nav-link" href="#QMimeData%E7%9A%84%E5%87%BD%E6%95%B0"><span class="nav-number">4.1.</span> <span class="nav-text">QMimeData的函数</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E4%B8%BE%E4%BE%8B-3"><span class="nav-number">4.2.</span> <span class="nav-text">举例</span></a></li></ol></li></ol></div>
+      </div>
+      <!--/noindex-->
+
+      <div class="site-overview-wrap sidebar-panel">
+        <div class="site-author motion-element" itemprop="author" itemscope itemtype="http://schema.org/Person">
+    <img class="site-author-image" itemprop="image" alt="Xin-Bo Qi(亓欣波)"
+      src="/images/avatar.jpg">
+  <p class="site-author-name" itemprop="name">Xin-Bo Qi(亓欣波)</p>
+  <div class="site-description" itemprop="description">Be interesting!</div>
+</div>
+<div class="site-state-wrap motion-element">
+  <nav class="site-state">
+      <div class="site-state-item site-state-posts">
+          <a href="/archives/">
+        
+          <span class="site-state-item-count">120</span>
+          <span class="site-state-item-name">posts</span>
+        </a>
+      </div>
+      <div class="site-state-item site-state-categories">
+            <a href="/categories/">
+          
+        <span class="site-state-item-count">5</span>
+        <span class="site-state-item-name">categories</span></a>
+      </div>
+      <div class="site-state-item site-state-tags">
+            <a href="/tags/">
+          
+        <span class="site-state-item-count">41</span>
+        <span class="site-state-item-name">tags</span></a>
+      </div>
+  </nav>
+</div>
+  <div class="links-of-author motion-element">
+      <span class="links-of-author-item">
+        <a href="https://github.com/qixinbo" title="GitHub → https:&#x2F;&#x2F;github.com&#x2F;qixinbo" rel="noopener" target="_blank"><i class="github fa-fw"></i>GitHub</a>
+      </span>
+      <span class="links-of-author-item">
+        <a href="mailto:qixinbo@gmail.com" title="E-Mail → mailto:qixinbo@gmail.com" rel="noopener" target="_blank"><i class="envelope fa-fw"></i>E-Mail</a>
+      </span>
+  </div>
+
+
+  <div class="links-of-blogroll motion-element">
+    <div class="links-of-blogroll-title"><i class="fa fa-link fa-fw"></i>
+      Links
+    </div>
+    <ul class="links-of-blogroll-list">
+        <li class="links-of-blogroll-item">
+          <a href="https://www.tsinghua.edu.cn/" title="https:&#x2F;&#x2F;www.tsinghua.edu.cn" rel="noopener" target="_blank">THU</a>
+        </li>
+        <li class="links-of-blogroll-item">
+          <a href="http://www.imr.cas.cn/" title="http:&#x2F;&#x2F;www.imr.cas.cn" rel="noopener" target="_blank">IMR</a>
+        </li>
+        <li class="links-of-blogroll-item">
+          <a href="http://www.sdu.edu.cn/" title="http:&#x2F;&#x2F;www.sdu.edu.cn" rel="noopener" target="_blank">SDU</a>
+        </li>
+        <li class="links-of-blogroll-item">
+          <a href="http://liam0205.me/" title="http:&#x2F;&#x2F;liam0205.me&#x2F;" rel="noopener" target="_blank">黄晨成</a>
+        </li>
+    </ul>
+  </div>
+
+      </div>
+
+    </div>
+  </aside>
+  <div id="sidebar-dimmer"></div>
+
+
+      </div>
+    </main>
+
+    <footer class="footer">
+      <div class="footer-inner">
+        
+
+        
+
+<div class="copyright">
+  
+  &copy; 
+  <span itemprop="copyrightYear">2021</span>
+  <span class="with-love">
+    <i class="fa fa-heart"></i>
+  </span>
+  <span class="author" itemprop="copyrightHolder">Xin-Bo Qi(亓欣波)</span>
+</div>
+  <div class="powered-by">Powered by <a href="https://hexo.io/" class="theme-link" rel="noopener" target="_blank">Hexo</a> & <a href="https://theme-next.org/" class="theme-link" rel="noopener" target="_blank">NexT.Gemini</a>
+  </div>
+
+        
+
+
+
+
+
+
+
+
+      </div>
+    </footer>
+  </div>
+
+  
+  <script src="/lib/anime.min.js"></script>
+  <script src="/lib/velocity/velocity.min.js"></script>
+  <script src="/lib/velocity/velocity.ui.min.js"></script>
+
+<script src="/js/utils.js"></script>
+
+<script src="/js/motion.js"></script>
+
+
+<script src="/js/schemes/pisces.js"></script>
+
+
+<script src="/js/next-boot.js"></script>
+
+
+
+
+  
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+  
+
+  
+
+  
+
+<script>
+  function loadCount() {
+    var d = document, s = d.createElement('script');
+    s.src = 'https://qixinbo.disqus.com/count.js';
+    s.id = 'dsq-count-scr';
+    (d.head || d.body).appendChild(s);
+  }
+  // defer loading until the whole page loading is completed
+  window.addEventListener('load', loadCount, false);
+</script>
+<script>
+  var disqus_config = function() {
+    this.page.url = "http://qixinbo.github.io/2017/12/05/pyqt4-extension/";
+    this.page.identifier = "2017/12/05/pyqt4-extension/";
+    this.page.title = "PyQt4教程系列三：扩展功能";
+    };
+  NexT.utils.loadComments(document.querySelector('#disqus_thread'), () => {
+    if (window.DISQUS) {
+      DISQUS.reset({
+        reload: true,
+        config: disqus_config
+      });
+    } else {
+      var d = document, s = d.createElement('script');
+      s.src = 'https://qixinbo.disqus.com/embed.js';
+      s.setAttribute('data-timestamp', '' + +new Date());
+      (d.head || d.body).appendChild(s);
+    }
+  });
+</script>
+
+</body>
+</html>

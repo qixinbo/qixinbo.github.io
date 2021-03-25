@@ -1,0 +1,619 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=2">
+<meta name="theme-color" content="#222">
+<meta name="generator" content="Hexo 5.4.0">
+  <link rel="apple-touch-icon" sizes="180x180" href="/images/apple-touch-icon-next.png">
+  <link rel="icon" type="image/png" sizes="32x32" href="/favicon.ico">
+  <link rel="icon" type="image/png" sizes="16x16" href="/favicon.ico">
+  <link rel="mask-icon" href="/images/logo.svg" color="#222">
+
+<link rel="stylesheet" href="/css/main.css">
+
+
+<link rel="stylesheet" href="/lib/font-awesome/css/all.min.css">
+
+<script id="hexo-configurations">
+    var NexT = window.NexT || {};
+    var CONFIG = {"hostname":"qixinbo.github.io","root":"/","scheme":"Gemini","version":"7.8.0","exturl":false,"sidebar":{"position":"left","display":"post","padding":18,"offset":12,"onmobile":false},"copycode":{"enable":false,"show_result":false,"style":null},"back2top":{"enable":true,"sidebar":false,"scrollpercent":false},"bookmark":{"enable":false,"color":"#222","save":"auto"},"fancybox":false,"mediumzoom":false,"lazyload":false,"pangu":false,"comments":{"style":"tabs","active":null,"storage":true,"lazyload":false,"nav":null},"algolia":{"hits":{"per_page":10},"labels":{"input_placeholder":"Search for Posts","hits_empty":"We didn't find any results for the search: ${query}","hits_stats":"${hits} results found in ${time} ms"}},"localsearch":{"enable":false,"trigger":"auto","top_n_per_article":1,"unescape":false,"preload":false},"motion":{"enable":true,"async":false,"transition":{"post_block":"fadeIn","post_header":"slideDownIn","post_body":"slideDownIn","coll_header":"slideLeftIn","sidebar":"slideUpIn"}}};
+  </script>
+
+  <meta name="description" content="引子PRISMS-PF的1.0版本相对于最开始的0.8版本，进行了较大的重构，更加模块化，更加容易扩展。同时引入了更加多的功能，比如施加各种边界条件，引入自适应网格等。但带来的一个问题是：文件数量增多，且互相调用，刚开始很容易在文件跳转之间绕晕，所以需要理清整个文件结构和程序运行脉络。 文件结构基础头文件首先是deal.II的各种头文件： 1include&#x2F;dealIIheaders.h PDE的">
+<meta property="og:type" content="article">
+<meta property="og:title" content="PRISMS-PF v1.0 学习手册——Cahn-Hilliard和Allen-Cahn方程耦合求解">
+<meta property="og:url" content="http://qixinbo.github.io/2016/12/16/prisms-pf-v1-CHAC/index.html">
+<meta property="og:site_name" content="亓欣波">
+<meta property="og:description" content="引子PRISMS-PF的1.0版本相对于最开始的0.8版本，进行了较大的重构，更加模块化，更加容易扩展。同时引入了更加多的功能，比如施加各种边界条件，引入自适应网格等。但带来的一个问题是：文件数量增多，且互相调用，刚开始很容易在文件跳转之间绕晕，所以需要理清整个文件结构和程序运行脉络。 文件结构基础头文件首先是deal.II的各种头文件： 1include&#x2F;dealIIheaders.h PDE的">
+<meta property="og:locale" content="en_US">
+<meta property="og:image" content="https://ws1.sinaimg.cn/large/0072Lfvtly1fvjhzxkp8ig30hs0f2n3y.gif">
+<meta property="article:published_time" content="2016-12-15T16:00:00.000Z">
+<meta property="article:modified_time" content="2021-03-25T07:20:30.832Z">
+<meta property="article:author" content="Xin-Bo Qi(亓欣波)">
+<meta property="article:tag" content="deal.II">
+<meta property="article:tag" content="prisms">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:image" content="https://ws1.sinaimg.cn/large/0072Lfvtly1fvjhzxkp8ig30hs0f2n3y.gif">
+
+<link rel="canonical" href="http://qixinbo.github.io/2016/12/16/prisms-pf-v1-CHAC/">
+
+
+<script id="page-configurations">
+  // https://hexo.io/docs/variables.html
+  CONFIG.page = {
+    sidebar: "",
+    isHome : false,
+    isPost : true,
+    lang   : 'en'
+  };
+</script>
+
+  <title>PRISMS-PF v1.0 学习手册——Cahn-Hilliard和Allen-Cahn方程耦合求解 | 亓欣波</title>
+  
+
+
+
+
+
+
+  <noscript>
+  <style>
+  .use-motion .brand,
+  .use-motion .menu-item,
+  .sidebar-inner,
+  .use-motion .post-block,
+  .use-motion .pagination,
+  .use-motion .comments,
+  .use-motion .post-header,
+  .use-motion .post-body,
+  .use-motion .collection-header { opacity: initial; }
+
+  .use-motion .site-title,
+  .use-motion .site-subtitle {
+    opacity: initial;
+    top: initial;
+  }
+
+  .use-motion .logo-line-before i { left: initial; }
+  .use-motion .logo-line-after i { right: initial; }
+  </style>
+</noscript>
+
+</head>
+
+<body itemscope itemtype="http://schema.org/WebPage">
+  <div class="container use-motion">
+    <div class="headband"></div>
+
+    <header class="header" itemscope itemtype="http://schema.org/WPHeader">
+      <div class="header-inner"><div class="site-brand-container">
+  <div class="site-nav-toggle">
+    <div class="toggle" aria-label="Toggle navigation bar">
+      <span class="toggle-line toggle-line-first"></span>
+      <span class="toggle-line toggle-line-middle"></span>
+      <span class="toggle-line toggle-line-last"></span>
+    </div>
+  </div>
+
+  <div class="site-meta">
+
+    <a href="/" class="brand" rel="start">
+      <span class="logo-line-before"><i></i></span>
+      <h1 class="site-title">亓欣波</h1>
+      <span class="logo-line-after"><i></i></span>
+    </a>
+      <p class="site-subtitle" itemprop="description">Hi, I am Xin-Bo Qi (亓欣波)</p>
+  </div>
+
+  <div class="site-nav-right">
+    <div class="toggle popup-trigger">
+    </div>
+  </div>
+</div>
+
+
+
+
+<nav class="site-nav">
+  <ul id="menu" class="main-menu menu">
+        <li class="menu-item menu-item-home">
+
+    <a href="/" rel="section"><i class="home fa-fw"></i>Home</a>
+
+  </li>
+        <li class="menu-item menu-item-categories">
+
+    <a href="/categories/" rel="section"><i class="th fa-fw"></i>Categories</a>
+
+  </li>
+        <li class="menu-item menu-item-archives">
+
+    <a href="/archives/" rel="section"><i class="archive fa-fw"></i>Archives</a>
+
+  </li>
+        <li class="menu-item menu-item-tags">
+
+    <a href="/tags/" rel="section"><i class="tags fa-fw"></i>Tags</a>
+
+  </li>
+        <li class="menu-item menu-item-scholar">
+
+    <a href="/scholar/" rel="section"><i class="bar-chart fa-fw"></i>scholar</a>
+
+  </li>
+        <li class="menu-item menu-item-sources">
+
+    <a href="/sources/" rel="section"><i class="rss fa-fw"></i>sources</a>
+
+  </li>
+        <li class="menu-item menu-item-gallery">
+
+    <a href="/gallery/" rel="section"><i class="file-image-o fa-fw"></i>gallery</a>
+
+  </li>
+        <li class="menu-item menu-item-about">
+
+    <a href="/about/" rel="section"><i class="user fa-fw"></i>About</a>
+
+  </li>
+        <li class="menu-item menu-item-commonweal">
+
+    <a href="/404.html" rel="section"><i class="heartbeat fa-fw"></i>Commonweal 404</a>
+
+  </li>
+  </ul>
+</nav>
+
+
+
+
+</div>
+    </header>
+
+    
+  <div class="back-to-top">
+    <i class="fa fa-arrow-up"></i>
+    <span>0%</span>
+  </div>
+
+
+    <main class="main">
+      <div class="main-inner">
+        <div class="content-wrap">
+          
+
+          <div class="content post posts-expand">
+            
+
+    
+  
+  
+  <article itemscope itemtype="http://schema.org/Article" class="post-block" lang="en">
+    <link itemprop="mainEntityOfPage" href="http://qixinbo.github.io/2016/12/16/prisms-pf-v1-CHAC/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="image" content="/images/avatar.jpg">
+      <meta itemprop="name" content="Xin-Bo Qi(亓欣波)">
+      <meta itemprop="description" content="Be interesting!">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="亓欣波">
+    </span>
+      <header class="post-header">
+        <h1 class="post-title" itemprop="name headline">
+          PRISMS-PF v1.0 学习手册——Cahn-Hilliard和Allen-Cahn方程耦合求解
+        </h1>
+
+        <div class="post-meta">
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="far fa-calendar"></i>
+              </span>
+              <span class="post-meta-item-text">Posted on</span>
+
+              <time title="Created: 2016-12-16 00:00:00" itemprop="dateCreated datePublished" datetime="2016-12-16T00:00:00+08:00">2016-12-16</time>
+            </span>
+              <span class="post-meta-item">
+                <span class="post-meta-item-icon">
+                  <i class="far fa-calendar-check"></i>
+                </span>
+                <span class="post-meta-item-text">Edited on</span>
+                <time title="Modified: 2021-03-25 15:20:30" itemprop="dateModified" datetime="2021-03-25T15:20:30+08:00">2021-03-25</time>
+              </span>
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="far fa-folder"></i>
+              </span>
+              <span class="post-meta-item-text">In</span>
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+                  <a href="/categories/computational-material-science/" itemprop="url" rel="index"><span itemprop="name">computational material science</span></a>
+                </span>
+            </span>
+
+          
+  
+  <span class="post-meta-item">
+    
+      <span class="post-meta-item-icon">
+        <i class="far fa-comment"></i>
+      </span>
+      <span class="post-meta-item-text">Disqus: </span>
+    
+    <a title="disqus" href="/2016/12/16/prisms-pf-v1-CHAC/#disqus_thread" itemprop="discussionUrl">
+      <span class="post-comments-count disqus-comment-count" data-disqus-identifier="2016/12/16/prisms-pf-v1-CHAC/" itemprop="commentCount"></span>
+    </a>
+  </span>
+  
+  
+
+        </div>
+      </header>
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+        <h1 id="引子"><a href="#引子" class="headerlink" title="引子"></a>引子</h1><p>PRISMS-PF的1.0版本相对于最开始的0.8版本，进行了较大的重构，更加模块化，更加容易扩展。同时引入了更加多的功能，比如施加各种边界条件，引入自适应网格等。但带来的一个问题是：文件数量增多，且互相调用，刚开始很容易在文件跳转之间绕晕，所以需要理清整个文件结构和程序运行脉络。</p>
+<h1 id="文件结构"><a href="#文件结构" class="headerlink" title="文件结构"></a>文件结构</h1><h2 id="基础头文件"><a href="#基础头文件" class="headerlink" title="基础头文件"></a>基础头文件</h2><p>首先是deal.II的各种头文件：</p>
+<figure class="highlight cpp"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">include/dealIIheaders.h</span><br></pre></td></tr></table></figure>
+<p>PDE的无矩阵解法的模板类：</p>
+<figure class="highlight cpp"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">include/matrixFreePDE.h</span><br></pre></td></tr></table></figure>
+<p>包含各种属性的物理场的模板类：</p>
+<figure class="highlight cpp"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">include/fields.h</span><br></pre></td></tr></table></figure>
+<p>模型中用到的变量的模板类：</p>
+<figure class="highlight cpp"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">include/model_variables.h</span><br></pre></td></tr></table></figure>
+<p>默认的模拟参数设置：</p>
+<figure class="highlight cpp"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">include/defaultValues.h</span><br></pre></td></tr></table></figure>
+<h2 id="无矩阵解的模板类的实现头文件"><a href="#无矩阵解的模板类的实现头文件" class="headerlink" title="无矩阵解的模板类的实现头文件"></a>无矩阵解的模板类的实现头文件</h2><figure class="highlight cpp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br></pre></td><td class="code"><pre><span class="line">src/matrixfree/matrixFreePDE.cc<span class="string">&quot;</span></span><br><span class="line"><span class="string">src/matrixfree/init.cc&quot;</span></span><br><span class="line">src/matrixfree/initForTests.cc<span class="string">&quot;</span></span><br><span class="line"><span class="string">src/matrixfree/refine.cc&quot;</span></span><br><span class="line">src/matrixfree/invM.cc<span class="string">&quot;</span></span><br><span class="line"><span class="string">src/matrixfree/computeLHS.cc&quot;</span></span><br><span class="line">src/matrixfree/computeRHS.cc<span class="string">&quot;</span></span><br><span class="line"><span class="string">src/matrixfree/modifyFields.cc&quot;</span></span><br><span class="line">src/matrixfree/solve.cc<span class="string">&quot;</span></span><br><span class="line"><span class="string">src/matrixfree/solveIncrement.cc&quot;</span></span><br><span class="line">src/matrixfree/outputResults.cc<span class="string">&quot;</span></span><br><span class="line"><span class="string">src/matrixfree/markBoundaries.cc&quot;</span></span><br><span class="line">src/matrixfree/boundaryConditions.cc<span class="string">&quot;</span></span><br><span class="line"><span class="string">src/matrixfree/initialConditions.cc&quot;</span></span><br><span class="line">src/matrixfree/utilities.cc<span class="string">&quot;</span></span><br><span class="line"><span class="string">src/matrixfree/calcFreeEnergy.cc&quot;</span></span><br><span class="line">src/matrixfree/integrate_and_shift_field.cc<span class="string">&quot;</span></span><br><span class="line"><span class="string">src/matrixfree/getOutputTimeSteps.cc&quot;</span></span><br></pre></td></tr></table></figure>
+<h2 id="求解模型"><a href="#求解模型" class="headerlink" title="求解模型"></a>求解模型</h2><p>不同的问题对应不同的模型。目前提供三种模型供选择：<br>(1)扩散模型</p>
+<figure class="highlight cpp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line">src/models/diffusion/AC.h</span><br><span class="line">src/models/diffusion/CH.h</span><br><span class="line">src/models/diffusion/coupledCHAC.h</span><br><span class="line">src/models/diffusion/coupledCHAC2.h</span><br><span class="line">src/models/diffusion/Fickian.h</span><br></pre></td></tr></table></figure>
+<p>(2)连续力学模型</p>
+<figure class="highlight cpp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">src/models/mechanics/anisotropy.h</span><br><span class="line">src/models/mechanics/computeStress.h</span><br><span class="line">src/models/mechanics/mechanics.h</span><br></pre></td></tr></table></figure>
+<p>(3)两者耦合模型</p>
+<figure class="highlight cpp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line">src/models/coupled/coupledCHMechanics.h</span><br><span class="line">src/models/coupled/coupledCHACMechanics.h</span><br><span class="line">src/models/coupled/generalized_model.h</span><br><span class="line">src/models/coupled/generalized_model_functions.h</span><br></pre></td></tr></table></figure>
+<h2 id="具体问题"><a href="#具体问题" class="headerlink" title="具体问题"></a>具体问题</h2><p>每个具体问题都包含四个文件，分别设定自己所需的：<br>(1)模拟参数，包括计算域大小、网格大小、时间步、输出间距等</p>
+<figure class="highlight cpp"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">parameters.h</span><br></pre></td></tr></table></figure>
+<p>(2)控制方程，这个是需要重要修改的文件，里面包含方程构建过程以及右端项的计算过程</p>
+<figure class="highlight cpp"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">equations.h</span><br></pre></td></tr></table></figure>
+<p>其中包含一系列变量，用“列表+宏定义”的形式方便将这些变量赋值给之前的通用模型中的一系列容器。<br>(3)初始条件和边界条件</p>
+<figure class="highlight cpp"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">ICs_and_BCs.h</span><br></pre></td></tr></table></figure>
+<p>(4)入口函数，这个文件非常简单，但其是整个程序的总调度。</p>
+<figure class="highlight cpp"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">main.cc</span><br></pre></td></tr></table></figure>
+<h1 id="求解流程"><a href="#求解流程" class="headerlink" title="求解流程"></a>求解流程</h1><p>分析源码时一定注意各个类之间及类的成员函数之间传递的参数的类型及结构。</p>
+<p>具体求解问题时的步骤：</p>
+<figure class="highlight cpp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line">generalizedProblem&lt;problemDIM&gt; problem;</span><br><span class="line"></span><br><span class="line">problem.<span class="built_in">setBCs</span>();</span><br><span class="line">problem.<span class="built_in">buildFields</span>();</span><br><span class="line">problem.<span class="built_in">init</span>(); </span><br><span class="line">problem.<span class="built_in">solve</span>();</span><br></pre></td></tr></table></figure>
+<h2 id="构造函数初始化"><a href="#构造函数初始化" class="headerlink" title="构造函数初始化"></a>构造函数初始化</h2><p>在创建问题类的具体对象时，会调用其构造函数，此时就把手动提供的输入文件中的变量(其用宏定义)传递给类的数据成员上，包括变量名、变量类型、变量所在的控制方程的类型、是否计算值及其梯度和二阶导数的旗标等。<br>比如，在输入条件中设置：</p>
+<figure class="highlight cpp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">#<span class="meta-keyword">define</span> variable_name &#123;<span class="meta-string">&quot;c&quot;</span>, <span class="meta-string">&quot;n&quot;</span>,<span class="meta-string">&quot;biharm&quot;</span>&#125;</span></span><br><span class="line"><span class="meta">#<span class="meta-keyword">define</span> variable_type &#123;<span class="meta-string">&quot;SCALAR&quot;</span>,<span class="meta-string">&quot;SCALAR&quot;</span>,<span class="meta-string">&quot;SCALAR&quot;</span>&#125;</span></span><br><span class="line"><span class="meta">#<span class="meta-keyword">define</span> variable_eq_type &#123;<span class="meta-string">&quot;PARABOLIC&quot;</span>,<span class="meta-string">&quot;PARABOLIC&quot;</span>,<span class="meta-string">&quot;PARABOLIC&quot;</span>&#125;</span></span><br><span class="line"></span><br><span class="line"><span class="meta">#<span class="meta-keyword">define</span> need_val &#123;true, true, false&#125;</span></span><br><span class="line"><span class="meta">#<span class="meta-keyword">define</span> need_grad &#123;true, true, true&#125;</span></span><br><span class="line"><span class="meta">#<span class="meta-keyword">define</span> need_hess &#123;false, false, false&#125;</span></span><br><span class="line"></span><br><span class="line"><span class="meta">#<span class="meta-keyword">define</span> need_val_residual &#123;true, true, false&#125;</span></span><br><span class="line"><span class="meta">#<span class="meta-keyword">define</span> need_grad_residual &#123;true, true, true&#125;</span></span><br></pre></td></tr></table></figure>
+<p>那么，在初始化时：</p>
+<figure class="highlight cpp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br></pre></td><td class="code"><pre><span class="line">var_name = variable_name;</span><br><span class="line">var_type = variable_type;</span><br><span class="line">var_eq_type = variable_eq_type;</span><br><span class="line"></span><br><span class="line">need_value = need_val;</span><br><span class="line">need_gradient = need_grad;</span><br><span class="line">need_hessian = need_hess;</span><br><span class="line">value_residual = need_val_residual;</span><br><span class="line">gradient_residual = need_grad_residual;</span><br></pre></td></tr></table></figure>
+<h2 id="设定边界条件"><a href="#设定边界条件" class="headerlink" title="设定边界条件"></a>设定边界条件</h2><p>如上，设定边界条件的函数是setBCs，它需要在ICs_and_BCs.h中手工编写，调用的是另一个成员函数inputBCs，它根据参数不同有多个重载，可以统一设定边界(参数为4个)，也可以分开设定(参数为2+(2+2)*dim)。这一步的目的就是对BC_list赋值，它是一个容器，里面的元素是varBCs的类，每个varBC包含边界条件的类型和边界条件的值。</p>
+<h2 id="构建场变量"><a href="#构建场变量" class="headerlink" title="构建场变量"></a>构建场变量</h2><p>判断之前读入的各种变量和方程类型，构建出要求解的场变量的类型，这个场就是在基础头文件中定义的场，其需要三个模板参数：变量类型、方程类型、变量名。这里将方程类型分成了两类：抛物型方程和椭圆型方程，前者用于求解与时间有关的方程，即瞬态方程，后者用于求解与时间无关的方程，即稳态方程。<br>这里就引出来一个非常重要的变量：fields。每个MatrixFreePDE都有一个数据成员fields，它是一个容器，里面盛放的是Field类对象，该类模板在前面提到的基础头文件fields.h中定义：</p>
+<figure class="highlight cpp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">template</span>&lt;<span class="keyword">int</span> dim&gt;</span><br><span class="line"><span class="class"><span class="keyword">class</span> <span class="title">Field</span></span></span><br><span class="line"><span class="class">&#123;</span></span><br><span class="line"> <span class="keyword">public</span>:</span><br><span class="line">  <span class="built_in">Field</span>(fieldType _type, PDEType _pdetype, std::string _name);</span><br><span class="line">  fieldType type;</span><br><span class="line">  PDEType   pdetype;</span><br><span class="line">  std::string name;</span><br><span class="line">  <span class="keyword">unsigned</span> <span class="keyword">int</span> index;</span><br><span class="line">  <span class="keyword">unsigned</span> <span class="keyword">int</span> startIndex;</span><br><span class="line">  <span class="keyword">unsigned</span> <span class="keyword">int</span> numComponents;</span><br><span class="line"></span><br><span class="line"> <span class="keyword">private</span>:</span><br><span class="line">  <span class="keyword">static</span> <span class="keyword">unsigned</span> <span class="keyword">int</span> fieldCount;</span><br><span class="line">  <span class="keyword">static</span> <span class="keyword">unsigned</span> <span class="keyword">int</span> indexCount;</span><br><span class="line">&#125;;</span><br></pre></td></tr></table></figure>
+<p>因为场分为标量场和矢量场，所以fields里面的场变量索引及每个场分量个数都要依情况而定：</p>
+<figure class="highlight cpp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br></pre></td><td class="code"><pre><span class="line"><span class="built_in"><span class="keyword">switch</span></span> (type)&#123;</span><br><span class="line"><span class="keyword">case</span> SCALAR:&#123;</span><br><span class="line">  <span class="comment">//increment index count by one</span></span><br><span class="line">  indexCount+=<span class="number">1</span>;</span><br><span class="line">  numComponents=<span class="number">1</span>;</span><br><span class="line">  <span class="keyword">break</span>;</span><br><span class="line">&#125;</span><br><span class="line"><span class="keyword">case</span> VECTOR:&#123;</span><br><span class="line">  <span class="comment">//increment index count by dim</span></span><br><span class="line">  indexCount+=dim;</span><br><span class="line">  numComponents=dim;</span><br><span class="line">  <span class="keyword">break</span>;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<h2 id="初始化"><a href="#初始化" class="headerlink" title="初始化"></a>初始化</h2><p>调用MatrixFreePDE类的init函数，做以下事情(注意：这里默认接收的参数是0，意味着都是进行初始化工作，如果非0，则可以读取已计算的所有值，比如用于断点续算等，未详细考察)：<br>(1)初始化网格<br>根据输入文件，确定计算域大小、初始网格大小。</p>
+<figure class="highlight cpp"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">GridGenerator::<span class="built_in">subdivided_hyper_rectangle</span> (triangulation, subdivisions, Point&lt;dim&gt;(), Point&lt;dim&gt;(spanX,spanY,spanZ));</span><br></pre></td></tr></table></figure>
+<p>(2)设置边界标识<br>这里根据面的中心必须是计算域顶点才设置边界标识，这里自然全是0。</p>
+<figure class="highlight cpp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">for</span> (<span class="keyword">unsigned</span> <span class="keyword">int</span> face_number=<span class="number">0</span>; face_number&lt;GeometryInfo&lt;dim&gt;::faces_per_cell;++face_number)&#123;</span><br><span class="line">  <span class="keyword">for</span> (<span class="keyword">unsigned</span> <span class="keyword">int</span> i=<span class="number">0</span>; i&lt;dim; i++)&#123;</span><br><span class="line">    <span class="keyword">if</span> ( std::<span class="built_in">fabs</span>(cell-&gt;<span class="built_in">face</span>(face_number)-&gt;<span class="built_in">center</span>()(i) - (<span class="number">0</span>)) &lt; <span class="number">1e-12</span> )&#123;</span><br><span class="line">      cell-&gt;<span class="built_in">face</span>(face_number)-&gt;<span class="built_in">set_boundary_id</span> (<span class="number">2</span>*i);</span><br><span class="line">    &#125;</span><br><span class="line">    <span class="keyword">else</span> <span class="keyword">if</span> (std::<span class="built_in">fabs</span>(cell-&gt;<span class="built_in">face</span>(face_number)-&gt;<span class="built_in">center</span>()(i) - (domain_size[i])) &lt; <span class="number">1e-12</span>)&#123;</span><br><span class="line">      cell-&gt;<span class="built_in">face</span>(face_number)-&gt;<span class="built_in">set_boundary_id</span> (<span class="number">2</span>*i+<span class="number">1</span>);</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p>(3-7)初始化无矩阵对象<br>这几步是对MatrixFreePDE的属性进行初始化，注意这几步操作都是在对每个场都操作，所以刚开始要对所有的场进行循环：</p>
+<figure class="highlight cpp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">for</span>(<span class="keyword">typename</span> std::vector&lt;Field&lt;dim&gt; &gt;::iterator it = fields.<span class="built_in">begin</span>(); it != fields.<span class="built_in">end</span>(); ++it)</span><br><span class="line">&#123;&#125;</span><br></pre></td></tr></table></figure>
+<p>(3)设定方程类型及索引<br>根据方程类型设定是否是时间相关的，索引数是多少：</p>
+<figure class="highlight cpp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br></pre></td><td class="code"><pre><span class="line">currentFieldIndex=it-&gt;index;</span><br><span class="line"></span><br><span class="line"><span class="comment">//check if any time dependent fields present</span></span><br><span class="line"><span class="keyword">if</span> (it-&gt;pdetype==PARABOLIC)&#123;</span><br><span class="line">isTimeDependentBVP=<span class="literal">true</span>;</span><br><span class="line">parabolicFieldIndex=it-&gt;index;</span><br><span class="line">&#125;</span><br><span class="line"><span class="keyword">else</span> <span class="keyword">if</span> (it-&gt;pdetype==ELLIPTIC)&#123;</span><br><span class="line">isEllipticBVP=<span class="literal">true</span>;</span><br><span class="line">ellipticFieldIndex=it-&gt;index;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p>(4)创建有限单元<br>这里指定有限单元类型，即创建无矩阵对象的FESet属性，它是一个容器，里面的元素是FESystem，之所以用FESystem，也是为了能够处理矢量情形：</p>
+<figure class="highlight cpp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">if</span> (it-&gt;type==SCALAR)&#123;</span><br><span class="line">fe=<span class="keyword">new</span> FESystem&lt;dim&gt;(FE_Q&lt;dim&gt;(QGaussLobatto&lt;<span class="number">1</span>&gt;(finiteElementDegree+<span class="number">1</span>)),<span class="number">1</span>);</span><br><span class="line">&#125;</span><br><span class="line"><span class="keyword">else</span> <span class="keyword">if</span> (it-&gt;type==VECTOR)&#123;</span><br><span class="line">fe=<span class="keyword">new</span> FESystem&lt;dim&gt;(FE_Q&lt;dim&gt;(QGaussLobatto&lt;<span class="number">1</span>&gt;(finiteElementDegree+<span class="number">1</span>)),dim);</span><br><span class="line">&#125;</span><br><span class="line"><span class="keyword">else</span>&#123;</span><br><span class="line">pcout &lt;&lt; <span class="string">&quot;\nmatrixFreePDE.h: unknown field type\n&quot;</span>;</span><br><span class="line"><span class="built_in">exit</span>(<span class="number">-1</span>);</span><br><span class="line">&#125;</span><br><span class="line">FESet.<span class="built_in">push_back</span>(fe);</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p>(5)分配自由度<br>上一步创建了有限单元，这一步就要对它们分配自由度，当然先根据网格创建自由度管理器：</p>
+<figure class="highlight cpp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br></pre></td><td class="code"><pre><span class="line">DoFHandler&lt;dim&gt;* dof_handler;</span><br><span class="line"><span class="keyword">if</span> (iter==<span class="number">0</span>)&#123;</span><br><span class="line">  dof_handler=<span class="keyword">new</span> DoFHandler&lt;dim&gt;(triangulation);</span><br><span class="line">  dofHandlersSet.<span class="built_in">push_back</span>(dof_handler);</span><br><span class="line">  dofHandlersSet_nonconst.<span class="built_in">push_back</span>(dof_handler);</span><br><span class="line">&#125;</span><br><span class="line"><span class="keyword">else</span>&#123;</span><br><span class="line">  dof_handler=dofHandlersSet_nonconst.<span class="built_in">at</span>(it-&gt;index);</span><br><span class="line">&#125;</span><br><span class="line">dof_handler-&gt;<span class="built_in">distribute_dofs</span> (*fe);</span><br><span class="line">totalDOFs+=dof_handler-&gt;<span class="built_in">n_dofs</span>();</span><br></pre></td></tr></table></figure>
+<p>(6)对零通量和周期性边界条件施加限制<br>(7)施加Dirichlet边界条件，并存储其对应的自由度标识<br>(8)初始化MatrixFree对象</p>
+<figure class="highlight cpp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">typename</span> MatrixFree&lt;dim,<span class="keyword">double</span>&gt;::AdditionalData additional_data;</span><br><span class="line">additional_data.mpi_communicator = MPI_COMM_WORLD;</span><br><span class="line">additional_data.tasks_parallel_scheme = MatrixFree&lt;dim,<span class="keyword">double</span>&gt;::AdditionalData::partition_partition;</span><br><span class="line">additional_data.mapping_update_flags = (update_values | update_gradients | update_JxW_values | update_quadrature_points);</span><br><span class="line"><span class="function">QGaussLobatto&lt;1&gt; <span class="title">quadrature</span> <span class="params">(finiteElementDegree+<span class="number">1</span>)</span></span>;</span><br><span class="line">num_quadrature_points=std::<span class="built_in">pow</span>(quadrature.<span class="built_in">size</span>(),dim);</span><br><span class="line">matrixFreeObject.<span class="built_in">clear</span>();</span><br><span class="line">matrixFreeObject.<span class="built_in">reinit</span> (dofHandlersSet, constraintsOtherSet, quadrature, additional_data);</span><br></pre></td></tr></table></figure>
+<p>(9)初始化该问题的残差向量和解向量</p>
+<figure class="highlight cpp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">for</span>(<span class="keyword">unsigned</span> <span class="keyword">int</span> fieldIndex=<span class="number">0</span>; fieldIndex&lt;fields.<span class="built_in">size</span>(); fieldIndex++)&#123;</span><br><span class="line">  vectorType *U, *R;</span><br><span class="line">  <span class="keyword">if</span> (iter==<span class="number">0</span>)&#123;</span><br><span class="line">    U=<span class="keyword">new</span> vectorType; R=<span class="keyword">new</span> vectorType;</span><br><span class="line">    solutionSet.<span class="built_in">push_back</span>(U); residualSet.<span class="built_in">push_back</span>(R); </span><br><span class="line">    matrixFreeObject.<span class="built_in">initialize_dof_vector</span>(*R,  fieldIndex); *R=<span class="number">0</span>;</span><br><span class="line">  &#125;</span><br><span class="line">  <span class="keyword">else</span>&#123;</span><br><span class="line">    U=solutionSet.<span class="built_in">at</span>(fieldIndex); </span><br><span class="line">  &#125;</span><br><span class="line">  matrixFreeObject.<span class="built_in">initialize_dof_vector</span>(*U,  fieldIndex); *U=<span class="number">0</span>;</span><br></pre></td></tr></table></figure>
+<p>这里就引出了两个很重要的量：残差向量和解向量。两个都是容器，里面的元素是指向向量的指针。这两个向量的大小是问题包含的场的个数，具体到里面的每个元素，即每个场，其大小等于自由度的个数。注意：元素是个指针。<br>解向量和残差向量参与运算，是在computeRHS函数中进行,它们传入getRHS中：</p>
+<figure class="highlight cpp"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">matrixFreeObject.<span class="built_in">cell_loop</span> (&amp;MatrixFreePDE&lt;dim&gt;::getRHS, <span class="keyword">this</span>, residualSet, solutionSet);</span><br></pre></td></tr></table></figure>
+<p>computeRHS相当于step48中的apply函数，getRHS函数相当于step48中的local_apply函数。<br>(10)根据方程类型不同，初始化一些额外量<br>比如，针对椭圆型方程，计算dU值：</p>
+<figure class="highlight cpp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">if</span> (fields[fieldIndex].pdetype==ELLIPTIC)&#123;</span><br><span class="line">	 matrixFreeObject.<span class="built_in">initialize_dof_vector</span>(dU,  fieldIndex);</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p>因为这里的dU不是一个容器，所以仅能允许问题中有一个椭圆型方程。<br>针对抛物型方程，计算质量矩阵的倒数：</p>
+<figure class="highlight cpp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">if</span> (isTimeDependentBVP)&#123;</span><br><span class="line">  <span class="built_in">computeInvM</span>();</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p>(11)施加初始条件<br>根据输入文件中的初始条件进行设置：</p>
+<figure class="highlight cpp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">for</span> (<span class="keyword">unsigned</span> <span class="keyword">int</span> var_index=<span class="number">0</span>; var_index &lt; num_var; var_index++)&#123;</span><br><span class="line">  <span class="keyword">if</span> (var_type[var_index] == <span class="string">&quot;SCALAR&quot;</span>)&#123;</span><br><span class="line">    VectorTools::<span class="built_in">interpolate</span> (*<span class="keyword">this</span>-&gt;dofHandlersSet[fieldIndex], InitialCondition&lt;dim&gt;(var_index), *<span class="keyword">this</span>-&gt;solutionSet[fieldIndex]);</span><br><span class="line">    fieldIndex++;</span><br><span class="line">  &#125;</span><br><span class="line">  <span class="keyword">else</span> &#123;</span><br><span class="line">    VectorTools::<span class="built_in">interpolate</span> (*<span class="keyword">this</span>-&gt;dofHandlersSet[fieldIndex], InitialConditionVec&lt;dim&gt;(var_index), *<span class="keyword">this</span>-&gt;solutionSet[fieldIndex]);</span><br><span class="line">    fieldIndex += dim;</span><br><span class="line">&#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p>这里首先区分了标量场和矢量场，然后又因为同一种类型的场中会有多个场，所以还通过指标区分了浓度场、相场。结果就是将初始条件的函数场赋给了解向量。</p>
+<h2 id="求解"><a href="#求解" class="headerlink" title="求解"></a>求解</h2><p>求解过程也分了两种情形：时间相关的边值问题求解和时间无关的边值问题求解。<br>在计算时可以实现如下功能：<br>(1)输出计算结果</p>
+<figure class="highlight cpp"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"><span class="built_in">outputResults</span>();</span><br></pre></td></tr></table></figure>
+<p>(2)计算并输出自由能</p>
+<figure class="highlight cpp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line"><span class="built_in">computeEnergy</span>();                                            </span><br><span class="line"><span class="built_in">outputFreeEnergy</span>(freeEnergyValues);</span><br></pre></td></tr></table></figure>
+<p>(3)自适应网格</p>
+<figure class="highlight cpp"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"><span class="built_in">adaptiveRefine</span>(currentIncrement);</span><br></pre></td></tr></table></figure>
+<p>(4)逐步求解</p>
+<figure class="highlight cpp"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"><span class="built_in">solveIncrement</span>();</span><br></pre></td></tr></table></figure>
+<p>这步中包含计算右端项:</p>
+<figure class="highlight cpp"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"><span class="built_in">computeRHS</span>();</span><br></pre></td></tr></table></figure>
+<p>这里面的右端项的构建还是在输入文件中，该文件中的函数值及其偏导的命名与本身这个变量的表达式很相近，比如偏导或下标直接就写上，理解了这样的书写方式就很好读写了。注意这些表达式力的变量名要与文件开头定义的变量名对应。开头是r表示是剩余项，即residual。另外，这里用到了一个带参数的宏定义，用来将变量向量化，用于后续计算。<br>然后再与质量矩阵的倒数相乘得到最终结果。如果是椭圆型方程，是换用另一种方法直接求解。</p>
+<h1 id="计算结果"><a href="#计算结果" class="headerlink" title="计算结果"></a>计算结果</h1><p>如图：<br><img src="https://ws1.sinaimg.cn/large/0072Lfvtly1fvjhzxkp8ig30hs0f2n3y.gif"></p>
+<h1 id="后记"><a href="#后记" class="headerlink" title="后记"></a>后记</h1><p>(1) make debug 比 make release 严格很多，同时计算也更加慢，因为其要检查很多东西。<br>(2)prisms-pf的计算右端项时，将residualSet作为了dst，而deal.II的step48中是将solution作为dst，这个地方有些反直觉，但最终顺序没错，因为它在与质量矩阵的倒数相乘时用的是residualSet。</p>
+
+    </div>
+
+    
+    
+    
+        <div class="reward-container">
+  <div></div>
+  <button onclick="var qr = document.getElementById('qr'); qr.style.display = (qr.style.display === 'none') ? 'block' : 'none';">
+    Donate
+  </button>
+  <div id="qr" style="display: none;">
+      
+      <div style="display: inline-block;">
+        <img src="/images/wechat_reward.png" alt="Xin-Bo Qi(亓欣波) WeChat Pay">
+        <p>WeChat Pay</p>
+      </div>
+
+  </div>
+</div>
+
+
+      <footer class="post-footer">
+          <div class="post-tags">
+              <a href="/tags/deal-II/" rel="tag"># deal.II</a>
+              <a href="/tags/prisms/" rel="tag"># prisms</a>
+          </div>
+
+        
+
+
+        
+    <div class="post-nav">
+      <div class="post-nav-item">
+    <a href="/2016/12/01/prisms-phasefield-allencahn/" rel="prev" title="PRISMS-PF学习手册——AllenCahn方程求解">
+      <i class="fa fa-chevron-left"></i> PRISMS-PF学习手册——AllenCahn方程求解
+    </a></div>
+      <div class="post-nav-item">
+    <a href="/2016/12/16/prisms-pf-dendrite/" rel="next" title="使用PRISMS-PF模拟二维和三维枝晶生长">
+      使用PRISMS-PF模拟二维和三维枝晶生长 <i class="fa fa-chevron-right"></i>
+    </a></div>
+    </div>
+      </footer>
+    
+  </article>
+  
+  
+  
+
+
+
+          </div>
+          
+    
+  <div class="comments">
+    <div id="disqus_thread">
+      <noscript>Please enable JavaScript to view the comments powered by Disqus.</noscript>
+    </div>
+  </div>
+  
+
+<script>
+  window.addEventListener('tabs:register', () => {
+    let { activeClass } = CONFIG.comments;
+    if (CONFIG.comments.storage) {
+      activeClass = localStorage.getItem('comments_active') || activeClass;
+    }
+    if (activeClass) {
+      let activeTab = document.querySelector(`a[href="#comment-${activeClass}"]`);
+      if (activeTab) {
+        activeTab.click();
+      }
+    }
+  });
+  if (CONFIG.comments.storage) {
+    window.addEventListener('tabs:click', event => {
+      if (!event.target.matches('.tabs-comment .tab-content .tab-pane')) return;
+      let commentClass = event.target.classList[1];
+      localStorage.setItem('comments_active', commentClass);
+    });
+  }
+</script>
+
+        </div>
+          
+  
+  <div class="toggle sidebar-toggle">
+    <span class="toggle-line toggle-line-first"></span>
+    <span class="toggle-line toggle-line-middle"></span>
+    <span class="toggle-line toggle-line-last"></span>
+  </div>
+
+  <aside class="sidebar">
+    <div class="sidebar-inner">
+
+      <ul class="sidebar-nav motion-element">
+        <li class="sidebar-nav-toc">
+          Table of Contents
+        </li>
+        <li class="sidebar-nav-overview">
+          Overview
+        </li>
+      </ul>
+
+      <!--noindex-->
+      <div class="post-toc-wrap sidebar-panel">
+          <div class="post-toc motion-element"><ol class="nav"><li class="nav-item nav-level-1"><a class="nav-link" href="#%E5%BC%95%E5%AD%90"><span class="nav-number">1.</span> <span class="nav-text">引子</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#%E6%96%87%E4%BB%B6%E7%BB%93%E6%9E%84"><span class="nav-number">2.</span> <span class="nav-text">文件结构</span></a><ol class="nav-child"><li class="nav-item nav-level-2"><a class="nav-link" href="#%E5%9F%BA%E7%A1%80%E5%A4%B4%E6%96%87%E4%BB%B6"><span class="nav-number">2.1.</span> <span class="nav-text">基础头文件</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E6%97%A0%E7%9F%A9%E9%98%B5%E8%A7%A3%E7%9A%84%E6%A8%A1%E6%9D%BF%E7%B1%BB%E7%9A%84%E5%AE%9E%E7%8E%B0%E5%A4%B4%E6%96%87%E4%BB%B6"><span class="nav-number">2.2.</span> <span class="nav-text">无矩阵解的模板类的实现头文件</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E6%B1%82%E8%A7%A3%E6%A8%A1%E5%9E%8B"><span class="nav-number">2.3.</span> <span class="nav-text">求解模型</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E5%85%B7%E4%BD%93%E9%97%AE%E9%A2%98"><span class="nav-number">2.4.</span> <span class="nav-text">具体问题</span></a></li></ol></li><li class="nav-item nav-level-1"><a class="nav-link" href="#%E6%B1%82%E8%A7%A3%E6%B5%81%E7%A8%8B"><span class="nav-number">3.</span> <span class="nav-text">求解流程</span></a><ol class="nav-child"><li class="nav-item nav-level-2"><a class="nav-link" href="#%E6%9E%84%E9%80%A0%E5%87%BD%E6%95%B0%E5%88%9D%E5%A7%8B%E5%8C%96"><span class="nav-number">3.1.</span> <span class="nav-text">构造函数初始化</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E8%AE%BE%E5%AE%9A%E8%BE%B9%E7%95%8C%E6%9D%A1%E4%BB%B6"><span class="nav-number">3.2.</span> <span class="nav-text">设定边界条件</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E6%9E%84%E5%BB%BA%E5%9C%BA%E5%8F%98%E9%87%8F"><span class="nav-number">3.3.</span> <span class="nav-text">构建场变量</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E5%88%9D%E5%A7%8B%E5%8C%96"><span class="nav-number">3.4.</span> <span class="nav-text">初始化</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E6%B1%82%E8%A7%A3"><span class="nav-number">3.5.</span> <span class="nav-text">求解</span></a></li></ol></li><li class="nav-item nav-level-1"><a class="nav-link" href="#%E8%AE%A1%E7%AE%97%E7%BB%93%E6%9E%9C"><span class="nav-number">4.</span> <span class="nav-text">计算结果</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#%E5%90%8E%E8%AE%B0"><span class="nav-number">5.</span> <span class="nav-text">后记</span></a></li></ol></div>
+      </div>
+      <!--/noindex-->
+
+      <div class="site-overview-wrap sidebar-panel">
+        <div class="site-author motion-element" itemprop="author" itemscope itemtype="http://schema.org/Person">
+    <img class="site-author-image" itemprop="image" alt="Xin-Bo Qi(亓欣波)"
+      src="/images/avatar.jpg">
+  <p class="site-author-name" itemprop="name">Xin-Bo Qi(亓欣波)</p>
+  <div class="site-description" itemprop="description">Be interesting!</div>
+</div>
+<div class="site-state-wrap motion-element">
+  <nav class="site-state">
+      <div class="site-state-item site-state-posts">
+          <a href="/archives/">
+        
+          <span class="site-state-item-count">120</span>
+          <span class="site-state-item-name">posts</span>
+        </a>
+      </div>
+      <div class="site-state-item site-state-categories">
+            <a href="/categories/">
+          
+        <span class="site-state-item-count">5</span>
+        <span class="site-state-item-name">categories</span></a>
+      </div>
+      <div class="site-state-item site-state-tags">
+            <a href="/tags/">
+          
+        <span class="site-state-item-count">41</span>
+        <span class="site-state-item-name">tags</span></a>
+      </div>
+  </nav>
+</div>
+  <div class="links-of-author motion-element">
+      <span class="links-of-author-item">
+        <a href="https://github.com/qixinbo" title="GitHub → https:&#x2F;&#x2F;github.com&#x2F;qixinbo" rel="noopener" target="_blank"><i class="github fa-fw"></i>GitHub</a>
+      </span>
+      <span class="links-of-author-item">
+        <a href="mailto:qixinbo@gmail.com" title="E-Mail → mailto:qixinbo@gmail.com" rel="noopener" target="_blank"><i class="envelope fa-fw"></i>E-Mail</a>
+      </span>
+  </div>
+
+
+  <div class="links-of-blogroll motion-element">
+    <div class="links-of-blogroll-title"><i class="fa fa-link fa-fw"></i>
+      Links
+    </div>
+    <ul class="links-of-blogroll-list">
+        <li class="links-of-blogroll-item">
+          <a href="https://www.tsinghua.edu.cn/" title="https:&#x2F;&#x2F;www.tsinghua.edu.cn" rel="noopener" target="_blank">THU</a>
+        </li>
+        <li class="links-of-blogroll-item">
+          <a href="http://www.imr.cas.cn/" title="http:&#x2F;&#x2F;www.imr.cas.cn" rel="noopener" target="_blank">IMR</a>
+        </li>
+        <li class="links-of-blogroll-item">
+          <a href="http://www.sdu.edu.cn/" title="http:&#x2F;&#x2F;www.sdu.edu.cn" rel="noopener" target="_blank">SDU</a>
+        </li>
+        <li class="links-of-blogroll-item">
+          <a href="http://liam0205.me/" title="http:&#x2F;&#x2F;liam0205.me&#x2F;" rel="noopener" target="_blank">黄晨成</a>
+        </li>
+    </ul>
+  </div>
+
+      </div>
+
+    </div>
+  </aside>
+  <div id="sidebar-dimmer"></div>
+
+
+      </div>
+    </main>
+
+    <footer class="footer">
+      <div class="footer-inner">
+        
+
+        
+
+<div class="copyright">
+  
+  &copy; 
+  <span itemprop="copyrightYear">2021</span>
+  <span class="with-love">
+    <i class="fa fa-heart"></i>
+  </span>
+  <span class="author" itemprop="copyrightHolder">Xin-Bo Qi(亓欣波)</span>
+</div>
+  <div class="powered-by">Powered by <a href="https://hexo.io/" class="theme-link" rel="noopener" target="_blank">Hexo</a> & <a href="https://theme-next.org/" class="theme-link" rel="noopener" target="_blank">NexT.Gemini</a>
+  </div>
+
+        
+
+
+
+
+
+
+
+
+      </div>
+    </footer>
+  </div>
+
+  
+  <script src="/lib/anime.min.js"></script>
+  <script src="/lib/velocity/velocity.min.js"></script>
+  <script src="/lib/velocity/velocity.ui.min.js"></script>
+
+<script src="/js/utils.js"></script>
+
+<script src="/js/motion.js"></script>
+
+
+<script src="/js/schemes/pisces.js"></script>
+
+
+<script src="/js/next-boot.js"></script>
+
+
+
+
+  
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+  
+
+  
+
+  
+
+<script>
+  function loadCount() {
+    var d = document, s = d.createElement('script');
+    s.src = 'https://qixinbo.disqus.com/count.js';
+    s.id = 'dsq-count-scr';
+    (d.head || d.body).appendChild(s);
+  }
+  // defer loading until the whole page loading is completed
+  window.addEventListener('load', loadCount, false);
+</script>
+<script>
+  var disqus_config = function() {
+    this.page.url = "http://qixinbo.github.io/2016/12/16/prisms-pf-v1-CHAC/";
+    this.page.identifier = "2016/12/16/prisms-pf-v1-CHAC/";
+    this.page.title = "PRISMS-PF v1.0 学习手册——Cahn-Hilliard和Allen-Cahn方程耦合求解";
+    };
+  NexT.utils.loadComments(document.querySelector('#disqus_thread'), () => {
+    if (window.DISQUS) {
+      DISQUS.reset({
+        reload: true,
+        config: disqus_config
+      });
+    } else {
+      var d = document, s = d.createElement('script');
+      s.src = 'https://qixinbo.disqus.com/embed.js';
+      s.setAttribute('data-timestamp', '' + +new Date());
+      (d.head || d.body).appendChild(s);
+    }
+  });
+</script>
+
+</body>
+</html>

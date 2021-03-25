@@ -1,0 +1,558 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=2">
+<meta name="theme-color" content="#222">
+<meta name="generator" content="Hexo 5.4.0">
+  <link rel="apple-touch-icon" sizes="180x180" href="/images/apple-touch-icon-next.png">
+  <link rel="icon" type="image/png" sizes="32x32" href="/favicon.ico">
+  <link rel="icon" type="image/png" sizes="16x16" href="/favicon.ico">
+  <link rel="mask-icon" href="/images/logo.svg" color="#222">
+
+<link rel="stylesheet" href="/css/main.css">
+
+
+<link rel="stylesheet" href="/lib/font-awesome/css/all.min.css">
+
+<script id="hexo-configurations">
+    var NexT = window.NexT || {};
+    var CONFIG = {"hostname":"qixinbo.github.io","root":"/","scheme":"Gemini","version":"7.8.0","exturl":false,"sidebar":{"position":"left","display":"post","padding":18,"offset":12,"onmobile":false},"copycode":{"enable":false,"show_result":false,"style":null},"back2top":{"enable":true,"sidebar":false,"scrollpercent":false},"bookmark":{"enable":false,"color":"#222","save":"auto"},"fancybox":false,"mediumzoom":false,"lazyload":false,"pangu":false,"comments":{"style":"tabs","active":null,"storage":true,"lazyload":false,"nav":null},"algolia":{"hits":{"per_page":10},"labels":{"input_placeholder":"Search for Posts","hits_empty":"We didn't find any results for the search: ${query}","hits_stats":"${hits} results found in ${time} ms"}},"localsearch":{"enable":false,"trigger":"auto","top_n_per_article":1,"unescape":false,"preload":false},"motion":{"enable":true,"async":false,"transition":{"post_block":"fadeIn","post_header":"slideDownIn","post_body":"slideDownIn","coll_header":"slideLeftIn","sidebar":"slideUpIn"}}};
+  </script>
+
+  <meta name="description" content="本文是对Mathematica有限元分析与工程应用一书的学习笔记。 三角形单元适用于具有复杂和不规则边界形状的问题，是一种常见的网格离散方式。 双线性三角形单元局部坐标系之前的杆单元和桁架元的局部坐标系容易建立，即建在其自身上即可。而三角形单元的局部坐标系显然不能这样建立，其常采用一套无量纲的自然坐标系——面积坐标，如下图所示：三角形123内部有一任意点P，P与顶点1、2、3组成3个子三角形，每个">
+<meta property="og:type" content="article">
+<meta property="og:title" content="利用Mathematica进行有限元编程(三)：三角形单元分析">
+<meta property="og:url" content="http://qixinbo.github.io/2016/08/19/mathematica-fem-ch4/index.html">
+<meta property="og:site_name" content="亓欣波">
+<meta property="og:description" content="本文是对Mathematica有限元分析与工程应用一书的学习笔记。 三角形单元适用于具有复杂和不规则边界形状的问题，是一种常见的网格离散方式。 双线性三角形单元局部坐标系之前的杆单元和桁架元的局部坐标系容易建立，即建在其自身上即可。而三角形单元的局部坐标系显然不能这样建立，其常采用一套无量纲的自然坐标系——面积坐标，如下图所示：三角形123内部有一任意点P，P与顶点1、2、3组成3个子三角形，每个">
+<meta property="og:locale" content="en_US">
+<meta property="og:image" content="https://ws1.sinaimg.cn/large/0072Lfvtly1fvjjrmjerxj30c50890su.jpg">
+<meta property="og:image" content="https://ws1.sinaimg.cn/large/0072Lfvtly1fvjjryk2i9j30fa0a774i.jpg">
+<meta property="article:published_time" content="2016-08-18T16:00:00.000Z">
+<meta property="article:modified_time" content="2021-03-25T07:20:30.748Z">
+<meta property="article:author" content="Xin-Bo Qi(亓欣波)">
+<meta property="article:tag" content="mathematica">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:image" content="https://ws1.sinaimg.cn/large/0072Lfvtly1fvjjrmjerxj30c50890su.jpg">
+
+<link rel="canonical" href="http://qixinbo.github.io/2016/08/19/mathematica-fem-ch4/">
+
+
+<script id="page-configurations">
+  // https://hexo.io/docs/variables.html
+  CONFIG.page = {
+    sidebar: "",
+    isHome : false,
+    isPost : true,
+    lang   : 'en'
+  };
+</script>
+
+  <title>利用Mathematica进行有限元编程(三)：三角形单元分析 | 亓欣波</title>
+  
+
+
+
+
+
+
+  <noscript>
+  <style>
+  .use-motion .brand,
+  .use-motion .menu-item,
+  .sidebar-inner,
+  .use-motion .post-block,
+  .use-motion .pagination,
+  .use-motion .comments,
+  .use-motion .post-header,
+  .use-motion .post-body,
+  .use-motion .collection-header { opacity: initial; }
+
+  .use-motion .site-title,
+  .use-motion .site-subtitle {
+    opacity: initial;
+    top: initial;
+  }
+
+  .use-motion .logo-line-before i { left: initial; }
+  .use-motion .logo-line-after i { right: initial; }
+  </style>
+</noscript>
+
+</head>
+
+<body itemscope itemtype="http://schema.org/WebPage">
+  <div class="container use-motion">
+    <div class="headband"></div>
+
+    <header class="header" itemscope itemtype="http://schema.org/WPHeader">
+      <div class="header-inner"><div class="site-brand-container">
+  <div class="site-nav-toggle">
+    <div class="toggle" aria-label="Toggle navigation bar">
+      <span class="toggle-line toggle-line-first"></span>
+      <span class="toggle-line toggle-line-middle"></span>
+      <span class="toggle-line toggle-line-last"></span>
+    </div>
+  </div>
+
+  <div class="site-meta">
+
+    <a href="/" class="brand" rel="start">
+      <span class="logo-line-before"><i></i></span>
+      <h1 class="site-title">亓欣波</h1>
+      <span class="logo-line-after"><i></i></span>
+    </a>
+      <p class="site-subtitle" itemprop="description">Hi, I am Xin-Bo Qi (亓欣波)</p>
+  </div>
+
+  <div class="site-nav-right">
+    <div class="toggle popup-trigger">
+    </div>
+  </div>
+</div>
+
+
+
+
+<nav class="site-nav">
+  <ul id="menu" class="main-menu menu">
+        <li class="menu-item menu-item-home">
+
+    <a href="/" rel="section"><i class="home fa-fw"></i>Home</a>
+
+  </li>
+        <li class="menu-item menu-item-categories">
+
+    <a href="/categories/" rel="section"><i class="th fa-fw"></i>Categories</a>
+
+  </li>
+        <li class="menu-item menu-item-archives">
+
+    <a href="/archives/" rel="section"><i class="archive fa-fw"></i>Archives</a>
+
+  </li>
+        <li class="menu-item menu-item-tags">
+
+    <a href="/tags/" rel="section"><i class="tags fa-fw"></i>Tags</a>
+
+  </li>
+        <li class="menu-item menu-item-scholar">
+
+    <a href="/scholar/" rel="section"><i class="bar-chart fa-fw"></i>scholar</a>
+
+  </li>
+        <li class="menu-item menu-item-sources">
+
+    <a href="/sources/" rel="section"><i class="rss fa-fw"></i>sources</a>
+
+  </li>
+        <li class="menu-item menu-item-gallery">
+
+    <a href="/gallery/" rel="section"><i class="file-image-o fa-fw"></i>gallery</a>
+
+  </li>
+        <li class="menu-item menu-item-about">
+
+    <a href="/about/" rel="section"><i class="user fa-fw"></i>About</a>
+
+  </li>
+        <li class="menu-item menu-item-commonweal">
+
+    <a href="/404.html" rel="section"><i class="heartbeat fa-fw"></i>Commonweal 404</a>
+
+  </li>
+  </ul>
+</nav>
+
+
+
+
+</div>
+    </header>
+
+    
+  <div class="back-to-top">
+    <i class="fa fa-arrow-up"></i>
+    <span>0%</span>
+  </div>
+
+
+    <main class="main">
+      <div class="main-inner">
+        <div class="content-wrap">
+          
+
+          <div class="content post posts-expand">
+            
+
+    
+  
+  
+  <article itemscope itemtype="http://schema.org/Article" class="post-block" lang="en">
+    <link itemprop="mainEntityOfPage" href="http://qixinbo.github.io/2016/08/19/mathematica-fem-ch4/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="image" content="/images/avatar.jpg">
+      <meta itemprop="name" content="Xin-Bo Qi(亓欣波)">
+      <meta itemprop="description" content="Be interesting!">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="亓欣波">
+    </span>
+      <header class="post-header">
+        <h1 class="post-title" itemprop="name headline">
+          利用Mathematica进行有限元编程(三)：三角形单元分析
+        </h1>
+
+        <div class="post-meta">
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="far fa-calendar"></i>
+              </span>
+              <span class="post-meta-item-text">Posted on</span>
+
+              <time title="Created: 2016-08-19 00:00:00" itemprop="dateCreated datePublished" datetime="2016-08-19T00:00:00+08:00">2016-08-19</time>
+            </span>
+              <span class="post-meta-item">
+                <span class="post-meta-item-icon">
+                  <i class="far fa-calendar-check"></i>
+                </span>
+                <span class="post-meta-item-text">Edited on</span>
+                <time title="Modified: 2021-03-25 15:20:30" itemprop="dateModified" datetime="2021-03-25T15:20:30+08:00">2021-03-25</time>
+              </span>
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="far fa-folder"></i>
+              </span>
+              <span class="post-meta-item-text">In</span>
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+                  <a href="/categories/programming/" itemprop="url" rel="index"><span itemprop="name">programming</span></a>
+                </span>
+            </span>
+
+          
+  
+  <span class="post-meta-item">
+    
+      <span class="post-meta-item-icon">
+        <i class="far fa-comment"></i>
+      </span>
+      <span class="post-meta-item-text">Disqus: </span>
+    
+    <a title="disqus" href="/2016/08/19/mathematica-fem-ch4/#disqus_thread" itemprop="discussionUrl">
+      <span class="post-comments-count disqus-comment-count" data-disqus-identifier="2016/08/19/mathematica-fem-ch4/" itemprop="commentCount"></span>
+    </a>
+  </span>
+  
+  
+
+        </div>
+      </header>
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+        <p>本文是对<a target="_blank" rel="noopener" href="https://www.amazon.cn/Mathematica%E6%9C%89%E9%99%90%E5%85%83%E5%88%86%E6%9E%90%E4%B8%8E%E5%B7%A5%E7%A8%8B%E5%BA%94%E7%94%A8-%E9%B2%8D%E5%9B%9B%E5%85%83/dp/B00328IIOC">Mathematica有限元分析与工程应用</a>一书的学习笔记。</p>
+<p>三角形单元适用于具有复杂和不规则边界形状的问题，是一种常见的网格离散方式。</p>
+<h1 id="双线性三角形单元"><a href="#双线性三角形单元" class="headerlink" title="双线性三角形单元"></a>双线性三角形单元</h1><h2 id="局部坐标系"><a href="#局部坐标系" class="headerlink" title="局部坐标系"></a>局部坐标系</h2><p>之前的杆单元和桁架元的局部坐标系容易建立，即建在其自身上即可。而三角形单元的局部坐标系显然不能这样建立，其常采用一套无量纲的自然坐标系——面积坐标，如下图所示：<br><img src="https://ws1.sinaimg.cn/large/0072Lfvtly1fvjjrmjerxj30c50890su.jpg"><br>三角形123内部有一任意点P，P与顶点1、2、3组成3个子三角形，每个子三角形的面积与总面积之比记为$L_i$，即P点的面积坐标为$(L_1,L_2,L_3)$。<br>因为三个坐标相加为1，所以仅有两个独立的自然坐标，所以可以简记为：<br>$$(\xi,\eta,1-\xi-\eta)$$<br>注意到：面积坐标还有如下特点，在顶点1时，$\xi=1$，其他坐标为0。其他顶点亦同，见上图三个顶点处的坐标值。因此，面积坐标还有形函数的功能。即：<br>$$<br>N_1=L_1=\xi, N_2=L_2=\eta, N_3=L_3=1-\xi-\eta<br>$$<br>写成矩阵形式为:<br>$$<br>ShapeN=<br>\begin{bmatrix}<br>\xi \<br>\eta \<br>1-\xi-\eta<br>\end{bmatrix}<br>$$<br>在局部坐标系下形函数对$\xi,\eta$的偏导数为：<br>$$<br>DeriveN=<br>\begin{bmatrix}<br>\partial ShapeN^T/\partial\xi \<br>\partial ShapeN^T/\partial\eta<br>\end{bmatrix}<br>$$<br>代码为：</p>
+<figure class="highlight cpp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">ShapeN = &#123;xi, eta, <span class="number">1</span> - xi - eta&#125;;</span><br><span class="line">DeriveN = &#123;D[ShapeN, xi], D[ShapeN, eta]&#125;</span><br></pre></td></tr></table></figure>
+<p>结果为：</p>
+<figure class="highlight cpp"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">&#123;&#123;<span class="number">1</span>, <span class="number">0</span>, <span class="number">-1</span>&#125;, &#123;<span class="number">0</span>, <span class="number">1</span>, <span class="number">-1</span>&#125;&#125;</span><br></pre></td></tr></table></figure>
+<p>偏导数在不同坐标系下的变换：<br>$$<br>\begin{bmatrix}<br>\partial N_1/\partial\xi \<br>\partial N_1/\partial\eta<br>\end{bmatrix}<br>=<br>\begin{bmatrix}<br>\partial x/\partial\xi &amp; \partial y/\partial\xi \<br>\partial x/\partial\eta &amp; \partial y/\partial\eta<br>\end{bmatrix}<br>\begin{bmatrix}<br>\partial N_1/\partial x \<br>\partial N_1/\partial y<br>\end{bmatrix}<br>=J<br>\begin{bmatrix}<br>\partial N_1/\partial x \<br>\partial N_1/\partial y<br>\end{bmatrix}<br>$$<br>其中，J为Jacobian矩阵。在上式中，当局部坐标系中明确给定函数$N_1$时，等式的左侧可以求出。同时，当基于局部坐标系给出x和y的显式表达时，基于局部坐标系也可以给出Jacobian矩阵的显式表达。具体过程如下：<br>根据等参元的性质，基于局部坐标给出的标准形函数与整体坐标的形函数完全形同，则：<br>$$<br>\begin{equation}<br>\begin{split}<br>x&amp;=N_1 x_1+N_2 x_2 +N_3 x_3 \<br>y&amp;=N_1 y_1+N_2 y_2 +N_3 y_3<br>\end{split}<br>\end{equation}<br>$$<br>所以，Jacobian矩阵为：<br>$$<br>J=<br>\begin{bmatrix}<br>\partial x/\partial\xi &amp; \partial y/\partial\xi \<br>\partial x/\partial\eta &amp; \partial y/\partial\eta<br>\end{bmatrix}<br>=<br>\begin{bmatrix}<br>\sum\frac{\partial N_i}{\partial\xi}x_i &amp; \sum\frac{\partial N_i}{\partial\xi}y_i \<br>\sum\frac{\partial N_i}{\partial\eta}x_i &amp; \sum\frac{\partial N_i}{\partial\eta}y_i<br>\end{bmatrix}<br>=<br>\begin{bmatrix}<br>\frac{\partial N_1}{\partial\xi} &amp; \frac{\partial N_2}{\partial\xi} &amp; \frac{\partial N_3}{\partial\xi} \<br>\frac{\partial N_1}{\partial\eta} &amp; \frac{\partial N_2}{\partial\eta} &amp; \frac{\partial N_3}{\partial\eta}<br>\end{bmatrix}<br>\begin{bmatrix}<br>x_1 &amp; y_1 \<br>x_2 &amp; y_2 \<br>x_3 &amp; y_3<br>\end{bmatrix}<br>$$<br>具体到这里使用的面积坐标，则有：<br>$$<br>\begin{equation}<br>\begin{split}<br>x&amp;=N_1 x_1+N_2 x_2 +N_3 x_3=\xi(x_1-x_3)+\eta(x_2-x_3)+x_3 \<br>y&amp;=N_1 y_1+N_2 y_2 +N_3 y_3=\xi(y_1-y_3)+\eta(y_2-y_3)+y_3<br>\end{split}<br>\end{equation}<br>$$<br>所以：<br>$$<br>J=<br>\begin{bmatrix}<br>x_1-x_3 &amp; y_1-y_3 \<br>x_2-x_3 &amp; y_2-y_3<br>\end{bmatrix}<br>$$</p>
+<p>Jacobian矩阵的逆变换为：<br>$$<br>\begin{bmatrix}<br>\partial/\partial x \<br>\partial/\partial y<br>\end{bmatrix}<br>=J^{-1}<br>\begin{bmatrix}<br>\partial/\partial\xi \<br>\partial/\partial\eta<br>\end{bmatrix}<br>$$<br>而Jacobian行列式则为：<br>$$<br>|J|=<br>\begin{vmatrix}<br>\partial x/\partial\xi &amp; \partial y/\partial\xi \<br>\partial x/\partial\eta &amp; \partial y/\partial\eta<br>\end{vmatrix}<br>=\frac{\partial x}{\partial\xi}\frac{\partial y}{\partial\eta}-\frac{\partial y}{\partial\xi}\frac{\partial x}{\partial\eta}<br>$$<br>在求解刚度矩阵时，所对应的积分中要用到此行列式。积分过程中的变量和区域需要进行变换：<br>$$<br>dxdy=|J|d\xi d\eta<br>$$</p>
+<p>Jacobian矩阵的逆矩阵和行列式则可以通过Inverse和Det命令求得。</p>
+<h2 id="应力应变矩阵"><a href="#应力应变矩阵" class="headerlink" title="应力应变矩阵"></a>应力应变矩阵</h2><p>对平面应力问题，应力应变矩阵D为：<br>$$<br>D=\frac{E}{1-\nu^2}<br>\begin{bmatrix}<br>1 &amp; \nu &amp; 0 \<br>\nu &amp; 1 &amp; 0 \<br>0 &amp; 0 &amp; (1-\nu)/2<br>\end{bmatrix}<br>$$<br>对平面应变问题，应力应变矩阵D为：<br>$$<br>D=\frac{E}{(1+\nu)(1-2\nu)}<br>\begin{bmatrix}<br>1-\nu &amp; \nu &amp; 0 \<br>\nu &amp; 1-\nu &amp; 0 \<br>0 &amp; 0 &amp; (1-2\nu)/2<br>\end{bmatrix}<br>$$</p>
+<h2 id="应变位移矩阵"><a href="#应变位移矩阵" class="headerlink" title="应变位移矩阵"></a>应变位移矩阵</h2><p>应变、位移的关系为：<br>$$<br>\epsilon=<br>\begin{bmatrix}<br>\frac{\partial}{\partial x} &amp; 0 \<br>0 &amp; \frac{\partial}{\partial y} \<br>\frac{\partial}{\partial y} &amp; \frac{\partial}{\partial x}<br>\end{bmatrix}<br>\begin{bmatrix}<br>u \<br>v<br>\end{bmatrix}<br>$$<br>代入位移函数表达式，可得：<br>$$<br>\epsilon=Ba=<br>\begin{bmatrix}<br>B_1 &amp; B_2 &amp; B_3<br>\end{bmatrix}<br>\begin{bmatrix}<br>a_1 \<br>a_2 \<br>a_3<br>\end{bmatrix}<br>$$<br>其中应变位移矩阵的一部分为：<br>$$<br>B1=<br>\begin{bmatrix}<br>\frac{\partial N_1}{\partial x} &amp; 0 \<br>0 &amp; \frac{\partial N_1}{\partial y} \<br>\frac{\partial N_1}{\partial y} &amp; \frac{\partial N_1}{\partial x}<br>\end{bmatrix}<br>$$</p>
+<h2 id="单元刚度矩阵"><a href="#单元刚度矩阵" class="headerlink" title="单元刚度矩阵"></a>单元刚度矩阵</h2><p>根据最小势能原理，求得单元刚度矩阵表达式：<br>$$<br>K=\int_0^1\int_0^{1-\eta}B^TDBt|J|d\xi d\eta<br>$$</p>
+<h2 id="模块分析"><a href="#模块分析" class="headerlink" title="模块分析"></a>模块分析</h2><h3 id="建立单元刚度矩阵"><a href="#建立单元刚度矩阵" class="headerlink" title="建立单元刚度矩阵"></a>建立单元刚度矩阵</h3><figure class="highlight cpp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br></pre></td><td class="code"><pre><span class="line">GenerateLinearTriangKm[cord_] := Module[&#123;Bmatrix, DeriveN, J, km&#125;,</span><br><span class="line">      n1 = xi; n2 = eta; n3 = <span class="number">1</span> - xi - eta;</span><br><span class="line">  bdv = &#123;&#123;<span class="number">1</span>, <span class="number">0</span>, <span class="number">-1</span>&#125;, &#123;<span class="number">0</span>, <span class="number">1</span>, <span class="number">-1</span>&#125;&#125;;(*这里是局部坐标系下的偏导数*)</span><br><span class="line">  J = bdv.cord;(*求解Jacobian矩阵*)</span><br><span class="line">  bdv = Simplify[Inverse[J].bdv];(*转换成整体坐标系下的偏导数*)</span><br><span class="line">  Bmatrix = &#123;&#123;bdv[[<span class="number">1</span>, <span class="number">1</span>]], <span class="number">0</span>, bdv[[<span class="number">1</span>, <span class="number">2</span>]], <span class="number">0</span>, bdv[[<span class="number">1</span>, <span class="number">3</span>]], <span class="number">0</span>&#125;, &#123;<span class="number">0</span>, </span><br><span class="line">              bdv[[<span class="number">2</span>, <span class="number">1</span>]], <span class="number">0</span>, bdv[[<span class="number">2</span>, <span class="number">2</span>]], <span class="number">0</span>, bdv[[<span class="number">2</span>, <span class="number">3</span>]]&#125;, &#123;bdv[[<span class="number">2</span>, <span class="number">1</span>]], </span><br><span class="line">              bdv[[<span class="number">1</span>, <span class="number">1</span>]], bdv[[<span class="number">2</span>, <span class="number">2</span>]], bdv[[<span class="number">1</span>, <span class="number">2</span>]], bdv[[<span class="number">2</span>, <span class="number">3</span>]], bdv[[<span class="number">1</span>, <span class="number">3</span>]]&#125;&#125;;</span><br><span class="line">  Dmatrix = </span><br><span class="line">     ee/(<span class="number">1</span> - nu*nu) &#123;&#123;<span class="number">1</span>, nu, <span class="number">0</span>&#125;, &#123;nu, <span class="number">1</span>, <span class="number">0</span>&#125;, &#123;<span class="number">0</span>, <span class="number">0</span>, (<span class="number">1</span> - nu)/<span class="number">2</span>&#125;&#125;;</span><br><span class="line">  km = h Integrate[</span><br><span class="line">       Det[J] (Transpose[Bmatrix].Dmatrix.Bmatrix), &#123;xi, <span class="number">0</span>, <span class="number">1</span>&#125;, &#123;eta, <span class="number">0</span>,</span><br><span class="line">                  <span class="number">1</span> - xi&#125;]</span><br><span class="line">                    ]</span><br></pre></td></tr></table></figure>
+<h3 id="组装刚度矩阵"><a href="#组装刚度矩阵" class="headerlink" title="组装刚度矩阵"></a>组装刚度矩阵</h3><figure class="highlight cpp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br></pre></td><td class="code"><pre><span class="line">AssembleLinearTriangKm[p1_, p2_, p3_, m_] := </span><br><span class="line"> Module[&#123;f&#125;, f = &#123;p1, p2, p3&#125;;</span><br><span class="line">  For[j = <span class="number">1</span>, j &lt;= <span class="number">3</span>, j++, For[k = <span class="number">1</span>, k &lt;= <span class="number">3</span>, k++,</span><br><span class="line">      GlobalK[[<span class="number">2</span> f[[j]], <span class="number">2</span> f[[k]]]] += m[[<span class="number">2</span> j, <span class="number">2</span> k]];</span><br><span class="line">      GlobalK[[<span class="number">2</span> f[[j]] - <span class="number">1</span>, <span class="number">2</span> f[[k]]]] += m[[<span class="number">2</span> j - <span class="number">1</span>, <span class="number">2</span> k]];</span><br><span class="line">      GlobalK[[<span class="number">2</span> f[[j]], <span class="number">2</span> f[[k]] - <span class="number">1</span>]] += m[[<span class="number">2</span> j, <span class="number">2</span> k - <span class="number">1</span>]];</span><br><span class="line">      GlobalK[[<span class="number">2</span> f[[j]] - <span class="number">1</span>, <span class="number">2</span> f[[k]] - <span class="number">1</span>]] += m[[<span class="number">2</span> j - <span class="number">1</span>, <span class="number">2</span> k - <span class="number">1</span>]];</span><br><span class="line">      ]];</span><br><span class="line">  GlobalK]</span><br></pre></td></tr></table></figure>
+<p>这里注意矩阵带不带Matrixform在计算时有很大区别。<br>注意这里的循环次数为3,是因为每个单元有3个节点。</p>
+<h1 id="二次三角形单元"><a href="#二次三角形单元" class="headerlink" title="二次三角形单元"></a>二次三角形单元</h1><p>二次三角形单元就是在每条边上还各有一个节点，如图：<br><img src="https://ws1.sinaimg.cn/large/0072Lfvtly1fvjjryk2i9j30fa0a774i.jpg"><br>具体分析过程跟双线性三角形单元相同，只不过形函数更加复杂。且在组装总刚时循环系数为6。</p>
+
+    </div>
+
+    
+    
+    
+        <div class="reward-container">
+  <div></div>
+  <button onclick="var qr = document.getElementById('qr'); qr.style.display = (qr.style.display === 'none') ? 'block' : 'none';">
+    Donate
+  </button>
+  <div id="qr" style="display: none;">
+      
+      <div style="display: inline-block;">
+        <img src="/images/wechat_reward.png" alt="Xin-Bo Qi(亓欣波) WeChat Pay">
+        <p>WeChat Pay</p>
+      </div>
+
+  </div>
+</div>
+
+
+      <footer class="post-footer">
+          <div class="post-tags">
+              <a href="/tags/mathematica/" rel="tag"># mathematica</a>
+          </div>
+
+        
+
+
+        
+    <div class="post-nav">
+      <div class="post-nav-item">
+    <a href="/2016/08/18/mathematica-fem-ch3/" rel="prev" title="利用Mathematica进行有限元编程(二)：桁架元分析">
+      <i class="fa fa-chevron-left"></i> 利用Mathematica进行有限元编程(二)：桁架元分析
+    </a></div>
+      <div class="post-nav-item">
+    <a href="/2016/08/25/dealii-learn-step3/" rel="next" title="求解偏微分方程开源有限元软件deal.II学习--Step 3">
+      求解偏微分方程开源有限元软件deal.II学习--Step 3 <i class="fa fa-chevron-right"></i>
+    </a></div>
+    </div>
+      </footer>
+    
+  </article>
+  
+  
+  
+
+
+
+          </div>
+          
+    
+  <div class="comments">
+    <div id="disqus_thread">
+      <noscript>Please enable JavaScript to view the comments powered by Disqus.</noscript>
+    </div>
+  </div>
+  
+
+<script>
+  window.addEventListener('tabs:register', () => {
+    let { activeClass } = CONFIG.comments;
+    if (CONFIG.comments.storage) {
+      activeClass = localStorage.getItem('comments_active') || activeClass;
+    }
+    if (activeClass) {
+      let activeTab = document.querySelector(`a[href="#comment-${activeClass}"]`);
+      if (activeTab) {
+        activeTab.click();
+      }
+    }
+  });
+  if (CONFIG.comments.storage) {
+    window.addEventListener('tabs:click', event => {
+      if (!event.target.matches('.tabs-comment .tab-content .tab-pane')) return;
+      let commentClass = event.target.classList[1];
+      localStorage.setItem('comments_active', commentClass);
+    });
+  }
+</script>
+
+        </div>
+          
+  
+  <div class="toggle sidebar-toggle">
+    <span class="toggle-line toggle-line-first"></span>
+    <span class="toggle-line toggle-line-middle"></span>
+    <span class="toggle-line toggle-line-last"></span>
+  </div>
+
+  <aside class="sidebar">
+    <div class="sidebar-inner">
+
+      <ul class="sidebar-nav motion-element">
+        <li class="sidebar-nav-toc">
+          Table of Contents
+        </li>
+        <li class="sidebar-nav-overview">
+          Overview
+        </li>
+      </ul>
+
+      <!--noindex-->
+      <div class="post-toc-wrap sidebar-panel">
+          <div class="post-toc motion-element"><ol class="nav"><li class="nav-item nav-level-1"><a class="nav-link" href="#%E5%8F%8C%E7%BA%BF%E6%80%A7%E4%B8%89%E8%A7%92%E5%BD%A2%E5%8D%95%E5%85%83"><span class="nav-number">1.</span> <span class="nav-text">双线性三角形单元</span></a><ol class="nav-child"><li class="nav-item nav-level-2"><a class="nav-link" href="#%E5%B1%80%E9%83%A8%E5%9D%90%E6%A0%87%E7%B3%BB"><span class="nav-number">1.1.</span> <span class="nav-text">局部坐标系</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E5%BA%94%E5%8A%9B%E5%BA%94%E5%8F%98%E7%9F%A9%E9%98%B5"><span class="nav-number">1.2.</span> <span class="nav-text">应力应变矩阵</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E5%BA%94%E5%8F%98%E4%BD%8D%E7%A7%BB%E7%9F%A9%E9%98%B5"><span class="nav-number">1.3.</span> <span class="nav-text">应变位移矩阵</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E5%8D%95%E5%85%83%E5%88%9A%E5%BA%A6%E7%9F%A9%E9%98%B5"><span class="nav-number">1.4.</span> <span class="nav-text">单元刚度矩阵</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E6%A8%A1%E5%9D%97%E5%88%86%E6%9E%90"><span class="nav-number">1.5.</span> <span class="nav-text">模块分析</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#%E5%BB%BA%E7%AB%8B%E5%8D%95%E5%85%83%E5%88%9A%E5%BA%A6%E7%9F%A9%E9%98%B5"><span class="nav-number">1.5.1.</span> <span class="nav-text">建立单元刚度矩阵</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E7%BB%84%E8%A3%85%E5%88%9A%E5%BA%A6%E7%9F%A9%E9%98%B5"><span class="nav-number">1.5.2.</span> <span class="nav-text">组装刚度矩阵</span></a></li></ol></li></ol></li><li class="nav-item nav-level-1"><a class="nav-link" href="#%E4%BA%8C%E6%AC%A1%E4%B8%89%E8%A7%92%E5%BD%A2%E5%8D%95%E5%85%83"><span class="nav-number">2.</span> <span class="nav-text">二次三角形单元</span></a></li></ol></div>
+      </div>
+      <!--/noindex-->
+
+      <div class="site-overview-wrap sidebar-panel">
+        <div class="site-author motion-element" itemprop="author" itemscope itemtype="http://schema.org/Person">
+    <img class="site-author-image" itemprop="image" alt="Xin-Bo Qi(亓欣波)"
+      src="/images/avatar.jpg">
+  <p class="site-author-name" itemprop="name">Xin-Bo Qi(亓欣波)</p>
+  <div class="site-description" itemprop="description">Be interesting!</div>
+</div>
+<div class="site-state-wrap motion-element">
+  <nav class="site-state">
+      <div class="site-state-item site-state-posts">
+          <a href="/archives/">
+        
+          <span class="site-state-item-count">120</span>
+          <span class="site-state-item-name">posts</span>
+        </a>
+      </div>
+      <div class="site-state-item site-state-categories">
+            <a href="/categories/">
+          
+        <span class="site-state-item-count">5</span>
+        <span class="site-state-item-name">categories</span></a>
+      </div>
+      <div class="site-state-item site-state-tags">
+            <a href="/tags/">
+          
+        <span class="site-state-item-count">41</span>
+        <span class="site-state-item-name">tags</span></a>
+      </div>
+  </nav>
+</div>
+  <div class="links-of-author motion-element">
+      <span class="links-of-author-item">
+        <a href="https://github.com/qixinbo" title="GitHub → https:&#x2F;&#x2F;github.com&#x2F;qixinbo" rel="noopener" target="_blank"><i class="github fa-fw"></i>GitHub</a>
+      </span>
+      <span class="links-of-author-item">
+        <a href="mailto:qixinbo@gmail.com" title="E-Mail → mailto:qixinbo@gmail.com" rel="noopener" target="_blank"><i class="envelope fa-fw"></i>E-Mail</a>
+      </span>
+  </div>
+
+
+  <div class="links-of-blogroll motion-element">
+    <div class="links-of-blogroll-title"><i class="fa fa-link fa-fw"></i>
+      Links
+    </div>
+    <ul class="links-of-blogroll-list">
+        <li class="links-of-blogroll-item">
+          <a href="https://www.tsinghua.edu.cn/" title="https:&#x2F;&#x2F;www.tsinghua.edu.cn" rel="noopener" target="_blank">THU</a>
+        </li>
+        <li class="links-of-blogroll-item">
+          <a href="http://www.imr.cas.cn/" title="http:&#x2F;&#x2F;www.imr.cas.cn" rel="noopener" target="_blank">IMR</a>
+        </li>
+        <li class="links-of-blogroll-item">
+          <a href="http://www.sdu.edu.cn/" title="http:&#x2F;&#x2F;www.sdu.edu.cn" rel="noopener" target="_blank">SDU</a>
+        </li>
+        <li class="links-of-blogroll-item">
+          <a href="http://liam0205.me/" title="http:&#x2F;&#x2F;liam0205.me&#x2F;" rel="noopener" target="_blank">黄晨成</a>
+        </li>
+    </ul>
+  </div>
+
+      </div>
+
+    </div>
+  </aside>
+  <div id="sidebar-dimmer"></div>
+
+
+      </div>
+    </main>
+
+    <footer class="footer">
+      <div class="footer-inner">
+        
+
+        
+
+<div class="copyright">
+  
+  &copy; 
+  <span itemprop="copyrightYear">2021</span>
+  <span class="with-love">
+    <i class="fa fa-heart"></i>
+  </span>
+  <span class="author" itemprop="copyrightHolder">Xin-Bo Qi(亓欣波)</span>
+</div>
+  <div class="powered-by">Powered by <a href="https://hexo.io/" class="theme-link" rel="noopener" target="_blank">Hexo</a> & <a href="https://theme-next.org/" class="theme-link" rel="noopener" target="_blank">NexT.Gemini</a>
+  </div>
+
+        
+
+
+
+
+
+
+
+
+      </div>
+    </footer>
+  </div>
+
+  
+  <script src="/lib/anime.min.js"></script>
+  <script src="/lib/velocity/velocity.min.js"></script>
+  <script src="/lib/velocity/velocity.ui.min.js"></script>
+
+<script src="/js/utils.js"></script>
+
+<script src="/js/motion.js"></script>
+
+
+<script src="/js/schemes/pisces.js"></script>
+
+
+<script src="/js/next-boot.js"></script>
+
+
+
+
+  
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+  
+
+  
+
+  
+
+<script>
+  function loadCount() {
+    var d = document, s = d.createElement('script');
+    s.src = 'https://qixinbo.disqus.com/count.js';
+    s.id = 'dsq-count-scr';
+    (d.head || d.body).appendChild(s);
+  }
+  // defer loading until the whole page loading is completed
+  window.addEventListener('load', loadCount, false);
+</script>
+<script>
+  var disqus_config = function() {
+    this.page.url = "http://qixinbo.github.io/2016/08/19/mathematica-fem-ch4/";
+    this.page.identifier = "2016/08/19/mathematica-fem-ch4/";
+    this.page.title = "利用Mathematica进行有限元编程(三)：三角形单元分析";
+    };
+  NexT.utils.loadComments(document.querySelector('#disqus_thread'), () => {
+    if (window.DISQUS) {
+      DISQUS.reset({
+        reload: true,
+        config: disqus_config
+      });
+    } else {
+      var d = document, s = d.createElement('script');
+      s.src = 'https://qixinbo.disqus.com/embed.js';
+      s.setAttribute('data-timestamp', '' + +new Date());
+      (d.head || d.body).appendChild(s);
+    }
+  });
+</script>
+
+</body>
+</html>

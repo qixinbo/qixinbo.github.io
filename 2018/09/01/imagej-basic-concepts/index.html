@@ -1,0 +1,572 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=2">
+<meta name="theme-color" content="#222">
+<meta name="generator" content="Hexo 5.4.0">
+  <link rel="apple-touch-icon" sizes="180x180" href="/images/apple-touch-icon-next.png">
+  <link rel="icon" type="image/png" sizes="32x32" href="/favicon.ico">
+  <link rel="icon" type="image/png" sizes="16x16" href="/favicon.ico">
+  <link rel="mask-icon" href="/images/logo.svg" color="#222">
+
+<link rel="stylesheet" href="/css/main.css">
+
+
+<link rel="stylesheet" href="/lib/font-awesome/css/all.min.css">
+
+<script id="hexo-configurations">
+    var NexT = window.NexT || {};
+    var CONFIG = {"hostname":"qixinbo.github.io","root":"/","scheme":"Gemini","version":"7.8.0","exturl":false,"sidebar":{"position":"left","display":"post","padding":18,"offset":12,"onmobile":false},"copycode":{"enable":false,"show_result":false,"style":null},"back2top":{"enable":true,"sidebar":false,"scrollpercent":false},"bookmark":{"enable":false,"color":"#222","save":"auto"},"fancybox":false,"mediumzoom":false,"lazyload":false,"pangu":false,"comments":{"style":"tabs","active":null,"storage":true,"lazyload":false,"nav":null},"algolia":{"hits":{"per_page":10},"labels":{"input_placeholder":"Search for Posts","hits_empty":"We didn't find any results for the search: ${query}","hits_stats":"${hits} results found in ${time} ms"}},"localsearch":{"enable":false,"trigger":"auto","top_n_per_article":1,"unescape":false,"preload":false},"motion":{"enable":true,"async":false,"transition":{"post_block":"fadeIn","post_header":"slideDownIn","post_body":"slideDownIn","coll_header":"slideLeftIn","sidebar":"slideUpIn"}}};
+  </script>
+
+  <meta name="description" content="本章说明这一章主要介绍ImageJ的一些基本概念。 快捷键ImageJ的快捷键在菜单中都有提示，且区分大小写，比如大写的A表示”Shift+A”。同时还要注意查看”Edit-Options-Misc-Require control key for shortcuts”是否勾选，如果未勾选，则快捷键不用按ctrl。查看所有的快捷键：Plugins-Shortcuts-List shortcutsIm">
+<meta property="og:type" content="article">
+<meta property="og:title" content="ImageJ 用户指南 -- 2. 基本概念">
+<meta property="og:url" content="http://qixinbo.github.io/2018/09/01/imagej-basic-concepts/index.html">
+<meta property="og:site_name" content="亓欣波">
+<meta property="og:description" content="本章说明这一章主要介绍ImageJ的一些基本概念。 快捷键ImageJ的快捷键在菜单中都有提示，且区分大小写，比如大写的A表示”Shift+A”。同时还要注意查看”Edit-Options-Misc-Require control key for shortcuts”是否勾选，如果未勾选，则快捷键不用按ctrl。查看所有的快捷键：Plugins-Shortcuts-List shortcutsIm">
+<meta property="og:locale" content="en_US">
+<meta property="article:published_time" content="2018-08-31T16:00:00.000Z">
+<meta property="article:modified_time" content="2021-03-25T07:20:30.632Z">
+<meta property="article:author" content="Xin-Bo Qi(亓欣波)">
+<meta property="article:tag" content="ImageJ">
+<meta name="twitter:card" content="summary">
+
+<link rel="canonical" href="http://qixinbo.github.io/2018/09/01/imagej-basic-concepts/">
+
+
+<script id="page-configurations">
+  // https://hexo.io/docs/variables.html
+  CONFIG.page = {
+    sidebar: "",
+    isHome : false,
+    isPost : true,
+    lang   : 'en'
+  };
+</script>
+
+  <title>ImageJ 用户指南 -- 2. 基本概念 | 亓欣波</title>
+  
+
+
+
+
+
+
+  <noscript>
+  <style>
+  .use-motion .brand,
+  .use-motion .menu-item,
+  .sidebar-inner,
+  .use-motion .post-block,
+  .use-motion .pagination,
+  .use-motion .comments,
+  .use-motion .post-header,
+  .use-motion .post-body,
+  .use-motion .collection-header { opacity: initial; }
+
+  .use-motion .site-title,
+  .use-motion .site-subtitle {
+    opacity: initial;
+    top: initial;
+  }
+
+  .use-motion .logo-line-before i { left: initial; }
+  .use-motion .logo-line-after i { right: initial; }
+  </style>
+</noscript>
+
+</head>
+
+<body itemscope itemtype="http://schema.org/WebPage">
+  <div class="container use-motion">
+    <div class="headband"></div>
+
+    <header class="header" itemscope itemtype="http://schema.org/WPHeader">
+      <div class="header-inner"><div class="site-brand-container">
+  <div class="site-nav-toggle">
+    <div class="toggle" aria-label="Toggle navigation bar">
+      <span class="toggle-line toggle-line-first"></span>
+      <span class="toggle-line toggle-line-middle"></span>
+      <span class="toggle-line toggle-line-last"></span>
+    </div>
+  </div>
+
+  <div class="site-meta">
+
+    <a href="/" class="brand" rel="start">
+      <span class="logo-line-before"><i></i></span>
+      <h1 class="site-title">亓欣波</h1>
+      <span class="logo-line-after"><i></i></span>
+    </a>
+      <p class="site-subtitle" itemprop="description">Hi, I am Xin-Bo Qi (亓欣波)</p>
+  </div>
+
+  <div class="site-nav-right">
+    <div class="toggle popup-trigger">
+    </div>
+  </div>
+</div>
+
+
+
+
+<nav class="site-nav">
+  <ul id="menu" class="main-menu menu">
+        <li class="menu-item menu-item-home">
+
+    <a href="/" rel="section"><i class="home fa-fw"></i>Home</a>
+
+  </li>
+        <li class="menu-item menu-item-categories">
+
+    <a href="/categories/" rel="section"><i class="th fa-fw"></i>Categories</a>
+
+  </li>
+        <li class="menu-item menu-item-archives">
+
+    <a href="/archives/" rel="section"><i class="archive fa-fw"></i>Archives</a>
+
+  </li>
+        <li class="menu-item menu-item-tags">
+
+    <a href="/tags/" rel="section"><i class="tags fa-fw"></i>Tags</a>
+
+  </li>
+        <li class="menu-item menu-item-scholar">
+
+    <a href="/scholar/" rel="section"><i class="bar-chart fa-fw"></i>scholar</a>
+
+  </li>
+        <li class="menu-item menu-item-sources">
+
+    <a href="/sources/" rel="section"><i class="rss fa-fw"></i>sources</a>
+
+  </li>
+        <li class="menu-item menu-item-gallery">
+
+    <a href="/gallery/" rel="section"><i class="file-image-o fa-fw"></i>gallery</a>
+
+  </li>
+        <li class="menu-item menu-item-about">
+
+    <a href="/about/" rel="section"><i class="user fa-fw"></i>About</a>
+
+  </li>
+        <li class="menu-item menu-item-commonweal">
+
+    <a href="/404.html" rel="section"><i class="heartbeat fa-fw"></i>Commonweal 404</a>
+
+  </li>
+  </ul>
+</nav>
+
+
+
+
+</div>
+    </header>
+
+    
+  <div class="back-to-top">
+    <i class="fa fa-arrow-up"></i>
+    <span>0%</span>
+  </div>
+
+
+    <main class="main">
+      <div class="main-inner">
+        <div class="content-wrap">
+          
+
+          <div class="content post posts-expand">
+            
+
+    
+  
+  
+  <article itemscope itemtype="http://schema.org/Article" class="post-block" lang="en">
+    <link itemprop="mainEntityOfPage" href="http://qixinbo.github.io/2018/09/01/imagej-basic-concepts/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="image" content="/images/avatar.jpg">
+      <meta itemprop="name" content="Xin-Bo Qi(亓欣波)">
+      <meta itemprop="description" content="Be interesting!">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="亓欣波">
+    </span>
+      <header class="post-header">
+        <h1 class="post-title" itemprop="name headline">
+          ImageJ 用户指南 -- 2. 基本概念
+        </h1>
+
+        <div class="post-meta">
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="far fa-calendar"></i>
+              </span>
+              <span class="post-meta-item-text">Posted on</span>
+
+              <time title="Created: 2018-09-01 00:00:00" itemprop="dateCreated datePublished" datetime="2018-09-01T00:00:00+08:00">2018-09-01</time>
+            </span>
+              <span class="post-meta-item">
+                <span class="post-meta-item-icon">
+                  <i class="far fa-calendar-check"></i>
+                </span>
+                <span class="post-meta-item-text">Edited on</span>
+                <time title="Modified: 2021-03-25 15:20:30" itemprop="dateModified" datetime="2021-03-25T15:20:30+08:00">2021-03-25</time>
+              </span>
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="far fa-folder"></i>
+              </span>
+              <span class="post-meta-item-text">In</span>
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+                  <a href="/categories/programming/" itemprop="url" rel="index"><span itemprop="name">programming</span></a>
+                </span>
+            </span>
+
+          
+  
+  <span class="post-meta-item">
+    
+      <span class="post-meta-item-icon">
+        <i class="far fa-comment"></i>
+      </span>
+      <span class="post-meta-item-text">Disqus: </span>
+    
+    <a title="disqus" href="/2018/09/01/imagej-basic-concepts/#disqus_thread" itemprop="discussionUrl">
+      <span class="post-comments-count disqus-comment-count" data-disqus-identifier="2018/09/01/imagej-basic-concepts/" itemprop="commentCount"></span>
+    </a>
+  </span>
+  
+  
+
+        </div>
+      </header>
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+        <h1 id="本章说明"><a href="#本章说明" class="headerlink" title="本章说明"></a>本章说明</h1><p>这一章主要介绍ImageJ的一些基本概念。</p>
+<h1 id="快捷键"><a href="#快捷键" class="headerlink" title="快捷键"></a>快捷键</h1><p>ImageJ的快捷键在菜单中都有提示，且区分大小写，比如大写的A表示”Shift+A”。同时还要注意查看”Edit-Options-Misc-Require control key for shortcuts”是否勾选，如果未勾选，则快捷键不用按ctrl。<br>查看所有的快捷键：Plugins-Shortcuts-List shortcuts<br>ImageJ中所有的操作都是在目前激活的图片上进行的，即最前面的图片。在任意图片上按Enter，都会激活ImageJ的主窗口。<br>查找宏、命令、脚本和插件：小写的l。<br>ImageJ的撤销和重做：</p>
+<ul>
+<li>因为缓存的限制，Edit-Undo仅能撤销最近一次的图像操作，如果Edit-Options-Memory&amp; Threads中的Keep multiple undo buffers勾选后，撤销操作可以应用在多张图片中。</li>
+<li>File-Revert可将图片设置为最近一次保存的状态。</li>
+<li>对于Selections选择，Edit-Selection-Restore Selection可以用来恢复所有错选操作</li>
+<li>ImageJ的redo重做是Process-Repeat Command，即再次执行上一次命令</li>
+</ul>
+<h1 id="图片类型和格式"><a href="#图片类型和格式" class="headerlink" title="图片类型和格式"></a>图片类型和格式</h1><p>图片是一个二维网格，长宽分别是像素的个数，即像素是图片的最小的单元。网格上的数值是像素的强度，它代表了像素的这个属性的强弱，比如一个灰度图片，强度越大，图片越白。另一方面，像素的强度用多少位二进制数来表示，就是图片的色彩深度，叫做bit，它代表了像素被编码的精度。比如一个2-bit的图片，它只能表示4种强度，即00(黑)、01(灰)、10(灰)、11(白)，而一个8-bit的图片，则可以表示256种灰度值。再比如一张RGB图，它能分别表示红蓝绿三个通道的256种值，因此它是24-bit的。RGB图也可以是32-bit的，即再加上一个表示透明度的8-bit通道。</p>
+<p>如果不使用第三方插件，ImageJ可以打开如下格式：TIFF、GIF、JPEG、PNG、DICOM、BMP、PGM和FITS。</p>
+<h1 id="Stacks"><a href="#Stacks" class="headerlink" title="Stacks"></a>Stacks</h1><p>ImageJ可以在单一窗口中显示多个时间或空间相关的图片。这些图片集称为“Stacks”，这些图片称为”Slices”。在Stacks中，原先的二维的像素变成了一个体素Voxel，即在三维空间中的网格上的强度值。<br>在一个stack中的所有的slices都必须有相同的尺寸的色彩深度。<br>一个文件夹中的图片可以通过拖拽进入ImageJ窗口或者File-Import-Image Sequence来形成一个Stack。<br>创建一个新的Stack：File-New-Image，将Slices这一项设为大于1的数即可。<br>Image-Stacks中包含了常用的对stack进行的操作。大多数ImageJ的过滤器是对Stack中的所有Slices进行操作。</p>
+<h1 id="彩色图片"><a href="#彩色图片" class="headerlink" title="彩色图片"></a>彩色图片</h1><p>ImageJ主要用以下三种方式来处理彩色图片：</p>
+<h2 id="伪彩色图片"><a href="#伪彩色图片" class="headerlink" title="伪彩色图片"></a>伪彩色图片</h2><p>伪彩色图片实际是一张单通道的灰度图片，然后通过一个查找表lookup table (LUT)来为它分配颜色。</p>
+<h2 id="真彩色图片"><a href="#真彩色图片" class="headerlink" title="真彩色图片"></a>真彩色图片</h2><p>真彩色图片有色彩空间的概念，常用的是RGB空间，以及HSB、YUV等。HSB就是色度、饱和度和亮度，这种颜色空间在处理颜色信息时特别有用。<br>色彩空间的转换在Image-Type中。<br>色彩空间中的色彩分割在:Image-Adjust-Color Threshhold。</p>
+<h2 id="组合图片"><a href="#组合图片" class="headerlink" title="组合图片"></a>组合图片</h2><p>这种图片将各个通道都分开，所以可以对单个通道进行操作。Image-Color-Channel Tool</p>
+<h1 id="选区"><a href="#选区" class="headerlink" title="选区"></a>选区</h1><p>选区Selections，也就是画出ROI (Regions of Interest)。尽管ImageJ可以同时显示多个ROIs，但一次只能激活一个ROI。<br>区域选择时，选择好的ROI可以进行以下操作：</p>
+<ul>
+<li>测量：Analyze-Measure</li>
+<li>绘制：Edit-Draw</li>
+<li>填充：Edit-Fill</li>
+<li>滤波：Process-Filters再选择子菜单</li>
+</ul>
+<p>选区时初始颜色是ImageJ默认九种颜色中的一个，一旦创建后，就可以使用Edit-Selection-Property来设定。</p>
+<h1 id="Overlay"><a href="#Overlay" class="headerlink" title="Overlay"></a>Overlay</h1><p>Overlay是最好的对图片做注释的方式，因为它不会改变像素值。<br>Overlay可以看成是一个不可见的ROI管理器。<br>可以把多个ROIs放进一个Overlay中，这样就可以来回调用多个ROI，方法是Image-Overlay-Add Selection。<br>也可以把Overlay转成ROI管理器：Image-Overlay-To ROI Manager。</p>
+<h1 id="三维图片"><a href="#三维图片" class="headerlink" title="三维图片"></a>三维图片</h1><p>原生的ImageJ对三维ROI支持不是很好，但有很多插件可以辅助：</p>
+<ul>
+<li>3D Filters</li>
+<li>3D Object Counter</li>
+<li>3D Viewer</li>
+<li>Simple Neurite Tracer</li>
+<li>TrakEM2</li>
+</ul>
+<h1 id="设置和默认值"><a href="#设置和默认值" class="headerlink" title="设置和默认值"></a>设置和默认值</h1><p>ImageJ的配置文件是IJ_prefs.txt。</p>
+
+    </div>
+
+    
+    
+    
+        <div class="reward-container">
+  <div></div>
+  <button onclick="var qr = document.getElementById('qr'); qr.style.display = (qr.style.display === 'none') ? 'block' : 'none';">
+    Donate
+  </button>
+  <div id="qr" style="display: none;">
+      
+      <div style="display: inline-block;">
+        <img src="/images/wechat_reward.png" alt="Xin-Bo Qi(亓欣波) WeChat Pay">
+        <p>WeChat Pay</p>
+      </div>
+
+  </div>
+</div>
+
+
+      <footer class="post-footer">
+          <div class="post-tags">
+              <a href="/tags/ImageJ/" rel="tag"># ImageJ</a>
+          </div>
+
+        
+
+
+        
+    <div class="post-nav">
+      <div class="post-nav-item">
+    <a href="/2018/09/01/imagej-intro/" rel="prev" title="ImageJ 用户指南 -- 1. 简介和安装">
+      <i class="fa fa-chevron-left"></i> ImageJ 用户指南 -- 1. 简介和安装
+    </a></div>
+      <div class="post-nav-item">
+    <a href="/2018/09/02/imagej-extension/" rel="next" title="ImageJ 用户指南 -- 3. 扩展：宏、插件和脚本">
+      ImageJ 用户指南 -- 3. 扩展：宏、插件和脚本 <i class="fa fa-chevron-right"></i>
+    </a></div>
+    </div>
+      </footer>
+    
+  </article>
+  
+  
+  
+
+
+
+          </div>
+          
+    
+  <div class="comments">
+    <div id="disqus_thread">
+      <noscript>Please enable JavaScript to view the comments powered by Disqus.</noscript>
+    </div>
+  </div>
+  
+
+<script>
+  window.addEventListener('tabs:register', () => {
+    let { activeClass } = CONFIG.comments;
+    if (CONFIG.comments.storage) {
+      activeClass = localStorage.getItem('comments_active') || activeClass;
+    }
+    if (activeClass) {
+      let activeTab = document.querySelector(`a[href="#comment-${activeClass}"]`);
+      if (activeTab) {
+        activeTab.click();
+      }
+    }
+  });
+  if (CONFIG.comments.storage) {
+    window.addEventListener('tabs:click', event => {
+      if (!event.target.matches('.tabs-comment .tab-content .tab-pane')) return;
+      let commentClass = event.target.classList[1];
+      localStorage.setItem('comments_active', commentClass);
+    });
+  }
+</script>
+
+        </div>
+          
+  
+  <div class="toggle sidebar-toggle">
+    <span class="toggle-line toggle-line-first"></span>
+    <span class="toggle-line toggle-line-middle"></span>
+    <span class="toggle-line toggle-line-last"></span>
+  </div>
+
+  <aside class="sidebar">
+    <div class="sidebar-inner">
+
+      <ul class="sidebar-nav motion-element">
+        <li class="sidebar-nav-toc">
+          Table of Contents
+        </li>
+        <li class="sidebar-nav-overview">
+          Overview
+        </li>
+      </ul>
+
+      <!--noindex-->
+      <div class="post-toc-wrap sidebar-panel">
+          <div class="post-toc motion-element"><ol class="nav"><li class="nav-item nav-level-1"><a class="nav-link" href="#%E6%9C%AC%E7%AB%A0%E8%AF%B4%E6%98%8E"><span class="nav-number">1.</span> <span class="nav-text">本章说明</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#%E5%BF%AB%E6%8D%B7%E9%94%AE"><span class="nav-number">2.</span> <span class="nav-text">快捷键</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#%E5%9B%BE%E7%89%87%E7%B1%BB%E5%9E%8B%E5%92%8C%E6%A0%BC%E5%BC%8F"><span class="nav-number">3.</span> <span class="nav-text">图片类型和格式</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#Stacks"><span class="nav-number">4.</span> <span class="nav-text">Stacks</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#%E5%BD%A9%E8%89%B2%E5%9B%BE%E7%89%87"><span class="nav-number">5.</span> <span class="nav-text">彩色图片</span></a><ol class="nav-child"><li class="nav-item nav-level-2"><a class="nav-link" href="#%E4%BC%AA%E5%BD%A9%E8%89%B2%E5%9B%BE%E7%89%87"><span class="nav-number">5.1.</span> <span class="nav-text">伪彩色图片</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E7%9C%9F%E5%BD%A9%E8%89%B2%E5%9B%BE%E7%89%87"><span class="nav-number">5.2.</span> <span class="nav-text">真彩色图片</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E7%BB%84%E5%90%88%E5%9B%BE%E7%89%87"><span class="nav-number">5.3.</span> <span class="nav-text">组合图片</span></a></li></ol></li><li class="nav-item nav-level-1"><a class="nav-link" href="#%E9%80%89%E5%8C%BA"><span class="nav-number">6.</span> <span class="nav-text">选区</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#Overlay"><span class="nav-number">7.</span> <span class="nav-text">Overlay</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#%E4%B8%89%E7%BB%B4%E5%9B%BE%E7%89%87"><span class="nav-number">8.</span> <span class="nav-text">三维图片</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#%E8%AE%BE%E7%BD%AE%E5%92%8C%E9%BB%98%E8%AE%A4%E5%80%BC"><span class="nav-number">9.</span> <span class="nav-text">设置和默认值</span></a></li></ol></div>
+      </div>
+      <!--/noindex-->
+
+      <div class="site-overview-wrap sidebar-panel">
+        <div class="site-author motion-element" itemprop="author" itemscope itemtype="http://schema.org/Person">
+    <img class="site-author-image" itemprop="image" alt="Xin-Bo Qi(亓欣波)"
+      src="/images/avatar.jpg">
+  <p class="site-author-name" itemprop="name">Xin-Bo Qi(亓欣波)</p>
+  <div class="site-description" itemprop="description">Be interesting!</div>
+</div>
+<div class="site-state-wrap motion-element">
+  <nav class="site-state">
+      <div class="site-state-item site-state-posts">
+          <a href="/archives/">
+        
+          <span class="site-state-item-count">120</span>
+          <span class="site-state-item-name">posts</span>
+        </a>
+      </div>
+      <div class="site-state-item site-state-categories">
+            <a href="/categories/">
+          
+        <span class="site-state-item-count">5</span>
+        <span class="site-state-item-name">categories</span></a>
+      </div>
+      <div class="site-state-item site-state-tags">
+            <a href="/tags/">
+          
+        <span class="site-state-item-count">41</span>
+        <span class="site-state-item-name">tags</span></a>
+      </div>
+  </nav>
+</div>
+  <div class="links-of-author motion-element">
+      <span class="links-of-author-item">
+        <a href="https://github.com/qixinbo" title="GitHub → https:&#x2F;&#x2F;github.com&#x2F;qixinbo" rel="noopener" target="_blank"><i class="github fa-fw"></i>GitHub</a>
+      </span>
+      <span class="links-of-author-item">
+        <a href="mailto:qixinbo@gmail.com" title="E-Mail → mailto:qixinbo@gmail.com" rel="noopener" target="_blank"><i class="envelope fa-fw"></i>E-Mail</a>
+      </span>
+  </div>
+
+
+  <div class="links-of-blogroll motion-element">
+    <div class="links-of-blogroll-title"><i class="fa fa-link fa-fw"></i>
+      Links
+    </div>
+    <ul class="links-of-blogroll-list">
+        <li class="links-of-blogroll-item">
+          <a href="https://www.tsinghua.edu.cn/" title="https:&#x2F;&#x2F;www.tsinghua.edu.cn" rel="noopener" target="_blank">THU</a>
+        </li>
+        <li class="links-of-blogroll-item">
+          <a href="http://www.imr.cas.cn/" title="http:&#x2F;&#x2F;www.imr.cas.cn" rel="noopener" target="_blank">IMR</a>
+        </li>
+        <li class="links-of-blogroll-item">
+          <a href="http://www.sdu.edu.cn/" title="http:&#x2F;&#x2F;www.sdu.edu.cn" rel="noopener" target="_blank">SDU</a>
+        </li>
+        <li class="links-of-blogroll-item">
+          <a href="http://liam0205.me/" title="http:&#x2F;&#x2F;liam0205.me&#x2F;" rel="noopener" target="_blank">黄晨成</a>
+        </li>
+    </ul>
+  </div>
+
+      </div>
+
+    </div>
+  </aside>
+  <div id="sidebar-dimmer"></div>
+
+
+      </div>
+    </main>
+
+    <footer class="footer">
+      <div class="footer-inner">
+        
+
+        
+
+<div class="copyright">
+  
+  &copy; 
+  <span itemprop="copyrightYear">2021</span>
+  <span class="with-love">
+    <i class="fa fa-heart"></i>
+  </span>
+  <span class="author" itemprop="copyrightHolder">Xin-Bo Qi(亓欣波)</span>
+</div>
+  <div class="powered-by">Powered by <a href="https://hexo.io/" class="theme-link" rel="noopener" target="_blank">Hexo</a> & <a href="https://theme-next.org/" class="theme-link" rel="noopener" target="_blank">NexT.Gemini</a>
+  </div>
+
+        
+
+
+
+
+
+
+
+
+      </div>
+    </footer>
+  </div>
+
+  
+  <script src="/lib/anime.min.js"></script>
+  <script src="/lib/velocity/velocity.min.js"></script>
+  <script src="/lib/velocity/velocity.ui.min.js"></script>
+
+<script src="/js/utils.js"></script>
+
+<script src="/js/motion.js"></script>
+
+
+<script src="/js/schemes/pisces.js"></script>
+
+
+<script src="/js/next-boot.js"></script>
+
+
+
+
+  
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+  
+
+  
+
+  
+
+<script>
+  function loadCount() {
+    var d = document, s = d.createElement('script');
+    s.src = 'https://qixinbo.disqus.com/count.js';
+    s.id = 'dsq-count-scr';
+    (d.head || d.body).appendChild(s);
+  }
+  // defer loading until the whole page loading is completed
+  window.addEventListener('load', loadCount, false);
+</script>
+<script>
+  var disqus_config = function() {
+    this.page.url = "http://qixinbo.github.io/2018/09/01/imagej-basic-concepts/";
+    this.page.identifier = "2018/09/01/imagej-basic-concepts/";
+    this.page.title = "ImageJ 用户指南 -- 2. 基本概念";
+    };
+  NexT.utils.loadComments(document.querySelector('#disqus_thread'), () => {
+    if (window.DISQUS) {
+      DISQUS.reset({
+        reload: true,
+        config: disqus_config
+      });
+    } else {
+      var d = document, s = d.createElement('script');
+      s.src = 'https://qixinbo.disqus.com/embed.js';
+      s.setAttribute('data-timestamp', '' + +new Date());
+      (d.head || d.body).appendChild(s);
+    }
+  });
+</script>
+
+</body>
+</html>

@@ -1,0 +1,567 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=2">
+<meta name="theme-color" content="#222">
+<meta name="generator" content="Hexo 5.4.0">
+  <link rel="apple-touch-icon" sizes="180x180" href="/images/apple-touch-icon-next.png">
+  <link rel="icon" type="image/png" sizes="32x32" href="/favicon.ico">
+  <link rel="icon" type="image/png" sizes="16x16" href="/favicon.ico">
+  <link rel="mask-icon" href="/images/logo.svg" color="#222">
+
+<link rel="stylesheet" href="/css/main.css">
+
+
+<link rel="stylesheet" href="/lib/font-awesome/css/all.min.css">
+
+<script id="hexo-configurations">
+    var NexT = window.NexT || {};
+    var CONFIG = {"hostname":"qixinbo.github.io","root":"/","scheme":"Gemini","version":"7.8.0","exturl":false,"sidebar":{"position":"left","display":"post","padding":18,"offset":12,"onmobile":false},"copycode":{"enable":false,"show_result":false,"style":null},"back2top":{"enable":true,"sidebar":false,"scrollpercent":false},"bookmark":{"enable":false,"color":"#222","save":"auto"},"fancybox":false,"mediumzoom":false,"lazyload":false,"pangu":false,"comments":{"style":"tabs","active":null,"storage":true,"lazyload":false,"nav":null},"algolia":{"hits":{"per_page":10},"labels":{"input_placeholder":"Search for Posts","hits_empty":"We didn't find any results for the search: ${query}","hits_stats":"${hits} results found in ${time} ms"}},"localsearch":{"enable":false,"trigger":"auto","top_n_per_article":1,"unescape":false,"preload":false},"motion":{"enable":true,"async":false,"transition":{"post_block":"fadeIn","post_header":"slideDownIn","post_body":"slideDownIn","coll_header":"slideLeftIn","sidebar":"slideUpIn"}}};
+  </script>
+
+  <meta name="description" content="2018-1-12更新：电脑重装后再次安装DAMASK，完善文档，遇到了几个新问题，并附解决方法。 DAMASK是马普钢铁研究所开发的一款用于晶体塑性有限元模拟的开源软件。安装过程如下： 求解器和编译器DAMASK可以调用三种求解器：MSC.Marc&#x2F;Mentat，Abaqus和自带的谱方法求解器。鉴于Abaqus用得范围广，这里选择Abaqus作为求解器。DAMASK实际是Abaqus的子程序，">
+<meta property="og:type" content="article">
+<meta property="og:title" content="晶体塑性有限元开源软件DAMASK安装过程记录">
+<meta property="og:url" content="http://qixinbo.github.io/2018/01/12/damask-install/index.html">
+<meta property="og:site_name" content="亓欣波">
+<meta property="og:description" content="2018-1-12更新：电脑重装后再次安装DAMASK，完善文档，遇到了几个新问题，并附解决方法。 DAMASK是马普钢铁研究所开发的一款用于晶体塑性有限元模拟的开源软件。安装过程如下： 求解器和编译器DAMASK可以调用三种求解器：MSC.Marc&#x2F;Mentat，Abaqus和自带的谱方法求解器。鉴于Abaqus用得范围广，这里选择Abaqus作为求解器。DAMASK实际是Abaqus的子程序，">
+<meta property="og:locale" content="en_US">
+<meta property="og:image" content="https://ws1.sinaimg.cn/large/0072Lfvtly1fvjjyg1ei7j31b90nimy0.jpg">
+<meta property="og:image" content="https://ws1.sinaimg.cn/large/0072Lfvtly1fvjjypvjb5j312d0li0u9.jpg">
+<meta property="article:published_time" content="2018-01-11T16:00:00.000Z">
+<meta property="article:modified_time" content="2021-03-25T07:20:30.516Z">
+<meta property="article:author" content="Xin-Bo Qi(亓欣波)">
+<meta property="article:tag" content="abaqus">
+<meta property="article:tag" content="linux">
+<meta property="article:tag" content="CPFEM">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:image" content="https://ws1.sinaimg.cn/large/0072Lfvtly1fvjjyg1ei7j31b90nimy0.jpg">
+
+<link rel="canonical" href="http://qixinbo.github.io/2018/01/12/damask-install/">
+
+
+<script id="page-configurations">
+  // https://hexo.io/docs/variables.html
+  CONFIG.page = {
+    sidebar: "",
+    isHome : false,
+    isPost : true,
+    lang   : 'en'
+  };
+</script>
+
+  <title>晶体塑性有限元开源软件DAMASK安装过程记录 | 亓欣波</title>
+  
+
+
+
+
+
+
+  <noscript>
+  <style>
+  .use-motion .brand,
+  .use-motion .menu-item,
+  .sidebar-inner,
+  .use-motion .post-block,
+  .use-motion .pagination,
+  .use-motion .comments,
+  .use-motion .post-header,
+  .use-motion .post-body,
+  .use-motion .collection-header { opacity: initial; }
+
+  .use-motion .site-title,
+  .use-motion .site-subtitle {
+    opacity: initial;
+    top: initial;
+  }
+
+  .use-motion .logo-line-before i { left: initial; }
+  .use-motion .logo-line-after i { right: initial; }
+  </style>
+</noscript>
+
+</head>
+
+<body itemscope itemtype="http://schema.org/WebPage">
+  <div class="container use-motion">
+    <div class="headband"></div>
+
+    <header class="header" itemscope itemtype="http://schema.org/WPHeader">
+      <div class="header-inner"><div class="site-brand-container">
+  <div class="site-nav-toggle">
+    <div class="toggle" aria-label="Toggle navigation bar">
+      <span class="toggle-line toggle-line-first"></span>
+      <span class="toggle-line toggle-line-middle"></span>
+      <span class="toggle-line toggle-line-last"></span>
+    </div>
+  </div>
+
+  <div class="site-meta">
+
+    <a href="/" class="brand" rel="start">
+      <span class="logo-line-before"><i></i></span>
+      <h1 class="site-title">亓欣波</h1>
+      <span class="logo-line-after"><i></i></span>
+    </a>
+      <p class="site-subtitle" itemprop="description">Hi, I am Xin-Bo Qi (亓欣波)</p>
+  </div>
+
+  <div class="site-nav-right">
+    <div class="toggle popup-trigger">
+    </div>
+  </div>
+</div>
+
+
+
+
+<nav class="site-nav">
+  <ul id="menu" class="main-menu menu">
+        <li class="menu-item menu-item-home">
+
+    <a href="/" rel="section"><i class="home fa-fw"></i>Home</a>
+
+  </li>
+        <li class="menu-item menu-item-categories">
+
+    <a href="/categories/" rel="section"><i class="th fa-fw"></i>Categories</a>
+
+  </li>
+        <li class="menu-item menu-item-archives">
+
+    <a href="/archives/" rel="section"><i class="archive fa-fw"></i>Archives</a>
+
+  </li>
+        <li class="menu-item menu-item-tags">
+
+    <a href="/tags/" rel="section"><i class="tags fa-fw"></i>Tags</a>
+
+  </li>
+        <li class="menu-item menu-item-scholar">
+
+    <a href="/scholar/" rel="section"><i class="bar-chart fa-fw"></i>scholar</a>
+
+  </li>
+        <li class="menu-item menu-item-sources">
+
+    <a href="/sources/" rel="section"><i class="rss fa-fw"></i>sources</a>
+
+  </li>
+        <li class="menu-item menu-item-gallery">
+
+    <a href="/gallery/" rel="section"><i class="file-image-o fa-fw"></i>gallery</a>
+
+  </li>
+        <li class="menu-item menu-item-about">
+
+    <a href="/about/" rel="section"><i class="user fa-fw"></i>About</a>
+
+  </li>
+        <li class="menu-item menu-item-commonweal">
+
+    <a href="/404.html" rel="section"><i class="heartbeat fa-fw"></i>Commonweal 404</a>
+
+  </li>
+  </ul>
+</nav>
+
+
+
+
+</div>
+    </header>
+
+    
+  <div class="back-to-top">
+    <i class="fa fa-arrow-up"></i>
+    <span>0%</span>
+  </div>
+
+
+    <main class="main">
+      <div class="main-inner">
+        <div class="content-wrap">
+          
+
+          <div class="content post posts-expand">
+            
+
+    
+  
+  
+  <article itemscope itemtype="http://schema.org/Article" class="post-block" lang="en">
+    <link itemprop="mainEntityOfPage" href="http://qixinbo.github.io/2018/01/12/damask-install/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="image" content="/images/avatar.jpg">
+      <meta itemprop="name" content="Xin-Bo Qi(亓欣波)">
+      <meta itemprop="description" content="Be interesting!">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="亓欣波">
+    </span>
+      <header class="post-header">
+        <h1 class="post-title" itemprop="name headline">
+          晶体塑性有限元开源软件DAMASK安装过程记录
+        </h1>
+
+        <div class="post-meta">
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="far fa-calendar"></i>
+              </span>
+              <span class="post-meta-item-text">Posted on</span>
+
+              <time title="Created: 2018-01-12 00:00:00" itemprop="dateCreated datePublished" datetime="2018-01-12T00:00:00+08:00">2018-01-12</time>
+            </span>
+              <span class="post-meta-item">
+                <span class="post-meta-item-icon">
+                  <i class="far fa-calendar-check"></i>
+                </span>
+                <span class="post-meta-item-text">Edited on</span>
+                <time title="Modified: 2021-03-25 15:20:30" itemprop="dateModified" datetime="2021-03-25T15:20:30+08:00">2021-03-25</time>
+              </span>
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="far fa-folder"></i>
+              </span>
+              <span class="post-meta-item-text">In</span>
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+                  <a href="/categories/computational-material-science/" itemprop="url" rel="index"><span itemprop="name">computational material science</span></a>
+                </span>
+            </span>
+
+          
+  
+  <span class="post-meta-item">
+    
+      <span class="post-meta-item-icon">
+        <i class="far fa-comment"></i>
+      </span>
+      <span class="post-meta-item-text">Disqus: </span>
+    
+    <a title="disqus" href="/2018/01/12/damask-install/#disqus_thread" itemprop="discussionUrl">
+      <span class="post-comments-count disqus-comment-count" data-disqus-identifier="2018/01/12/damask-install/" itemprop="commentCount"></span>
+    </a>
+  </span>
+  
+  
+
+        </div>
+      </header>
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+        <p>2018-1-12更新：<br>电脑重装后再次安装DAMASK，完善文档，遇到了几个新问题，并附解决方法。</p>
+<p>DAMASK是马普钢铁研究所开发的一款用于晶体塑性有限元模拟的开源软件。<br>安装过程如下：</p>
+<h1 id="求解器和编译器"><a href="#求解器和编译器" class="headerlink" title="求解器和编译器"></a>求解器和编译器</h1><p>DAMASK可以调用三种求解器：MSC.Marc/Mentat，Abaqus和自带的谱方法求解器。鉴于Abaqus用得范围广，这里选择Abaqus作为求解器。DAMASK实际是Abaqus的子程序，因此还需要安装Abaqus的subroutine编译器，即Intel的Fortran编译器。<br>这两个软件的安装及相互调用在之前的博客中已写过，见<a target="_blank" rel="noopener" href="http://qixinbo.info/2018/01/12/abaqus-install/">here</a>。</p>
+<h1 id="Python及其Modules"><a href="#Python及其Modules" class="headerlink" title="Python及其Modules"></a>Python及其Modules</h1><p>DAMASK的安装脚本、前处理和后处理等工具都是由Python写的，所以还要安装Python的编译器及相关Module。</p>
+<figure class="highlight cpp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line">sudo apt-get install python python-dev  <span class="comment">// 安装Python编译器</span></span><br><span class="line">sudo pip install numpy  <span class="comment">// 安装numpy包</span></span><br><span class="line">sudo pip install scipy  <span class="comment">// 安装scipy包</span></span><br><span class="line">sudo pip install h5py   <span class="comment">// 安装h5py包</span></span><br><span class="line">sudo apt-get install python-vtk <span class="comment">// 安装vtk</span></span><br></pre></td></tr></table></figure>
+<h1 id="系统配置"><a href="#系统配置" class="headerlink" title="系统配置"></a>系统配置</h1><p>用文本编辑器编辑DAMASK文件夹中的CONFIG文件，根据自己的系统配置进行改写（默认配置已基本适用于大部分系统）。注意，该CONFIG文件是在v2.0.1以后才有，之前的v2.0.0没有该文件，是有一个configure的脚本来执行。</p>
+<figure class="highlight cpp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br></pre></td><td class="code"><pre><span class="line"># <span class="string">&quot;set&quot;</span>-<span class="function">syntax needed only <span class="keyword">for</span> <span class="title">tcsh</span> <span class="params">(but works with bash <span class="keyword">and</span> zsh)</span></span></span><br><span class="line"># DAMASK_ROOT will be expanded</span><br><span class="line">set DAMASK_BIN=$&#123;DAMASK_ROOT&#125;/bin</span><br><span class="line">set DAMASK_NUM_THREADS = <span class="number">4</span> <span class="comment">// 配置线程数目</span></span><br><span class="line"></span><br><span class="line">set MSC_ROOT=/opt/MSC  <span class="comment">// MSC的安装路径</span></span><br><span class="line">set MARC_VERSION=<span class="number">2015</span>  <span class="comment">// MARC的版本</span></span><br><span class="line"></span><br><span class="line">set ABAQUS_VERSION=<span class="number">6.14</span><span class="number">-1</span>  <span class="comment">// Abaqus的版本</span></span><br></pre></td></tr></table></figure>
+<p>然后根据自己适用的shell环境来选择不同的文件使配置生效，即使用source命令，如使用bash的话就选择后缀为sh的文件：</p>
+<figure class="highlight cpp"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">source DAMASK_env.sh</span><br></pre></td></tr></table></figure>
+<p>这一步是编译或运行DAMASK的必要条件，因为它让DAMASK知道其使用怎样的配置，同时将DAMASK的bin路径加入到PATH变量中。因此，必须确保它是第一个执行的。或者直接就将该source命令加入到用户配置文件.bashrc中，让其自动生效。</p>
+<p><em>ATTENTION!: 如果之前abaqus是用sudo安装并运行的，那么还要将该命令加入到root用户的.bashrc中，否则sudo运行abaqus后，会将普通用户的环境变量覆盖，导致找不到DAMASK。</em></p>
+<h1 id="安装前处理和后处理工具"><a href="#安装前处理和后处理工具" class="headerlink" title="安装前处理和后处理工具"></a>安装前处理和后处理工具</h1><p>DAMASK有一些前后处理的工具放在了processing路径下，在有Makefile文件的那级目录下使用：</p>
+<figure class="highlight cpp"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">make install</span><br></pre></td></tr></table></figure>
+<p>在DAMASK/bin下创建符号链接来指向这些工具，因此就可以直接调用这些工具。</p>
+<h1 id="Abaqus配置"><a href="#Abaqus配置" class="headerlink" title="Abaqus配置"></a>Abaqus配置</h1><p>Abaqus在不同的操作系统Linux和Windows下不同，具体见DAMASK官网配置。<br>对于Linux来说，需要将Abaqus的环境文件复制到用户路径下或者模型所在路径下：</p>
+<figure class="highlight cpp"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">cp DAMASK/installation/mods_Abaqus/abaqus_v6.env  /Dir/of/home/OR/Dir/of/Model/</span><br></pre></td></tr></table></figure>
+<h1 id="Abaqus压缩模型"><a href="#Abaqus压缩模型" class="headerlink" title="Abaqus压缩模型"></a>Abaqus压缩模型</h1><p>在example路径下有一个运行实例，可以用来测试是否安装和求解成功：</p>
+<figure class="highlight cpp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">cd DAMASK/examples/AbaqusStandard</span><br><span class="line">abaqus job=Job_sx-px user=../../code/DAMASK_abaqus_std.f interactive</span><br><span class="line">abaqus viewer database=Job_sx-px.odb</span><br></pre></td></tr></table></figure>
+<h2 id="可能遇到的问题"><a href="#可能遇到的问题" class="headerlink" title="可能遇到的问题"></a>可能遇到的问题</h2><p>(1) Out of memory asking for<br>(2) Illegal memory reference<br>第一个问题是出现在Abaqus编译.f文件时，第二个是出现在Abaqus开始运行程序时，原因可能是电脑的运行资源不够。此时的一个方法是重启电脑，然后启动后直接运行该模型，保证程序拥有最多的计算资源。</p>
+<h2 id="运行结果"><a href="#运行结果" class="headerlink" title="运行结果"></a>运行结果</h2><p>两个圆柱体，一个是单晶，一个是多晶，其受压变形：<br><img src="https://ws1.sinaimg.cn/large/0072Lfvtly1fvjjyg1ei7j31b90nimy0.jpg"></p>
+<h1 id="前处理生成晶粒"><a href="#前处理生成晶粒" class="headerlink" title="前处理生成晶粒"></a>前处理生成晶粒</h1><p>用DAMASK生成50个晶粒：<br><img src="https://ws1.sinaimg.cn/large/0072Lfvtly1fvjjypvjb5j312d0li0u9.jpg"></p>
+
+    </div>
+
+    
+    
+    
+        <div class="reward-container">
+  <div></div>
+  <button onclick="var qr = document.getElementById('qr'); qr.style.display = (qr.style.display === 'none') ? 'block' : 'none';">
+    Donate
+  </button>
+  <div id="qr" style="display: none;">
+      
+      <div style="display: inline-block;">
+        <img src="/images/wechat_reward.png" alt="Xin-Bo Qi(亓欣波) WeChat Pay">
+        <p>WeChat Pay</p>
+      </div>
+
+  </div>
+</div>
+
+
+      <footer class="post-footer">
+          <div class="post-tags">
+              <a href="/tags/abaqus/" rel="tag"># abaqus</a>
+              <a href="/tags/linux/" rel="tag"># linux</a>
+              <a href="/tags/CPFEM/" rel="tag"># CPFEM</a>
+          </div>
+
+        
+
+
+        
+    <div class="post-nav">
+      <div class="post-nav-item">
+    <a href="/2017/12/06/pyqt4-sophisticated/" rel="prev" title="PyQt4教程系列四：高阶功能">
+      <i class="fa fa-chevron-left"></i> PyQt4教程系列四：高阶功能
+    </a></div>
+      <div class="post-nav-item">
+    <a href="/2018/01/12/abaqus-install/" rel="next" title="linux系统abaqus安装过程及子程序编译器设置">
+      linux系统abaqus安装过程及子程序编译器设置 <i class="fa fa-chevron-right"></i>
+    </a></div>
+    </div>
+      </footer>
+    
+  </article>
+  
+  
+  
+
+
+
+          </div>
+          
+    
+  <div class="comments">
+    <div id="disqus_thread">
+      <noscript>Please enable JavaScript to view the comments powered by Disqus.</noscript>
+    </div>
+  </div>
+  
+
+<script>
+  window.addEventListener('tabs:register', () => {
+    let { activeClass } = CONFIG.comments;
+    if (CONFIG.comments.storage) {
+      activeClass = localStorage.getItem('comments_active') || activeClass;
+    }
+    if (activeClass) {
+      let activeTab = document.querySelector(`a[href="#comment-${activeClass}"]`);
+      if (activeTab) {
+        activeTab.click();
+      }
+    }
+  });
+  if (CONFIG.comments.storage) {
+    window.addEventListener('tabs:click', event => {
+      if (!event.target.matches('.tabs-comment .tab-content .tab-pane')) return;
+      let commentClass = event.target.classList[1];
+      localStorage.setItem('comments_active', commentClass);
+    });
+  }
+</script>
+
+        </div>
+          
+  
+  <div class="toggle sidebar-toggle">
+    <span class="toggle-line toggle-line-first"></span>
+    <span class="toggle-line toggle-line-middle"></span>
+    <span class="toggle-line toggle-line-last"></span>
+  </div>
+
+  <aside class="sidebar">
+    <div class="sidebar-inner">
+
+      <ul class="sidebar-nav motion-element">
+        <li class="sidebar-nav-toc">
+          Table of Contents
+        </li>
+        <li class="sidebar-nav-overview">
+          Overview
+        </li>
+      </ul>
+
+      <!--noindex-->
+      <div class="post-toc-wrap sidebar-panel">
+          <div class="post-toc motion-element"><ol class="nav"><li class="nav-item nav-level-1"><a class="nav-link" href="#%E6%B1%82%E8%A7%A3%E5%99%A8%E5%92%8C%E7%BC%96%E8%AF%91%E5%99%A8"><span class="nav-number">1.</span> <span class="nav-text">求解器和编译器</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#Python%E5%8F%8A%E5%85%B6Modules"><span class="nav-number">2.</span> <span class="nav-text">Python及其Modules</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#%E7%B3%BB%E7%BB%9F%E9%85%8D%E7%BD%AE"><span class="nav-number">3.</span> <span class="nav-text">系统配置</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#%E5%AE%89%E8%A3%85%E5%89%8D%E5%A4%84%E7%90%86%E5%92%8C%E5%90%8E%E5%A4%84%E7%90%86%E5%B7%A5%E5%85%B7"><span class="nav-number">4.</span> <span class="nav-text">安装前处理和后处理工具</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#Abaqus%E9%85%8D%E7%BD%AE"><span class="nav-number">5.</span> <span class="nav-text">Abaqus配置</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#Abaqus%E5%8E%8B%E7%BC%A9%E6%A8%A1%E5%9E%8B"><span class="nav-number">6.</span> <span class="nav-text">Abaqus压缩模型</span></a><ol class="nav-child"><li class="nav-item nav-level-2"><a class="nav-link" href="#%E5%8F%AF%E8%83%BD%E9%81%87%E5%88%B0%E7%9A%84%E9%97%AE%E9%A2%98"><span class="nav-number">6.1.</span> <span class="nav-text">可能遇到的问题</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E8%BF%90%E8%A1%8C%E7%BB%93%E6%9E%9C"><span class="nav-number">6.2.</span> <span class="nav-text">运行结果</span></a></li></ol></li><li class="nav-item nav-level-1"><a class="nav-link" href="#%E5%89%8D%E5%A4%84%E7%90%86%E7%94%9F%E6%88%90%E6%99%B6%E7%B2%92"><span class="nav-number">7.</span> <span class="nav-text">前处理生成晶粒</span></a></li></ol></div>
+      </div>
+      <!--/noindex-->
+
+      <div class="site-overview-wrap sidebar-panel">
+        <div class="site-author motion-element" itemprop="author" itemscope itemtype="http://schema.org/Person">
+    <img class="site-author-image" itemprop="image" alt="Xin-Bo Qi(亓欣波)"
+      src="/images/avatar.jpg">
+  <p class="site-author-name" itemprop="name">Xin-Bo Qi(亓欣波)</p>
+  <div class="site-description" itemprop="description">Be interesting!</div>
+</div>
+<div class="site-state-wrap motion-element">
+  <nav class="site-state">
+      <div class="site-state-item site-state-posts">
+          <a href="/archives/">
+        
+          <span class="site-state-item-count">120</span>
+          <span class="site-state-item-name">posts</span>
+        </a>
+      </div>
+      <div class="site-state-item site-state-categories">
+            <a href="/categories/">
+          
+        <span class="site-state-item-count">5</span>
+        <span class="site-state-item-name">categories</span></a>
+      </div>
+      <div class="site-state-item site-state-tags">
+            <a href="/tags/">
+          
+        <span class="site-state-item-count">41</span>
+        <span class="site-state-item-name">tags</span></a>
+      </div>
+  </nav>
+</div>
+  <div class="links-of-author motion-element">
+      <span class="links-of-author-item">
+        <a href="https://github.com/qixinbo" title="GitHub → https:&#x2F;&#x2F;github.com&#x2F;qixinbo" rel="noopener" target="_blank"><i class="github fa-fw"></i>GitHub</a>
+      </span>
+      <span class="links-of-author-item">
+        <a href="mailto:qixinbo@gmail.com" title="E-Mail → mailto:qixinbo@gmail.com" rel="noopener" target="_blank"><i class="envelope fa-fw"></i>E-Mail</a>
+      </span>
+  </div>
+
+
+  <div class="links-of-blogroll motion-element">
+    <div class="links-of-blogroll-title"><i class="fa fa-link fa-fw"></i>
+      Links
+    </div>
+    <ul class="links-of-blogroll-list">
+        <li class="links-of-blogroll-item">
+          <a href="https://www.tsinghua.edu.cn/" title="https:&#x2F;&#x2F;www.tsinghua.edu.cn" rel="noopener" target="_blank">THU</a>
+        </li>
+        <li class="links-of-blogroll-item">
+          <a href="http://www.imr.cas.cn/" title="http:&#x2F;&#x2F;www.imr.cas.cn" rel="noopener" target="_blank">IMR</a>
+        </li>
+        <li class="links-of-blogroll-item">
+          <a href="http://www.sdu.edu.cn/" title="http:&#x2F;&#x2F;www.sdu.edu.cn" rel="noopener" target="_blank">SDU</a>
+        </li>
+        <li class="links-of-blogroll-item">
+          <a href="http://liam0205.me/" title="http:&#x2F;&#x2F;liam0205.me&#x2F;" rel="noopener" target="_blank">黄晨成</a>
+        </li>
+    </ul>
+  </div>
+
+      </div>
+
+    </div>
+  </aside>
+  <div id="sidebar-dimmer"></div>
+
+
+      </div>
+    </main>
+
+    <footer class="footer">
+      <div class="footer-inner">
+        
+
+        
+
+<div class="copyright">
+  
+  &copy; 
+  <span itemprop="copyrightYear">2021</span>
+  <span class="with-love">
+    <i class="fa fa-heart"></i>
+  </span>
+  <span class="author" itemprop="copyrightHolder">Xin-Bo Qi(亓欣波)</span>
+</div>
+  <div class="powered-by">Powered by <a href="https://hexo.io/" class="theme-link" rel="noopener" target="_blank">Hexo</a> & <a href="https://theme-next.org/" class="theme-link" rel="noopener" target="_blank">NexT.Gemini</a>
+  </div>
+
+        
+
+
+
+
+
+
+
+
+      </div>
+    </footer>
+  </div>
+
+  
+  <script src="/lib/anime.min.js"></script>
+  <script src="/lib/velocity/velocity.min.js"></script>
+  <script src="/lib/velocity/velocity.ui.min.js"></script>
+
+<script src="/js/utils.js"></script>
+
+<script src="/js/motion.js"></script>
+
+
+<script src="/js/schemes/pisces.js"></script>
+
+
+<script src="/js/next-boot.js"></script>
+
+
+
+
+  
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+  
+
+  
+
+  
+
+<script>
+  function loadCount() {
+    var d = document, s = d.createElement('script');
+    s.src = 'https://qixinbo.disqus.com/count.js';
+    s.id = 'dsq-count-scr';
+    (d.head || d.body).appendChild(s);
+  }
+  // defer loading until the whole page loading is completed
+  window.addEventListener('load', loadCount, false);
+</script>
+<script>
+  var disqus_config = function() {
+    this.page.url = "http://qixinbo.github.io/2018/01/12/damask-install/";
+    this.page.identifier = "2018/01/12/damask-install/";
+    this.page.title = "晶体塑性有限元开源软件DAMASK安装过程记录";
+    };
+  NexT.utils.loadComments(document.querySelector('#disqus_thread'), () => {
+    if (window.DISQUS) {
+      DISQUS.reset({
+        reload: true,
+        config: disqus_config
+      });
+    } else {
+      var d = document, s = d.createElement('script');
+      s.src = 'https://qixinbo.disqus.com/embed.js';
+      s.setAttribute('data-timestamp', '' + +new Date());
+      (d.head || d.body).appendChild(s);
+    }
+  });
+</script>
+
+</body>
+</html>

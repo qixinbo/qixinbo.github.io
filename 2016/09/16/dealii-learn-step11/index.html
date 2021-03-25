@@ -1,0 +1,584 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=2">
+<meta name="theme-color" content="#222">
+<meta name="generator" content="Hexo 5.4.0">
+  <link rel="apple-touch-icon" sizes="180x180" href="/images/apple-touch-icon-next.png">
+  <link rel="icon" type="image/png" sizes="32x32" href="/favicon.ico">
+  <link rel="icon" type="image/png" sizes="16x16" href="/favicon.ico">
+  <link rel="mask-icon" href="/images/logo.svg" color="#222">
+
+<link rel="stylesheet" href="/css/main.css">
+
+
+<link rel="stylesheet" href="/lib/font-awesome/css/all.min.css">
+
+<script id="hexo-configurations">
+    var NexT = window.NexT || {};
+    var CONFIG = {"hostname":"qixinbo.github.io","root":"/","scheme":"Gemini","version":"7.8.0","exturl":false,"sidebar":{"position":"left","display":"post","padding":18,"offset":12,"onmobile":false},"copycode":{"enable":false,"show_result":false,"style":null},"back2top":{"enable":true,"sidebar":false,"scrollpercent":false},"bookmark":{"enable":false,"color":"#222","save":"auto"},"fancybox":false,"mediumzoom":false,"lazyload":false,"pangu":false,"comments":{"style":"tabs","active":null,"storage":true,"lazyload":false,"nav":null},"algolia":{"hits":{"per_page":10},"labels":{"input_placeholder":"Search for Posts","hits_empty":"We didn't find any results for the search: ${query}","hits_stats":"${hits} results found in ${time} ms"}},"localsearch":{"enable":false,"trigger":"auto","top_n_per_article":1,"unescape":false,"preload":false},"motion":{"enable":true,"async":false,"transition":{"post_block":"fadeIn","post_header":"slideDownIn","post_body":"slideDownIn","coll_header":"slideLeftIn","sidebar":"slideUpIn"}}};
+  </script>
+
+  <meta name="description" content="引子这个例子的亮点：介绍了最简单的Laplace方程的组装矩阵和右端项的一键生成函数。这个例子来求解仅考虑Neumann边界条件的Laplace问题：$$\begin{equation}\begin{split}-\Delta u &amp;&#x3D;f \qquad \mathrm{in}\ \Omega, \\\partial_n u &amp;&#x3D;g \qquad \mathrm{on}\ \part">
+<meta property="og:type" content="article">
+<meta property="og:title" content="求解偏微分方程开源有限元软件deal.II学习--Step 11">
+<meta property="og:url" content="http://qixinbo.github.io/2016/09/16/dealii-learn-step11/index.html">
+<meta property="og:site_name" content="亓欣波">
+<meta property="og:description" content="引子这个例子的亮点：介绍了最简单的Laplace方程的组装矩阵和右端项的一键生成函数。这个例子来求解仅考虑Neumann边界条件的Laplace问题：$$\begin{equation}\begin{split}-\Delta u &amp;&#x3D;f \qquad \mathrm{in}\ \Omega, \\\partial_n u &amp;&#x3D;g \qquad \mathrm{on}\ \part">
+<meta property="og:locale" content="en_US">
+<meta property="article:published_time" content="2016-09-15T16:00:00.000Z">
+<meta property="article:modified_time" content="2021-03-25T07:20:30.532Z">
+<meta property="article:author" content="Xin-Bo Qi(亓欣波)">
+<meta property="article:tag" content="deal.II">
+<meta name="twitter:card" content="summary">
+
+<link rel="canonical" href="http://qixinbo.github.io/2016/09/16/dealii-learn-step11/">
+
+
+<script id="page-configurations">
+  // https://hexo.io/docs/variables.html
+  CONFIG.page = {
+    sidebar: "",
+    isHome : false,
+    isPost : true,
+    lang   : 'en'
+  };
+</script>
+
+  <title>求解偏微分方程开源有限元软件deal.II学习--Step 11 | 亓欣波</title>
+  
+
+
+
+
+
+
+  <noscript>
+  <style>
+  .use-motion .brand,
+  .use-motion .menu-item,
+  .sidebar-inner,
+  .use-motion .post-block,
+  .use-motion .pagination,
+  .use-motion .comments,
+  .use-motion .post-header,
+  .use-motion .post-body,
+  .use-motion .collection-header { opacity: initial; }
+
+  .use-motion .site-title,
+  .use-motion .site-subtitle {
+    opacity: initial;
+    top: initial;
+  }
+
+  .use-motion .logo-line-before i { left: initial; }
+  .use-motion .logo-line-after i { right: initial; }
+  </style>
+</noscript>
+
+</head>
+
+<body itemscope itemtype="http://schema.org/WebPage">
+  <div class="container use-motion">
+    <div class="headband"></div>
+
+    <header class="header" itemscope itemtype="http://schema.org/WPHeader">
+      <div class="header-inner"><div class="site-brand-container">
+  <div class="site-nav-toggle">
+    <div class="toggle" aria-label="Toggle navigation bar">
+      <span class="toggle-line toggle-line-first"></span>
+      <span class="toggle-line toggle-line-middle"></span>
+      <span class="toggle-line toggle-line-last"></span>
+    </div>
+  </div>
+
+  <div class="site-meta">
+
+    <a href="/" class="brand" rel="start">
+      <span class="logo-line-before"><i></i></span>
+      <h1 class="site-title">亓欣波</h1>
+      <span class="logo-line-after"><i></i></span>
+    </a>
+      <p class="site-subtitle" itemprop="description">Hi, I am Xin-Bo Qi (亓欣波)</p>
+  </div>
+
+  <div class="site-nav-right">
+    <div class="toggle popup-trigger">
+    </div>
+  </div>
+</div>
+
+
+
+
+<nav class="site-nav">
+  <ul id="menu" class="main-menu menu">
+        <li class="menu-item menu-item-home">
+
+    <a href="/" rel="section"><i class="home fa-fw"></i>Home</a>
+
+  </li>
+        <li class="menu-item menu-item-categories">
+
+    <a href="/categories/" rel="section"><i class="th fa-fw"></i>Categories</a>
+
+  </li>
+        <li class="menu-item menu-item-archives">
+
+    <a href="/archives/" rel="section"><i class="archive fa-fw"></i>Archives</a>
+
+  </li>
+        <li class="menu-item menu-item-tags">
+
+    <a href="/tags/" rel="section"><i class="tags fa-fw"></i>Tags</a>
+
+  </li>
+        <li class="menu-item menu-item-scholar">
+
+    <a href="/scholar/" rel="section"><i class="bar-chart fa-fw"></i>scholar</a>
+
+  </li>
+        <li class="menu-item menu-item-sources">
+
+    <a href="/sources/" rel="section"><i class="rss fa-fw"></i>sources</a>
+
+  </li>
+        <li class="menu-item menu-item-gallery">
+
+    <a href="/gallery/" rel="section"><i class="file-image-o fa-fw"></i>gallery</a>
+
+  </li>
+        <li class="menu-item menu-item-about">
+
+    <a href="/about/" rel="section"><i class="user fa-fw"></i>About</a>
+
+  </li>
+        <li class="menu-item menu-item-commonweal">
+
+    <a href="/404.html" rel="section"><i class="heartbeat fa-fw"></i>Commonweal 404</a>
+
+  </li>
+  </ul>
+</nav>
+
+
+
+
+</div>
+    </header>
+
+    
+  <div class="back-to-top">
+    <i class="fa fa-arrow-up"></i>
+    <span>0%</span>
+  </div>
+
+
+    <main class="main">
+      <div class="main-inner">
+        <div class="content-wrap">
+          
+
+          <div class="content post posts-expand">
+            
+
+    
+  
+  
+  <article itemscope itemtype="http://schema.org/Article" class="post-block" lang="en">
+    <link itemprop="mainEntityOfPage" href="http://qixinbo.github.io/2016/09/16/dealii-learn-step11/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="image" content="/images/avatar.jpg">
+      <meta itemprop="name" content="Xin-Bo Qi(亓欣波)">
+      <meta itemprop="description" content="Be interesting!">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="亓欣波">
+    </span>
+      <header class="post-header">
+        <h1 class="post-title" itemprop="name headline">
+          求解偏微分方程开源有限元软件deal.II学习--Step 11
+        </h1>
+
+        <div class="post-meta">
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="far fa-calendar"></i>
+              </span>
+              <span class="post-meta-item-text">Posted on</span>
+
+              <time title="Created: 2016-09-16 00:00:00" itemprop="dateCreated datePublished" datetime="2016-09-16T00:00:00+08:00">2016-09-16</time>
+            </span>
+              <span class="post-meta-item">
+                <span class="post-meta-item-icon">
+                  <i class="far fa-calendar-check"></i>
+                </span>
+                <span class="post-meta-item-text">Edited on</span>
+                <time title="Modified: 2021-03-25 15:20:30" itemprop="dateModified" datetime="2021-03-25T15:20:30+08:00">2021-03-25</time>
+              </span>
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="far fa-folder"></i>
+              </span>
+              <span class="post-meta-item-text">In</span>
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+                  <a href="/categories/computational-material-science/" itemprop="url" rel="index"><span itemprop="name">computational material science</span></a>
+                </span>
+            </span>
+
+          
+  
+  <span class="post-meta-item">
+    
+      <span class="post-meta-item-icon">
+        <i class="far fa-comment"></i>
+      </span>
+      <span class="post-meta-item-text">Disqus: </span>
+    
+    <a title="disqus" href="/2016/09/16/dealii-learn-step11/#disqus_thread" itemprop="discussionUrl">
+      <span class="post-comments-count disqus-comment-count" data-disqus-identifier="2016/09/16/dealii-learn-step11/" itemprop="commentCount"></span>
+    </a>
+  </span>
+  
+  
+
+        </div>
+      </header>
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+        <h1 id="引子"><a href="#引子" class="headerlink" title="引子"></a>引子</h1><p>这个例子的亮点：介绍了最简单的Laplace方程的组装矩阵和右端项的一键生成函数。<br>这个例子来求解仅考虑Neumann边界条件的Laplace问题：<br>$$<br>\begin{equation}<br>\begin{split}<br>-\Delta u &amp;=f \qquad \mathrm{in}\ \Omega, \\<br>\partial_n u &amp;=g \qquad \mathrm{on}\ \partial\Omega.<br>\end{split}<br>\end{equation}<br>$$<br>如果有解的话，解必须满足协调条件：<br>$$<br>\int_\Omega f dx + \int_{\partial\Omega} g ds = 0.<br>$$<br>这里考虑计算域是以原点为圆心，半径为1的圆，$f=-2,g=1$是满足协调条件的。<br>虽然协调条件允许有解，但解仍然是不定的：在方程中仅仅解的导数固定，解可以是任意常数。所以需要施加另外一个条件来固定这个常数。可以有以下可能的方法：</p>
+<ul>
+<li>固定离散后的某个节点值为0或其他固定值。这意味着一个额外的条件$u_h(x_0)=0$。尽管这是通常的做法，但不是一个好方法，因为我们知道Laplace方程的解是在H1空间，它不允许定义某个点的值，因为这样不是连续函数的子集。因此，尽管固定某点的值在离散时是允许的，但这样不是连续函数，结果经常是数值上的一个尖峰。</li>
+<li>固定计算域上的平均值是0或其他固定值。这满足了连续性。</li>
+<li>固定计算域边界上的平均值是0或者其他固定值。这也满足了连续性。</li>
+</ul>
+<p>这里选择最后一种，因为还想展示另一项技术。<br>具体到在程序中怎样解方程，除了额外的平均值限制，其他技术都已经涉及过了，这里需要把Dirichlet边界条件删掉，至于怎样映射，在绝大多数情况下，完全可以把它当成黑盒，程序已自动处理。唯一一点就是平均值限制。幸运的是，库中有一个类知道怎样处理这种限制。如果假定边界节点沿边界均匀分布，那么平均值限制：<br>$$<br>\int_{\partial \Omega} u(x) ds = 0<br>$$<br>就可以写为：<br>$$<br>\sum_{i\in\partial\Omega_h} u_i = 0,<br>$$<br>这个求和应该遍历所有在边界上的自由度。设$i_0$是边界上指标最小的自由度，那么：<br>$$<br>u_{i_0} = \sum_{i\in\partial\Omega_h\backslash i_0} -u_i.<br>$$<br>这是ConstraintMatrix类所想要的形式。注意我们之前已经多次用到过这个类，比如悬点限制：中间节点上的值等于相邻节点的平均值。通常来说，ConstraintMatrix来处理均匀限制：<br>$$<br>CU=0<br>$$<br>其中C是矩阵，U是节点值的向量。</p>
+<h1 id="程序解析"><a href="#程序解析" class="headerlink" title="程序解析"></a>程序解析</h1><figure class="highlight cpp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">#<span class="meta-keyword">include</span> <span class="meta-string">&lt;deal.II/base/quadrature_lib.h&gt;</span></span></span><br><span class="line"><span class="meta">#<span class="meta-keyword">include</span> <span class="meta-string">&lt;deal.II/base/function.h&gt;</span></span></span><br><span class="line"><span class="meta">#<span class="meta-keyword">include</span> <span class="meta-string">&lt;deal.II/base/logstream.h&gt;</span></span></span><br><span class="line"><span class="meta">#<span class="meta-keyword">include</span> <span class="meta-string">&lt;deal.II/base/table_handler.h&gt;</span></span></span><br><span class="line"><span class="meta">#<span class="meta-keyword">include</span> <span class="meta-string">&lt;deal.II/lac/vector.h&gt;</span></span></span><br><span class="line"><span class="meta">#<span class="meta-keyword">include</span> <span class="meta-string">&lt;deal.II/lac/sparse_matrix.h&gt;</span></span></span><br><span class="line"><span class="meta">#<span class="meta-keyword">include</span> <span class="meta-string">&lt;deal.II/lac/solver_cg.h&gt;</span></span></span><br><span class="line"><span class="meta">#<span class="meta-keyword">include</span> <span class="meta-string">&lt;deal.II/lac/precondition.h&gt;</span></span></span><br><span class="line"><span class="meta">#<span class="meta-keyword">include</span> <span class="meta-string">&lt;deal.II/lac/constraint_matrix.h&gt;</span></span></span><br><span class="line"><span class="meta">#<span class="meta-keyword">include</span> <span class="meta-string">&lt;deal.II/grid/tria.h&gt;</span></span></span><br><span class="line"><span class="meta">#<span class="meta-keyword">include</span> <span class="meta-string">&lt;deal.II/grid/grid_generator.h&gt;</span></span></span><br><span class="line"><span class="meta">#<span class="meta-keyword">include</span> <span class="meta-string">&lt;deal.II/grid/manifold_lib.h&gt;</span></span></span><br><span class="line"><span class="meta">#<span class="meta-keyword">include</span> <span class="meta-string">&lt;deal.II/grid/tria_accessor.h&gt;</span></span></span><br><span class="line"><span class="meta">#<span class="meta-keyword">include</span> <span class="meta-string">&lt;deal.II/grid/tria_iterator.h&gt;</span></span></span><br><span class="line"><span class="meta">#<span class="meta-keyword">include</span> <span class="meta-string">&lt;deal.II/dofs/dof_handler.h&gt;</span></span></span><br><span class="line"><span class="meta">#<span class="meta-keyword">include</span> <span class="meta-string">&lt;deal.II/dofs/dof_accessor.h&gt;</span></span></span><br><span class="line"><span class="meta">#<span class="meta-keyword">include</span> <span class="meta-string">&lt;deal.II/dofs/dof_tools.h&gt;</span></span></span><br><span class="line"><span class="meta">#<span class="meta-keyword">include</span> <span class="meta-string">&lt;deal.II/fe/fe_q.h&gt;</span></span></span><br><span class="line"><span class="meta">#<span class="meta-keyword">include</span> <span class="meta-string">&lt;deal.II/fe/fe_values.h&gt;</span></span></span><br><span class="line"><span class="meta">#<span class="meta-keyword">include</span> <span class="meta-string">&lt;deal.II/fe/mapping_q.h&gt;</span></span></span><br><span class="line"><span class="meta">#<span class="meta-keyword">include</span> <span class="meta-string">&lt;deal.II/numerics/vector_tools.h&gt;</span></span></span><br><span class="line"><span class="meta">#<span class="meta-keyword">include</span> <span class="meta-string">&lt;deal.II/numerics/matrix_tools.h&gt;</span></span></span><br></pre></td></tr></table></figure>
+<p>之前用过的头文件。</p>
+<figure class="highlight cpp"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">#<span class="meta-keyword">include</span> <span class="meta-string">&lt;deal.II/lac/dynamic_sparsity_pattern.h&gt;</span></span></span><br></pre></td></tr></table></figure>
+<p>这个是新的。</p>
+<figure class="highlight cpp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">#<span class="meta-keyword">include</span> <span class="meta-string">&lt;algorithm&gt;</span></span></span><br><span class="line"><span class="meta">#<span class="meta-keyword">include</span> <span class="meta-string">&lt;iostream&gt;</span></span></span><br><span class="line"><span class="meta">#<span class="meta-keyword">include</span> <span class="meta-string">&lt;iomanip&gt;</span></span></span><br><span class="line"><span class="meta">#<span class="meta-keyword">include</span> <span class="meta-string">&lt;cmath&gt;</span></span></span><br></pre></td></tr></table></figure>
+<p>C++的标准头文件。</p>
+<figure class="highlight cpp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">namespace</span> Step11</span><br><span class="line">&#123;</span><br><span class="line">    <span class="keyword">using</span> <span class="keyword">namespace</span> dealii;</span><br><span class="line">    <span class="keyword">template</span> &lt;<span class="keyword">int</span> dim&gt;</span><br><span class="line">        <span class="class"><span class="keyword">class</span> <span class="title">LaplaceProblem</span></span></span><br><span class="line"><span class="class">        &#123;</span></span><br><span class="line">            <span class="keyword">public</span>:</span><br><span class="line">                <span class="built_in">LaplaceProblem</span> (<span class="keyword">const</span> <span class="keyword">unsigned</span> <span class="keyword">int</span> mapping_degree);</span><br><span class="line">                <span class="function"><span class="keyword">void</span> <span class="title">run</span> <span class="params">()</span></span>;</span><br><span class="line">            <span class="keyword">private</span>:</span><br><span class="line">                <span class="function"><span class="keyword">void</span> <span class="title">setup_system</span> <span class="params">()</span></span>;</span><br><span class="line">                <span class="function"><span class="keyword">void</span> <span class="title">assemble_and_solve</span> <span class="params">()</span></span>;</span><br><span class="line">                <span class="function"><span class="keyword">void</span> <span class="title">solve</span> <span class="params">()</span></span>;</span><br><span class="line">                Triangulation&lt;dim&gt; triangulation;</span><br><span class="line">                FE_Q&lt;dim&gt; fe;</span><br><span class="line">                DoFHandler&lt;dim&gt; dof_handler;</span><br><span class="line">                MappingQ&lt;dim&gt; mapping;</span><br><span class="line">                SparsityPattern sparsity_pattern;</span><br><span class="line">                SparseMatrix&lt;<span class="keyword">double</span>&gt; system_matrix;</span><br><span class="line">                ConstraintMatrix mean_value_constraints;</span><br><span class="line">                Vector&lt;<span class="keyword">double</span>&gt; solution;</span><br><span class="line">                Vector&lt;<span class="keyword">double</span>&gt; system_rhs;</span><br><span class="line">                TableHandler output_table;</span><br><span class="line">        &#125;;</span><br></pre></td></tr></table></figure>
+<p>这个声明跟Step5差不多，仅有少许不同。它的构造函数中接收一个映射次数的参数。</p>
+<figure class="highlight cpp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">template</span> &lt;<span class="keyword">int</span> dim&gt;</span><br><span class="line">LaplaceProblem&lt;dim&gt;::<span class="built_in">LaplaceProblem</span> (<span class="keyword">const</span> <span class="keyword">unsigned</span> <span class="keyword">int</span> mapping_degree) :</span><br><span class="line">    <span class="built_in">fe</span> (<span class="number">1</span>),</span><br><span class="line">    <span class="built_in">dof_handler</span> (triangulation),</span><br><span class="line">    <span class="built_in">mapping</span> (mapping_degree)</span><br><span class="line">    &#123;</span><br><span class="line">        std::cout &lt;&lt; <span class="string">&quot;Using mapping with degree &quot;</span> &lt;&lt; mapping_degree &lt;&lt; <span class="string">&quot;:&quot;</span></span><br><span class="line">            &lt;&lt; std::endl</span><br><span class="line">            &lt;&lt; <span class="string">&quot;============================&quot;</span></span><br><span class="line">            &lt;&lt; std::endl;</span><br><span class="line">    &#125;</span><br></pre></td></tr></table></figure>
+<p>构造函数，使用1阶有限单元，即fe的参数是1，映射次数是后续手动传入的。</p>
+<figure class="highlight cpp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">template</span> &lt;<span class="keyword">int</span> dim&gt;</span><br><span class="line"><span class="keyword">void</span> LaplaceProblem&lt;dim&gt;::<span class="built_in">setup_system</span> ()</span><br><span class="line">&#123;</span><br><span class="line">    dof_handler.<span class="built_in">distribute_dofs</span> (fe);</span><br><span class="line">    solution.<span class="built_in">reinit</span> (dof_handler.<span class="built_in">n_dofs</span>());</span><br><span class="line">    system_rhs.<span class="built_in">reinit</span> (dof_handler.<span class="built_in">n_dofs</span>());</span><br></pre></td></tr></table></figure>
+<p>然后是建立系统：首先建立一个DoFHandler对象，初始化解和右端项。</p>
+<figure class="highlight cpp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line"><span class="function">std::vector&lt;<span class="keyword">bool</span>&gt; <span class="title">boundary_dofs</span> <span class="params">(dof_handler.n_dofs(), <span class="literal">false</span>)</span></span>;</span><br><span class="line">DoFTools::<span class="built_in">extract_boundary_dofs</span> (dof_handler,</span><br><span class="line">        <span class="built_in">ComponentMask</span>(),</span><br><span class="line">        boundary_dofs);</span><br></pre></td></tr></table></figure>
+<p>然后就是建立边界上自由度上的平均值为0的限制对象。这里首先得提取出边界上的自由度。DoFTools有一个函数能返回一个布尔值的列表，其中true代表节点在边界上。第二个参数是一个蒙版，选择矢量函数的某个分量。这里处理的是一个标量有限元，所以只有一个分量。</p>
+<figure class="highlight cpp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">const</span> <span class="keyword">unsigned</span> <span class="keyword">int</span> first_boundary_dof</span><br><span class="line">= std::<span class="built_in">distance</span> (boundary_dofs.<span class="built_in">begin</span>(),</span><br><span class="line">        std::<span class="built_in">find</span> (boundary_dofs.<span class="built_in">begin</span>(),</span><br><span class="line">            boundary_dofs.<span class="built_in">end</span>(),</span><br><span class="line">            <span class="literal">true</span>));</span><br></pre></td></tr></table></figure>
+<p>然后就是具体的限制。正如引子中所说，我们限制边界上某一个节点的值等于边界上其他所有自由度的值总和。所以，先找到第一个自由度，这里是查找第一个true值，然后计算它离第一个元素的距离从而确定它的指标。</p>
+<figure class="highlight cpp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><span class="line">mean_value_constraints.<span class="built_in">clear</span> ();</span><br><span class="line">mean_value_constraints.<span class="built_in">add_line</span> (first_boundary_dof);</span><br><span class="line"><span class="keyword">for</span> (<span class="keyword">unsigned</span> <span class="keyword">int</span> i=first_boundary_dof+<span class="number">1</span>; i&lt;dof_handler.<span class="built_in">n_dofs</span>(); ++i)</span><br><span class="line">    <span class="keyword">if</span> (boundary_dofs[i] == <span class="literal">true</span>)</span><br><span class="line">        mean_value_constraints.<span class="built_in">add_entry</span> (first_boundary_dof,</span><br><span class="line">                i, <span class="number">-1</span>);</span><br><span class="line">mean_value_constraints.<span class="built_in">close</span> ();</span><br></pre></td></tr></table></figure>
+<p>然后创建一个限制对象。首先清除所有的之前的内容，然后加上这么一行限制，在其他所有自由度的总和前加上-1的权重。</p>
+<figure class="highlight cpp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><span class="line"><span class="function">DynamicSparsityPattern <span class="title">dsp</span> <span class="params">(dof_handler.n_dofs(),</span></span></span><br><span class="line"><span class="function"><span class="params">        dof_handler.n_dofs())</span></span>;</span><br><span class="line">DoFTools::<span class="built_in">make_sparsity_pattern</span> (dof_handler, dsp);</span><br><span class="line">mean_value_constraints.<span class="built_in">condense</span> (dsp);</span><br><span class="line">sparsity_pattern.<span class="built_in">copy_from</span> (dsp);</span><br><span class="line">system_matrix.<span class="built_in">reinit</span> (sparsity_pattern);</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p>然后就是创建稀疏矩阵。这里也是先使用动态稀疏模式来大致估计长度，然后再创建稀疏矩阵。<br>接下来是组装和求解：</p>
+<figure class="highlight cpp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">template</span> &lt;<span class="keyword">int</span> dim&gt;</span><br><span class="line"><span class="keyword">void</span> LaplaceProblem&lt;dim&gt;::<span class="built_in">assemble_and_solve</span> ()</span><br><span class="line">&#123;</span><br><span class="line">    <span class="keyword">const</span> <span class="keyword">unsigned</span> <span class="keyword">int</span> gauss_degree</span><br><span class="line">        = std::<span class="built_in">max</span> (<span class="keyword">static_cast</span>&lt;<span class="keyword">unsigned</span> <span class="keyword">int</span>&gt;(std::<span class="built_in">ceil</span>(<span class="number">1.</span>*(mapping.<span class="built_in">get_degree</span>()+<span class="number">1</span>)/<span class="number">2</span>)),</span><br><span class="line">                <span class="number">2U</span>);</span><br><span class="line">    MatrixTools::<span class="built_in">create_laplace_matrix</span> (mapping, dof_handler,</span><br><span class="line">            QGauss&lt;dim&gt;(gauss_degree),</span><br><span class="line">            system_matrix);</span><br><span class="line">    VectorTools::<span class="built_in">create_right_hand_side</span> (mapping, dof_handler,</span><br><span class="line">            QGauss&lt;dim&gt;(gauss_degree),</span><br><span class="line">            ConstantFunction&lt;dim&gt;(<span class="number">-2</span>),</span><br><span class="line">            system_rhs);</span><br></pre></td></tr></table></figure>
+<p>首先必须组装矩阵和右端项。因为Laplace方程比较简单，库函数直接提供了工具，将单元循环什么的都集成了起来，正如上面所写。</p>
+<figure class="highlight cpp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line"><span class="function">Vector&lt;<span class="keyword">double</span>&gt; <span class="title">tmp</span> <span class="params">(system_rhs.size())</span></span>;</span><br><span class="line">VectorTools::<span class="built_in">create_boundary_right_hand_side</span> (mapping, dof_handler,</span><br><span class="line">        QGauss&lt;dim<span class="number">-1</span>&gt;(gauss_degree),</span><br><span class="line">        ConstantFunction&lt;dim&gt;(<span class="number">1</span>),</span><br><span class="line">        tmp);</span><br></pre></td></tr></table></figure>
+<p>边界力的计算也是直接调用。</p>
+<figure class="highlight cpp"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">system_rhs += tmp;</span><br></pre></td></tr></table></figure>
+<p>然后将边界上的贡献叠加到整体右端项中。注意这个地方需要显式地叠加，因为这两个create函数都是先清除输出变量，所以不能直接叠加。</p>
+<figure class="highlight cpp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line">mean_value_constraints.<span class="built_in">condense</span> (system_matrix);</span><br><span class="line">mean_value_constraints.<span class="built_in">condense</span> (system_rhs);</span><br><span class="line"><span class="built_in">solve</span> ();</span><br><span class="line">mean_value_constraints.<span class="built_in">distribute</span> (solution);</span><br></pre></td></tr></table></figure>
+<p>然后施加限制条件，再求解。</p>
+<figure class="highlight cpp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br></pre></td><td class="code"><pre><span class="line"><span class="function">Vector&lt;<span class="keyword">float</span>&gt; <span class="title">norm_per_cell</span> <span class="params">(triangulation.n_active_cells())</span></span>;</span><br><span class="line">VectorTools::<span class="built_in">integrate_difference</span> (mapping, dof_handler,</span><br><span class="line">        solution,</span><br><span class="line">        ZeroFunction&lt;dim&gt;(),</span><br><span class="line">        norm_per_cell,</span><br><span class="line">        QGauss&lt;dim&gt;(gauss_degree+<span class="number">1</span>),</span><br><span class="line">        VectorTools::H1_seminorm);</span><br><span class="line"><span class="keyword">const</span> <span class="keyword">double</span> norm = norm_per_cell.<span class="built_in">l2_norm</span>();</span><br><span class="line">output_table.<span class="built_in">add_value</span> (<span class="string">&quot;cells&quot;</span>, triangulation.<span class="built_in">n_active_cells</span>());</span><br><span class="line">output_table.<span class="built_in">add_value</span> (<span class="string">&quot;|u|_1&quot;</span>, norm);</span><br><span class="line">output_table.<span class="built_in">add_value</span> (<span class="string">&quot;error&quot;</span>, std::<span class="built_in">fabs</span>(norm-std::<span class="built_in">sqrt</span>(<span class="number">3.14159265358</span>/<span class="number">2</span>)));</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p>这里是计算了范数并输出。</p>
+<figure class="highlight cpp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">template</span> &lt;<span class="keyword">int</span> dim&gt;</span><br><span class="line"><span class="keyword">void</span> LaplaceProblem&lt;dim&gt;::<span class="built_in">solve</span> ()</span><br><span class="line">&#123;</span><br><span class="line">    <span class="function">SolverControl <span class="title">solver_control</span> <span class="params">(<span class="number">1000</span>, <span class="number">1e-12</span>)</span></span>;</span><br><span class="line">    SolverCG&lt;&gt; <span class="built_in">cg</span> (solver_control);</span><br><span class="line">    PreconditionSSOR&lt;&gt; preconditioner;</span><br><span class="line">    preconditioner.<span class="built_in">initialize</span>(system_matrix, <span class="number">1.2</span>);</span><br><span class="line">    cg.<span class="built_in">solve</span> (system_matrix, solution, system_rhs,</span><br><span class="line">            preconditioner);</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p>然后就是求解，跟Step5相同。<br>run函数：</p>
+<figure class="highlight cpp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">template</span> &lt;<span class="keyword">int</span> dim&gt;</span><br><span class="line"><span class="keyword">void</span> LaplaceProblem&lt;dim&gt;::<span class="built_in">run</span> ()</span><br><span class="line">&#123;</span><br><span class="line">    GridGenerator::<span class="built_in">hyper_ball</span> (triangulation);</span><br><span class="line">    <span class="keyword">static</span> <span class="keyword">const</span> SphericalManifold&lt;dim&gt; boundary;</span><br><span class="line">    triangulation.<span class="built_in">set_all_manifold_ids_on_boundary</span>(<span class="number">0</span>);</span><br><span class="line">    triangulation.<span class="built_in">set_manifold</span> (<span class="number">0</span>, boundary);</span><br><span class="line">    <span class="keyword">for</span> (<span class="keyword">unsigned</span> <span class="keyword">int</span> cycle=<span class="number">0</span>; cycle&lt;<span class="number">6</span>; ++cycle, triangulation.<span class="built_in">refine_global</span>(<span class="number">1</span>))</span><br><span class="line">    &#123;</span><br><span class="line">        <span class="built_in">setup_system</span> ();</span><br><span class="line">        <span class="built_in">assemble_and_solve</span> ();</span><br><span class="line">    &#125;;</span><br><span class="line">    output_table.<span class="built_in">set_precision</span>(<span class="string">&quot;|u|_1&quot;</span>, <span class="number">6</span>);</span><br><span class="line">    output_table.<span class="built_in">set_precision</span>(<span class="string">&quot;error&quot;</span>, <span class="number">6</span>);</span><br><span class="line">    output_table.<span class="built_in">write_text</span> (std::cout);</span><br><span class="line">    std::cout &lt;&lt; std::endl;</span><br><span class="line">&#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p>最后是main函数：</p>
+<figure class="highlight cpp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="keyword">int</span> <span class="title">main</span> <span class="params">()</span></span></span><br><span class="line"><span class="function"></span>&#123;</span><br><span class="line">    <span class="keyword">try</span></span><br><span class="line">    &#123;</span><br><span class="line">        std::cout.<span class="built_in">precision</span>(<span class="number">5</span>);</span><br><span class="line">        <span class="keyword">for</span> (<span class="keyword">unsigned</span> <span class="keyword">int</span> mapping_degree=<span class="number">1</span>; mapping_degree&lt;=<span class="number">3</span>; ++mapping_degree)</span><br><span class="line">            Step11::LaplaceProblem&lt;<span class="number">2</span>&gt;(mapping_degree).<span class="built_in">run</span> ();</span><br><span class="line">    &#125;</span><br><span class="line">    <span class="built_in"><span class="keyword">catch</span></span> (std::exception &amp;exc)</span><br><span class="line">    &#123;</span><br><span class="line">        std::cerr &lt;&lt; std::endl &lt;&lt; std::endl</span><br><span class="line">            &lt;&lt; <span class="string">&quot;----------------------------------------------------&quot;</span></span><br><span class="line">            &lt;&lt; std::endl;</span><br><span class="line">        std::cerr &lt;&lt; <span class="string">&quot;Exception on processing: &quot;</span> &lt;&lt; std::endl</span><br><span class="line">            &lt;&lt; exc.<span class="built_in">what</span>() &lt;&lt; std::endl</span><br><span class="line">            &lt;&lt; <span class="string">&quot;Aborting!&quot;</span> &lt;&lt; std::endl</span><br><span class="line">            &lt;&lt; <span class="string">&quot;----------------------------------------------------&quot;</span></span><br><span class="line">            &lt;&lt; std::endl;</span><br><span class="line">        <span class="keyword">return</span> <span class="number">1</span>;</span><br><span class="line">    &#125;</span><br><span class="line">    <span class="built_in"><span class="keyword">catch</span></span> (...)</span><br><span class="line">    &#123;</span><br><span class="line">        std::cerr &lt;&lt; std::endl &lt;&lt; std::endl</span><br><span class="line">            &lt;&lt; <span class="string">&quot;----------------------------------------------------&quot;</span></span><br><span class="line">            &lt;&lt; std::endl;</span><br><span class="line">        std::cerr &lt;&lt; <span class="string">&quot;Unknown exception!&quot;</span> &lt;&lt; std::endl</span><br><span class="line">            &lt;&lt; <span class="string">&quot;Aborting!&quot;</span> &lt;&lt; std::endl</span><br><span class="line">            &lt;&lt; <span class="string">&quot;----------------------------------------------------&quot;</span></span><br><span class="line">            &lt;&lt; std::endl;</span><br><span class="line">        <span class="keyword">return</span> <span class="number">1</span>;</span><br><span class="line">    &#125;;</span><br><span class="line">    <span class="keyword">return</span> <span class="number">0</span>;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<h1 id="计算结果"><a href="#计算结果" class="headerlink" title="计算结果"></a>计算结果</h1><figure class="highlight cpp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br></pre></td><td class="code"><pre><span class="line">Using mapping with degree <span class="number">1</span>:</span><br><span class="line">============================</span><br><span class="line">cells |u|_1 error</span><br><span class="line"><span class="number">5</span> <span class="number">0.680402</span> <span class="number">0.572912</span></span><br><span class="line"><span class="number">20</span> <span class="number">1.085518</span> <span class="number">0.167796</span></span><br><span class="line"><span class="number">80</span> <span class="number">1.208981</span> <span class="number">0.044334</span></span><br><span class="line"><span class="number">320</span> <span class="number">1.242041</span> <span class="number">0.011273</span></span><br><span class="line"><span class="number">1280</span> <span class="number">1.250482</span> <span class="number">0.002832</span></span><br><span class="line"><span class="number">5120</span> <span class="number">1.252605</span> <span class="number">0.000709</span></span><br><span class="line">Using mapping with degree <span class="number">2</span>:</span><br><span class="line">============================</span><br><span class="line">cells |u|_1 error</span><br><span class="line"><span class="number">5</span> <span class="number">1.050963</span> <span class="number">0.202351</span></span><br><span class="line"><span class="number">20</span> <span class="number">1.199642</span> <span class="number">0.053672</span></span><br><span class="line"><span class="number">80</span> <span class="number">1.239913</span> <span class="number">0.013401</span></span><br><span class="line"><span class="number">320</span> <span class="number">1.249987</span> <span class="number">0.003327</span></span><br><span class="line"><span class="number">1280</span> <span class="number">1.252486</span> <span class="number">0.000828</span></span><br><span class="line"><span class="number">5120</span> <span class="number">1.253108</span> <span class="number">0.000206</span></span><br><span class="line">Using mapping with degree <span class="number">3</span>:</span><br><span class="line">============================</span><br><span class="line">cells |u|_1 error</span><br><span class="line"><span class="number">5</span> <span class="number">1.086161</span> <span class="number">0.167153</span></span><br><span class="line"><span class="number">20</span> <span class="number">1.204349</span> <span class="number">0.048965</span></span><br><span class="line"><span class="number">80</span> <span class="number">1.240502</span> <span class="number">0.012812</span></span><br><span class="line"><span class="number">320</span> <span class="number">1.250059</span> <span class="number">0.003255</span></span><br><span class="line"><span class="number">1280</span> <span class="number">1.252495</span> <span class="number">0.000819</span></span><br><span class="line"><span class="number">5120</span> <span class="number">1.253109</span> <span class="number">0.000205</span></span><br></pre></td></tr></table></figure>
+<p>其中一个有意思的地方是：使用线性映射的误差要比使用更高阶映射的三倍要大。因此在本例中使用更高阶映射，不是因为它提高了收敛阶数，而是它直接计算出了常数。另一方面，使用三次映射并没有显著提高精度。</p>
+
+    </div>
+
+    
+    
+    
+        <div class="reward-container">
+  <div></div>
+  <button onclick="var qr = document.getElementById('qr'); qr.style.display = (qr.style.display === 'none') ? 'block' : 'none';">
+    Donate
+  </button>
+  <div id="qr" style="display: none;">
+      
+      <div style="display: inline-block;">
+        <img src="/images/wechat_reward.png" alt="Xin-Bo Qi(亓欣波) WeChat Pay">
+        <p>WeChat Pay</p>
+      </div>
+
+  </div>
+</div>
+
+
+      <footer class="post-footer">
+          <div class="post-tags">
+              <a href="/tags/deal-II/" rel="tag"># deal.II</a>
+          </div>
+
+        
+
+
+        
+    <div class="post-nav">
+      <div class="post-nav-item">
+    <a href="/2016/09/15/dealii-learn-step9/" rel="prev" title="求解偏微分方程开源有限元软件deal.II学习--Step 9">
+      <i class="fa fa-chevron-left"></i> 求解偏微分方程开源有限元软件deal.II学习--Step 9
+    </a></div>
+      <div class="post-nav-item">
+    <a href="/2016/09/16/dealii-learn-step10/" rel="next" title="求解偏微分方程开源有限元软件deal.II学习--Step 10">
+      求解偏微分方程开源有限元软件deal.II学习--Step 10 <i class="fa fa-chevron-right"></i>
+    </a></div>
+    </div>
+      </footer>
+    
+  </article>
+  
+  
+  
+
+
+
+          </div>
+          
+    
+  <div class="comments">
+    <div id="disqus_thread">
+      <noscript>Please enable JavaScript to view the comments powered by Disqus.</noscript>
+    </div>
+  </div>
+  
+
+<script>
+  window.addEventListener('tabs:register', () => {
+    let { activeClass } = CONFIG.comments;
+    if (CONFIG.comments.storage) {
+      activeClass = localStorage.getItem('comments_active') || activeClass;
+    }
+    if (activeClass) {
+      let activeTab = document.querySelector(`a[href="#comment-${activeClass}"]`);
+      if (activeTab) {
+        activeTab.click();
+      }
+    }
+  });
+  if (CONFIG.comments.storage) {
+    window.addEventListener('tabs:click', event => {
+      if (!event.target.matches('.tabs-comment .tab-content .tab-pane')) return;
+      let commentClass = event.target.classList[1];
+      localStorage.setItem('comments_active', commentClass);
+    });
+  }
+</script>
+
+        </div>
+          
+  
+  <div class="toggle sidebar-toggle">
+    <span class="toggle-line toggle-line-first"></span>
+    <span class="toggle-line toggle-line-middle"></span>
+    <span class="toggle-line toggle-line-last"></span>
+  </div>
+
+  <aside class="sidebar">
+    <div class="sidebar-inner">
+
+      <ul class="sidebar-nav motion-element">
+        <li class="sidebar-nav-toc">
+          Table of Contents
+        </li>
+        <li class="sidebar-nav-overview">
+          Overview
+        </li>
+      </ul>
+
+      <!--noindex-->
+      <div class="post-toc-wrap sidebar-panel">
+          <div class="post-toc motion-element"><ol class="nav"><li class="nav-item nav-level-1"><a class="nav-link" href="#%E5%BC%95%E5%AD%90"><span class="nav-number">1.</span> <span class="nav-text">引子</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#%E7%A8%8B%E5%BA%8F%E8%A7%A3%E6%9E%90"><span class="nav-number">2.</span> <span class="nav-text">程序解析</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#%E8%AE%A1%E7%AE%97%E7%BB%93%E6%9E%9C"><span class="nav-number">3.</span> <span class="nav-text">计算结果</span></a></li></ol></div>
+      </div>
+      <!--/noindex-->
+
+      <div class="site-overview-wrap sidebar-panel">
+        <div class="site-author motion-element" itemprop="author" itemscope itemtype="http://schema.org/Person">
+    <img class="site-author-image" itemprop="image" alt="Xin-Bo Qi(亓欣波)"
+      src="/images/avatar.jpg">
+  <p class="site-author-name" itemprop="name">Xin-Bo Qi(亓欣波)</p>
+  <div class="site-description" itemprop="description">Be interesting!</div>
+</div>
+<div class="site-state-wrap motion-element">
+  <nav class="site-state">
+      <div class="site-state-item site-state-posts">
+          <a href="/archives/">
+        
+          <span class="site-state-item-count">120</span>
+          <span class="site-state-item-name">posts</span>
+        </a>
+      </div>
+      <div class="site-state-item site-state-categories">
+            <a href="/categories/">
+          
+        <span class="site-state-item-count">5</span>
+        <span class="site-state-item-name">categories</span></a>
+      </div>
+      <div class="site-state-item site-state-tags">
+            <a href="/tags/">
+          
+        <span class="site-state-item-count">41</span>
+        <span class="site-state-item-name">tags</span></a>
+      </div>
+  </nav>
+</div>
+  <div class="links-of-author motion-element">
+      <span class="links-of-author-item">
+        <a href="https://github.com/qixinbo" title="GitHub → https:&#x2F;&#x2F;github.com&#x2F;qixinbo" rel="noopener" target="_blank"><i class="github fa-fw"></i>GitHub</a>
+      </span>
+      <span class="links-of-author-item">
+        <a href="mailto:qixinbo@gmail.com" title="E-Mail → mailto:qixinbo@gmail.com" rel="noopener" target="_blank"><i class="envelope fa-fw"></i>E-Mail</a>
+      </span>
+  </div>
+
+
+  <div class="links-of-blogroll motion-element">
+    <div class="links-of-blogroll-title"><i class="fa fa-link fa-fw"></i>
+      Links
+    </div>
+    <ul class="links-of-blogroll-list">
+        <li class="links-of-blogroll-item">
+          <a href="https://www.tsinghua.edu.cn/" title="https:&#x2F;&#x2F;www.tsinghua.edu.cn" rel="noopener" target="_blank">THU</a>
+        </li>
+        <li class="links-of-blogroll-item">
+          <a href="http://www.imr.cas.cn/" title="http:&#x2F;&#x2F;www.imr.cas.cn" rel="noopener" target="_blank">IMR</a>
+        </li>
+        <li class="links-of-blogroll-item">
+          <a href="http://www.sdu.edu.cn/" title="http:&#x2F;&#x2F;www.sdu.edu.cn" rel="noopener" target="_blank">SDU</a>
+        </li>
+        <li class="links-of-blogroll-item">
+          <a href="http://liam0205.me/" title="http:&#x2F;&#x2F;liam0205.me&#x2F;" rel="noopener" target="_blank">黄晨成</a>
+        </li>
+    </ul>
+  </div>
+
+      </div>
+
+    </div>
+  </aside>
+  <div id="sidebar-dimmer"></div>
+
+
+      </div>
+    </main>
+
+    <footer class="footer">
+      <div class="footer-inner">
+        
+
+        
+
+<div class="copyright">
+  
+  &copy; 
+  <span itemprop="copyrightYear">2021</span>
+  <span class="with-love">
+    <i class="fa fa-heart"></i>
+  </span>
+  <span class="author" itemprop="copyrightHolder">Xin-Bo Qi(亓欣波)</span>
+</div>
+  <div class="powered-by">Powered by <a href="https://hexo.io/" class="theme-link" rel="noopener" target="_blank">Hexo</a> & <a href="https://theme-next.org/" class="theme-link" rel="noopener" target="_blank">NexT.Gemini</a>
+  </div>
+
+        
+
+
+
+
+
+
+
+
+      </div>
+    </footer>
+  </div>
+
+  
+  <script src="/lib/anime.min.js"></script>
+  <script src="/lib/velocity/velocity.min.js"></script>
+  <script src="/lib/velocity/velocity.ui.min.js"></script>
+
+<script src="/js/utils.js"></script>
+
+<script src="/js/motion.js"></script>
+
+
+<script src="/js/schemes/pisces.js"></script>
+
+
+<script src="/js/next-boot.js"></script>
+
+
+
+
+  
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+  
+
+  
+
+  
+
+<script>
+  function loadCount() {
+    var d = document, s = d.createElement('script');
+    s.src = 'https://qixinbo.disqus.com/count.js';
+    s.id = 'dsq-count-scr';
+    (d.head || d.body).appendChild(s);
+  }
+  // defer loading until the whole page loading is completed
+  window.addEventListener('load', loadCount, false);
+</script>
+<script>
+  var disqus_config = function() {
+    this.page.url = "http://qixinbo.github.io/2016/09/16/dealii-learn-step11/";
+    this.page.identifier = "2016/09/16/dealii-learn-step11/";
+    this.page.title = "求解偏微分方程开源有限元软件deal.II学习--Step 11";
+    };
+  NexT.utils.loadComments(document.querySelector('#disqus_thread'), () => {
+    if (window.DISQUS) {
+      DISQUS.reset({
+        reload: true,
+        config: disqus_config
+      });
+    } else {
+      var d = document, s = d.createElement('script');
+      s.src = 'https://qixinbo.disqus.com/embed.js';
+      s.setAttribute('data-timestamp', '' + +new Date());
+      (d.head || d.body).appendChild(s);
+    }
+  });
+</script>
+
+</body>
+</html>

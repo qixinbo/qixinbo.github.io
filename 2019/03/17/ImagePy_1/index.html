@@ -1,0 +1,571 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=2">
+<meta name="theme-color" content="#222">
+<meta name="generator" content="Hexo 5.4.0">
+  <link rel="apple-touch-icon" sizes="180x180" href="/images/apple-touch-icon-next.png">
+  <link rel="icon" type="image/png" sizes="32x32" href="/favicon.ico">
+  <link rel="icon" type="image/png" sizes="16x16" href="/favicon.ico">
+  <link rel="mask-icon" href="/images/logo.svg" color="#222">
+
+<link rel="stylesheet" href="/css/main.css">
+
+
+<link rel="stylesheet" href="/lib/font-awesome/css/all.min.css">
+
+<script id="hexo-configurations">
+    var NexT = window.NexT || {};
+    var CONFIG = {"hostname":"qixinbo.github.io","root":"/","scheme":"Gemini","version":"7.8.0","exturl":false,"sidebar":{"position":"left","display":"post","padding":18,"offset":12,"onmobile":false},"copycode":{"enable":false,"show_result":false,"style":null},"back2top":{"enable":true,"sidebar":false,"scrollpercent":false},"bookmark":{"enable":false,"color":"#222","save":"auto"},"fancybox":false,"mediumzoom":false,"lazyload":false,"pangu":false,"comments":{"style":"tabs","active":null,"storage":true,"lazyload":false,"nav":null},"algolia":{"hits":{"per_page":10},"labels":{"input_placeholder":"Search for Posts","hits_empty":"We didn't find any results for the search: ${query}","hits_stats":"${hits} results found in ${time} ms"}},"localsearch":{"enable":false,"trigger":"auto","top_n_per_article":1,"unescape":false,"preload":false},"motion":{"enable":true,"async":false,"transition":{"post_block":"fadeIn","post_header":"slideDownIn","post_body":"slideDownIn","coll_header":"slideLeftIn","sidebar":"slideUpIn"}}};
+  </script>
+
+  <meta name="description" content="ImagePy简介“ImagePy是一款基于 Python 的可扩展图像处理框架，融合了ImageJ与Python的优势，是一个轻量级的、可扩展的图像处理框架。”（语出ImagePy官网：http:&#x2F;&#x2F;www.imagepy.org&#x2F;about&#x2F;）ImagePy作为一个GUI框架，可以快速接入opencv、scikit-image、mayavi等python的第三方库，因此，在功能性和易用性上都有">
+<meta property="og:type" content="article">
+<meta property="og:title" content="ImagePy解析：1 -- 简介、安装和启动">
+<meta property="og:url" content="http://qixinbo.github.io/2019/03/17/ImagePy_1/index.html">
+<meta property="og:site_name" content="亓欣波">
+<meta property="og:description" content="ImagePy简介“ImagePy是一款基于 Python 的可扩展图像处理框架，融合了ImageJ与Python的优势，是一个轻量级的、可扩展的图像处理框架。”（语出ImagePy官网：http:&#x2F;&#x2F;www.imagepy.org&#x2F;about&#x2F;）ImagePy作为一个GUI框架，可以快速接入opencv、scikit-image、mayavi等python的第三方库，因此，在功能性和易用性上都有">
+<meta property="og:locale" content="en_US">
+<meta property="og:image" content="https://ws4.sinaimg.cn/large/006Xmmmggy1g5nhfqnr12j30qf0e20vv.jpg">
+<meta property="article:published_time" content="2019-03-16T16:00:00.000Z">
+<meta property="article:modified_time" content="2021-03-25T07:20:30.331Z">
+<meta property="article:author" content="Xin-Bo Qi(亓欣波)">
+<meta property="article:tag" content="ImagePy">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:image" content="https://ws4.sinaimg.cn/large/006Xmmmggy1g5nhfqnr12j30qf0e20vv.jpg">
+
+<link rel="canonical" href="http://qixinbo.github.io/2019/03/17/ImagePy_1/">
+
+
+<script id="page-configurations">
+  // https://hexo.io/docs/variables.html
+  CONFIG.page = {
+    sidebar: "",
+    isHome : false,
+    isPost : true,
+    lang   : 'en'
+  };
+</script>
+
+  <title>ImagePy解析：1 -- 简介、安装和启动 | 亓欣波</title>
+  
+
+
+
+
+
+
+  <noscript>
+  <style>
+  .use-motion .brand,
+  .use-motion .menu-item,
+  .sidebar-inner,
+  .use-motion .post-block,
+  .use-motion .pagination,
+  .use-motion .comments,
+  .use-motion .post-header,
+  .use-motion .post-body,
+  .use-motion .collection-header { opacity: initial; }
+
+  .use-motion .site-title,
+  .use-motion .site-subtitle {
+    opacity: initial;
+    top: initial;
+  }
+
+  .use-motion .logo-line-before i { left: initial; }
+  .use-motion .logo-line-after i { right: initial; }
+  </style>
+</noscript>
+
+</head>
+
+<body itemscope itemtype="http://schema.org/WebPage">
+  <div class="container use-motion">
+    <div class="headband"></div>
+
+    <header class="header" itemscope itemtype="http://schema.org/WPHeader">
+      <div class="header-inner"><div class="site-brand-container">
+  <div class="site-nav-toggle">
+    <div class="toggle" aria-label="Toggle navigation bar">
+      <span class="toggle-line toggle-line-first"></span>
+      <span class="toggle-line toggle-line-middle"></span>
+      <span class="toggle-line toggle-line-last"></span>
+    </div>
+  </div>
+
+  <div class="site-meta">
+
+    <a href="/" class="brand" rel="start">
+      <span class="logo-line-before"><i></i></span>
+      <h1 class="site-title">亓欣波</h1>
+      <span class="logo-line-after"><i></i></span>
+    </a>
+      <p class="site-subtitle" itemprop="description">Hi, I am Xin-Bo Qi (亓欣波)</p>
+  </div>
+
+  <div class="site-nav-right">
+    <div class="toggle popup-trigger">
+    </div>
+  </div>
+</div>
+
+
+
+
+<nav class="site-nav">
+  <ul id="menu" class="main-menu menu">
+        <li class="menu-item menu-item-home">
+
+    <a href="/" rel="section"><i class="home fa-fw"></i>Home</a>
+
+  </li>
+        <li class="menu-item menu-item-categories">
+
+    <a href="/categories/" rel="section"><i class="th fa-fw"></i>Categories</a>
+
+  </li>
+        <li class="menu-item menu-item-archives">
+
+    <a href="/archives/" rel="section"><i class="archive fa-fw"></i>Archives</a>
+
+  </li>
+        <li class="menu-item menu-item-tags">
+
+    <a href="/tags/" rel="section"><i class="tags fa-fw"></i>Tags</a>
+
+  </li>
+        <li class="menu-item menu-item-scholar">
+
+    <a href="/scholar/" rel="section"><i class="bar-chart fa-fw"></i>scholar</a>
+
+  </li>
+        <li class="menu-item menu-item-sources">
+
+    <a href="/sources/" rel="section"><i class="rss fa-fw"></i>sources</a>
+
+  </li>
+        <li class="menu-item menu-item-gallery">
+
+    <a href="/gallery/" rel="section"><i class="file-image-o fa-fw"></i>gallery</a>
+
+  </li>
+        <li class="menu-item menu-item-about">
+
+    <a href="/about/" rel="section"><i class="user fa-fw"></i>About</a>
+
+  </li>
+        <li class="menu-item menu-item-commonweal">
+
+    <a href="/404.html" rel="section"><i class="heartbeat fa-fw"></i>Commonweal 404</a>
+
+  </li>
+  </ul>
+</nav>
+
+
+
+
+</div>
+    </header>
+
+    
+  <div class="back-to-top">
+    <i class="fa fa-arrow-up"></i>
+    <span>0%</span>
+  </div>
+
+
+    <main class="main">
+      <div class="main-inner">
+        <div class="content-wrap">
+          
+
+          <div class="content post posts-expand">
+            
+
+    
+  
+  
+  <article itemscope itemtype="http://schema.org/Article" class="post-block" lang="en">
+    <link itemprop="mainEntityOfPage" href="http://qixinbo.github.io/2019/03/17/ImagePy_1/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="image" content="/images/avatar.jpg">
+      <meta itemprop="name" content="Xin-Bo Qi(亓欣波)">
+      <meta itemprop="description" content="Be interesting!">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="亓欣波">
+    </span>
+      <header class="post-header">
+        <h1 class="post-title" itemprop="name headline">
+          ImagePy解析：1 -- 简介、安装和启动
+        </h1>
+
+        <div class="post-meta">
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="far fa-calendar"></i>
+              </span>
+              <span class="post-meta-item-text">Posted on</span>
+
+              <time title="Created: 2019-03-17 00:00:00" itemprop="dateCreated datePublished" datetime="2019-03-17T00:00:00+08:00">2019-03-17</time>
+            </span>
+              <span class="post-meta-item">
+                <span class="post-meta-item-icon">
+                  <i class="far fa-calendar-check"></i>
+                </span>
+                <span class="post-meta-item-text">Edited on</span>
+                <time title="Modified: 2021-03-25 15:20:30" itemprop="dateModified" datetime="2021-03-25T15:20:30+08:00">2021-03-25</time>
+              </span>
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="far fa-folder"></i>
+              </span>
+              <span class="post-meta-item-text">In</span>
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+                  <a href="/categories/computational-material-science/" itemprop="url" rel="index"><span itemprop="name">computational material science</span></a>
+                </span>
+            </span>
+
+          
+  
+  <span class="post-meta-item">
+    
+      <span class="post-meta-item-icon">
+        <i class="far fa-comment"></i>
+      </span>
+      <span class="post-meta-item-text">Disqus: </span>
+    
+    <a title="disqus" href="/2019/03/17/ImagePy_1/#disqus_thread" itemprop="discussionUrl">
+      <span class="post-comments-count disqus-comment-count" data-disqus-identifier="2019/03/17/ImagePy_1/" itemprop="commentCount"></span>
+    </a>
+  </span>
+  
+  
+
+        </div>
+      </header>
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+        <h1 id="ImagePy简介"><a href="#ImagePy简介" class="headerlink" title="ImagePy简介"></a>ImagePy简介</h1><p>“ImagePy是一款基于 Python 的可扩展图像处理框架，融合了ImageJ与Python的优势，是一个轻量级的、可扩展的图像处理框架。”（语出ImagePy官网：<a target="_blank" rel="noopener" href="http://www.imagepy.org/about/%EF%BC%89">http://www.imagepy.org/about/）</a><br>ImagePy作为一个GUI框架，可以快速接入opencv、scikit-image、mayavi等python的第三方库，因此，在功能性和易用性上都有很好的表现。<br>ImagePy的作者是闫霄龙yxdragon，目前是成都坐标创意科技有限公司的CEO，真牛人~~<br>项目的GitHub主页是：<a target="_blank" rel="noopener" href="https://github.com/Image-Py/imagepy">https://github.com/Image-Py/imagepy</a><br>GitHub上还有基于ImagePy的更多的扩展，比如opencv扩展、itk扩展、IBook扩展、海冰影像分析项目：<a target="_blank" rel="noopener" href="https://github.com/Image-Py">https://github.com/Image-Py</a><br>项目在知乎上的介绍：<a target="_blank" rel="noopener" href="https://zhuanlan.zhihu.com/imagepy">https://zhuanlan.zhihu.com/imagepy</a><br>项目在image.sc上的讨论频道是：<a target="_blank" rel="noopener" href="https://forum.image.sc/tags/imagepy">https://forum.image.sc/tags/imagepy</a><br>闫霄龙的一个视频直播分享：<a target="_blank" rel="noopener" href="https://www.bilibili.com/video/av39218282">B站</a>或<a target="_blank" rel="noopener" href="https://v.qq.com/x/page/b08204k4bjb.html">腾讯视频</a></p>
+<h1 id="安装"><a href="#安装" class="headerlink" title="安装"></a>安装</h1><p>如果想直接使用的话，可以直接下载release版本：<br><a target="_blank" rel="noopener" href="https://github.com/Image-Py/imagepy/releases">https://github.com/Image-Py/imagepy/releases</a><br>如果想二次开发的话，可以自己搭建python环境，并通过pip或conda安装必要的包，然后直接clone源码：<br><a target="_blank" rel="noopener" href="https://github.com/Image-Py/imagepy">https://github.com/Image-Py/imagepy</a></p>
+<h1 id="设计架构"><a href="#设计架构" class="headerlink" title="设计架构"></a>设计架构</h1><p>如图：<br><img src="https://ws4.sinaimg.cn/large/006Xmmmggy1g5nhfqnr12j30qf0e20vv.jpg"></p>
+<h2 id="展示层"><a href="#展示层" class="headerlink" title="展示层"></a>展示层</h2><p>即软件界面，包括菜单栏、工具条、状态栏、图像窗口等组成，ImagePy是基于wxPython来开发GUI。</p>
+<h2 id="管理层"><a href="#管理层" class="headerlink" title="管理层"></a>管理层</h2><p>即系统底层，包括很多管理器，如插件管理器、工具管理器、图像窗口管理器等。</p>
+<h2 id="逻辑层"><a href="#逻辑层" class="headerlink" title="逻辑层"></a>逻辑层</h2><p>即交互逻辑，将用户的界面操作与系统底层联系起来。同时该层也包括两种加载器：插件加载器PluginLoader和工具加载器ToolsLoader，来在软件初始化时来生成菜单栏和工具栏。</p>
+<h1 id="设计思想"><a href="#设计思想" class="headerlink" title="设计思想"></a>设计思想</h1><p>ImagePy采用插件式设计思想，根据功能的形式，制定了多种引擎模板engines，即基类（比如Filter、Free、table、tool等基类）。具体功能都是它们的子类，按照一定方式组织起来，然后由相应的加载器Loader和管理器Manager维护。某种意义上说，功能即文件，菜单即目录。</p>
+<h1 id="物理文件组织"><a href="#物理文件组织" class="headerlink" title="物理文件组织"></a>物理文件组织</h1><p>注意，这里是ImagePy 2019 7月份master分支的结构，不同版本可能有差别。<br>设计架构和设计思想要体现在具体的物理文件上，这里就体现了上面的“功能即文件，菜单即目录”。更具体地说，Python文件就是一个功能模块，或称功能包；ImagePy通过解析文件目录来生成GUI界面的菜单和目录。</p>
+<h2 id="core包"><a href="#core包" class="headerlink" title="core包"></a>core包</h2><h3 id="wraper包"><a href="#wraper包" class="headerlink" title="wraper包"></a>wraper包</h3><p>里面包含了两个ImagePy自定义的图像封装类ImagePlus和表格封装类TablePlus，用于更灵活地操纵图像和表格。</p>
+<h3 id="loader包"><a href="#loader包" class="headerlink" title="loader包"></a>loader包</h3><p>里面定义了如何解析插件Plugins和工具tools的函数。</p>
+<h3 id="engine包"><a href="#engine包" class="headerlink" title="engine包"></a>engine包</h3><p>里面定义了前面所述的各种引擎模板，用作其他类的基类。<br>具体的比如有：</p>
+<blockquote>
+<p>Filter:滤波器基类，用于图像处理类的插件，它将帮助你做一系列的工作，比如处理多通道和图像栈、支持选区等。<br>Simple:简单插件基类，不同于Filter，它处理的对象不是图像，而是ImagePlus整体（比如处理图像栈或 ROI）<br>Free:自由插件基类，其运行不需要依赖图像，可以在任何情况下执行（比如图像的打开功能）<br>Macros:宏插件基类，它可以由一组命令字符串构成，并依次执行。<br>Tool:工具基类，定义一组鼠标事件的处理函数，可以在Canvas的鼠标事件中被回调。</p>
+</blockquote>
+<h3 id="roi包"><a href="#roi包" class="headerlink" title="roi包"></a>roi包</h3><p>包含各种选区操作，如点选区、线选区、多边形选区等。</p>
+<h3 id="manager包"><a href="#manager包" class="headerlink" title="manager包"></a>manager包</h3><p>包含前面所述的各种管理器，如插件管理器等。</p>
+<h2 id="ui包"><a href="#ui包" class="headerlink" title="ui包"></a>ui包</h2><p>包含与UI操作相关的功能包。如：</p>
+<blockquote>
+<p>Canvas:负责绘制ImagePlus，这其中包括绘制图像数据、绘制选区、以及 Mark 标记。<br>CanvasFrame:Canvas的包裹类，使之能以一个窗口的形式展示。<br>ParaDialog:参数交互类，图像处理的诸多函数有各种的参数，ParaDialog采用数据驱动视图的方式，可以自动生成各类交互对话框。<br>pluginloader:解析菜单栏<br>toolsloader：解析工具条</p>
+</blockquote>
+<h2 id="menus包"><a href="#menus包" class="headerlink" title="menus包"></a>menus包</h2><p>存放全部的插件，可以按照任意目录解析</p>
+<h2 id="tools包"><a href="#tools包" class="headerlink" title="tools包"></a>tools包</h2><p>存放所有的工具。</p>
+<h2 id="IPy"><a href="#IPy" class="headerlink" title="IPy"></a>IPy</h2><p>对一些常用功能的引用类，可以通过Ipy访问ImagePy的许多常用功能，比如打开图像、输出日志等。</p>
+<h1 id="启动分析"><a href="#启动分析" class="headerlink" title="启动分析"></a>启动分析</h1><p>Windows下双击ImagePy.bat或Linux下运行ImagePy.sh，皆可启动ImagePy主程序，两者都是执行：</p>
+<figure class="highlight cpp"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">python -m imagepy</span><br></pre></td></tr></table></figure>
+<p>ImagePy软件是以imagepy这个包来组织代码的，所以上面命令以模块形式运行imagepy，会首先运行该包的__init__.py文件，然后再运行__main__.py文件，这里面会有几个添加并识别路径的语句，保证程序能够被顺利找到。具体地：在__init__.py文件中先将系统路径切换到imagepy路径下，这样就可以通过相对路径来引用内部模块、图片等静态文件，然后在__main__.py中通过相对路径将上一层路径加入到sys.path中，从而让python能找到imagepy这个包，然后调用imagepy.show()这个方法开始真正执行具体的逻辑。</p>
+<p>具体地，ImagePy使用wxPython作为GUI框架：</p>
+<figure class="highlight cpp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line">app = wx.<span class="built_in">App</span>(False) #创建application</span><br><span class="line"><span class="built_in">ImagePy</span>(None).<span class="built_in">Show</span>() #显示</span><br><span class="line">app.<span class="built_in">MainLoop</span>() #进入主循环，等待交互</span><br><span class="line"></span><br></pre></td></tr></table></figure>
+
+<p>ImagePy类是自定义的继承自wx.Frame的框架。</p>
+
+    </div>
+
+    
+    
+    
+        <div class="reward-container">
+  <div></div>
+  <button onclick="var qr = document.getElementById('qr'); qr.style.display = (qr.style.display === 'none') ? 'block' : 'none';">
+    Donate
+  </button>
+  <div id="qr" style="display: none;">
+      
+      <div style="display: inline-block;">
+        <img src="/images/wechat_reward.png" alt="Xin-Bo Qi(亓欣波) WeChat Pay">
+        <p>WeChat Pay</p>
+      </div>
+
+  </div>
+</div>
+
+
+      <footer class="post-footer">
+          <div class="post-tags">
+              <a href="/tags/ImagePy/" rel="tag"># ImagePy</a>
+          </div>
+
+        
+
+
+        
+    <div class="post-nav">
+      <div class="post-nav-item">
+    <a href="/2018/10/06/imagej-plugins/" rel="prev" title="ImageJ的插件开发">
+      <i class="fa fa-chevron-left"></i> ImageJ的插件开发
+    </a></div>
+      <div class="post-nav-item">
+    <a href="/2019/05/08/aliyun/" rel="next" title="阿里云服务器：购买、连接和部署">
+      阿里云服务器：购买、连接和部署 <i class="fa fa-chevron-right"></i>
+    </a></div>
+    </div>
+      </footer>
+    
+  </article>
+  
+  
+  
+
+
+
+          </div>
+          
+    
+  <div class="comments">
+    <div id="disqus_thread">
+      <noscript>Please enable JavaScript to view the comments powered by Disqus.</noscript>
+    </div>
+  </div>
+  
+
+<script>
+  window.addEventListener('tabs:register', () => {
+    let { activeClass } = CONFIG.comments;
+    if (CONFIG.comments.storage) {
+      activeClass = localStorage.getItem('comments_active') || activeClass;
+    }
+    if (activeClass) {
+      let activeTab = document.querySelector(`a[href="#comment-${activeClass}"]`);
+      if (activeTab) {
+        activeTab.click();
+      }
+    }
+  });
+  if (CONFIG.comments.storage) {
+    window.addEventListener('tabs:click', event => {
+      if (!event.target.matches('.tabs-comment .tab-content .tab-pane')) return;
+      let commentClass = event.target.classList[1];
+      localStorage.setItem('comments_active', commentClass);
+    });
+  }
+</script>
+
+        </div>
+          
+  
+  <div class="toggle sidebar-toggle">
+    <span class="toggle-line toggle-line-first"></span>
+    <span class="toggle-line toggle-line-middle"></span>
+    <span class="toggle-line toggle-line-last"></span>
+  </div>
+
+  <aside class="sidebar">
+    <div class="sidebar-inner">
+
+      <ul class="sidebar-nav motion-element">
+        <li class="sidebar-nav-toc">
+          Table of Contents
+        </li>
+        <li class="sidebar-nav-overview">
+          Overview
+        </li>
+      </ul>
+
+      <!--noindex-->
+      <div class="post-toc-wrap sidebar-panel">
+          <div class="post-toc motion-element"><ol class="nav"><li class="nav-item nav-level-1"><a class="nav-link" href="#ImagePy%E7%AE%80%E4%BB%8B"><span class="nav-number">1.</span> <span class="nav-text">ImagePy简介</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#%E5%AE%89%E8%A3%85"><span class="nav-number">2.</span> <span class="nav-text">安装</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#%E8%AE%BE%E8%AE%A1%E6%9E%B6%E6%9E%84"><span class="nav-number">3.</span> <span class="nav-text">设计架构</span></a><ol class="nav-child"><li class="nav-item nav-level-2"><a class="nav-link" href="#%E5%B1%95%E7%A4%BA%E5%B1%82"><span class="nav-number">3.1.</span> <span class="nav-text">展示层</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E7%AE%A1%E7%90%86%E5%B1%82"><span class="nav-number">3.2.</span> <span class="nav-text">管理层</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E9%80%BB%E8%BE%91%E5%B1%82"><span class="nav-number">3.3.</span> <span class="nav-text">逻辑层</span></a></li></ol></li><li class="nav-item nav-level-1"><a class="nav-link" href="#%E8%AE%BE%E8%AE%A1%E6%80%9D%E6%83%B3"><span class="nav-number">4.</span> <span class="nav-text">设计思想</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#%E7%89%A9%E7%90%86%E6%96%87%E4%BB%B6%E7%BB%84%E7%BB%87"><span class="nav-number">5.</span> <span class="nav-text">物理文件组织</span></a><ol class="nav-child"><li class="nav-item nav-level-2"><a class="nav-link" href="#core%E5%8C%85"><span class="nav-number">5.1.</span> <span class="nav-text">core包</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#wraper%E5%8C%85"><span class="nav-number">5.1.1.</span> <span class="nav-text">wraper包</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#loader%E5%8C%85"><span class="nav-number">5.1.2.</span> <span class="nav-text">loader包</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#engine%E5%8C%85"><span class="nav-number">5.1.3.</span> <span class="nav-text">engine包</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#roi%E5%8C%85"><span class="nav-number">5.1.4.</span> <span class="nav-text">roi包</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#manager%E5%8C%85"><span class="nav-number">5.1.5.</span> <span class="nav-text">manager包</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#ui%E5%8C%85"><span class="nav-number">5.2.</span> <span class="nav-text">ui包</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#menus%E5%8C%85"><span class="nav-number">5.3.</span> <span class="nav-text">menus包</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#tools%E5%8C%85"><span class="nav-number">5.4.</span> <span class="nav-text">tools包</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#IPy"><span class="nav-number">5.5.</span> <span class="nav-text">IPy</span></a></li></ol></li><li class="nav-item nav-level-1"><a class="nav-link" href="#%E5%90%AF%E5%8A%A8%E5%88%86%E6%9E%90"><span class="nav-number">6.</span> <span class="nav-text">启动分析</span></a></li></ol></div>
+      </div>
+      <!--/noindex-->
+
+      <div class="site-overview-wrap sidebar-panel">
+        <div class="site-author motion-element" itemprop="author" itemscope itemtype="http://schema.org/Person">
+    <img class="site-author-image" itemprop="image" alt="Xin-Bo Qi(亓欣波)"
+      src="/images/avatar.jpg">
+  <p class="site-author-name" itemprop="name">Xin-Bo Qi(亓欣波)</p>
+  <div class="site-description" itemprop="description">Be interesting!</div>
+</div>
+<div class="site-state-wrap motion-element">
+  <nav class="site-state">
+      <div class="site-state-item site-state-posts">
+          <a href="/archives/">
+        
+          <span class="site-state-item-count">120</span>
+          <span class="site-state-item-name">posts</span>
+        </a>
+      </div>
+      <div class="site-state-item site-state-categories">
+            <a href="/categories/">
+          
+        <span class="site-state-item-count">5</span>
+        <span class="site-state-item-name">categories</span></a>
+      </div>
+      <div class="site-state-item site-state-tags">
+            <a href="/tags/">
+          
+        <span class="site-state-item-count">41</span>
+        <span class="site-state-item-name">tags</span></a>
+      </div>
+  </nav>
+</div>
+  <div class="links-of-author motion-element">
+      <span class="links-of-author-item">
+        <a href="https://github.com/qixinbo" title="GitHub → https:&#x2F;&#x2F;github.com&#x2F;qixinbo" rel="noopener" target="_blank"><i class="github fa-fw"></i>GitHub</a>
+      </span>
+      <span class="links-of-author-item">
+        <a href="mailto:qixinbo@gmail.com" title="E-Mail → mailto:qixinbo@gmail.com" rel="noopener" target="_blank"><i class="envelope fa-fw"></i>E-Mail</a>
+      </span>
+  </div>
+
+
+  <div class="links-of-blogroll motion-element">
+    <div class="links-of-blogroll-title"><i class="fa fa-link fa-fw"></i>
+      Links
+    </div>
+    <ul class="links-of-blogroll-list">
+        <li class="links-of-blogroll-item">
+          <a href="https://www.tsinghua.edu.cn/" title="https:&#x2F;&#x2F;www.tsinghua.edu.cn" rel="noopener" target="_blank">THU</a>
+        </li>
+        <li class="links-of-blogroll-item">
+          <a href="http://www.imr.cas.cn/" title="http:&#x2F;&#x2F;www.imr.cas.cn" rel="noopener" target="_blank">IMR</a>
+        </li>
+        <li class="links-of-blogroll-item">
+          <a href="http://www.sdu.edu.cn/" title="http:&#x2F;&#x2F;www.sdu.edu.cn" rel="noopener" target="_blank">SDU</a>
+        </li>
+        <li class="links-of-blogroll-item">
+          <a href="http://liam0205.me/" title="http:&#x2F;&#x2F;liam0205.me&#x2F;" rel="noopener" target="_blank">黄晨成</a>
+        </li>
+    </ul>
+  </div>
+
+      </div>
+
+    </div>
+  </aside>
+  <div id="sidebar-dimmer"></div>
+
+
+      </div>
+    </main>
+
+    <footer class="footer">
+      <div class="footer-inner">
+        
+
+        
+
+<div class="copyright">
+  
+  &copy; 
+  <span itemprop="copyrightYear">2021</span>
+  <span class="with-love">
+    <i class="fa fa-heart"></i>
+  </span>
+  <span class="author" itemprop="copyrightHolder">Xin-Bo Qi(亓欣波)</span>
+</div>
+  <div class="powered-by">Powered by <a href="https://hexo.io/" class="theme-link" rel="noopener" target="_blank">Hexo</a> & <a href="https://theme-next.org/" class="theme-link" rel="noopener" target="_blank">NexT.Gemini</a>
+  </div>
+
+        
+
+
+
+
+
+
+
+
+      </div>
+    </footer>
+  </div>
+
+  
+  <script src="/lib/anime.min.js"></script>
+  <script src="/lib/velocity/velocity.min.js"></script>
+  <script src="/lib/velocity/velocity.ui.min.js"></script>
+
+<script src="/js/utils.js"></script>
+
+<script src="/js/motion.js"></script>
+
+
+<script src="/js/schemes/pisces.js"></script>
+
+
+<script src="/js/next-boot.js"></script>
+
+
+
+
+  
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+  
+
+  
+
+  
+
+<script>
+  function loadCount() {
+    var d = document, s = d.createElement('script');
+    s.src = 'https://qixinbo.disqus.com/count.js';
+    s.id = 'dsq-count-scr';
+    (d.head || d.body).appendChild(s);
+  }
+  // defer loading until the whole page loading is completed
+  window.addEventListener('load', loadCount, false);
+</script>
+<script>
+  var disqus_config = function() {
+    this.page.url = "http://qixinbo.github.io/2019/03/17/ImagePy_1/";
+    this.page.identifier = "2019/03/17/ImagePy_1/";
+    this.page.title = "ImagePy解析：1 -- 简介、安装和启动";
+    };
+  NexT.utils.loadComments(document.querySelector('#disqus_thread'), () => {
+    if (window.DISQUS) {
+      DISQUS.reset({
+        reload: true,
+        config: disqus_config
+      });
+    } else {
+      var d = document, s = d.createElement('script');
+      s.src = 'https://qixinbo.disqus.com/embed.js';
+      s.setAttribute('data-timestamp', '' + +new Date());
+      (d.head || d.body).appendChild(s);
+    }
+  });
+</script>
+
+</body>
+</html>

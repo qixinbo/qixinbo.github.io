@@ -1,0 +1,573 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=2">
+<meta name="theme-color" content="#222">
+<meta name="generator" content="Hexo 5.4.0">
+  <link rel="apple-touch-icon" sizes="180x180" href="/images/apple-touch-icon-next.png">
+  <link rel="icon" type="image/png" sizes="32x32" href="/favicon.ico">
+  <link rel="icon" type="image/png" sizes="16x16" href="/favicon.ico">
+  <link rel="mask-icon" href="/images/logo.svg" color="#222">
+
+<link rel="stylesheet" href="/css/main.css">
+
+
+<link rel="stylesheet" href="/lib/font-awesome/css/all.min.css">
+
+<script id="hexo-configurations">
+    var NexT = window.NexT || {};
+    var CONFIG = {"hostname":"qixinbo.github.io","root":"/","scheme":"Gemini","version":"7.8.0","exturl":false,"sidebar":{"position":"left","display":"post","padding":18,"offset":12,"onmobile":false},"copycode":{"enable":false,"show_result":false,"style":null},"back2top":{"enable":true,"sidebar":false,"scrollpercent":false},"bookmark":{"enable":false,"color":"#222","save":"auto"},"fancybox":false,"mediumzoom":false,"lazyload":false,"pangu":false,"comments":{"style":"tabs","active":null,"storage":true,"lazyload":false,"nav":null},"algolia":{"hits":{"per_page":10},"labels":{"input_placeholder":"Search for Posts","hits_empty":"We didn't find any results for the search: ${query}","hits_stats":"${hits} results found in ${time} ms"}},"localsearch":{"enable":false,"trigger":"auto","top_n_per_article":1,"unescape":false,"preload":false},"motion":{"enable":true,"async":false,"transition":{"post_block":"fadeIn","post_header":"slideDownIn","post_body":"slideDownIn","coll_header":"slideLeftIn","sidebar":"slideUpIn"}}};
+  </script>
+
+  <meta name="description" content="本文对sciwx的独立组件——参数对话框ParaDialog进行解析。 demo全景首先还是直接给出sciwx库中可运行的demo： 1234567891011121314151617181920212223from sciwx.widgets import ParaDialogif __name__ &#x3D;&#x3D; &amp;#x27;__main__&amp;#x27;:    para &#x3D; &amp;#123;&amp;#x27;n">
+<meta property="og:type" content="article">
+<meta property="og:title" content="ImagePy解析：18 -- 参数对话框ParaDialog详解">
+<meta property="og:url" content="http://qixinbo.github.io/2020/03/24/ImagePy_18/index.html">
+<meta property="og:site_name" content="亓欣波">
+<meta property="og:description" content="本文对sciwx的独立组件——参数对话框ParaDialog进行解析。 demo全景首先还是直接给出sciwx库中可运行的demo： 1234567891011121314151617181920212223from sciwx.widgets import ParaDialogif __name__ &#x3D;&#x3D; &amp;#x27;__main__&amp;#x27;:    para &#x3D; &amp;#123;&amp;#x27;n">
+<meta property="og:locale" content="en_US">
+<meta property="og:image" content="https://user-images.githubusercontent.com/6218739/77433470-5efc0080-6e1a-11ea-85e1-83e3d54cad10.png">
+<meta property="article:published_time" content="2020-03-23T16:00:00.000Z">
+<meta property="article:modified_time" content="2021-03-25T07:20:30.369Z">
+<meta property="article:author" content="Xin-Bo Qi(亓欣波)">
+<meta property="article:tag" content="ImagePy">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:image" content="https://user-images.githubusercontent.com/6218739/77433470-5efc0080-6e1a-11ea-85e1-83e3d54cad10.png">
+
+<link rel="canonical" href="http://qixinbo.github.io/2020/03/24/ImagePy_18/">
+
+
+<script id="page-configurations">
+  // https://hexo.io/docs/variables.html
+  CONFIG.page = {
+    sidebar: "",
+    isHome : false,
+    isPost : true,
+    lang   : 'en'
+  };
+</script>
+
+  <title>ImagePy解析：18 -- 参数对话框ParaDialog详解 | 亓欣波</title>
+  
+
+
+
+
+
+
+  <noscript>
+  <style>
+  .use-motion .brand,
+  .use-motion .menu-item,
+  .sidebar-inner,
+  .use-motion .post-block,
+  .use-motion .pagination,
+  .use-motion .comments,
+  .use-motion .post-header,
+  .use-motion .post-body,
+  .use-motion .collection-header { opacity: initial; }
+
+  .use-motion .site-title,
+  .use-motion .site-subtitle {
+    opacity: initial;
+    top: initial;
+  }
+
+  .use-motion .logo-line-before i { left: initial; }
+  .use-motion .logo-line-after i { right: initial; }
+  </style>
+</noscript>
+
+</head>
+
+<body itemscope itemtype="http://schema.org/WebPage">
+  <div class="container use-motion">
+    <div class="headband"></div>
+
+    <header class="header" itemscope itemtype="http://schema.org/WPHeader">
+      <div class="header-inner"><div class="site-brand-container">
+  <div class="site-nav-toggle">
+    <div class="toggle" aria-label="Toggle navigation bar">
+      <span class="toggle-line toggle-line-first"></span>
+      <span class="toggle-line toggle-line-middle"></span>
+      <span class="toggle-line toggle-line-last"></span>
+    </div>
+  </div>
+
+  <div class="site-meta">
+
+    <a href="/" class="brand" rel="start">
+      <span class="logo-line-before"><i></i></span>
+      <h1 class="site-title">亓欣波</h1>
+      <span class="logo-line-after"><i></i></span>
+    </a>
+      <p class="site-subtitle" itemprop="description">Hi, I am Xin-Bo Qi (亓欣波)</p>
+  </div>
+
+  <div class="site-nav-right">
+    <div class="toggle popup-trigger">
+    </div>
+  </div>
+</div>
+
+
+
+
+<nav class="site-nav">
+  <ul id="menu" class="main-menu menu">
+        <li class="menu-item menu-item-home">
+
+    <a href="/" rel="section"><i class="home fa-fw"></i>Home</a>
+
+  </li>
+        <li class="menu-item menu-item-categories">
+
+    <a href="/categories/" rel="section"><i class="th fa-fw"></i>Categories</a>
+
+  </li>
+        <li class="menu-item menu-item-archives">
+
+    <a href="/archives/" rel="section"><i class="archive fa-fw"></i>Archives</a>
+
+  </li>
+        <li class="menu-item menu-item-tags">
+
+    <a href="/tags/" rel="section"><i class="tags fa-fw"></i>Tags</a>
+
+  </li>
+        <li class="menu-item menu-item-scholar">
+
+    <a href="/scholar/" rel="section"><i class="bar-chart fa-fw"></i>scholar</a>
+
+  </li>
+        <li class="menu-item menu-item-sources">
+
+    <a href="/sources/" rel="section"><i class="rss fa-fw"></i>sources</a>
+
+  </li>
+        <li class="menu-item menu-item-gallery">
+
+    <a href="/gallery/" rel="section"><i class="file-image-o fa-fw"></i>gallery</a>
+
+  </li>
+        <li class="menu-item menu-item-about">
+
+    <a href="/about/" rel="section"><i class="user fa-fw"></i>About</a>
+
+  </li>
+        <li class="menu-item menu-item-commonweal">
+
+    <a href="/404.html" rel="section"><i class="heartbeat fa-fw"></i>Commonweal 404</a>
+
+  </li>
+  </ul>
+</nav>
+
+
+
+
+</div>
+    </header>
+
+    
+  <div class="back-to-top">
+    <i class="fa fa-arrow-up"></i>
+    <span>0%</span>
+  </div>
+
+
+    <main class="main">
+      <div class="main-inner">
+        <div class="content-wrap">
+          
+
+          <div class="content post posts-expand">
+            
+
+    
+  
+  
+  <article itemscope itemtype="http://schema.org/Article" class="post-block" lang="en">
+    <link itemprop="mainEntityOfPage" href="http://qixinbo.github.io/2020/03/24/ImagePy_18/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="image" content="/images/avatar.jpg">
+      <meta itemprop="name" content="Xin-Bo Qi(亓欣波)">
+      <meta itemprop="description" content="Be interesting!">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="亓欣波">
+    </span>
+      <header class="post-header">
+        <h1 class="post-title" itemprop="name headline">
+          ImagePy解析：18 -- 参数对话框ParaDialog详解
+        </h1>
+
+        <div class="post-meta">
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="far fa-calendar"></i>
+              </span>
+              <span class="post-meta-item-text">Posted on</span>
+
+              <time title="Created: 2020-03-24 00:00:00" itemprop="dateCreated datePublished" datetime="2020-03-24T00:00:00+08:00">2020-03-24</time>
+            </span>
+              <span class="post-meta-item">
+                <span class="post-meta-item-icon">
+                  <i class="far fa-calendar-check"></i>
+                </span>
+                <span class="post-meta-item-text">Edited on</span>
+                <time title="Modified: 2021-03-25 15:20:30" itemprop="dateModified" datetime="2021-03-25T15:20:30+08:00">2021-03-25</time>
+              </span>
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="far fa-folder"></i>
+              </span>
+              <span class="post-meta-item-text">In</span>
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+                  <a href="/categories/computational-material-science/" itemprop="url" rel="index"><span itemprop="name">computational material science</span></a>
+                </span>
+            </span>
+
+          
+  
+  <span class="post-meta-item">
+    
+      <span class="post-meta-item-icon">
+        <i class="far fa-comment"></i>
+      </span>
+      <span class="post-meta-item-text">Disqus: </span>
+    
+    <a title="disqus" href="/2020/03/24/ImagePy_18/#disqus_thread" itemprop="discussionUrl">
+      <span class="post-comments-count disqus-comment-count" data-disqus-identifier="2020/03/24/ImagePy_18/" itemprop="commentCount"></span>
+    </a>
+  </span>
+  
+  
+
+        </div>
+      </header>
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+        <p>本文对sciwx的独立组件——参数对话框ParaDialog进行解析。</p>
+<h1 id="demo全景"><a href="#demo全景" class="headerlink" title="demo全景"></a>demo全景</h1><p>首先还是直接给出sciwx库中可运行的demo：</p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">from</span> sciwx.widgets <span class="keyword">import</span> ParaDialog</span><br><span class="line"></span><br><span class="line"><span class="keyword">if</span> __name__ == <span class="string">&#x27;__main__&#x27;</span>:</span><br><span class="line">    para = &#123;<span class="string">&#x27;name&#x27;</span>:<span class="string">&#x27;yxdragon&#x27;</span>, <span class="string">&#x27;age&#x27;</span>:<span class="number">10</span>, <span class="string">&#x27;h&#x27;</span>:<span class="number">1.72</span>, <span class="string">&#x27;w&#x27;</span>:<span class="number">70</span>, <span class="string">&#x27;sport&#x27;</span>:<span class="literal">True</span>, <span class="string">&#x27;sys&#x27;</span>:<span class="string">&#x27;Mac&#x27;</span>, <span class="string">&#x27;lan&#x27;</span>:[<span class="string">&#x27;C/C++&#x27;</span>, <span class="string">&#x27;Python&#x27;</span>], <span class="string">&#x27;c&#x27;</span>:(<span class="number">255</span>,<span class="number">0</span>,<span class="number">0</span>), <span class="string">&#x27;path&#x27;</span>: <span class="string">&#x27; &#x27;</span>&#125;</span><br><span class="line"></span><br><span class="line">    view = [(<span class="string">&#x27;lab&#x27;</span>, <span class="string">&#x27;lab&#x27;</span>, <span class="string">&#x27;This is a questionnaire&#x27;</span>),</span><br><span class="line">            (<span class="built_in">str</span>, <span class="string">&#x27;name&#x27;</span>, <span class="string">&#x27;name&#x27;</span>, <span class="string">&#x27;please&#x27;</span>),</span><br><span class="line">            (<span class="built_in">int</span>, <span class="string">&#x27;age&#x27;</span>, (<span class="number">0</span>,<span class="number">150</span>), <span class="number">0</span>, <span class="string">&#x27;age&#x27;</span>, <span class="string">&#x27;years old&#x27;</span>),</span><br><span class="line">            (<span class="built_in">float</span>, <span class="string">&#x27;h&#x27;</span>, (<span class="number">0.3</span>, <span class="number">2.5</span>), <span class="number">2</span>, <span class="string">&#x27;height&#x27;</span>, <span class="string">&#x27;m&#x27;</span>),</span><br><span class="line">            (<span class="string">&#x27;slide&#x27;</span>, <span class="string">&#x27;w&#x27;</span>, (<span class="number">1</span>, <span class="number">150</span>), <span class="number">0</span>, <span class="string">&#x27;weight&#x27;</span>,<span class="string">&#x27;kg&#x27;</span>),</span><br><span class="line">            (<span class="built_in">bool</span>, <span class="string">&#x27;sport&#x27;</span>, <span class="string">&#x27;do you like sport&#x27;</span>),</span><br><span class="line">            (<span class="built_in">list</span>, <span class="string">&#x27;sys&#x27;</span>, [<span class="string">&#x27;Windows&#x27;</span>,<span class="string">&#x27;Mac&#x27;</span>,<span class="string">&#x27;Linux&#x27;</span>], <span class="built_in">str</span>, <span class="string">&#x27;favourite&#x27;</span>, <span class="string">&#x27;system&#x27;</span>),</span><br><span class="line">            (<span class="string">&#x27;chos&#x27;</span>, <span class="string">&#x27;lan&#x27;</span>, [<span class="string">&#x27;C/C++&#x27;</span>,<span class="string">&#x27;Java&#x27;</span>,<span class="string">&#x27;Python&#x27;</span>], <span class="string">&#x27;lanuage you like(multi)&#x27;</span>),</span><br><span class="line">            (<span class="string">&#x27;color&#x27;</span>, <span class="string">&#x27;c&#x27;</span>, <span class="string">&#x27;which&#x27;</span>, <span class="string">&#x27;you like&#x27;</span>),</span><br><span class="line">            (<span class="string">&#x27;path&#x27;</span>, <span class="string">&#x27;path&#x27;</span>, <span class="string">&#x27;Select the image&#x27;</span>, [<span class="string">&#x27;jpg&#x27;</span>, <span class="string">&#x27;jpeg&#x27;</span>, <span class="string">&#x27;png&#x27;</span>])]</span><br><span class="line"></span><br><span class="line">    app = wx.App()</span><br><span class="line">    pd = ParaDialog(<span class="literal">None</span>, <span class="string">&#x27;Test&#x27;</span>)</span><br><span class="line">    pd.init_view(view, para, preview=<span class="literal">True</span>, modal=<span class="literal">False</span>)</span><br><span class="line">    pd.pack()</span><br><span class="line">    pd.ShowModal()</span><br><span class="line">    <span class="built_in">print</span>(para)</span><br><span class="line">    app.MainLoop()</span><br></pre></td></tr></table></figure>
+
+<p>运行结果如图：<br><img src="https://user-images.githubusercontent.com/6218739/77433470-5efc0080-6e1a-11ea-85e1-83e3d54cad10.png" alt="paradiglog"></p>
+<p>可以看出，该对话框中包含了输入框（包含文本输入、数值输入）、滑动条（集成了微调器）、单选框、复选框、下拉列表等效果，完全满足日常人机交互的需求。</p>
+<p>下面再分步细看具体设置。</p>
+<h1 id="参数字典para"><a href="#参数字典para" class="headerlink" title="参数字典para"></a>参数字典para</h1><p>变量para是一个参数字典，用来设置该对话框所提供的想要用户进行交互调节的参数。<br>该字典中的key都是字符串，而value则视参数类型的不同，要设置好默认值，比如数值输入框的默认值是数值，颜色输入框的默认值是(255, 0, 0)这样的RGB元组等。</p>
+<h1 id="视图列表view"><a href="#视图列表view" class="headerlink" title="视图列表view"></a>视图列表view</h1><p>变量view是一个列表，用来控制所形成的对话框的图形界面。<br>可以看出，view列表中又有若干元组，这些元组就是对话框中的各个组件。还有一点非常重要的是，注意到，不同组件所需的参数量不同，因此编写view时需要将这些参数搞明白。<br>编写view时，要将元组中的参数分成三类进行考虑（下文会对原因有详细说明），第一类是该元组的第一个元素，第二类是元组的第二个元素，第三类是后面所有元素。<br>第一个元素就是ImagePy/sciwx的内部组件类型，第二个元素就是para中的各个键值key（lab类型除外），第三个元素就是该组件需要的参数。因为第二个元素是para变量所定义的，所以下面只对其他元素进行说明：<br>（1）标签：内部类型’lab’，参数为title，view中写法为：(‘lab’, ‘lab’, title)<br>（2）文本输入框：内部类型str，参数为(title, unit)，即名称（或称前缀）和单位（或称后缀）， view写法为：(str, key, title, unit)<br>（3）数值输入框：内部类型int或float，即使用int或float皆可，这里只是语义上的差别，两者实际调用的是同一个组件，使用int时后面的精度设为0，使用float时精度设为大于0的整数，即保留多少位小数；参数为(rang, accury, title, unit)，即范围、精度、名称和单位，view写法为：(int, key, (lim1, lim2), accu, title, unit)<br>（4）滑动条（集成了微调器）：内部类型’slide’（注意别忘了单引号），参数为(rang, accury, title, unit=’’)，即范围、精度、名称和单位（单位有默认参数，可以不显式指定），view写法为(‘slide’, key, rang, accury, title, unit)<br>（5）单选框：内部类型bool，参数为title，view写法为(bool, key, title)<br>（6）下拉列表：内部类型list，参数为(choices, type, title, unit)，choices为字符选项，type为期望输出类型，比如str或int，view写法为(list, key, [choices], type, title, unit)<br>（7）复选框：内部类型’chos’，参数为(choices, title)，choices为字符选项，与上面的list不同的是，其支持多选，view写法为(‘chos’, key, [choices], title)<br>（8）颜色框：内部类型’color’，参数为(title, unit)，即前缀和后缀，view写法为：(‘color’, key, title, unit)<br>（9）路径选择框：内部类型’path’，参数为(title, filter)，filter是所指定的文件扩展名，view写法为：(‘path’, key, title, filter)</p>
+<h1 id="初始化类"><a href="#初始化类" class="headerlink" title="初始化类"></a>初始化类</h1><figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">pd = ParaDialog(<span class="literal">None</span>, <span class="string">&#x27;Test&#x27;</span>)</span><br></pre></td></tr></table></figure>
+<p>这一步是初始化ParaDialog类。<br>该类派生自wx.Dialog类，从该类的初始化函数可以看出，其需要传入parent和title两个参数，所以该对话框的标题就是Test。</p>
+<h1 id="初始化视图"><a href="#初始化视图" class="headerlink" title="初始化视图"></a>初始化视图</h1><figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">pd.init_view(view, para, preview=<span class="literal">True</span>, modal=<span class="literal">False</span>)</span><br></pre></td></tr></table></figure>
+<p>这一步是调用了ParaDialog类的init_view函数，传入的就是上面的view和para，preview是指定是否显示preview单选框，如果勾选了该框，那么当参数发生变化时就会在后台打印参数值（因为这里的self.handle=print），。<br>该步是关键一步，在后台做了很多事情，如果想理清ParaDialog的生成机理，需要深入研究一下。<br>先看一下该函数的全貌：</p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="keyword">def</span> <span class="title">init_view</span>(<span class="params">self, items, para, preview=<span class="literal">False</span>, modal = <span class="literal">True</span></span>):</span></span><br><span class="line">    self.para = para</span><br><span class="line">    <span class="keyword">for</span> item <span class="keyword">in</span> items:</span><br><span class="line">        self.add_ctrl_(widgets[item[<span class="number">0</span>]], item[<span class="number">1</span>], item[<span class="number">2</span>:])</span><br><span class="line"></span><br><span class="line">    <span class="keyword">if</span> preview:self.add_ctrl_(Check, <span class="string">&#x27;preview&#x27;</span>, (<span class="string">&#x27;preview&#x27;</span>,))</span><br><span class="line">    self.reset(para)</span><br><span class="line">    self.add_confirm(modal)</span><br><span class="line">    self.pack()</span><br><span class="line">    self.Bind(wx.EVT_WINDOW_DESTROY, self.OnDestroy)</span><br><span class="line">    <span class="built_in">print</span>(<span class="string">&#x27;bind close&#x27;</span>)</span><br></pre></td></tr></table></figure>
+<h2 id="参数字典传递"><a href="#参数字典传递" class="headerlink" title="参数字典传递"></a>参数字典传递</h2><figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">self.para = para</span><br></pre></td></tr></table></figure>
+<p>这一步是将外部传过来的para赋值给内部属性self.para。</p>
+<h2 id="添加组件"><a href="#添加组件" class="headerlink" title="添加组件"></a>添加组件</h2><figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">for</span> item <span class="keyword">in</span> items:</span><br><span class="line">    self.add_ctrl_(widgets[item[<span class="number">0</span>]], item[<span class="number">1</span>], item[<span class="number">2</span>:])</span><br></pre></td></tr></table></figure>
+<p>这一步是将view视图中的组件添加进来。<br>因为view是个列表，所以这里先用循环逐个提取。然后在添加时将item拆分成了三部分，将其第0个元素、第1个元素、(第2个元素及后面所有元素)分别传入不同的位置，下面具体看为什么这么做。</p>
+<h3 id="view的第0个元素"><a href="#view的第0个元素" class="headerlink" title="view的第0个元素"></a>view的第0个元素</h3><figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">widgets[item[<span class="number">0</span>]]</span><br></pre></td></tr></table></figure>
+<p>这个元素是传入了widgets，而widgets也是一个字典：</p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">widgets = &#123; <span class="string">&#x27;ctrl&#x27;</span>:<span class="literal">None</span>, <span class="string">&#x27;slide&#x27;</span>:FloatSlider, <span class="built_in">int</span>:NumCtrl, <span class="string">&#x27;path&#x27;</span>:PathCtrl,</span><br><span class="line">            <span class="built_in">float</span>:NumCtrl, <span class="string">&#x27;lab&#x27;</span>:Label, <span class="built_in">bool</span>:Check, <span class="built_in">str</span>:TextCtrl, <span class="built_in">list</span>:Choice,</span><br><span class="line">            <span class="string">&#x27;color&#x27;</span>:ColorCtrl, <span class="string">&#x27;any&#x27;</span>:AnyType, <span class="string">&#x27;chos&#x27;</span>:Choices, <span class="string">&#x27;hist&#x27;</span>:HistPanel&#125;</span><br></pre></td></tr></table></figure>
+<p>可以看出，view的第0个元素是作为widgets的key，这样就能对应提取widgets中的value。而这些value就是sciwx独有的基于wxPython各种组件二次开发的组件。以NumCtrl为例：</p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br></pre></td><td class="code"><pre><span class="line"><span class="class"><span class="keyword">class</span> <span class="title">NumCtrl</span>(<span class="params">wx.Panel</span>):</span></span><br><span class="line">    <span class="string">&quot;&quot;&quot;NumCtrl: diverid from wx.core.TextCtrl &quot;&quot;&quot;</span></span><br><span class="line">    <span class="function"><span class="keyword">def</span> <span class="title">__init__</span>(<span class="params">self, parent, rang, accury, title, unit</span>):</span></span><br><span class="line">        wx.Panel.__init__(self, parent)</span><br><span class="line">        sizer = wx.BoxSizer( wx.HORIZONTAL )</span><br><span class="line">        self.prefix = lab_title = wx.StaticText( self, wx.ID_ANY, title,</span><br><span class="line">                                  wx.DefaultPosition, wx.DefaultSize)</span><br><span class="line"></span><br><span class="line">        lab_title.Wrap( -<span class="number">1</span> )</span><br><span class="line">        sizer.Add( lab_title, <span class="number">0</span>, wx.ALIGN_CENTER|wx.ALL, <span class="number">5</span> )</span><br><span class="line">        self.ctrl = wx.TextCtrl(self, wx.TE_RIGHT)</span><br><span class="line">        self.ctrl.Bind(wx.EVT_KEY_UP, <span class="keyword">lambda</span> x : self.para_changed(key))</span><br><span class="line">        sizer.Add( self.ctrl, <span class="number">2</span>, wx.ALL, <span class="number">5</span> )</span><br><span class="line"></span><br><span class="line">        self.postfix = lab_unit = wx.StaticText( self, wx.ID_ANY, unit,</span><br><span class="line">                                  wx.DefaultPosition, wx.DefaultSize)</span><br><span class="line"></span><br><span class="line">        lab_unit.Wrap( -<span class="number">1</span> )</span><br><span class="line">        sizer.Add( lab_unit, <span class="number">0</span>, wx.ALIGN_CENTER|wx.ALL, <span class="number">5</span> )</span><br><span class="line">        self.SetSizer(sizer)</span><br><span class="line"></span><br><span class="line">        self.<span class="built_in">min</span>, self.<span class="built_in">max</span> = rang</span><br><span class="line">        self.accury = accury</span><br><span class="line">        self.ctrl.Bind(wx.EVT_KEY_UP, self.ontext)</span><br><span class="line"></span><br><span class="line">    <span class="function"><span class="keyword">def</span> <span class="title">Bind</span>(<span class="params">self, z, f</span>):</span>self.f = f</span><br><span class="line"></span><br><span class="line">    <span class="function"><span class="keyword">def</span> <span class="title">ontext</span>(<span class="params">self, event</span>):</span></span><br><span class="line">        self.f(self)</span><br><span class="line">        <span class="keyword">if</span> self.GetValue()==<span class="literal">None</span>:</span><br><span class="line">            self.ctrl.SetBackgroundColour((<span class="number">255</span>,<span class="number">255</span>,<span class="number">0</span>))</span><br><span class="line">        <span class="keyword">else</span>:</span><br><span class="line">            self.ctrl.SetBackgroundColour((<span class="number">255</span>,<span class="number">255</span>,<span class="number">255</span>))</span><br><span class="line">        self.Refresh()</span><br><span class="line"></span><br><span class="line">    <span class="function"><span class="keyword">def</span> <span class="title">SetValue</span>(<span class="params">self, n</span>):</span></span><br><span class="line">        self.ctrl.SetValue(<span class="built_in">str</span>(<span class="built_in">round</span>(n,self.accury) <span class="keyword">if</span> self.accury&gt;<span class="number">0</span> <span class="keyword">else</span> <span class="built_in">int</span>(n)))</span><br><span class="line"></span><br><span class="line">    <span class="function"><span class="keyword">def</span> <span class="title">GetValue</span>(<span class="params">self</span>):</span></span><br><span class="line">        sval = self.ctrl.GetValue()</span><br><span class="line">        <span class="keyword">try</span>:</span><br><span class="line">            num = <span class="built_in">float</span>(sval) <span class="keyword">if</span> self.accury&gt;<span class="number">0</span> <span class="keyword">else</span> <span class="built_in">int</span>(sval)</span><br><span class="line">        <span class="keyword">except</span> ValueError:</span><br><span class="line">            <span class="keyword">return</span> <span class="literal">None</span></span><br><span class="line">        <span class="keyword">if</span> num&lt;self.<span class="built_in">min</span> <span class="keyword">or</span> num&gt;self.<span class="built_in">max</span>:</span><br><span class="line">            <span class="keyword">return</span> <span class="literal">None</span></span><br><span class="line">        <span class="keyword">if</span> <span class="built_in">abs</span>(<span class="built_in">round</span>(num, self.accury) - num) &gt; <span class="number">1E-5</span>:</span><br><span class="line">            <span class="keyword">return</span> <span class="literal">None</span></span><br><span class="line">        <span class="keyword">return</span> num</span><br></pre></td></tr></table></figure>
+<p>可以看出NumCtrl就是由两个wx.StaticText静态文本框和一个wx.TextCtrl输入框组合而成，表现出来就是一个前缀说明和一个后缀说明及中间的输入框。<br>同时可以可以看出NumCtrl有数值检查这一功能，当超出所设定的范围后，就会报警。</p>
+<h3 id="view的第1个元素"><a href="#view的第1个元素" class="headerlink" title="view的第1个元素"></a>view的第1个元素</h3><p>view的第1个元素就是para中的各个key值</p>
+<h3 id="view的第2个及后面所有元素"><a href="#view的第2个及后面所有元素" class="headerlink" title="view的第2个及后面所有元素"></a>view的第2个及后面所有元素</h3><p>因为不同组件需要的参数量不同，因为这里将第2个及后面所有元素统一打包然后传入。</p>
+<h3 id="添加组件-1"><a href="#添加组件-1" class="headerlink" title="添加组件"></a>添加组件</h3><p>以上三组元素都传入了下面方法，分别作为它的Ctrl、key和p参数：</p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="keyword">def</span> <span class="title">add_ctrl_</span>(<span class="params">self, Ctrl, key, p</span>):</span></span><br><span class="line">    ctrl = Ctrl(self, *p)</span><br><span class="line">    <span class="keyword">if</span> <span class="keyword">not</span> p[<span class="number">0</span>] <span class="keyword">is</span> <span class="literal">None</span>:</span><br><span class="line">        self.ctrl_dic[key] = ctrl</span><br><span class="line">    <span class="keyword">if</span> <span class="built_in">hasattr</span>(ctrl, <span class="string">&#x27;Bind&#x27;</span>):</span><br><span class="line">        ctrl.Bind(<span class="literal">None</span>, self.para_changed)</span><br><span class="line">    pre = ctrl.prefix <span class="keyword">if</span> <span class="built_in">hasattr</span>(ctrl, <span class="string">&#x27;prefix&#x27;</span>) <span class="keyword">else</span> <span class="literal">None</span></span><br><span class="line">    post = ctrl.postfix <span class="keyword">if</span> <span class="built_in">hasattr</span>(ctrl, <span class="string">&#x27;postfix&#x27;</span>) <span class="keyword">else</span> <span class="literal">None</span></span><br><span class="line">    self.tus.append((pre, post))</span><br><span class="line">    self.lst.Add( ctrl, <span class="number">0</span>, wx.EXPAND, <span class="number">0</span> )</span><br></pre></td></tr></table></figure>
+<p>这里面挺有创意的一点是通过判断组件类里是否有某个特定的属性来进行下一步操作，比如判断是否有Bind属性，若有则Bind对话框的para_changed方法，还有prefix、postfix属性等，具体参见代码。</p>
+<h1 id="显示"><a href="#显示" class="headerlink" title="显示"></a>显示</h1><figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">pd.ShowModal()</span><br></pre></td></tr></table></figure>
+<p>通过调用父类wx.Dialog的ShowModal()方法来将对话框显示出来。</p>
+<h1 id="隐式输出"><a href="#隐式输出" class="headerlink" title="隐式输出"></a>隐式输出</h1><p>该对话框提供了图形界面供用户来调节para变量中的参数，当调节完成后，隐含地就对para变量中的key值所对应的value进行了调节。原理就是在para_changed方法中的GetValue()，即调用各个组件的GetValue()来获取输入值。</p>
+
+    </div>
+
+    
+    
+    
+        <div class="reward-container">
+  <div></div>
+  <button onclick="var qr = document.getElementById('qr'); qr.style.display = (qr.style.display === 'none') ? 'block' : 'none';">
+    Donate
+  </button>
+  <div id="qr" style="display: none;">
+      
+      <div style="display: inline-block;">
+        <img src="/images/wechat_reward.png" alt="Xin-Bo Qi(亓欣波) WeChat Pay">
+        <p>WeChat Pay</p>
+      </div>
+
+  </div>
+</div>
+
+
+      <footer class="post-footer">
+          <div class="post-tags">
+              <a href="/tags/ImagePy/" rel="tag"># ImagePy</a>
+          </div>
+
+        
+
+
+        
+    <div class="post-nav">
+      <div class="post-nav-item">
+    <a href="/2020/03/08/dive-into-dl/" rel="prev" title="《动手学深度学习》PyTorch版学习笔记">
+      <i class="fa fa-chevron-left"></i> 《动手学深度学习》PyTorch版学习笔记
+    </a></div>
+      <div class="post-nav-item">
+    <a href="/2020/03/28/ImagePy_19/" rel="next" title="ImagePy解析：19 -- Mark模式">
+      ImagePy解析：19 -- Mark模式 <i class="fa fa-chevron-right"></i>
+    </a></div>
+    </div>
+      </footer>
+    
+  </article>
+  
+  
+  
+
+
+
+          </div>
+          
+    
+  <div class="comments">
+    <div id="disqus_thread">
+      <noscript>Please enable JavaScript to view the comments powered by Disqus.</noscript>
+    </div>
+  </div>
+  
+
+<script>
+  window.addEventListener('tabs:register', () => {
+    let { activeClass } = CONFIG.comments;
+    if (CONFIG.comments.storage) {
+      activeClass = localStorage.getItem('comments_active') || activeClass;
+    }
+    if (activeClass) {
+      let activeTab = document.querySelector(`a[href="#comment-${activeClass}"]`);
+      if (activeTab) {
+        activeTab.click();
+      }
+    }
+  });
+  if (CONFIG.comments.storage) {
+    window.addEventListener('tabs:click', event => {
+      if (!event.target.matches('.tabs-comment .tab-content .tab-pane')) return;
+      let commentClass = event.target.classList[1];
+      localStorage.setItem('comments_active', commentClass);
+    });
+  }
+</script>
+
+        </div>
+          
+  
+  <div class="toggle sidebar-toggle">
+    <span class="toggle-line toggle-line-first"></span>
+    <span class="toggle-line toggle-line-middle"></span>
+    <span class="toggle-line toggle-line-last"></span>
+  </div>
+
+  <aside class="sidebar">
+    <div class="sidebar-inner">
+
+      <ul class="sidebar-nav motion-element">
+        <li class="sidebar-nav-toc">
+          Table of Contents
+        </li>
+        <li class="sidebar-nav-overview">
+          Overview
+        </li>
+      </ul>
+
+      <!--noindex-->
+      <div class="post-toc-wrap sidebar-panel">
+          <div class="post-toc motion-element"><ol class="nav"><li class="nav-item nav-level-1"><a class="nav-link" href="#demo%E5%85%A8%E6%99%AF"><span class="nav-number">1.</span> <span class="nav-text">demo全景</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#%E5%8F%82%E6%95%B0%E5%AD%97%E5%85%B8para"><span class="nav-number">2.</span> <span class="nav-text">参数字典para</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#%E8%A7%86%E5%9B%BE%E5%88%97%E8%A1%A8view"><span class="nav-number">3.</span> <span class="nav-text">视图列表view</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#%E5%88%9D%E5%A7%8B%E5%8C%96%E7%B1%BB"><span class="nav-number">4.</span> <span class="nav-text">初始化类</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#%E5%88%9D%E5%A7%8B%E5%8C%96%E8%A7%86%E5%9B%BE"><span class="nav-number">5.</span> <span class="nav-text">初始化视图</span></a><ol class="nav-child"><li class="nav-item nav-level-2"><a class="nav-link" href="#%E5%8F%82%E6%95%B0%E5%AD%97%E5%85%B8%E4%BC%A0%E9%80%92"><span class="nav-number">5.1.</span> <span class="nav-text">参数字典传递</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E6%B7%BB%E5%8A%A0%E7%BB%84%E4%BB%B6"><span class="nav-number">5.2.</span> <span class="nav-text">添加组件</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#view%E7%9A%84%E7%AC%AC0%E4%B8%AA%E5%85%83%E7%B4%A0"><span class="nav-number">5.2.1.</span> <span class="nav-text">view的第0个元素</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#view%E7%9A%84%E7%AC%AC1%E4%B8%AA%E5%85%83%E7%B4%A0"><span class="nav-number">5.2.2.</span> <span class="nav-text">view的第1个元素</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#view%E7%9A%84%E7%AC%AC2%E4%B8%AA%E5%8F%8A%E5%90%8E%E9%9D%A2%E6%89%80%E6%9C%89%E5%85%83%E7%B4%A0"><span class="nav-number">5.2.3.</span> <span class="nav-text">view的第2个及后面所有元素</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E6%B7%BB%E5%8A%A0%E7%BB%84%E4%BB%B6-1"><span class="nav-number">5.2.4.</span> <span class="nav-text">添加组件</span></a></li></ol></li></ol></li><li class="nav-item nav-level-1"><a class="nav-link" href="#%E6%98%BE%E7%A4%BA"><span class="nav-number">6.</span> <span class="nav-text">显示</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#%E9%9A%90%E5%BC%8F%E8%BE%93%E5%87%BA"><span class="nav-number">7.</span> <span class="nav-text">隐式输出</span></a></li></ol></div>
+      </div>
+      <!--/noindex-->
+
+      <div class="site-overview-wrap sidebar-panel">
+        <div class="site-author motion-element" itemprop="author" itemscope itemtype="http://schema.org/Person">
+    <img class="site-author-image" itemprop="image" alt="Xin-Bo Qi(亓欣波)"
+      src="/images/avatar.jpg">
+  <p class="site-author-name" itemprop="name">Xin-Bo Qi(亓欣波)</p>
+  <div class="site-description" itemprop="description">Be interesting!</div>
+</div>
+<div class="site-state-wrap motion-element">
+  <nav class="site-state">
+      <div class="site-state-item site-state-posts">
+          <a href="/archives/">
+        
+          <span class="site-state-item-count">120</span>
+          <span class="site-state-item-name">posts</span>
+        </a>
+      </div>
+      <div class="site-state-item site-state-categories">
+            <a href="/categories/">
+          
+        <span class="site-state-item-count">5</span>
+        <span class="site-state-item-name">categories</span></a>
+      </div>
+      <div class="site-state-item site-state-tags">
+            <a href="/tags/">
+          
+        <span class="site-state-item-count">41</span>
+        <span class="site-state-item-name">tags</span></a>
+      </div>
+  </nav>
+</div>
+  <div class="links-of-author motion-element">
+      <span class="links-of-author-item">
+        <a href="https://github.com/qixinbo" title="GitHub → https:&#x2F;&#x2F;github.com&#x2F;qixinbo" rel="noopener" target="_blank"><i class="github fa-fw"></i>GitHub</a>
+      </span>
+      <span class="links-of-author-item">
+        <a href="mailto:qixinbo@gmail.com" title="E-Mail → mailto:qixinbo@gmail.com" rel="noopener" target="_blank"><i class="envelope fa-fw"></i>E-Mail</a>
+      </span>
+  </div>
+
+
+  <div class="links-of-blogroll motion-element">
+    <div class="links-of-blogroll-title"><i class="fa fa-link fa-fw"></i>
+      Links
+    </div>
+    <ul class="links-of-blogroll-list">
+        <li class="links-of-blogroll-item">
+          <a href="https://www.tsinghua.edu.cn/" title="https:&#x2F;&#x2F;www.tsinghua.edu.cn" rel="noopener" target="_blank">THU</a>
+        </li>
+        <li class="links-of-blogroll-item">
+          <a href="http://www.imr.cas.cn/" title="http:&#x2F;&#x2F;www.imr.cas.cn" rel="noopener" target="_blank">IMR</a>
+        </li>
+        <li class="links-of-blogroll-item">
+          <a href="http://www.sdu.edu.cn/" title="http:&#x2F;&#x2F;www.sdu.edu.cn" rel="noopener" target="_blank">SDU</a>
+        </li>
+        <li class="links-of-blogroll-item">
+          <a href="http://liam0205.me/" title="http:&#x2F;&#x2F;liam0205.me&#x2F;" rel="noopener" target="_blank">黄晨成</a>
+        </li>
+    </ul>
+  </div>
+
+      </div>
+
+    </div>
+  </aside>
+  <div id="sidebar-dimmer"></div>
+
+
+      </div>
+    </main>
+
+    <footer class="footer">
+      <div class="footer-inner">
+        
+
+        
+
+<div class="copyright">
+  
+  &copy; 
+  <span itemprop="copyrightYear">2021</span>
+  <span class="with-love">
+    <i class="fa fa-heart"></i>
+  </span>
+  <span class="author" itemprop="copyrightHolder">Xin-Bo Qi(亓欣波)</span>
+</div>
+  <div class="powered-by">Powered by <a href="https://hexo.io/" class="theme-link" rel="noopener" target="_blank">Hexo</a> & <a href="https://theme-next.org/" class="theme-link" rel="noopener" target="_blank">NexT.Gemini</a>
+  </div>
+
+        
+
+
+
+
+
+
+
+
+      </div>
+    </footer>
+  </div>
+
+  
+  <script src="/lib/anime.min.js"></script>
+  <script src="/lib/velocity/velocity.min.js"></script>
+  <script src="/lib/velocity/velocity.ui.min.js"></script>
+
+<script src="/js/utils.js"></script>
+
+<script src="/js/motion.js"></script>
+
+
+<script src="/js/schemes/pisces.js"></script>
+
+
+<script src="/js/next-boot.js"></script>
+
+
+
+
+  
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+  
+
+  
+
+  
+
+<script>
+  function loadCount() {
+    var d = document, s = d.createElement('script');
+    s.src = 'https://qixinbo.disqus.com/count.js';
+    s.id = 'dsq-count-scr';
+    (d.head || d.body).appendChild(s);
+  }
+  // defer loading until the whole page loading is completed
+  window.addEventListener('load', loadCount, false);
+</script>
+<script>
+  var disqus_config = function() {
+    this.page.url = "http://qixinbo.github.io/2020/03/24/ImagePy_18/";
+    this.page.identifier = "2020/03/24/ImagePy_18/";
+    this.page.title = "ImagePy解析：18 -- 参数对话框ParaDialog详解";
+    };
+  NexT.utils.loadComments(document.querySelector('#disqus_thread'), () => {
+    if (window.DISQUS) {
+      DISQUS.reset({
+        reload: true,
+        config: disqus_config
+      });
+    } else {
+      var d = document, s = d.createElement('script');
+      s.src = 'https://qixinbo.disqus.com/embed.js';
+      s.setAttribute('data-timestamp', '' + +new Date());
+      (d.head || d.body).appendChild(s);
+    }
+  });
+</script>
+
+</body>
+</html>

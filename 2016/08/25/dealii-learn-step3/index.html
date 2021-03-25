@@ -1,0 +1,666 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=2">
+<meta name="theme-color" content="#222">
+<meta name="generator" content="Hexo 5.4.0">
+  <link rel="apple-touch-icon" sizes="180x180" href="/images/apple-touch-icon-next.png">
+  <link rel="icon" type="image/png" sizes="32x32" href="/favicon.ico">
+  <link rel="icon" type="image/png" sizes="16x16" href="/favicon.ico">
+  <link rel="mask-icon" href="/images/logo.svg" color="#222">
+
+<link rel="stylesheet" href="/css/main.css">
+
+
+<link rel="stylesheet" href="/lib/font-awesome/css/all.min.css">
+
+<script id="hexo-configurations">
+    var NexT = window.NexT || {};
+    var CONFIG = {"hostname":"qixinbo.github.io","root":"/","scheme":"Gemini","version":"7.8.0","exturl":false,"sidebar":{"position":"left","display":"post","padding":18,"offset":12,"onmobile":false},"copycode":{"enable":false,"show_result":false,"style":null},"back2top":{"enable":true,"sidebar":false,"scrollpercent":false},"bookmark":{"enable":false,"color":"#222","save":"auto"},"fancybox":false,"mediumzoom":false,"lazyload":false,"pangu":false,"comments":{"style":"tabs","active":null,"storage":true,"lazyload":false,"nav":null},"algolia":{"hits":{"per_page":10},"labels":{"input_placeholder":"Search for Posts","hits_empty":"We didn't find any results for the search: ${query}","hits_stats":"${hits} results found in ${time} ms"}},"localsearch":{"enable":false,"trigger":"auto","top_n_per_article":1,"unescape":false,"preload":false},"motion":{"enable":true,"async":false,"transition":{"post_block":"fadeIn","post_header":"slideDownIn","post_body":"slideDownIn","coll_header":"slideLeftIn","sidebar":"slideUpIn"}}};
+  </script>
+
+  <meta name="description" content="引子这是使用有限元法进行具体计算的第一个算例，求解的是一个简化的Possion方程，其在边界上为0，而右端项不为0，即：$$\begin{equation}\begin{split}-\Delta u &amp;&#x3D;f \qquad in \qquad \Omega; \u &amp;&#x3D;0 \qquad on \qquad \partial \Omega\end{split}\end{equatio">
+<meta property="og:type" content="article">
+<meta property="og:title" content="求解偏微分方程开源有限元软件deal.II学习--Step 3">
+<meta property="og:url" content="http://qixinbo.github.io/2016/08/25/dealii-learn-step3/index.html">
+<meta property="og:site_name" content="亓欣波">
+<meta property="og:description" content="引子这是使用有限元法进行具体计算的第一个算例，求解的是一个简化的Possion方程，其在边界上为0，而右端项不为0，即：$$\begin{equation}\begin{split}-\Delta u &amp;&#x3D;f \qquad in \qquad \Omega; \u &amp;&#x3D;0 \qquad on \qquad \partial \Omega\end{split}\end{equatio">
+<meta property="og:locale" content="en_US">
+<meta property="og:image" content="https://ws1.sinaimg.cn/large/0072Lfvtly1fvjkliv2w9j30gm0atjru.jpg">
+<meta property="og:image" content="https://ws1.sinaimg.cn/large/0072Lfvtly1fvjklvv10zj30hs0dc77g.jpg">
+<meta property="og:image" content="https://ws1.sinaimg.cn/large/0072Lfvtly1fvjkm5ntoaj30hs0dcjub.jpg">
+<meta property="article:published_time" content="2016-08-24T16:00:00.000Z">
+<meta property="article:modified_time" content="2021-03-25T07:20:30.547Z">
+<meta property="article:author" content="Xin-Bo Qi(亓欣波)">
+<meta property="article:tag" content="deal.II">
+<meta property="article:tag" content="c++">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:image" content="https://ws1.sinaimg.cn/large/0072Lfvtly1fvjkliv2w9j30gm0atjru.jpg">
+
+<link rel="canonical" href="http://qixinbo.github.io/2016/08/25/dealii-learn-step3/">
+
+
+<script id="page-configurations">
+  // https://hexo.io/docs/variables.html
+  CONFIG.page = {
+    sidebar: "",
+    isHome : false,
+    isPost : true,
+    lang   : 'en'
+  };
+</script>
+
+  <title>求解偏微分方程开源有限元软件deal.II学习--Step 3 | 亓欣波</title>
+  
+
+
+
+
+
+
+  <noscript>
+  <style>
+  .use-motion .brand,
+  .use-motion .menu-item,
+  .sidebar-inner,
+  .use-motion .post-block,
+  .use-motion .pagination,
+  .use-motion .comments,
+  .use-motion .post-header,
+  .use-motion .post-body,
+  .use-motion .collection-header { opacity: initial; }
+
+  .use-motion .site-title,
+  .use-motion .site-subtitle {
+    opacity: initial;
+    top: initial;
+  }
+
+  .use-motion .logo-line-before i { left: initial; }
+  .use-motion .logo-line-after i { right: initial; }
+  </style>
+</noscript>
+
+</head>
+
+<body itemscope itemtype="http://schema.org/WebPage">
+  <div class="container use-motion">
+    <div class="headband"></div>
+
+    <header class="header" itemscope itemtype="http://schema.org/WPHeader">
+      <div class="header-inner"><div class="site-brand-container">
+  <div class="site-nav-toggle">
+    <div class="toggle" aria-label="Toggle navigation bar">
+      <span class="toggle-line toggle-line-first"></span>
+      <span class="toggle-line toggle-line-middle"></span>
+      <span class="toggle-line toggle-line-last"></span>
+    </div>
+  </div>
+
+  <div class="site-meta">
+
+    <a href="/" class="brand" rel="start">
+      <span class="logo-line-before"><i></i></span>
+      <h1 class="site-title">亓欣波</h1>
+      <span class="logo-line-after"><i></i></span>
+    </a>
+      <p class="site-subtitle" itemprop="description">Hi, I am Xin-Bo Qi (亓欣波)</p>
+  </div>
+
+  <div class="site-nav-right">
+    <div class="toggle popup-trigger">
+    </div>
+  </div>
+</div>
+
+
+
+
+<nav class="site-nav">
+  <ul id="menu" class="main-menu menu">
+        <li class="menu-item menu-item-home">
+
+    <a href="/" rel="section"><i class="home fa-fw"></i>Home</a>
+
+  </li>
+        <li class="menu-item menu-item-categories">
+
+    <a href="/categories/" rel="section"><i class="th fa-fw"></i>Categories</a>
+
+  </li>
+        <li class="menu-item menu-item-archives">
+
+    <a href="/archives/" rel="section"><i class="archive fa-fw"></i>Archives</a>
+
+  </li>
+        <li class="menu-item menu-item-tags">
+
+    <a href="/tags/" rel="section"><i class="tags fa-fw"></i>Tags</a>
+
+  </li>
+        <li class="menu-item menu-item-scholar">
+
+    <a href="/scholar/" rel="section"><i class="bar-chart fa-fw"></i>scholar</a>
+
+  </li>
+        <li class="menu-item menu-item-sources">
+
+    <a href="/sources/" rel="section"><i class="rss fa-fw"></i>sources</a>
+
+  </li>
+        <li class="menu-item menu-item-gallery">
+
+    <a href="/gallery/" rel="section"><i class="file-image-o fa-fw"></i>gallery</a>
+
+  </li>
+        <li class="menu-item menu-item-about">
+
+    <a href="/about/" rel="section"><i class="user fa-fw"></i>About</a>
+
+  </li>
+        <li class="menu-item menu-item-commonweal">
+
+    <a href="/404.html" rel="section"><i class="heartbeat fa-fw"></i>Commonweal 404</a>
+
+  </li>
+  </ul>
+</nav>
+
+
+
+
+</div>
+    </header>
+
+    
+  <div class="back-to-top">
+    <i class="fa fa-arrow-up"></i>
+    <span>0%</span>
+  </div>
+
+
+    <main class="main">
+      <div class="main-inner">
+        <div class="content-wrap">
+          
+
+          <div class="content post posts-expand">
+            
+
+    
+  
+  
+  <article itemscope itemtype="http://schema.org/Article" class="post-block" lang="en">
+    <link itemprop="mainEntityOfPage" href="http://qixinbo.github.io/2016/08/25/dealii-learn-step3/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="image" content="/images/avatar.jpg">
+      <meta itemprop="name" content="Xin-Bo Qi(亓欣波)">
+      <meta itemprop="description" content="Be interesting!">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="亓欣波">
+    </span>
+      <header class="post-header">
+        <h1 class="post-title" itemprop="name headline">
+          求解偏微分方程开源有限元软件deal.II学习--Step 3
+        </h1>
+
+        <div class="post-meta">
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="far fa-calendar"></i>
+              </span>
+              <span class="post-meta-item-text">Posted on</span>
+
+              <time title="Created: 2016-08-25 00:00:00" itemprop="dateCreated datePublished" datetime="2016-08-25T00:00:00+08:00">2016-08-25</time>
+            </span>
+              <span class="post-meta-item">
+                <span class="post-meta-item-icon">
+                  <i class="far fa-calendar-check"></i>
+                </span>
+                <span class="post-meta-item-text">Edited on</span>
+                <time title="Modified: 2021-03-25 15:20:30" itemprop="dateModified" datetime="2021-03-25T15:20:30+08:00">2021-03-25</time>
+              </span>
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="far fa-folder"></i>
+              </span>
+              <span class="post-meta-item-text">In</span>
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+                  <a href="/categories/computational-material-science/" itemprop="url" rel="index"><span itemprop="name">computational material science</span></a>
+                </span>
+            </span>
+
+          
+  
+  <span class="post-meta-item">
+    
+      <span class="post-meta-item-icon">
+        <i class="far fa-comment"></i>
+      </span>
+      <span class="post-meta-item-text">Disqus: </span>
+    
+    <a title="disqus" href="/2016/08/25/dealii-learn-step3/#disqus_thread" itemprop="discussionUrl">
+      <span class="post-comments-count disqus-comment-count" data-disqus-identifier="2016/08/25/dealii-learn-step3/" itemprop="commentCount"></span>
+    </a>
+  </span>
+  
+  
+
+        </div>
+      </header>
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+        <h1 id="引子"><a href="#引子" class="headerlink" title="引子"></a>引子</h1><p>这是使用有限元法进行具体计算的第一个算例，求解的是一个简化的Possion方程，其在边界上为0，而右端项不为0，即：<br>$$<br>\begin{equation}<br>\begin{split}<br>-\Delta u &amp;=f \qquad in \qquad \Omega; \<br>u &amp;=0 \qquad on \qquad \partial \Omega<br>\end{split}<br>\end{equation}<br>$$<br>求解域是单位正方形$\Omega=[0,1]^2$，其上的网格划分在step1和step2中已经涉及。<br>这里也仅仅计算特例$f(x)=1$，更一般的情形详见step4。</p>
+<h1 id="推导"><a href="#推导" class="headerlink" title="推导"></a>推导</h1><p>首先需要得到上述方程的弱形式，即在方程两侧左乘一个测试函数$\phi$并在计算域上积分(注意是左乘，而不是右乘)：<br>$$<br>-\int_{\Omega}\phi\Delta u=\int_{\Omega}\phi f<br>$$<br>然后利用高斯散度公式进行分部积分，可得：<br>$$<br>\int_{\Omega}\nabla\phi\cdot\nabla u-\int_{\partial\Omega}\phi\vec n\cdot\nabla u =<br>\int_\Omega\phi f<br>$$<br>同时，因为测试函数必须满足相同的边界条件，即在边界上$\phi=0$，所以上式变为：<br>$$<br>(\nabla \phi,\nabla u)=(\phi,f)<br>$$<br>这里应用了通常的简写形式：$(a,b)=\int_\Omega ab$。<br>那么问题就变成了找到在所在空间上对于所有的测试函数上式都成立的函数$u$。当然在计算机上我们不能找到这样的函数的一个通用形式，事实上是寻找一个近似表达式$u_h(x)=\sum_jU_j\phi_j(x)$，其中$U_j$是需要确定的未知系数(即自由度)，而$\phi_j(x)$是有限单元的形函数。同样可以对试探函数作这样的处理，其实之前的形式中已经把试探函数取为了形函数。另外，由于可以任意选择试验函数，因此可以将除了j点之外的所有的$\phi_j$设置为0。<br>为了确定形函数，需要作如下工作：</p>
+<ul>
+<li>形函数所在的网格。在step1和step2中已经有关于产生网格的方法。</li>
+<li>描述形函数形式的参考单元。比如二维下的双线性单元。</li>
+<li>枚举网格上所有自由度的DofHandler对象。</li>
+<li>描述由参考单元的形函数获得真实单元的形函数的映射，默认deal.II使用线性映射。</li>
+</ul>
+<p>通过上述几步就得到了形函数的集合，那么就可以得到离散形式的弱形式，即：<br>$$<br>(\nabla \phi_i,\nabla u_h)=(\phi_i,f) \qquad i=0…N-1<br>$$<br>对于每个试验函数都可以得到一个方程，所有方程就可以生成一个线性代数系统。将$u_h$的表达式代入，可得：<br>$$<br>(\nabla \phi_i,\nabla \sum_jU_j\phi_j)=(\phi_i,f) \qquad i=0…N-1<br>$$<br>整理得：<br>$$<br>\sum_j(\nabla\phi_i,\nabla\phi_j)U_j=(\phi_i,f) \qquad i=0…N-1<br>$$<br>展开形式为：<br>$$<br>\begin{bmatrix}<br>(\nabla\phi_0,\nabla\phi_0) &amp; (\nabla\phi_0,\nabla\phi_1) &amp; \cdots &amp; (\nabla\phi_0,\nabla\phi_j) \<br>(\nabla\phi_1,\nabla\phi_0) &amp; (\nabla\phi_1,\nabla\phi_1) &amp; \cdots &amp; (\nabla\phi_1,\nabla\phi_j) \<br>. \<br>(\nabla\phi_{N-1},\nabla\phi_0) &amp; (\nabla\phi_{N-1},\nabla\phi_1) &amp; \cdots &amp; (\nabla\phi_{N-1},\nabla\phi_j)<br>\end{bmatrix}<br>\begin{bmatrix}<br>u_0 \<br>u_1 \<br>. \<br>u_{j}<br>\end{bmatrix}<br>=<br>\begin{bmatrix}<br>(\phi_0,f) \<br>(\phi_1,f) \<br>. \<br>(\phi_j,f)<br>\end{bmatrix}<br>$$</p>
+<p>采用矩阵形式：<br>$$<br>AU=F<br>$$<br>所以，矩阵的元素$A_{ij}=(\nabla\phi_i,\nabla\phi_j)$。<br>右端项的元素$F_i=(\phi_i,f)$。$\sum_j$代表矩阵运算中每个方程的相加操作。<br>注意：以上都是对节点的循环，对单元的循环则需要对上述矩阵进行分块，比如如果0号、1号、2号节点在单元0上，那么左上角的九个量就形成一个子矩阵。上述矩阵整体可称为整体刚度矩阵，但单元刚度矩阵则需要是对单元进行循环得到的分块矩阵，即单元刚度矩阵必须建立在单元上。<br>上面两个元素都含有积分，因此还需要求解积分，数学上的积分是连续的，但有限元必须离散到每个单元上来求解。通常使用如下方法：在每个单元上取一系列积分点，积分由函数在这些积分点上的值的和来代替，即：<br>$$<br>\begin{equation}<br>\begin{split}<br>A^K_{ij} &amp;= \int_K \nabla\phi_i \cdot \nabla \phi_j \approx \sum_q \nabla\phi_i(x^K_q) \cdot \nabla \phi_j(x^K_q) w_q^K, \<br>F^K_i &amp;= \int_K \phi_i f \approx \sum_q \phi_i(x^K_q) f(x^K_q) w^K_q<br>\end{split}<br>\end{equation}<br>$$<br>其中，$x^k_q$是单元K上的第q个积分点，$w^k_q$是该积分点的权重。<br>注意：积分必须在单元上进行，所以必须是对单元的循环。<br>再次Attention！！：这样，循环的过程就是这样：先是对单元循环，找到当前的单元，然后对单元上的积分点进行循环，目的就是为了能计算积分，再对自由度循环，找到相互作用的i、j，计算了刚度矩阵后放入合适的位置。</p>
+<p>附录：从参考单元向真实单元的映射过程<br>映射就是一个变换$x=F_K(\widehat{x})$，它将参考单元$[0,1]^{dim}$中的点$\widehat{x}$映射到真实网格单元$K\subset R^{spacedim}$中的点$x$。<br>一些复杂映射通常需要这种映射的Jacobian矩阵，即$J(\widehat{x})=\widehat{\nabla}F_K(\widehat{x})$。比如，如果$dim=spacedim=2$，那么：<br>$$<br>J(\widehat{x})<br>\begin{bmatrix}<br>\frac{\partial x}{\partial\widehat{x}} &amp; \frac{\partial x}{\partial\widehat{y}} \<br>\frac{\partial y}{\partial\widehat{x}} &amp; \frac{\partial y}{\partial\widehat{y}}<br>\end{bmatrix}<br>$$</p>
+<ol>
+<li><p>标量函数的映射<br>形函数是定义在参考单元中，它通过以下映射到真实单元中：<br>$$<br>\phi(x)=\phi(F_K(\widehat{x}))=\widehat{\phi}(\widehat{x})<br>$$</p>
+</li>
+<li><p>积分的映射<br>积分的映射关系如下：<br>$$<br>\int_K u(x)dx = \int_{\widehat K} \widehat u(\widehat{x}) \left|\text{det}J(\widehat{x})\right| d\widehat x.<br>$$<br>将上述积分由在积分点上的离散形式表示：<br>$$<br>\int_K u(x)dx \approx \sum_{q} \widehat u(\widehat{x}_q) \underbrace{\left|\text{det}J(\widehat{x}_q)\right| w_q}_{=: \text{JxW}_q}.<br>$$<br>其中，$JxW$是一个象形词，代表Jacobian行列式乘以积分权重，数学上来说，积分点上的$Jxw_q$也就承担了原来积分中的$dx$的作用，它们在编程中可以由FEValues::JxW()函数获得。</p>
+</li>
+<li><p>矢量、微分和矢量的梯度的映射<br>矢量场和微分(即标量场的梯度)统一记为$v$，矢量场的梯度记为$T$，它们的映射形式为：<br>$$<br>v(x)=A(\widehat{x})\widehat{v}(\widehat{x}), \qquad<br>T(x)=A(\widehat{x})\widehat{T}(\widehat{x})B(\widehat{x})<br>$$<br>微分$A$和$B$需要通过要变换的对象来具体确定。</p>
+</li>
+<li><p>映射的导数<br>某些情况下还需要计算映射的导数，一阶导数就是上面的Jacobian矩阵。更高阶的导数类似，比如Jacobian矩阵的导数，还有Jacobian二阶导数等，具体形式参见帮助文档。</p>
+</li>
+</ol>
+<h1 id="deal-II的程序结构"><a href="#deal-II的程序结构" class="headerlink" title="deal.II的程序结构"></a>deal.II的程序结构</h1><p><img src="https://ws1.sinaimg.cn/large/0072Lfvtly1fvjkliv2w9j30gm0atjru.jpg"><br>deal.II采用面向对象编程，其中包含了很多的Modules，各自实现不同的功能，并有机地结合起来。如上图所示。具体为：</p>
+<ol>
+<li><p>Triangulation<br>Triangulations是单元及其更低维度的边界的集合。triangulation存储了网格的几何和拓扑性质：单元怎样接触，它们的顶点在哪里。triangulation不知道将要在它上面使用的有限元的任何信息，甚至不知道它自己的单元的形状，它只知道在二维情形下有4条线段和4个顶点，三维下有6个面、12条线段和8个顶点。不过其他所有信息都定义在映射类mapping中，由该类将参考单元的坐标映射到真实单元的坐标上，通常采用线性映射。<br>当需要访问triangulation的性质和数据时，通过使用iterators迭代器对单元进行循环。</p>
+</li>
+<li><p>Finite Element<br>Finite element类用来描述定义在参考单元上的有限元空间的性质，比如在单元的顶点、线段或内部各有多少自由度，此外还给出节点上的形函数的值及其梯度。</p>
+</li>
+<li><p>Quadrature<br>跟Finite element相同，Quadrature也定义在单元上，用来描述参考单元上积分点的位置及其权重。</p>
+</li>
+<li><p>DoFHandler<br>DoFHandler对象是triangulations和finite elements的汇合点：finite element类描述了triangulation单元的点、线或内部需要多少自由度，而DoFHandler分配了这种空间，从而使得点、线或内部都有正确的数目，同时也给这些自由度统一编号。<br>也可以这样理解：triangulation和finite element描述了有限元空间的具体性质(有限元空间就是用来得到离散解的空间)，DoFHandler则枚举了该空间的基本框架，使得我们可以用一系列有序的系数$U_j$来表示离散解$u_h(x)=\sum_jU_j\phi_i(x)$。<br>正如triangulation对象，DoFHandler也可以通过iterators迭代器对单元进行循环，从而得到具体的信息，比如单元的几何和拓扑信息(这些也可以由triangulation迭代获得，其实两个类是派生关系)，以及当前单元上的自由度数目和数值。需要注意的是，跟triangulation一样，DoFHandler也不知道从参考单元到它上面的真实单元的映射，也不知道对应于它所管理的自由度的形函数。</p>
+</li>
+<li><p>Mapping<br>Mapping类就是建立从参考单元到triangulation的单元的映射，包括形函数、积分点和积分权重，同时提供了这种派生的梯度和Jacobian行列式。</p>
+</li>
+<li><p>FEValues<br>这一步就是真正地取出某个单元，计算它上面在积分点上的形函数值及其梯度。注意，有限元空间不是连续的，积分都是在特定积分点上计算。</p>
+</li>
+<li><p>Linear Systems<br>一旦知道了怎样使用FEValues在单个单元上计算形函数值及其梯度，同时知道怎样使用DoFHandler获得自由度的全局标识，那么就可以使用矩阵类和向量类来存储和管理矩阵和向量的元素，从而形成线性系统。</p>
+</li>
+<li><p>Linear Solvers<br>构建好线性系统后，就可以使用求解器来求解该系统。</p>
+</li>
+<li><p>Output<br>求解完毕后，就可以输出结果到可视化软件中进行后处理。</p>
+</li>
+</ol>
+<h1 id="源码解析"><a href="#源码解析" class="headerlink" title="源码解析"></a>源码解析</h1><h2 id="头文件"><a href="#头文件" class="headerlink" title="头文件"></a>头文件</h2><figure class="highlight cpp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">#<span class="meta-keyword">include</span> <span class="meta-string">&lt;deal.II/grid/tria.h&gt;</span></span></span><br><span class="line"><span class="meta">#<span class="meta-keyword">include</span> <span class="meta-string">&lt;deal.II/dofs/dof_handler.h&gt;</span></span></span><br></pre></td></tr></table></figure>
+<p>这两个头文件分别处理triangulation和自由度。</p>
+<figure class="highlight cpp"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">#<span class="meta-keyword">include</span> <span class="meta-string">&lt;deal.II/grid/grid_generator.h&gt;</span></span></span><br></pre></td></tr></table></figure>
+<p>该文件用于生成网格。</p>
+<figure class="highlight cpp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">#<span class="meta-keyword">include</span> <span class="meta-string">&lt;deal.II/grid/tria_accessor.h&gt;</span></span></span><br><span class="line"><span class="meta">#<span class="meta-keyword">include</span> <span class="meta-string">&lt;deal.II/grid/tria_iterator.h&gt;</span></span></span><br><span class="line"><span class="meta">#<span class="meta-keyword">include</span> <span class="meta-string">&lt;deal.II/dofs/dof_accessor.h&gt;</span></span></span><br></pre></td></tr></table></figure>
+<p>这三个文件用来对单元进行循环并获得单元上的信息。</p>
+<figure class="highlight cpp"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">#<span class="meta-keyword">include</span> <span class="meta-string">&lt;deal.II/fe/fe_q.h&gt;</span></span></span><br></pre></td></tr></table></figure>
+<p>该文件包含拉格朗日插值的描述。</p>
+<figure class="highlight cpp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">#<span class="meta-keyword">include</span> <span class="meta-string">&lt;deal.II/dofs/dof_tools.h&gt;</span></span></span><br><span class="line"><span class="meta">#<span class="meta-keyword">include</span> <span class="meta-string">&lt;deal.II/fe/fe_values.h&gt;</span></span></span><br><span class="line"><span class="meta">#<span class="meta-keyword">include</span> <span class="meta-string">&lt;deal.II/base/quadrature_lib.h&gt;</span></span></span><br><span class="line"><span class="meta">#<span class="meta-keyword">include</span> <span class="meta-string">&lt;deal.II/base/function.h&gt;</span></span></span><br><span class="line"><span class="meta">#<span class="meta-keyword">include</span> <span class="meta-string">&lt;deal.II/numerics/vector_tools.h&gt;</span></span></span><br><span class="line"><span class="meta">#<span class="meta-keyword">include</span> <span class="meta-string">&lt;deal.II/numerics/matrix_tools.h&gt;</span></span></span><br><span class="line"><span class="meta">#<span class="meta-keyword">include</span> <span class="meta-string">&lt;deal.II/lac/vector.h&gt;</span></span></span><br><span class="line"><span class="meta">#<span class="meta-keyword">include</span> <span class="meta-string">&lt;deal.II/lac/full_matrix.h&gt;</span></span></span><br><span class="line"><span class="meta">#<span class="meta-keyword">include</span> <span class="meta-string">&lt;deal.II/lac/sparse_matrix.h&gt;</span></span></span><br><span class="line"><span class="meta">#<span class="meta-keyword">include</span> <span class="meta-string">&lt;deal.II/lac/dynamic_sparsity_pattern.h&gt;</span></span></span><br><span class="line"><span class="meta">#<span class="meta-keyword">include</span> <span class="meta-string">&lt;deal.II/lac/solver_cg.h&gt;</span></span></span><br><span class="line"><span class="meta">#<span class="meta-keyword">include</span> <span class="meta-string">&lt;deal.II/lac/precondition.h&gt;</span></span></span><br><span class="line"><span class="meta">#<span class="meta-keyword">include</span> <span class="meta-string">&lt;deal.II/numerics/data_out.h&gt;</span></span></span><br><span class="line"><span class="meta">#<span class="meta-keyword">include</span> <span class="meta-string">&lt;fstream&gt;</span></span></span><br><span class="line"><span class="meta">#<span class="meta-keyword">include</span> <span class="meta-string">&lt;iostream&gt;</span></span></span><br></pre></td></tr></table></figure>
+<p>以上头文件还需仔细理解。</p>
+<h2 id="step3类"><a href="#step3类" class="headerlink" title="step3类"></a>step3类</h2><p>跟之前两个例子不同，这次将信息都封装在了一个类里面。</p>
+<figure class="highlight cpp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line"><span class="class"><span class="keyword">class</span> <span class="title">Step3</span></span></span><br><span class="line"><span class="class">&#123;</span></span><br><span class="line">    <span class="keyword">public</span>:</span><br><span class="line">        <span class="built_in">Step3</span> ();</span><br><span class="line">        <span class="function"><span class="keyword">void</span> <span class="title">run</span> <span class="params">()</span></span>;</span><br></pre></td></tr></table></figure>
+<p>这是类的public部分，包含一个构造函数和一个run函数，用来说明执行顺序。</p>
+<figure class="highlight cpp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line">    <span class="keyword">private</span>:</span><br><span class="line"><span class="function"><span class="keyword">void</span> <span class="title">make_grid</span> <span class="params">()</span></span>;</span><br><span class="line"><span class="function"><span class="keyword">void</span> <span class="title">setup_system</span> <span class="params">()</span></span>;</span><br><span class="line"><span class="function"><span class="keyword">void</span> <span class="title">assemble_system</span> <span class="params">()</span></span>;</span><br><span class="line"><span class="function"><span class="keyword">void</span> <span class="title">solve</span> <span class="params">()</span></span>;</span><br><span class="line"><span class="function"><span class="keyword">void</span> <span class="title">output_results</span> <span class="params">()</span> <span class="keyword">const</span></span>;</span><br></pre></td></tr></table></figure>
+<p>这是类的private部分的成员函数，函数名说明了其要实现的功能。</p>
+<figure class="highlight cpp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><span class="line">Triangulation&lt;<span class="number">2</span>&gt; triangulation;</span><br><span class="line">FE_Q&lt;<span class="number">2</span>&gt; fe;</span><br><span class="line">DoFHandler&lt;<span class="number">2</span>&gt; dof_handler;</span><br><span class="line">SparsityPattern sparsity_pattern;</span><br><span class="line">SparseMatrix&lt;<span class="keyword">double</span>&gt; system_matrix;</span><br><span class="line">Vector&lt;<span class="keyword">double</span>&gt; solution;</span><br><span class="line">Vector&lt;<span class="keyword">double</span>&gt; system_rhs;</span><br><span class="line">&#125;;</span><br></pre></td></tr></table></figure>
+<p>还有成员变量，用来存储各种信息。<br>以下是step3类的各个成员函数的详解。</p>
+<figure class="highlight cpp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line">Step3::<span class="built_in">Step3</span> ()</span><br><span class="line">    :</span><br><span class="line">    <span class="built_in">fe</span> (<span class="number">1</span>),</span><br><span class="line">    <span class="built_in">dof_handler</span> (triangulation)</span><br><span class="line">&#123;&#125;</span><br></pre></td></tr></table></figure>
+<p>这是step3类的构造函数，它没有执行具体操作，只是调用了成员初始器对fe和dof_handler进行了初始化。fe是一个finite element对象，它接收1，1是多项式的次数，表明使用的是双线性插值的形函数。<br>之前的triangulation也被传递给了dof_handler。注意此时triangulation还没有具体建立网格，但dof_handler不介意，它只有在具体分配自由度时才关心网格。<br>下一步必须做的就是对计算域进行剖分，然后对每个顶点分配自由度。</p>
+<figure class="highlight cpp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="keyword">void</span> <span class="title">Step3::make_grid</span> <span class="params">()</span></span></span><br><span class="line"><span class="function"></span>&#123;</span><br><span class="line">    GridGenerator::<span class="built_in">hyper_cube</span> (triangulation, <span class="number">-1</span>, <span class="number">1</span>);</span><br><span class="line">    triangulation.<span class="built_in">refine_global</span> (<span class="number">5</span>);</span><br><span class="line">    std::cout &lt;&lt; <span class="string">&quot;Number of active cells: &quot;</span></span><br><span class="line">        &lt;&lt; triangulation.<span class="built_in">n_active_cells</span>()</span><br><span class="line">        &lt;&lt; std::endl;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p>这个函数做的是第一步，即对计算域进行剖分，建立网格。计算域是$[-1,1]x[-1,1]$。<br>因为初次建立时只有一个单元，所以细化5次，形成1024个单元，这里用n_active_cells()验证一下个数。注意这里用的不是n_cells()函数，因为其还包涵父单元的概念。<br>下一步就是分配自由度：</p>
+<figure class="highlight cpp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="keyword">void</span> <span class="title">Step3::setup_system</span> <span class="params">()</span></span></span><br><span class="line"><span class="function"></span>&#123;</span><br><span class="line">    dof_handler.<span class="built_in">distribute_dofs</span> (fe);</span><br><span class="line">    std::cout &lt;&lt; <span class="string">&quot;Number of degrees of freedom: &quot;</span></span><br><span class="line">        &lt;&lt; dof_handler.<span class="built_in">n_dofs</span>()</span><br><span class="line">        &lt;&lt; std::endl;</span><br></pre></td></tr></table></figure>
+<p>这里使用distribute_dofs()函数，接收的是fe，因为fe是线性插值，所以自由度是每个顶点上有一个。用n_dofs()输出一下，显示是1089。这是因为我们有32x32个网格，那么对应是33x33个节点。<br>然后创建稀疏矩阵</p>
+<figure class="highlight cpp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line"><span class="function">DynamicSparsityPattern <span class="title">dsp</span><span class="params">(dof_handler.n_dofs())</span></span>;</span><br><span class="line">DoFTools::<span class="built_in">make_sparsity_pattern</span> (dof_handler, dsp);</span><br><span class="line">sparsity_pattern.<span class="built_in">copy_from</span>(dsp);</span><br><span class="line">system_matrix.<span class="built_in">reinit</span> (sparsity_pattern);</span><br></pre></td></tr></table></figure>
+<p>注意，SparsityPattern和SparseMatrix不同，前者只存储元素的位置，后者则存储具体的数值。<br>然后建立右端项向量和解向量：</p>
+<figure class="highlight cpp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">solution.<span class="built_in">reinit</span> (dof_handler.<span class="built_in">n_dofs</span>());</span><br><span class="line">system_rhs.<span class="built_in">reinit</span> (dof_handler.<span class="built_in">n_dofs</span>());</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p>下一步就是计算线性系统中的矩阵中的元素以及右端项的元素，这是每个有限元程序的核心部分！<br>组装矩阵和向量通常的方法是对所有单元进行循环，然后在每个单元上进行积分运算，得到该单元对整体的贡献。需要注意的是此时需要知道在每个真实单元上形函数在积分点位置上的值，但是！！形函数和积分点都是仅仅定义在参考单元上的，因此这些东西基本没用。那么关键问题来了，就是怎样将数据从参考单元上映射到真实单元上。这个活是由Mapping类来完成的，更加智能的是通常不需要人为指定它怎么做，它自动按标准双线性映射来操作。<br>现在我们需要处理三类东西：有限元finite element、积分quadrature和映射mapping。这些概念太多了，这里有一个类FEValues来将三者有机地整合起来。给它传进去这三个东西，它就能告诉你在真实单元上的形函数的值和梯度。<br>那么现在就开干吧：</p>
+<figure class="highlight cpp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="keyword">void</span> <span class="title">Step3::assemble_system</span> <span class="params">()</span></span></span><br><span class="line"><span class="function"></span>&#123;</span><br><span class="line">    <span class="function">QGauss&lt;2&gt; <span class="title">quadrature_formula</span><span class="params">(<span class="number">2</span>)</span></span>;</span><br></pre></td></tr></table></figure>
+<p>先确定在单元上的一套积分规则，这里使用的是Gauss数值积分方法，每个方向上选两个积分点。这套积分规则满足现在的问题。然后就可以生成FEValues的对象了：</p>
+<figure class="highlight cpp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line"><span class="function">FEValues&lt;2&gt; <span class="title">fe_values</span> <span class="params">(fe, quadrature_formula,</span></span></span><br><span class="line"><span class="function"><span class="params">        update_values | update_gradients | update_JxW_values)</span></span>;</span><br></pre></td></tr></table></figure>
+<p>第一个参数告诉它参考单元是谁，第二个参数告诉它积分点及其权重(实际是一个Qudrature对象)，还有默认使用了双线性映射。最后告诉它需要在每个单元上计算什么，包括在积分点上的形函数值(为了计算右端项$\phi_i(x^K_q) f(x^K_q)$)、在积分点上的形函数梯度(为了计算矩阵元素$\nabla\phi_i(x^K_q) \cdot \nabla \phi_j(x^K_q)$)、Jacobian行列式。注意：这里都是积分点上的值。因为需要对单元进行循环，所有这些值需要更新，所以加上前缀update。这样显著地跟程序说明需要计算什么，就能加速运算，因为有的软件所有东西不管有用没用都一块计算，比如二阶导数、法向量等。注意最后用了按位或这一运算符，这在c语言中很常见，这里的意思就是我要计算谁“和”谁。</p>
+<figure class="highlight cpp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">const</span> <span class="keyword">unsigned</span> <span class="keyword">int</span> dofs_per_cell = fe.dofs_per_cell;</span><br><span class="line"><span class="keyword">const</span> <span class="keyword">unsigned</span> <span class="keyword">int</span> n_q_points = quadrature_formula.<span class="built_in">size</span>();</span><br></pre></td></tr></table></figure>
+<p>然后定义两个“快捷名”来称呼常用的两个变量：每个单元上的自由度个数和积分点个数。<br>现在终于开始一个单元一个单元地组装整体刚度矩阵和向量了。一种方法是直接将结果写入整体矩阵中，但这样对于大型矩阵的运算通常是很慢的。所以，这里是先在当前单元上计算该单元的单元刚度矩阵，然后将它的贡献叠加到整体上。计算右端项向量时也是这样的。<br>首先先创建以上两种单元矩阵和单元向量：</p>
+<figure class="highlight cpp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line"><span class="function">FullMatrix&lt;<span class="keyword">double</span>&gt; <span class="title">cell_matrix</span> <span class="params">(dofs_per_cell, dofs_per_cell)</span></span>;</span><br><span class="line"><span class="function">Vector&lt;<span class="keyword">double</span>&gt; <span class="title">cell_rhs</span> <span class="params">(dofs_per_cell)</span></span>;</span><br></pre></td></tr></table></figure>
+<p>当计算每个单元的贡献时，是对该单元上的自由度的局部标识进行循环，即从0到dofs_per_cell-1。<br>然而，当把结果传递给整体时，需要知道这些自由度的全局标识，这时需要一个临时的量来存储：</p>
+<figure class="highlight cpp"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"><span class="function">std::vector&lt;types::global_dof_index&gt; <span class="title">local_dof_indices</span> <span class="params">(dofs_per_cell)</span></span>;</span><br></pre></td></tr></table></figure>
+<p>来，现在真的要对单元进行循环：</p>
+<figure class="highlight cpp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line">DoFHandler&lt;<span class="number">2</span>&gt;::active_cell_iterator</span><br><span class="line">cell = dof_handler.<span class="built_in">begin_active</span>(),</span><br><span class="line">     endc = dof_handler.<span class="built_in">end</span>();</span><br><span class="line"><span class="keyword">for</span> (; cell!=endc; ++cell)</span><br><span class="line">&#123;</span><br></pre></td></tr></table></figure>
+<p>现在，我们整个人站在单元上，我们想要知道在积分点上的形函数的值及其梯度以及参考单元和真实单元之间变换的Jacobian行列式。因为这些值与每个单元的几何信息有关，所以必须在每个单元上都需要让FEValues重算一下这些东西：</p>
+<figure class="highlight cpp"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">fe_values.<span class="built_in">reinit</span> (cell);</span><br></pre></td></tr></table></figure>
+<p>初始化单元的贡献为0，以便后面的赋值：</p>
+<figure class="highlight cpp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">cell_matrix = <span class="number">0</span>;</span><br><span class="line">cell_rhs = <span class="number">0</span>;</span><br></pre></td></tr></table></figure>
+<p>然后开始积分，对积分点进行循环：</p>
+<figure class="highlight cpp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">for</span> (<span class="keyword">unsigned</span> <span class="keyword">int</span> q_index=<span class="number">0</span>; q_index&lt;n_q_points; ++q_index)</span><br><span class="line">&#123;</span><br></pre></td></tr></table></figure>
+<p>首先是对单元矩阵的计算：</p>
+<figure class="highlight cpp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">for</span> (<span class="keyword">unsigned</span> <span class="keyword">int</span> i=<span class="number">0</span>; i&lt;dofs_per_cell; ++i)</span><br><span class="line">    <span class="keyword">for</span> (<span class="keyword">unsigned</span> <span class="keyword">int</span> j=<span class="number">0</span>; j&lt;dofs_per_cell; ++j)</span><br><span class="line">        <span class="built_in">cell_matrix</span>(i,j) += (fe_values.<span class="built_in">shape_grad</span> (i, q_index) *</span><br><span class="line">                fe_values.<span class="built_in">shape_grad</span> (j, q_index) *</span><br><span class="line">                fe_values.<span class="built_in">JxW</span> (q_index));</span><br></pre></td></tr></table></figure>
+<p>对于拉普拉斯方程，每个单元上的矩阵是形函数i和j的梯度的积分，程序中用quadrature代替integral，所以变成两个梯度的乘积乘以Jacobian行列式(这是为了从参考单元到真实单元)和权重。这里的计算过程实际是这样的：<br>$fe_values.shape_grad(i,q_index)$是一个dim维(这里是2维)的向量，实际是一个Tensor&lt;1,dim&gt;的对象，后面的dim是维度，前面的1代表dim维的一阶向量，如果是0则代表标量，如果是2则代表dim乘以dim维的二阶张量。星号运算符则将前面的dim维向量跟后面的dim维向量正确地相乘，即两者做点积，结果是个标量，再跟后面的权重这一标量相乘。</p>
+<p>然后对单元右端项向量的计算：</p>
+<figure class="highlight cpp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">for</span> (<span class="keyword">unsigned</span> <span class="keyword">int</span> i=<span class="number">0</span>; i&lt;dofs_per_cell; ++i)</span><br><span class="line">    <span class="built_in">cell_rhs</span>(i) += (fe_values.<span class="built_in">shape_value</span> (i, q_index) *</span><br><span class="line">            <span class="number">1</span> *</span><br><span class="line">            fe_values.<span class="built_in">JxW</span> (q_index));</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p>这里的积分是形函数的值乘以f乘以JxW。<br>Attention!!:实际上上面两步计算可以将两个循环合并起来，加速计算，见后面的step4。<br>现在有了单元的矩阵，下一步就是把它组装到整体上。我们先得问问这个单元，它的某个局部标号的自由度的全局标识是多少：</p>
+<figure class="highlight cpp"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">cell-&gt;<span class="built_in">get_dof_indices</span> (local_dof_indices);</span><br></pre></td></tr></table></figure>
+<p>后面就可以通过local_dof_indices[i]来获取全局标识。<br>然后再作循环叠加：</p>
+<figure class="highlight cpp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">for</span> (<span class="keyword">unsigned</span> <span class="keyword">int</span> i=<span class="number">0</span>; i&lt;dofs_per_cell; ++i)</span><br><span class="line"><span class="keyword">for</span> (<span class="keyword">unsigned</span> <span class="keyword">int</span> j=<span class="number">0</span>; j&lt;dofs_per_cell; ++j)</span><br><span class="line">system_matrix.<span class="built_in">add</span> (local_dof_indices[i],</span><br><span class="line">        local_dof_indices[j],</span><br><span class="line">        <span class="built_in">cell_matrix</span>(i,j));</span><br><span class="line"><span class="keyword">for</span> (<span class="keyword">unsigned</span> <span class="keyword">int</span> i=<span class="number">0</span>; i&lt;dofs_per_cell; ++i)</span><br><span class="line"><span class="built_in">system_rhs</span>(local_dof_indices[i]) += <span class="built_in">cell_rhs</span>(i);</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p>同理Attention！，这里也可以这样将两个循环合并。这样线性系统基本全做完了。But！还有一个重要的东西漏了：边界条件。事实上，如果该拉普拉斯方程不加上一个Dirichlet边界条件，它的解就不是惟一的，因为你可以在解上加一个任意的量。显然得解决这个问题：</p>
+<figure class="highlight cpp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line">std::map&lt;types::global_dof_index,<span class="keyword">double</span>&gt; boundary_values;</span><br><span class="line">VectorTools::<span class="built_in">interpolate_boundary_values</span> (dof_handler,</span><br><span class="line">        <span class="number">0</span>,</span><br><span class="line">        ZeroFunction&lt;<span class="number">2</span>&gt;(),</span><br><span class="line">        boundary_values);</span><br></pre></td></tr></table></figure>
+<p>这里使用的interpolate_boundary_values函数就是将函数值插入到特定位置的边界上，它需要的参数有：DoFHandler对象来获得边界上的自由度的全局标识;边界的一部分;边界上的值本身;输出对象。<br>”边界的一部分“意思是有时你只想在边界的一部分上赋予边界值，比如流体力学的入流和出流边界、变形体的固定部分等。这时可以对边界进行一部分一部分地标号，不同的标号施加不同的条件。默认条件下所有的边界标号都是0，这里也使用的是0，表明是对整个边界作用。描述边界值的函数这里用的是ZeroFunction，返回的是0，刚好适用现在的零边界条件。最后的输出对象boundary_values是一个列表，里面是成对的边界自由度全局标识及其对应的边界值。<br>知道上述信息后，再实际施加边界条件：</p>
+<figure class="highlight cpp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line">MatrixTools::<span class="built_in">apply_boundary_values</span> (boundary_values,</span><br><span class="line">        system_matrix,</span><br><span class="line">        solution,</span><br><span class="line">        system_rhs);</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p>完全建立好线性系统了，终于该求解了。这个问题的变量个数是1089，实际是很小的量，通常的问题一般是10万个变量这个量级。传统的求解线性代数的算法，如Gauss消去或LU分解，对于大型系统不适用，这里用的是共轭梯度算法，即CG算法。</p>
+<figure class="highlight cpp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="keyword">void</span> <span class="title">Step3::solve</span> <span class="params">()</span></span></span><br><span class="line"><span class="function"></span>&#123;</span><br><span class="line">    <span class="function">SolverControl <span class="title">solver_control</span> <span class="params">(<span class="number">1000</span>, <span class="number">1e-12</span>)</span></span>;</span><br></pre></td></tr></table></figure>
+<p>首先告诉CG算法何时停止计算，这里是创建一个SolverControl对象来控制：最多迭代1000步，精度为1e-12。通常这个精度值是迭代停止的判据。</p>
+<figure class="highlight cpp"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">SolverCG&lt;&gt; <span class="built_in">solver</span> (solver_control);</span><br></pre></td></tr></table></figure>
+<p>然后创建一个CG的求解器。</p>
+<figure class="highlight cpp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">solver.<span class="built_in">solve</span> (system_matrix, solution, system_rhs,</span><br><span class="line">        <span class="built_in">PreconditionIdentity</span>());</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p>上面就是开始求解了。第四个参数是一个预条件子。求解完毕后，solution中就存储了解向量的离散值。<br>然后就是输出结果了：</p>
+<figure class="highlight cpp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="keyword">void</span> <span class="title">Step3::output_results</span> <span class="params">()</span> <span class="keyword">const</span></span></span><br><span class="line"><span class="function"></span>&#123;</span><br><span class="line">    DataOut&lt;<span class="number">2</span>&gt; data_out;</span><br></pre></td></tr></table></figure>
+<p>首先让它知道从哪里提取数据：</p>
+<figure class="highlight cpp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">data_out.<span class="built_in">attach_dof_handler</span> (dof_handler);</span><br><span class="line">data_out.<span class="built_in">add_data_vector</span> (solution, <span class="string">&quot;solution&quot;</span>);</span><br></pre></td></tr></table></figure>
+<p>知道了目标数据后，离后面的可输出数据还隔了一个“中间数据”，因为deal.II是前后端分离的，这个中间数据像是个缓冲层，得到它的语句为：</p>
+<figure class="highlight cpp"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">data_out.<span class="built_in">build_patches</span> ();</span><br></pre></td></tr></table></figure>
+<p>然后再输出成最终的可被可视化软件读取的数据：</p>
+<figure class="highlight cpp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line"><span class="function">std::ofstream <span class="title">output</span> <span class="params">(<span class="string">&quot;solution.gpl&quot;</span>)</span></span>;</span><br><span class="line">data_out.<span class="built_in">write_gnuplot</span> (output);</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p>上面一系列的成员函数通过run函数来按次序执行：</p>
+<figure class="highlight cpp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="keyword">void</span> <span class="title">Step3::run</span> <span class="params">()</span></span></span><br><span class="line"><span class="function"></span>&#123;</span><br><span class="line">    <span class="built_in">make_grid</span> ();</span><br><span class="line">    <span class="built_in">setup_system</span> ();</span><br><span class="line">    <span class="built_in">assemble_system</span> ();</span><br><span class="line">    <span class="built_in">solve</span> ();</span><br><span class="line">    <span class="built_in">output_results</span> ();</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p>该程序的main函数为：</p>
+<figure class="highlight cpp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="keyword">int</span> <span class="title">main</span> <span class="params">()</span></span></span><br><span class="line"><span class="function"></span>&#123;</span><br><span class="line">    deallog.<span class="built_in">depth_console</span> (<span class="number">2</span>);</span><br><span class="line">    Step3 laplace_problem;</span><br><span class="line">    laplace_problem.<span class="built_in">run</span> ();</span><br><span class="line">    <span class="keyword">return</span> <span class="number">0</span>;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p>第一个语句是打印log信息到屏幕上，后面就是创建step3对象，然后执行。</p>
+<h1 id="计算结果"><a href="#计算结果" class="headerlink" title="计算结果"></a>计算结果</h1><p>输出到屏幕上的信息有：</p>
+<figure class="highlight cpp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line">Number of active cells: <span class="number">1024</span></span><br><span class="line">Number of degrees of freedom: <span class="number">1089</span></span><br><span class="line">DEAL:cg::Starting value <span class="number">0.121094</span></span><br><span class="line">DEAL:cg::Convergence step <span class="number">48</span> value <span class="number">5.33692e-13</span></span><br></pre></td></tr></table></figure>
+<p>即，说明了单元个数1024、自由度个数1089，CG算法的起始残差是0.12，经过47步迭代后满足精度要求。<br>图形结果为：<br><img src="https://ws1.sinaimg.cn/large/0072Lfvtly1fvjklvv10zj30hs0dc77g.jpg"><br><img src="https://ws1.sinaimg.cn/large/0072Lfvtly1fvjkm5ntoaj30hs0dcjub.jpg"></p>
+
+    </div>
+
+    
+    
+    
+        <div class="reward-container">
+  <div></div>
+  <button onclick="var qr = document.getElementById('qr'); qr.style.display = (qr.style.display === 'none') ? 'block' : 'none';">
+    Donate
+  </button>
+  <div id="qr" style="display: none;">
+      
+      <div style="display: inline-block;">
+        <img src="/images/wechat_reward.png" alt="Xin-Bo Qi(亓欣波) WeChat Pay">
+        <p>WeChat Pay</p>
+      </div>
+
+  </div>
+</div>
+
+
+      <footer class="post-footer">
+          <div class="post-tags">
+              <a href="/tags/deal-II/" rel="tag"># deal.II</a>
+              <a href="/tags/c/" rel="tag"># c++</a>
+          </div>
+
+        
+
+
+        
+    <div class="post-nav">
+      <div class="post-nav-item">
+    <a href="/2016/08/19/mathematica-fem-ch4/" rel="prev" title="利用Mathematica进行有限元编程(三)：三角形单元分析">
+      <i class="fa fa-chevron-left"></i> 利用Mathematica进行有限元编程(三)：三角形单元分析
+    </a></div>
+      <div class="post-nav-item">
+    <a href="/2016/08/27/dealii-learn-step4/" rel="next" title="求解偏微分方程开源有限元软件deal.II学习--Step 4">
+      求解偏微分方程开源有限元软件deal.II学习--Step 4 <i class="fa fa-chevron-right"></i>
+    </a></div>
+    </div>
+      </footer>
+    
+  </article>
+  
+  
+  
+
+
+
+          </div>
+          
+    
+  <div class="comments">
+    <div id="disqus_thread">
+      <noscript>Please enable JavaScript to view the comments powered by Disqus.</noscript>
+    </div>
+  </div>
+  
+
+<script>
+  window.addEventListener('tabs:register', () => {
+    let { activeClass } = CONFIG.comments;
+    if (CONFIG.comments.storage) {
+      activeClass = localStorage.getItem('comments_active') || activeClass;
+    }
+    if (activeClass) {
+      let activeTab = document.querySelector(`a[href="#comment-${activeClass}"]`);
+      if (activeTab) {
+        activeTab.click();
+      }
+    }
+  });
+  if (CONFIG.comments.storage) {
+    window.addEventListener('tabs:click', event => {
+      if (!event.target.matches('.tabs-comment .tab-content .tab-pane')) return;
+      let commentClass = event.target.classList[1];
+      localStorage.setItem('comments_active', commentClass);
+    });
+  }
+</script>
+
+        </div>
+          
+  
+  <div class="toggle sidebar-toggle">
+    <span class="toggle-line toggle-line-first"></span>
+    <span class="toggle-line toggle-line-middle"></span>
+    <span class="toggle-line toggle-line-last"></span>
+  </div>
+
+  <aside class="sidebar">
+    <div class="sidebar-inner">
+
+      <ul class="sidebar-nav motion-element">
+        <li class="sidebar-nav-toc">
+          Table of Contents
+        </li>
+        <li class="sidebar-nav-overview">
+          Overview
+        </li>
+      </ul>
+
+      <!--noindex-->
+      <div class="post-toc-wrap sidebar-panel">
+          <div class="post-toc motion-element"><ol class="nav"><li class="nav-item nav-level-1"><a class="nav-link" href="#%E5%BC%95%E5%AD%90"><span class="nav-number">1.</span> <span class="nav-text">引子</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#%E6%8E%A8%E5%AF%BC"><span class="nav-number">2.</span> <span class="nav-text">推导</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#deal-II%E7%9A%84%E7%A8%8B%E5%BA%8F%E7%BB%93%E6%9E%84"><span class="nav-number">3.</span> <span class="nav-text">deal.II的程序结构</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#%E6%BA%90%E7%A0%81%E8%A7%A3%E6%9E%90"><span class="nav-number">4.</span> <span class="nav-text">源码解析</span></a><ol class="nav-child"><li class="nav-item nav-level-2"><a class="nav-link" href="#%E5%A4%B4%E6%96%87%E4%BB%B6"><span class="nav-number">4.1.</span> <span class="nav-text">头文件</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#step3%E7%B1%BB"><span class="nav-number">4.2.</span> <span class="nav-text">step3类</span></a></li></ol></li><li class="nav-item nav-level-1"><a class="nav-link" href="#%E8%AE%A1%E7%AE%97%E7%BB%93%E6%9E%9C"><span class="nav-number">5.</span> <span class="nav-text">计算结果</span></a></li></ol></div>
+      </div>
+      <!--/noindex-->
+
+      <div class="site-overview-wrap sidebar-panel">
+        <div class="site-author motion-element" itemprop="author" itemscope itemtype="http://schema.org/Person">
+    <img class="site-author-image" itemprop="image" alt="Xin-Bo Qi(亓欣波)"
+      src="/images/avatar.jpg">
+  <p class="site-author-name" itemprop="name">Xin-Bo Qi(亓欣波)</p>
+  <div class="site-description" itemprop="description">Be interesting!</div>
+</div>
+<div class="site-state-wrap motion-element">
+  <nav class="site-state">
+      <div class="site-state-item site-state-posts">
+          <a href="/archives/">
+        
+          <span class="site-state-item-count">120</span>
+          <span class="site-state-item-name">posts</span>
+        </a>
+      </div>
+      <div class="site-state-item site-state-categories">
+            <a href="/categories/">
+          
+        <span class="site-state-item-count">5</span>
+        <span class="site-state-item-name">categories</span></a>
+      </div>
+      <div class="site-state-item site-state-tags">
+            <a href="/tags/">
+          
+        <span class="site-state-item-count">41</span>
+        <span class="site-state-item-name">tags</span></a>
+      </div>
+  </nav>
+</div>
+  <div class="links-of-author motion-element">
+      <span class="links-of-author-item">
+        <a href="https://github.com/qixinbo" title="GitHub → https:&#x2F;&#x2F;github.com&#x2F;qixinbo" rel="noopener" target="_blank"><i class="github fa-fw"></i>GitHub</a>
+      </span>
+      <span class="links-of-author-item">
+        <a href="mailto:qixinbo@gmail.com" title="E-Mail → mailto:qixinbo@gmail.com" rel="noopener" target="_blank"><i class="envelope fa-fw"></i>E-Mail</a>
+      </span>
+  </div>
+
+
+  <div class="links-of-blogroll motion-element">
+    <div class="links-of-blogroll-title"><i class="fa fa-link fa-fw"></i>
+      Links
+    </div>
+    <ul class="links-of-blogroll-list">
+        <li class="links-of-blogroll-item">
+          <a href="https://www.tsinghua.edu.cn/" title="https:&#x2F;&#x2F;www.tsinghua.edu.cn" rel="noopener" target="_blank">THU</a>
+        </li>
+        <li class="links-of-blogroll-item">
+          <a href="http://www.imr.cas.cn/" title="http:&#x2F;&#x2F;www.imr.cas.cn" rel="noopener" target="_blank">IMR</a>
+        </li>
+        <li class="links-of-blogroll-item">
+          <a href="http://www.sdu.edu.cn/" title="http:&#x2F;&#x2F;www.sdu.edu.cn" rel="noopener" target="_blank">SDU</a>
+        </li>
+        <li class="links-of-blogroll-item">
+          <a href="http://liam0205.me/" title="http:&#x2F;&#x2F;liam0205.me&#x2F;" rel="noopener" target="_blank">黄晨成</a>
+        </li>
+    </ul>
+  </div>
+
+      </div>
+
+    </div>
+  </aside>
+  <div id="sidebar-dimmer"></div>
+
+
+      </div>
+    </main>
+
+    <footer class="footer">
+      <div class="footer-inner">
+        
+
+        
+
+<div class="copyright">
+  
+  &copy; 
+  <span itemprop="copyrightYear">2021</span>
+  <span class="with-love">
+    <i class="fa fa-heart"></i>
+  </span>
+  <span class="author" itemprop="copyrightHolder">Xin-Bo Qi(亓欣波)</span>
+</div>
+  <div class="powered-by">Powered by <a href="https://hexo.io/" class="theme-link" rel="noopener" target="_blank">Hexo</a> & <a href="https://theme-next.org/" class="theme-link" rel="noopener" target="_blank">NexT.Gemini</a>
+  </div>
+
+        
+
+
+
+
+
+
+
+
+      </div>
+    </footer>
+  </div>
+
+  
+  <script src="/lib/anime.min.js"></script>
+  <script src="/lib/velocity/velocity.min.js"></script>
+  <script src="/lib/velocity/velocity.ui.min.js"></script>
+
+<script src="/js/utils.js"></script>
+
+<script src="/js/motion.js"></script>
+
+
+<script src="/js/schemes/pisces.js"></script>
+
+
+<script src="/js/next-boot.js"></script>
+
+
+
+
+  
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+  
+
+  
+
+  
+
+<script>
+  function loadCount() {
+    var d = document, s = d.createElement('script');
+    s.src = 'https://qixinbo.disqus.com/count.js';
+    s.id = 'dsq-count-scr';
+    (d.head || d.body).appendChild(s);
+  }
+  // defer loading until the whole page loading is completed
+  window.addEventListener('load', loadCount, false);
+</script>
+<script>
+  var disqus_config = function() {
+    this.page.url = "http://qixinbo.github.io/2016/08/25/dealii-learn-step3/";
+    this.page.identifier = "2016/08/25/dealii-learn-step3/";
+    this.page.title = "求解偏微分方程开源有限元软件deal.II学习--Step 3";
+    };
+  NexT.utils.loadComments(document.querySelector('#disqus_thread'), () => {
+    if (window.DISQUS) {
+      DISQUS.reset({
+        reload: true,
+        config: disqus_config
+      });
+    } else {
+      var d = document, s = d.createElement('script');
+      s.src = 'https://qixinbo.disqus.com/embed.js';
+      s.setAttribute('data-timestamp', '' + +new Date());
+      (d.head || d.body).appendChild(s);
+    }
+  });
+</script>
+
+</body>
+</html>

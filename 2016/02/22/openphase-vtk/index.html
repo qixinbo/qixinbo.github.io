@@ -1,0 +1,548 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=2">
+<meta name="theme-color" content="#222">
+<meta name="generator" content="Hexo 5.4.0">
+  <link rel="apple-touch-icon" sizes="180x180" href="/images/apple-touch-icon-next.png">
+  <link rel="icon" type="image/png" sizes="32x32" href="/favicon.ico">
+  <link rel="icon" type="image/png" sizes="16x16" href="/favicon.ico">
+  <link rel="mask-icon" href="/images/logo.svg" color="#222">
+
+<link rel="stylesheet" href="/css/main.css">
+
+
+<link rel="stylesheet" href="/lib/font-awesome/css/all.min.css">
+
+<script id="hexo-configurations">
+    var NexT = window.NexT || {};
+    var CONFIG = {"hostname":"qixinbo.github.io","root":"/","scheme":"Gemini","version":"7.8.0","exturl":false,"sidebar":{"position":"left","display":"post","padding":18,"offset":12,"onmobile":false},"copycode":{"enable":false,"show_result":false,"style":null},"back2top":{"enable":true,"sidebar":false,"scrollpercent":false},"bookmark":{"enable":false,"color":"#222","save":"auto"},"fancybox":false,"mediumzoom":false,"lazyload":false,"pangu":false,"comments":{"style":"tabs","active":null,"storage":true,"lazyload":false,"nav":null},"algolia":{"hits":{"per_page":10},"labels":{"input_placeholder":"Search for Posts","hits_empty":"We didn't find any results for the search: ${query}","hits_stats":"${hits} results found in ${time} ms"}},"localsearch":{"enable":false,"trigger":"auto","top_n_per_article":1,"unescape":false,"preload":false},"motion":{"enable":true,"async":false,"transition":{"post_block":"fadeIn","post_header":"slideDownIn","post_body":"slideDownIn","coll_header":"slideLeftIn","sidebar":"slideUpIn"}}};
+  </script>
+
+  <meta name="description" content="VTK文件格式概况VTK，全称为Visualization Toolkit，即“可视化工具箱”，制订了一个统一的文件输入输出格式，这样就可在不同的软件间方便通信。VTK文件格式包括五个基本部分：(1)第一部分是文件版本说明：# vtk DataFile Version 3.0(2)第二部分是文件头，是一个由”\n”结尾的字符串，最大为256个字符，如：PhaseField(3)第三部分说明文件的格">
+<meta property="og:type" content="article">
+<meta property="og:title" content="OpenPhase实例学习系列：VTK文件格式详解">
+<meta property="og:url" content="http://qixinbo.github.io/2016/02/22/openphase-vtk/index.html">
+<meta property="og:site_name" content="亓欣波">
+<meta property="og:description" content="VTK文件格式概况VTK，全称为Visualization Toolkit，即“可视化工具箱”，制订了一个统一的文件输入输出格式，这样就可在不同的软件间方便通信。VTK文件格式包括五个基本部分：(1)第一部分是文件版本说明：# vtk DataFile Version 3.0(2)第二部分是文件头，是一个由”\n”结尾的字符串，最大为256个字符，如：PhaseField(3)第三部分说明文件的格">
+<meta property="og:locale" content="en_US">
+<meta property="article:published_time" content="2016-02-21T16:00:00.000Z">
+<meta property="article:modified_time" content="2021-03-25T07:20:30.801Z">
+<meta property="article:author" content="Xin-Bo Qi(亓欣波)">
+<meta property="article:tag" content="openphase">
+<meta name="twitter:card" content="summary">
+
+<link rel="canonical" href="http://qixinbo.github.io/2016/02/22/openphase-vtk/">
+
+
+<script id="page-configurations">
+  // https://hexo.io/docs/variables.html
+  CONFIG.page = {
+    sidebar: "",
+    isHome : false,
+    isPost : true,
+    lang   : 'en'
+  };
+</script>
+
+  <title>OpenPhase实例学习系列：VTK文件格式详解 | 亓欣波</title>
+  
+
+
+
+
+
+
+  <noscript>
+  <style>
+  .use-motion .brand,
+  .use-motion .menu-item,
+  .sidebar-inner,
+  .use-motion .post-block,
+  .use-motion .pagination,
+  .use-motion .comments,
+  .use-motion .post-header,
+  .use-motion .post-body,
+  .use-motion .collection-header { opacity: initial; }
+
+  .use-motion .site-title,
+  .use-motion .site-subtitle {
+    opacity: initial;
+    top: initial;
+  }
+
+  .use-motion .logo-line-before i { left: initial; }
+  .use-motion .logo-line-after i { right: initial; }
+  </style>
+</noscript>
+
+</head>
+
+<body itemscope itemtype="http://schema.org/WebPage">
+  <div class="container use-motion">
+    <div class="headband"></div>
+
+    <header class="header" itemscope itemtype="http://schema.org/WPHeader">
+      <div class="header-inner"><div class="site-brand-container">
+  <div class="site-nav-toggle">
+    <div class="toggle" aria-label="Toggle navigation bar">
+      <span class="toggle-line toggle-line-first"></span>
+      <span class="toggle-line toggle-line-middle"></span>
+      <span class="toggle-line toggle-line-last"></span>
+    </div>
+  </div>
+
+  <div class="site-meta">
+
+    <a href="/" class="brand" rel="start">
+      <span class="logo-line-before"><i></i></span>
+      <h1 class="site-title">亓欣波</h1>
+      <span class="logo-line-after"><i></i></span>
+    </a>
+      <p class="site-subtitle" itemprop="description">Hi, I am Xin-Bo Qi (亓欣波)</p>
+  </div>
+
+  <div class="site-nav-right">
+    <div class="toggle popup-trigger">
+    </div>
+  </div>
+</div>
+
+
+
+
+<nav class="site-nav">
+  <ul id="menu" class="main-menu menu">
+        <li class="menu-item menu-item-home">
+
+    <a href="/" rel="section"><i class="home fa-fw"></i>Home</a>
+
+  </li>
+        <li class="menu-item menu-item-categories">
+
+    <a href="/categories/" rel="section"><i class="th fa-fw"></i>Categories</a>
+
+  </li>
+        <li class="menu-item menu-item-archives">
+
+    <a href="/archives/" rel="section"><i class="archive fa-fw"></i>Archives</a>
+
+  </li>
+        <li class="menu-item menu-item-tags">
+
+    <a href="/tags/" rel="section"><i class="tags fa-fw"></i>Tags</a>
+
+  </li>
+        <li class="menu-item menu-item-scholar">
+
+    <a href="/scholar/" rel="section"><i class="bar-chart fa-fw"></i>scholar</a>
+
+  </li>
+        <li class="menu-item menu-item-sources">
+
+    <a href="/sources/" rel="section"><i class="rss fa-fw"></i>sources</a>
+
+  </li>
+        <li class="menu-item menu-item-gallery">
+
+    <a href="/gallery/" rel="section"><i class="file-image-o fa-fw"></i>gallery</a>
+
+  </li>
+        <li class="menu-item menu-item-about">
+
+    <a href="/about/" rel="section"><i class="user fa-fw"></i>About</a>
+
+  </li>
+        <li class="menu-item menu-item-commonweal">
+
+    <a href="/404.html" rel="section"><i class="heartbeat fa-fw"></i>Commonweal 404</a>
+
+  </li>
+  </ul>
+</nav>
+
+
+
+
+</div>
+    </header>
+
+    
+  <div class="back-to-top">
+    <i class="fa fa-arrow-up"></i>
+    <span>0%</span>
+  </div>
+
+
+    <main class="main">
+      <div class="main-inner">
+        <div class="content-wrap">
+          
+
+          <div class="content post posts-expand">
+            
+
+    
+  
+  
+  <article itemscope itemtype="http://schema.org/Article" class="post-block" lang="en">
+    <link itemprop="mainEntityOfPage" href="http://qixinbo.github.io/2016/02/22/openphase-vtk/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="image" content="/images/avatar.jpg">
+      <meta itemprop="name" content="Xin-Bo Qi(亓欣波)">
+      <meta itemprop="description" content="Be interesting!">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="亓欣波">
+    </span>
+      <header class="post-header">
+        <h1 class="post-title" itemprop="name headline">
+          OpenPhase实例学习系列：VTK文件格式详解
+        </h1>
+
+        <div class="post-meta">
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="far fa-calendar"></i>
+              </span>
+              <span class="post-meta-item-text">Posted on</span>
+
+              <time title="Created: 2016-02-22 00:00:00" itemprop="dateCreated datePublished" datetime="2016-02-22T00:00:00+08:00">2016-02-22</time>
+            </span>
+              <span class="post-meta-item">
+                <span class="post-meta-item-icon">
+                  <i class="far fa-calendar-check"></i>
+                </span>
+                <span class="post-meta-item-text">Edited on</span>
+                <time title="Modified: 2021-03-25 15:20:30" itemprop="dateModified" datetime="2021-03-25T15:20:30+08:00">2021-03-25</time>
+              </span>
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="far fa-folder"></i>
+              </span>
+              <span class="post-meta-item-text">In</span>
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+                  <a href="/categories/computational-material-science/" itemprop="url" rel="index"><span itemprop="name">computational material science</span></a>
+                </span>
+            </span>
+
+          
+  
+  <span class="post-meta-item">
+    
+      <span class="post-meta-item-icon">
+        <i class="far fa-comment"></i>
+      </span>
+      <span class="post-meta-item-text">Disqus: </span>
+    
+    <a title="disqus" href="/2016/02/22/openphase-vtk/#disqus_thread" itemprop="discussionUrl">
+      <span class="post-comments-count disqus-comment-count" data-disqus-identifier="2016/02/22/openphase-vtk/" itemprop="commentCount"></span>
+    </a>
+  </span>
+  
+  
+
+        </div>
+      </header>
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+        <h1 id="VTK文件格式概况"><a href="#VTK文件格式概况" class="headerlink" title="VTK文件格式概况"></a>VTK文件格式概况</h1><p>VTK，全称为Visualization Toolkit，即“可视化工具箱”，制订了一个统一的文件输入输出格式，这样就可在不同的软件间方便通信。<br>VTK文件格式包括五个基本部分：<br>(1)第一部分是文件版本说明：<br># vtk DataFile Version 3.0<br>(2)第二部分是文件头，是一个由”\n”结尾的字符串，最大为256个字符，如：<br>PhaseField<br>(3)第三部分说明文件的格式，是ASCII或BINARY，两者必填其一。<br>(4)第四部分是数据集的结构。<br>该部分起始是关键词DATASET加上数据集的类型，数据集的类型，即几何/拓扑的类型，包括()：STRUCTURED_POINTS, STURCTURED_GRID, UNSTRUCTURED_GRID, POLYDATA, RECTILINEAR_GRID, 然后基于该类型，再确定具体性质。<br>(5)第五部分说明数据的属性，即数据值或”场”。<br>以关键词POINT_DATA或CELL_DATA开头，加上一个整型数值确定点或胞的数目。然后是具体的属性值，如标量、矢量、张量等。</p>
+<h1 id="一些注意事项："><a href="#一些注意事项：" class="headerlink" title="一些注意事项："></a>一些注意事项：</h1><p>(1)所有的关键词项都是用ASCII书写的。对于二进制数据，只有定义点的坐标、数值时才用二进制形式。<br>(2)指标是从0开始的，因此第一个点的id是0。<br>(3)如果数据的属性和几何/拓扑部分都存在，那么两者需要精确吻合。<br>(4)胞cell的类型和指标是INT型。<br>(5)二进制数据必须紧随前面的ASCII字符后的”\n”换行符后。<br>(6)几何/拓扑部分必须在属性之前设定。<br>(7)数据类型dataType包括bit, unsigned_char, char, unsigned_short, short, unsigned_int, int, unsigned_long, long, float和double。</p>
+<h1 id="具体的数据集格式举例："><a href="#具体的数据集格式举例：" class="headerlink" title="具体的数据集格式举例："></a>具体的数据集格式举例：</h1><h2 id="Structured-Points："><a href="#Structured-Points：" class="headerlink" title="Structured Points："></a>Structured Points：</h2><p>DATASET STRUCTURED_POINTS<br>DIMENSIONS nx ny nz<br>ORIGIN x y z<br>SPACING sx sy sz          </p>
+<h2 id="Structured-Grid"><a href="#Structured-Grid" class="headerlink" title="Structured Grid:"></a>Structured Grid:</h2><p>DATASET STRUCTURED_GRID<br>DIMENSIONS nx ny nz<br>POINTS n dataType<br>p0x p0y p0z<br>p1x p1y p1z<br>…<br>p(n-1)x p(n-1)y p(n-1)z   </p>
+<h2 id="Rectilinear-Grid"><a href="#Rectilinear-Grid" class="headerlink" title="Rectilinear Grid"></a>Rectilinear Grid</h2><p>DATASET RECTILINEAR_GRID<br>DIMENSIONS nx ny nz<br>X_COORDINATES nx dataType<br>x0 x1 … x(nx-1)<br>Y_COORDINATES ny dataType<br>y0 y1 … y(ny-1)<br>Z_COORDINATES nz dataType<br>z0 z1 … z(nz-1)         </p>
+<h1 id="具体的属性-场格式举例："><a href="#具体的属性-场格式举例：" class="headerlink" title="具体的属性/场格式举例："></a>具体的属性/场格式举例：</h1><p>VTK可以存储标量、矢量、张量等，每个属性有一个名称dataName，用来提取该属性。因此，在同一套数据集上，可以有多个属性，如压力、温度等。</p>
+<h2 id="Scalars"><a href="#Scalars" class="headerlink" title="Scalars"></a>Scalars</h2><p>SCALARS dataName dataType numComp<br>LOOKUP_TABLE tableName<br>s0<br>s1<br>…<br>s(n-1)                            </p>
+<h2 id="Vectors"><a href="#Vectors" class="headerlink" title="Vectors"></a>Vectors</h2><p>VECTORS dataName dataType<br>v0x v0y v0z<br>v1x v1y v1z<br>…<br>v(n-1)x v(n-1)y v(n-1)z          </p>
+<h2 id="Normals"><a href="#Normals" class="headerlink" title="Normals"></a>Normals</h2><p>NORMALS dataName dataType<br>n0x n0y n0z<br>n1x n1y n1z<br>…<br>n(n-1)x n(n-1)y n(n-1)z           </p>
+
+    </div>
+
+    
+    
+    
+        <div class="reward-container">
+  <div></div>
+  <button onclick="var qr = document.getElementById('qr'); qr.style.display = (qr.style.display === 'none') ? 'block' : 'none';">
+    Donate
+  </button>
+  <div id="qr" style="display: none;">
+      
+      <div style="display: inline-block;">
+        <img src="/images/wechat_reward.png" alt="Xin-Bo Qi(亓欣波) WeChat Pay">
+        <p>WeChat Pay</p>
+      </div>
+
+  </div>
+</div>
+
+
+      <footer class="post-footer">
+          <div class="post-tags">
+              <a href="/tags/openphase/" rel="tag"># openphase</a>
+          </div>
+
+        
+
+
+        
+    <div class="post-nav">
+      <div class="post-nav-item">
+    <a href="/2016/01/30/paper-sci/" rel="prev" title="如何查找论文是否被SCI、EI、CSCD等收录">
+      <i class="fa fa-chevron-left"></i> 如何查找论文是否被SCI、EI、CSCD等收录
+    </a></div>
+      <div class="post-nav-item">
+    <a href="/2016/02/27/multiple-phasefield/" rel="next" title="多相材料的相场模型">
+      多相材料的相场模型 <i class="fa fa-chevron-right"></i>
+    </a></div>
+    </div>
+      </footer>
+    
+  </article>
+  
+  
+  
+
+
+
+          </div>
+          
+    
+  <div class="comments">
+    <div id="disqus_thread">
+      <noscript>Please enable JavaScript to view the comments powered by Disqus.</noscript>
+    </div>
+  </div>
+  
+
+<script>
+  window.addEventListener('tabs:register', () => {
+    let { activeClass } = CONFIG.comments;
+    if (CONFIG.comments.storage) {
+      activeClass = localStorage.getItem('comments_active') || activeClass;
+    }
+    if (activeClass) {
+      let activeTab = document.querySelector(`a[href="#comment-${activeClass}"]`);
+      if (activeTab) {
+        activeTab.click();
+      }
+    }
+  });
+  if (CONFIG.comments.storage) {
+    window.addEventListener('tabs:click', event => {
+      if (!event.target.matches('.tabs-comment .tab-content .tab-pane')) return;
+      let commentClass = event.target.classList[1];
+      localStorage.setItem('comments_active', commentClass);
+    });
+  }
+</script>
+
+        </div>
+          
+  
+  <div class="toggle sidebar-toggle">
+    <span class="toggle-line toggle-line-first"></span>
+    <span class="toggle-line toggle-line-middle"></span>
+    <span class="toggle-line toggle-line-last"></span>
+  </div>
+
+  <aside class="sidebar">
+    <div class="sidebar-inner">
+
+      <ul class="sidebar-nav motion-element">
+        <li class="sidebar-nav-toc">
+          Table of Contents
+        </li>
+        <li class="sidebar-nav-overview">
+          Overview
+        </li>
+      </ul>
+
+      <!--noindex-->
+      <div class="post-toc-wrap sidebar-panel">
+          <div class="post-toc motion-element"><ol class="nav"><li class="nav-item nav-level-1"><a class="nav-link" href="#VTK%E6%96%87%E4%BB%B6%E6%A0%BC%E5%BC%8F%E6%A6%82%E5%86%B5"><span class="nav-number">1.</span> <span class="nav-text">VTK文件格式概况</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#%E4%B8%80%E4%BA%9B%E6%B3%A8%E6%84%8F%E4%BA%8B%E9%A1%B9%EF%BC%9A"><span class="nav-number">2.</span> <span class="nav-text">一些注意事项：</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#%E5%85%B7%E4%BD%93%E7%9A%84%E6%95%B0%E6%8D%AE%E9%9B%86%E6%A0%BC%E5%BC%8F%E4%B8%BE%E4%BE%8B%EF%BC%9A"><span class="nav-number">3.</span> <span class="nav-text">具体的数据集格式举例：</span></a><ol class="nav-child"><li class="nav-item nav-level-2"><a class="nav-link" href="#Structured-Points%EF%BC%9A"><span class="nav-number">3.1.</span> <span class="nav-text">Structured Points：</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#Structured-Grid"><span class="nav-number">3.2.</span> <span class="nav-text">Structured Grid:</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#Rectilinear-Grid"><span class="nav-number">3.3.</span> <span class="nav-text">Rectilinear Grid</span></a></li></ol></li><li class="nav-item nav-level-1"><a class="nav-link" href="#%E5%85%B7%E4%BD%93%E7%9A%84%E5%B1%9E%E6%80%A7-%E5%9C%BA%E6%A0%BC%E5%BC%8F%E4%B8%BE%E4%BE%8B%EF%BC%9A"><span class="nav-number">4.</span> <span class="nav-text">具体的属性&#x2F;场格式举例：</span></a><ol class="nav-child"><li class="nav-item nav-level-2"><a class="nav-link" href="#Scalars"><span class="nav-number">4.1.</span> <span class="nav-text">Scalars</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#Vectors"><span class="nav-number">4.2.</span> <span class="nav-text">Vectors</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#Normals"><span class="nav-number">4.3.</span> <span class="nav-text">Normals</span></a></li></ol></li></ol></div>
+      </div>
+      <!--/noindex-->
+
+      <div class="site-overview-wrap sidebar-panel">
+        <div class="site-author motion-element" itemprop="author" itemscope itemtype="http://schema.org/Person">
+    <img class="site-author-image" itemprop="image" alt="Xin-Bo Qi(亓欣波)"
+      src="/images/avatar.jpg">
+  <p class="site-author-name" itemprop="name">Xin-Bo Qi(亓欣波)</p>
+  <div class="site-description" itemprop="description">Be interesting!</div>
+</div>
+<div class="site-state-wrap motion-element">
+  <nav class="site-state">
+      <div class="site-state-item site-state-posts">
+          <a href="/archives/">
+        
+          <span class="site-state-item-count">120</span>
+          <span class="site-state-item-name">posts</span>
+        </a>
+      </div>
+      <div class="site-state-item site-state-categories">
+            <a href="/categories/">
+          
+        <span class="site-state-item-count">5</span>
+        <span class="site-state-item-name">categories</span></a>
+      </div>
+      <div class="site-state-item site-state-tags">
+            <a href="/tags/">
+          
+        <span class="site-state-item-count">41</span>
+        <span class="site-state-item-name">tags</span></a>
+      </div>
+  </nav>
+</div>
+  <div class="links-of-author motion-element">
+      <span class="links-of-author-item">
+        <a href="https://github.com/qixinbo" title="GitHub → https:&#x2F;&#x2F;github.com&#x2F;qixinbo" rel="noopener" target="_blank"><i class="github fa-fw"></i>GitHub</a>
+      </span>
+      <span class="links-of-author-item">
+        <a href="mailto:qixinbo@gmail.com" title="E-Mail → mailto:qixinbo@gmail.com" rel="noopener" target="_blank"><i class="envelope fa-fw"></i>E-Mail</a>
+      </span>
+  </div>
+
+
+  <div class="links-of-blogroll motion-element">
+    <div class="links-of-blogroll-title"><i class="fa fa-link fa-fw"></i>
+      Links
+    </div>
+    <ul class="links-of-blogroll-list">
+        <li class="links-of-blogroll-item">
+          <a href="https://www.tsinghua.edu.cn/" title="https:&#x2F;&#x2F;www.tsinghua.edu.cn" rel="noopener" target="_blank">THU</a>
+        </li>
+        <li class="links-of-blogroll-item">
+          <a href="http://www.imr.cas.cn/" title="http:&#x2F;&#x2F;www.imr.cas.cn" rel="noopener" target="_blank">IMR</a>
+        </li>
+        <li class="links-of-blogroll-item">
+          <a href="http://www.sdu.edu.cn/" title="http:&#x2F;&#x2F;www.sdu.edu.cn" rel="noopener" target="_blank">SDU</a>
+        </li>
+        <li class="links-of-blogroll-item">
+          <a href="http://liam0205.me/" title="http:&#x2F;&#x2F;liam0205.me&#x2F;" rel="noopener" target="_blank">黄晨成</a>
+        </li>
+    </ul>
+  </div>
+
+      </div>
+
+    </div>
+  </aside>
+  <div id="sidebar-dimmer"></div>
+
+
+      </div>
+    </main>
+
+    <footer class="footer">
+      <div class="footer-inner">
+        
+
+        
+
+<div class="copyright">
+  
+  &copy; 
+  <span itemprop="copyrightYear">2021</span>
+  <span class="with-love">
+    <i class="fa fa-heart"></i>
+  </span>
+  <span class="author" itemprop="copyrightHolder">Xin-Bo Qi(亓欣波)</span>
+</div>
+  <div class="powered-by">Powered by <a href="https://hexo.io/" class="theme-link" rel="noopener" target="_blank">Hexo</a> & <a href="https://theme-next.org/" class="theme-link" rel="noopener" target="_blank">NexT.Gemini</a>
+  </div>
+
+        
+
+
+
+
+
+
+
+
+      </div>
+    </footer>
+  </div>
+
+  
+  <script src="/lib/anime.min.js"></script>
+  <script src="/lib/velocity/velocity.min.js"></script>
+  <script src="/lib/velocity/velocity.ui.min.js"></script>
+
+<script src="/js/utils.js"></script>
+
+<script src="/js/motion.js"></script>
+
+
+<script src="/js/schemes/pisces.js"></script>
+
+
+<script src="/js/next-boot.js"></script>
+
+
+
+
+  
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+  
+
+  
+
+  
+
+<script>
+  function loadCount() {
+    var d = document, s = d.createElement('script');
+    s.src = 'https://qixinbo.disqus.com/count.js';
+    s.id = 'dsq-count-scr';
+    (d.head || d.body).appendChild(s);
+  }
+  // defer loading until the whole page loading is completed
+  window.addEventListener('load', loadCount, false);
+</script>
+<script>
+  var disqus_config = function() {
+    this.page.url = "http://qixinbo.github.io/2016/02/22/openphase-vtk/";
+    this.page.identifier = "2016/02/22/openphase-vtk/";
+    this.page.title = "OpenPhase实例学习系列：VTK文件格式详解";
+    };
+  NexT.utils.loadComments(document.querySelector('#disqus_thread'), () => {
+    if (window.DISQUS) {
+      DISQUS.reset({
+        reload: true,
+        config: disqus_config
+      });
+    } else {
+      var d = document, s = d.createElement('script');
+      s.src = 'https://qixinbo.disqus.com/embed.js';
+      s.setAttribute('data-timestamp', '' + +new Date());
+      (d.head || d.body).appendChild(s);
+    }
+  });
+</script>
+
+</body>
+</html>

@@ -1,0 +1,598 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=2">
+<meta name="theme-color" content="#222">
+<meta name="generator" content="Hexo 5.4.0">
+  <link rel="apple-touch-icon" sizes="180x180" href="/images/apple-touch-icon-next.png">
+  <link rel="icon" type="image/png" sizes="32x32" href="/favicon.ico">
+  <link rel="icon" type="image/png" sizes="16x16" href="/favicon.ico">
+  <link rel="mask-icon" href="/images/logo.svg" color="#222">
+
+<link rel="stylesheet" href="/css/main.css">
+
+
+<link rel="stylesheet" href="/lib/font-awesome/css/all.min.css">
+
+<script id="hexo-configurations">
+    var NexT = window.NexT || {};
+    var CONFIG = {"hostname":"qixinbo.github.io","root":"/","scheme":"Gemini","version":"7.8.0","exturl":false,"sidebar":{"position":"left","display":"post","padding":18,"offset":12,"onmobile":false},"copycode":{"enable":false,"show_result":false,"style":null},"back2top":{"enable":true,"sidebar":false,"scrollpercent":false},"bookmark":{"enable":false,"color":"#222","save":"auto"},"fancybox":false,"mediumzoom":false,"lazyload":false,"pangu":false,"comments":{"style":"tabs","active":null,"storage":true,"lazyload":false,"nav":null},"algolia":{"hits":{"per_page":10},"labels":{"input_placeholder":"Search for Posts","hits_empty":"We didn't find any results for the search: ${query}","hits_stats":"${hits} results found in ${time} ms"}},"localsearch":{"enable":false,"trigger":"auto","top_n_per_article":1,"unescape":false,"preload":false},"motion":{"enable":true,"async":false,"transition":{"post_block":"fadeIn","post_header":"slideDownIn","post_body":"slideDownIn","coll_header":"slideLeftIn","sidebar":"slideUpIn"}}};
+  </script>
+
+  <meta name="description" content="简介Kaggle上有一个钢材表面缺陷检测的竞赛，是一个很好的将深度学习应用于传统材料检测的例子。对该赛题和解法的剖析，可以辅助理解深度学习的流程，及其应用于具体问题的套路。 这次解析分为两部分： （1）第一部分，即上一篇文章，是一个预备性工作，即对该竞赛的数据集的分析和可视化，参考的是这个notebookclear mask visualization and simple eda。感谢GoldF">
+<meta property="og:type" content="article">
+<meta property="og:title" content="Kaggle钢铁赛：基于PyTorch&#x2F;UNet算法的钢材表面缺陷检测——（2）算法分析">
+<meta property="og:url" content="http://qixinbo.github.io/2020/02/16/kaggle-steel-2/index.html">
+<meta property="og:site_name" content="亓欣波">
+<meta property="og:description" content="简介Kaggle上有一个钢材表面缺陷检测的竞赛，是一个很好的将深度学习应用于传统材料检测的例子。对该赛题和解法的剖析，可以辅助理解深度学习的流程，及其应用于具体问题的套路。 这次解析分为两部分： （1）第一部分，即上一篇文章，是一个预备性工作，即对该竞赛的数据集的分析和可视化，参考的是这个notebookclear mask visualization and simple eda。感谢GoldF">
+<meta property="og:locale" content="en_US">
+<meta property="og:image" content="https://user-images.githubusercontent.com/6218739/74802202-19787f00-5314-11ea-8ec0-bbe861ccfd1e.png">
+<meta property="og:image" content="https://user-images.githubusercontent.com/6218739/74802207-1ed5c980-5314-11ea-88f3-f04125adf692.png">
+<meta property="og:image" content="https://user-images.githubusercontent.com/6218739/74802212-2301e700-5314-11ea-83b6-d1a22c538149.png">
+<meta property="article:published_time" content="2020-02-15T16:00:00.000Z">
+<meta property="article:modified_time" content="2021-03-25T07:20:30.701Z">
+<meta property="article:author" content="Xin-Bo Qi(亓欣波)">
+<meta property="article:tag" content="kaggle">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:image" content="https://user-images.githubusercontent.com/6218739/74802202-19787f00-5314-11ea-8ec0-bbe861ccfd1e.png">
+
+<link rel="canonical" href="http://qixinbo.github.io/2020/02/16/kaggle-steel-2/">
+
+
+<script id="page-configurations">
+  // https://hexo.io/docs/variables.html
+  CONFIG.page = {
+    sidebar: "",
+    isHome : false,
+    isPost : true,
+    lang   : 'en'
+  };
+</script>
+
+  <title>Kaggle钢铁赛：基于PyTorch/UNet算法的钢材表面缺陷检测——（2）算法分析 | 亓欣波</title>
+  
+
+
+
+
+
+
+  <noscript>
+  <style>
+  .use-motion .brand,
+  .use-motion .menu-item,
+  .sidebar-inner,
+  .use-motion .post-block,
+  .use-motion .pagination,
+  .use-motion .comments,
+  .use-motion .post-header,
+  .use-motion .post-body,
+  .use-motion .collection-header { opacity: initial; }
+
+  .use-motion .site-title,
+  .use-motion .site-subtitle {
+    opacity: initial;
+    top: initial;
+  }
+
+  .use-motion .logo-line-before i { left: initial; }
+  .use-motion .logo-line-after i { right: initial; }
+  </style>
+</noscript>
+
+</head>
+
+<body itemscope itemtype="http://schema.org/WebPage">
+  <div class="container use-motion">
+    <div class="headband"></div>
+
+    <header class="header" itemscope itemtype="http://schema.org/WPHeader">
+      <div class="header-inner"><div class="site-brand-container">
+  <div class="site-nav-toggle">
+    <div class="toggle" aria-label="Toggle navigation bar">
+      <span class="toggle-line toggle-line-first"></span>
+      <span class="toggle-line toggle-line-middle"></span>
+      <span class="toggle-line toggle-line-last"></span>
+    </div>
+  </div>
+
+  <div class="site-meta">
+
+    <a href="/" class="brand" rel="start">
+      <span class="logo-line-before"><i></i></span>
+      <h1 class="site-title">亓欣波</h1>
+      <span class="logo-line-after"><i></i></span>
+    </a>
+      <p class="site-subtitle" itemprop="description">Hi, I am Xin-Bo Qi (亓欣波)</p>
+  </div>
+
+  <div class="site-nav-right">
+    <div class="toggle popup-trigger">
+    </div>
+  </div>
+</div>
+
+
+
+
+<nav class="site-nav">
+  <ul id="menu" class="main-menu menu">
+        <li class="menu-item menu-item-home">
+
+    <a href="/" rel="section"><i class="home fa-fw"></i>Home</a>
+
+  </li>
+        <li class="menu-item menu-item-categories">
+
+    <a href="/categories/" rel="section"><i class="th fa-fw"></i>Categories</a>
+
+  </li>
+        <li class="menu-item menu-item-archives">
+
+    <a href="/archives/" rel="section"><i class="archive fa-fw"></i>Archives</a>
+
+  </li>
+        <li class="menu-item menu-item-tags">
+
+    <a href="/tags/" rel="section"><i class="tags fa-fw"></i>Tags</a>
+
+  </li>
+        <li class="menu-item menu-item-scholar">
+
+    <a href="/scholar/" rel="section"><i class="bar-chart fa-fw"></i>scholar</a>
+
+  </li>
+        <li class="menu-item menu-item-sources">
+
+    <a href="/sources/" rel="section"><i class="rss fa-fw"></i>sources</a>
+
+  </li>
+        <li class="menu-item menu-item-gallery">
+
+    <a href="/gallery/" rel="section"><i class="file-image-o fa-fw"></i>gallery</a>
+
+  </li>
+        <li class="menu-item menu-item-about">
+
+    <a href="/about/" rel="section"><i class="user fa-fw"></i>About</a>
+
+  </li>
+        <li class="menu-item menu-item-commonweal">
+
+    <a href="/404.html" rel="section"><i class="heartbeat fa-fw"></i>Commonweal 404</a>
+
+  </li>
+  </ul>
+</nav>
+
+
+
+
+</div>
+    </header>
+
+    
+  <div class="back-to-top">
+    <i class="fa fa-arrow-up"></i>
+    <span>0%</span>
+  </div>
+
+
+    <main class="main">
+      <div class="main-inner">
+        <div class="content-wrap">
+          
+
+          <div class="content post posts-expand">
+            
+
+    
+  
+  
+  <article itemscope itemtype="http://schema.org/Article" class="post-block" lang="en">
+    <link itemprop="mainEntityOfPage" href="http://qixinbo.github.io/2020/02/16/kaggle-steel-2/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="image" content="/images/avatar.jpg">
+      <meta itemprop="name" content="Xin-Bo Qi(亓欣波)">
+      <meta itemprop="description" content="Be interesting!">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="亓欣波">
+    </span>
+      <header class="post-header">
+        <h1 class="post-title" itemprop="name headline">
+          Kaggle钢铁赛：基于PyTorch/UNet算法的钢材表面缺陷检测——（2）算法分析
+        </h1>
+
+        <div class="post-meta">
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="far fa-calendar"></i>
+              </span>
+              <span class="post-meta-item-text">Posted on</span>
+
+              <time title="Created: 2020-02-16 00:00:00" itemprop="dateCreated datePublished" datetime="2020-02-16T00:00:00+08:00">2020-02-16</time>
+            </span>
+              <span class="post-meta-item">
+                <span class="post-meta-item-icon">
+                  <i class="far fa-calendar-check"></i>
+                </span>
+                <span class="post-meta-item-text">Edited on</span>
+                <time title="Modified: 2021-03-25 15:20:30" itemprop="dateModified" datetime="2021-03-25T15:20:30+08:00">2021-03-25</time>
+              </span>
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="far fa-folder"></i>
+              </span>
+              <span class="post-meta-item-text">In</span>
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+                  <a href="/categories/programming/" itemprop="url" rel="index"><span itemprop="name">programming</span></a>
+                </span>
+            </span>
+
+          
+  
+  <span class="post-meta-item">
+    
+      <span class="post-meta-item-icon">
+        <i class="far fa-comment"></i>
+      </span>
+      <span class="post-meta-item-text">Disqus: </span>
+    
+    <a title="disqus" href="/2020/02/16/kaggle-steel-2/#disqus_thread" itemprop="discussionUrl">
+      <span class="post-comments-count disqus-comment-count" data-disqus-identifier="2020/02/16/kaggle-steel-2/" itemprop="commentCount"></span>
+    </a>
+  </span>
+  
+  
+
+        </div>
+      </header>
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+        <h1 id="简介"><a href="#简介" class="headerlink" title="简介"></a>简介</h1><p>Kaggle上有一个<a target="_blank" rel="noopener" href="https://www.kaggle.com/c/severstal-steel-defect-detection/overview">钢材表面缺陷检测的竞赛</a>，是一个很好的将深度学习应用于传统材料检测的例子。对该赛题和解法的剖析，可以辅助理解深度学习的流程，及其应用于具体问题的套路。</p>
+<p>这次解析分为两部分：</p>
+<p>（1）第一部分，即<a target="_blank" rel="noopener" href="https://qixinbo.info/2020/02/15/kaggle-steel/">上一篇文章</a>，是一个预备性工作，即对该竞赛的数据集的分析和可视化，参考的是这个notebook<a target="_blank" rel="noopener" href="https://www.kaggle.com/go1dfish/clear-mask-visualization-and-simple-eda">clear mask visualization and simple eda</a>。感谢GoldFish的分享。</p>
+<p>（2）第二部分，即本文，参考的是Rishabh Agrahari的<a target="_blank" rel="noopener" href="https://www.kaggle.com/rishabhiitbhu/unet-starter-kernel-pytorch-lb-0-88">使用PyTorch框架及UNet算法的notebook</a>，中间穿插了很多背景知识介绍。</p>
+<p>再次声明一下，本次训练是在Google Colab上进行，所以有的命令行命令有些许不同，比如sh命令都加上了叹号，不过不影响理解。</p>
+<p>一些关于卷积神经网络的预备知识：<br>-<a target="_blank" rel="noopener" href="https://blog.csdn.net/v_JULY_v/article/details/51812459">CNN笔记：通俗理解卷积神经网络</a><br>-<a target="_blank" rel="noopener" href="https://zhuanlan.zhihu.com/p/29119239">CNN中卷积层的计算细节</a><br>-<a target="_blank" rel="noopener" href="https://flat2010.github.io/2018/06/15/%E6%89%8B%E7%AE%97CNN%E4%B8%AD%E7%9A%84%E5%8F%82%E6%95%B0/">CNN中的参数解释及计算</a></p>
+<h1 id="加载预训练模型"><a href="#加载预训练模型" class="headerlink" title="加载预训练模型"></a>加载预训练模型</h1><p>这一部分的参考文献有：<br>-<a target="_blank" rel="noopener" href="https://mp.weixin.qq.com/s/KI-9z7FBjfoWfZK3PEPXJA">Pytorch深度学习实战教程（一）：语义分割基础与环境搭建</a><br>-<a target="_blank" rel="noopener" href="https://mp.weixin.qq.com/s/6tZVUbyEjLVewM8vGK9Zhw">Pytorch深度学习实战教程（二）：UNet语义分割网络</a><br>-<a target="_blank" rel="noopener" href="https://blog.csdn.net/m0_37477175/article/details/83861678">UNet以ResNet34为backbone in keras</a><br>-<a target="_blank" rel="noopener" href="https://www.qbitai.com/2019/05/2157.html">一大波PyTorch图像分割模型来袭，俄罗斯程序员出品新model zoo</a></p>
+<p>这个notebook没有用UNet传统的编码器和解码器，而是用的预训练的resnet18网络作为编码器，再在此基础上，构建相应的解码器。这个带预训练resnet18的UNet是借用了这个开源库<a target="_blank" rel="noopener" href="https://github.com/qubvel/segmentation_models.pytorch">segmentation_models.pytorch</a>。该库目前提供了5种模型结构，每个架构有46种可用的编码器，且所有的编码器都具有预训练权重，因此广受好评。以上内容的具体原理可以参见上面的参考文献的描述。</p>
+<p>在原notebook中，Rishabh Agrahari在Kaggle的kernel中没有正确通过pip安装这个库，所以他把整个库下载下来然后传到kaggle数据集中了，但实测在Colab中可以通过pip成功安装，如下：</p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">!pip install git+https://github.com/qubvel/segmentation_models.pytorch</span><br></pre></td></tr></table></figure>
+<p>测试一下：</p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">import</span> segmentation_models_pytorch <span class="keyword">as</span> smp</span><br><span class="line">model = smp.Unet()</span><br></pre></td></tr></table></figure>
+<p>会显示成功下载预训练模型resnet34，这是因为没有给它传参，默认下载并使用该模型。<br>另外，如果下一次再使用该notebook时，会发现之前安装的包都没了，此时需要永久安装这些python包，见下面的参考文献：<br>-<a target="_blank" rel="noopener" href="https://stackoverflow.com/questions/55253498/how-do-i-install-a-library-permanently-in-colab">How do I install a library permanently in Colab?</a></p>
+<h1 id="导入必要的Python包"><a href="#导入必要的Python包" class="headerlink" title="导入必要的Python包"></a>导入必要的Python包</h1><figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">import</span> os</span><br><span class="line"><span class="keyword">import</span> cv2</span><br><span class="line"><span class="keyword">import</span> pdb</span><br><span class="line"><span class="keyword">import</span> time</span><br><span class="line"><span class="keyword">import</span> warnings</span><br><span class="line"><span class="keyword">import</span> random</span><br><span class="line"><span class="keyword">import</span> numpy <span class="keyword">as</span> np</span><br><span class="line"><span class="keyword">import</span> pandas <span class="keyword">as</span> pd</span><br><span class="line"><span class="keyword">from</span> tqdm <span class="keyword">import</span> tqdm_notebook <span class="keyword">as</span> tqdm</span><br><span class="line"><span class="keyword">from</span> torch.optim.lr_scheduler <span class="keyword">import</span> ReduceLROnPlateau</span><br><span class="line"><span class="keyword">from</span> sklearn.model_selection <span class="keyword">import</span> train_test_split</span><br><span class="line"><span class="keyword">import</span> torch</span><br><span class="line"><span class="keyword">import</span> torch.nn <span class="keyword">as</span> nn</span><br><span class="line"><span class="keyword">from</span> torch.nn <span class="keyword">import</span> functional <span class="keyword">as</span> F</span><br><span class="line"><span class="keyword">import</span> torch.optim <span class="keyword">as</span> optim</span><br><span class="line"><span class="keyword">import</span> torch.backends.cudnn <span class="keyword">as</span> cudnn</span><br><span class="line"><span class="keyword">from</span> torch.utils.data <span class="keyword">import</span> DataLoader, Dataset, sampler</span><br><span class="line"><span class="keyword">from</span> matplotlib <span class="keyword">import</span> pyplot <span class="keyword">as</span> plt</span><br><span class="line"><span class="keyword">from</span> albumentations <span class="keyword">import</span> (HorizontalFlip, ShiftScaleRotate, Normalize, Resize, Compose, GaussNoise)</span><br><span class="line"><span class="keyword">from</span> albumentations.pytorch <span class="keyword">import</span> ToTensor</span><br><span class="line">warnings.filterwarnings(<span class="string">&quot;ignore&quot;</span>)</span><br><span class="line">seed = <span class="number">69</span></span><br><span class="line">random.seed(seed)</span><br><span class="line">os.environ[<span class="string">&quot;PYTHONHASHSEED&quot;</span>] = <span class="built_in">str</span>(seed)</span><br><span class="line">np.random.seed(seed)</span><br><span class="line">torch.cuda.manual_seed(seed)</span><br><span class="line">torch.backends.cudnn.deterministic = <span class="literal">True</span></span><br></pre></td></tr></table></figure>
+
+<h1 id="掩膜的编码及解码"><a href="#掩膜的编码及解码" class="headerlink" title="掩膜的编码及解码"></a>掩膜的编码及解码</h1><figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">#https://www.kaggle.com/paulorzp/rle-functions-run-lenght-encode-decode</span></span><br><span class="line"><span class="function"><span class="keyword">def</span> <span class="title">mask2rle</span>(<span class="params">img</span>):</span></span><br><span class="line">    <span class="string">&#x27;&#x27;&#x27;</span></span><br><span class="line"><span class="string">    img: numpy array, 1 -&gt; mask, 0 -&gt; background</span></span><br><span class="line"><span class="string">    Returns run length as string formated</span></span><br><span class="line"><span class="string">    &#x27;&#x27;&#x27;</span></span><br><span class="line">    pixels= img.T.flatten()</span><br><span class="line">    pixels = np.concatenate([[<span class="number">0</span>], pixels, [<span class="number">0</span>]])</span><br><span class="line">    runs = np.where(pixels[<span class="number">1</span>:] != pixels[:-<span class="number">1</span>])[<span class="number">0</span>] + <span class="number">1</span></span><br><span class="line">    runs[<span class="number">1</span>::<span class="number">2</span>] -= runs[::<span class="number">2</span>]</span><br><span class="line">    <span class="keyword">return</span> <span class="string">&#x27; &#x27;</span>.join(<span class="built_in">str</span>(x) <span class="keyword">for</span> x <span class="keyword">in</span> runs)</span><br><span class="line"></span><br><span class="line"><span class="function"><span class="keyword">def</span> <span class="title">make_mask</span>(<span class="params">row_id, df</span>):</span></span><br><span class="line">    <span class="string">&#x27;&#x27;&#x27;Given a row index, return image_id and mask (256, 1600, 4) from the dataframe `df`&#x27;&#x27;&#x27;</span></span><br><span class="line">    fname = df.iloc[row_id].name</span><br><span class="line">    labels = df.iloc[row_id][:<span class="number">4</span>]</span><br><span class="line">    masks = np.zeros((<span class="number">256</span>, <span class="number">1600</span>, <span class="number">4</span>), dtype=np.float32) <span class="comment"># float32 is V.Imp</span></span><br><span class="line">    <span class="comment"># 4:class 1～4 (ch:0～3)</span></span><br><span class="line">    <span class="keyword">for</span> idx, label <span class="keyword">in</span> <span class="built_in">enumerate</span>(labels.values):</span><br><span class="line">        <span class="keyword">if</span> label <span class="keyword">is</span> <span class="keyword">not</span> np.nan:</span><br><span class="line">            label = label.split(<span class="string">&quot; &quot;</span>)</span><br><span class="line">            positions = <span class="built_in">map</span>(<span class="built_in">int</span>, label[<span class="number">0</span>::<span class="number">2</span>])</span><br><span class="line">            length = <span class="built_in">map</span>(<span class="built_in">int</span>, label[<span class="number">1</span>::<span class="number">2</span>])</span><br><span class="line">            mask = np.zeros(<span class="number">256</span> * <span class="number">1600</span>, dtype=np.uint8)</span><br><span class="line">            <span class="keyword">for</span> pos, le <span class="keyword">in</span> <span class="built_in">zip</span>(positions, length):</span><br><span class="line">                mask[pos:(pos + le)] = <span class="number">1</span></span><br><span class="line">            masks[:, :, idx] = mask.reshape(<span class="number">256</span>, <span class="number">1600</span>, order=<span class="string">&#x27;F&#x27;</span>)</span><br><span class="line">    <span class="keyword">return</span> fname, masks</span><br></pre></td></tr></table></figure>
+<p>这一步是定义了两个函数：<br>mask2rle函数是将mask使用RLE编码，RLE的全称是Run-length encoding，称为游程编码，是一种无损数据压缩技术。<br>make_mask是为了对csv文件中mask进行RLE解码。<br>比如’1 3’代表起点是像素1，然后长度为3个像素，即像素索引为(1, 2, 3)。然后不同游程之间也是用空格分隔，比如’1 3 10 5’代表的就是(1, 2, 3, 10, 11, 12, 13, 14)这8个像素。</p>
+<p>参考资料：<br>-<a target="_blank" rel="noopener" href="https://zh.wikipedia.org/wiki/%E6%B8%B8%E7%A8%8B%E7%BC%96%E7%A0%81">游程编码</a><br>-<a target="_blank" rel="noopener" href="https://blog.csdn.net/appleyuchi/article/details/102938491">对mask进行rle编码然后进行解码-详细注释</a><br>-<a target="_blank" rel="noopener" href="https://www.kaggle.com/paulorzp/rle-functions-run-lenght-encode-decode">RLE functions - Run Lenght Encode &amp; Decode</a></p>
+<p>#数据加载</p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br><span class="line">52</span><br><span class="line">53</span><br><span class="line">54</span><br><span class="line">55</span><br><span class="line">56</span><br><span class="line">57</span><br><span class="line">58</span><br><span class="line">59</span><br><span class="line">60</span><br><span class="line">61</span><br><span class="line">62</span><br><span class="line">63</span><br><span class="line">64</span><br><span class="line">65</span><br><span class="line">66</span><br><span class="line">67</span><br><span class="line">68</span><br></pre></td><td class="code"><pre><span class="line"><span class="class"><span class="keyword">class</span> <span class="title">SteelDataset</span>(<span class="params">Dataset</span>):</span></span><br><span class="line">    <span class="function"><span class="keyword">def</span> <span class="title">__init__</span>(<span class="params">self, df, data_folder, mean, std, phase</span>):</span></span><br><span class="line">        self.df = df</span><br><span class="line">        self.root = data_folder</span><br><span class="line">        self.mean = mean</span><br><span class="line">        self.std = std</span><br><span class="line">        self.phase = phase</span><br><span class="line">        self.transforms = get_transforms(phase, mean, std)</span><br><span class="line">        self.fnames = self.df.index.tolist()</span><br><span class="line"></span><br><span class="line">    <span class="function"><span class="keyword">def</span> <span class="title">__getitem__</span>(<span class="params">self, idx</span>):</span></span><br><span class="line">        image_id, mask = make_mask(idx, self.df)</span><br><span class="line">        image_path = os.path.join(self.root, <span class="string">&quot;train_images&quot;</span>,  image_id)</span><br><span class="line">        img = cv2.imread(image_path)</span><br><span class="line">        augmented = self.transforms(image=img, mask=mask)</span><br><span class="line">        img = augmented[<span class="string">&#x27;image&#x27;</span>]</span><br><span class="line">        mask = augmented[<span class="string">&#x27;mask&#x27;</span>] <span class="comment"># 1x256x1600x4</span></span><br><span class="line">        mask = mask[<span class="number">0</span>].permute(<span class="number">2</span>, <span class="number">0</span>, <span class="number">1</span>) <span class="comment"># 4x256x1600</span></span><br><span class="line">        <span class="keyword">return</span> img, mask</span><br><span class="line"></span><br><span class="line">    <span class="function"><span class="keyword">def</span> <span class="title">__len__</span>(<span class="params">self</span>):</span></span><br><span class="line">        <span class="keyword">return</span> <span class="built_in">len</span>(self.fnames)</span><br><span class="line"></span><br><span class="line"><span class="function"><span class="keyword">def</span> <span class="title">get_transforms</span>(<span class="params">phase, mean, std</span>):</span></span><br><span class="line">    list_transforms = []</span><br><span class="line">    <span class="keyword">if</span> phase == <span class="string">&quot;train&quot;</span>:</span><br><span class="line">        list_transforms.extend(</span><br><span class="line">            [</span><br><span class="line">                HorizontalFlip(p=<span class="number">0.5</span>), <span class="comment"># only horizontal flip as of now</span></span><br><span class="line">            ]</span><br><span class="line">        )</span><br><span class="line">    list_transforms.extend(</span><br><span class="line">        [</span><br><span class="line">            Normalize(mean=mean, std=std, p=<span class="number">1</span>),</span><br><span class="line">            ToTensor(),</span><br><span class="line">        ]</span><br><span class="line">    )</span><br><span class="line">    list_trfms = Compose(list_transforms)</span><br><span class="line">    <span class="keyword">return</span> list_trfms</span><br><span class="line"></span><br><span class="line"><span class="function"><span class="keyword">def</span> <span class="title">provider</span>(<span class="params"></span></span></span><br><span class="line"><span class="function"><span class="params">    data_folder,</span></span></span><br><span class="line"><span class="function"><span class="params">    df_path,</span></span></span><br><span class="line"><span class="function"><span class="params">    phase,</span></span></span><br><span class="line"><span class="function"><span class="params">    mean=<span class="literal">None</span>,</span></span></span><br><span class="line"><span class="function"><span class="params">    std=<span class="literal">None</span>,</span></span></span><br><span class="line"><span class="function"><span class="params">    batch_size=<span class="number">8</span>,</span></span></span><br><span class="line"><span class="function"><span class="params">    num_workers=<span class="number">4</span>,</span></span></span><br><span class="line"><span class="function"><span class="params"></span>):</span></span><br><span class="line">    <span class="string">&#x27;&#x27;&#x27;Returns dataloader for the model training&#x27;&#x27;&#x27;</span></span><br><span class="line">    df = pd.read_csv(df_path)</span><br><span class="line">    <span class="comment"># https://www.kaggle.com/amanooo/defect-detection-starter-u-net</span></span><br><span class="line">    df[<span class="string">&#x27;ImageId&#x27;</span>], df[<span class="string">&#x27;ClassId&#x27;</span>] = <span class="built_in">zip</span>(*df[<span class="string">&#x27;ImageId_ClassId&#x27;</span>].<span class="built_in">str</span>.split(<span class="string">&#x27;_&#x27;</span>))</span><br><span class="line">    df[<span class="string">&#x27;ClassId&#x27;</span>] = df[<span class="string">&#x27;ClassId&#x27;</span>].astype(<span class="built_in">int</span>)</span><br><span class="line">    df = df.pivot(index=<span class="string">&#x27;ImageId&#x27;</span>,columns=<span class="string">&#x27;ClassId&#x27;</span>,values=<span class="string">&#x27;EncodedPixels&#x27;</span>)</span><br><span class="line">    df[<span class="string">&#x27;defects&#x27;</span>] = df.count(axis=<span class="number">1</span>)</span><br><span class="line"></span><br><span class="line">    train_df, val_df = train_test_split(df, test_size=<span class="number">0.2</span>, stratify=df[<span class="string">&quot;defects&quot;</span>], random_state=<span class="number">69</span>)</span><br><span class="line">    df = train_df <span class="keyword">if</span> phase == <span class="string">&quot;train&quot;</span> <span class="keyword">else</span> val_df</span><br><span class="line">    image_dataset = SteelDataset(df, data_folder, mean, std, phase)</span><br><span class="line">    dataloader = DataLoader(</span><br><span class="line">        image_dataset,</span><br><span class="line">        batch_size=batch_size,</span><br><span class="line">        num_workers=num_workers,</span><br><span class="line">        pin_memory=<span class="literal">True</span>,</span><br><span class="line">        shuffle=<span class="literal">True</span>,   </span><br><span class="line">    )</span><br><span class="line">    <span class="keyword">return</span> dataloader</span><br></pre></td></tr></table></figure>
+
+<p>这一步是依据PyTorch的规范建立自己的数据集、数据变换、数据加载器等。<br>具体可以参考官方的创建自定义数据集及加载器一节：<br><a target="_blank" rel="noopener" href="https://pytorch.org/tutorials/beginner/data_loading_tutorial.html">Writing Custom Datasets, DataLoaders and Transforms</a></p>
+<h1 id="衡量指标定义"><a href="#衡量指标定义" class="headerlink" title="衡量指标定义"></a>衡量指标定义</h1><figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br><span class="line">52</span><br><span class="line">53</span><br><span class="line">54</span><br><span class="line">55</span><br><span class="line">56</span><br><span class="line">57</span><br><span class="line">58</span><br><span class="line">59</span><br><span class="line">60</span><br><span class="line">61</span><br><span class="line">62</span><br><span class="line">63</span><br><span class="line">64</span><br><span class="line">65</span><br><span class="line">66</span><br><span class="line">67</span><br><span class="line">68</span><br><span class="line">69</span><br><span class="line">70</span><br><span class="line">71</span><br><span class="line">72</span><br><span class="line">73</span><br><span class="line">74</span><br><span class="line">75</span><br><span class="line">76</span><br><span class="line">77</span><br><span class="line">78</span><br><span class="line">79</span><br><span class="line">80</span><br><span class="line">81</span><br><span class="line">82</span><br><span class="line">83</span><br><span class="line">84</span><br><span class="line">85</span><br><span class="line">86</span><br><span class="line">87</span><br><span class="line">88</span><br><span class="line">89</span><br><span class="line">90</span><br><span class="line">91</span><br><span class="line">92</span><br><span class="line">93</span><br><span class="line">94</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="keyword">def</span> <span class="title">predict</span>(<span class="params">X, threshold</span>):</span></span><br><span class="line">    <span class="string">&#x27;&#x27;&#x27;X is sigmoid output of the model&#x27;&#x27;&#x27;</span></span><br><span class="line">    X_p = np.copy(X)</span><br><span class="line">    preds = (X_p &gt; threshold).astype(<span class="string">&#x27;uint8&#x27;</span>)</span><br><span class="line">    <span class="keyword">return</span> preds</span><br><span class="line"></span><br><span class="line"><span class="function"><span class="keyword">def</span> <span class="title">metric</span>(<span class="params">probability, truth, threshold=<span class="number">0.5</span>, reduction=<span class="string">&#x27;none&#x27;</span></span>):</span></span><br><span class="line">    <span class="string">&#x27;&#x27;&#x27;Calculates dice of positive and negative images seperately&#x27;&#x27;&#x27;</span></span><br><span class="line">    <span class="string">&#x27;&#x27;&#x27;probability and truth must be torch tensors&#x27;&#x27;&#x27;</span></span><br><span class="line">    batch_size = <span class="built_in">len</span>(truth)</span><br><span class="line">    <span class="keyword">with</span> torch.no_grad():</span><br><span class="line">        probability = probability.view(batch_size, -<span class="number">1</span>)</span><br><span class="line">        truth = truth.view(batch_size, -<span class="number">1</span>)</span><br><span class="line">        <span class="keyword">assert</span>(probability.shape == truth.shape)</span><br><span class="line">        p = (probability &gt; threshold).<span class="built_in">float</span>()</span><br><span class="line">        t = (truth &gt; <span class="number">0.5</span>).<span class="built_in">float</span>()</span><br><span class="line">        t_sum = t.<span class="built_in">sum</span>(-<span class="number">1</span>)</span><br><span class="line">        p_sum = p.<span class="built_in">sum</span>(-<span class="number">1</span>)</span><br><span class="line">        neg_index = torch.nonzero(t_sum == <span class="number">0</span>)</span><br><span class="line">        pos_index = torch.nonzero(t_sum &gt;= <span class="number">1</span>)</span><br><span class="line">        dice_neg = (p_sum == <span class="number">0</span>).<span class="built_in">float</span>()</span><br><span class="line">        dice_pos = <span class="number">2</span> * (p*t).<span class="built_in">sum</span>(-<span class="number">1</span>)/((p+t).<span class="built_in">sum</span>(-<span class="number">1</span>))</span><br><span class="line">        dice_neg = dice_neg[neg_index]</span><br><span class="line">        dice_pos = dice_pos[pos_index]</span><br><span class="line">        dice = torch.cat([dice_pos, dice_neg])</span><br><span class="line"><span class="comment">#         dice_neg = np.nan_to_num(dice_neg.mean().item(), 0)</span></span><br><span class="line"><span class="comment">#         dice_pos = np.nan_to_num(dice_pos.mean().item(), 0)</span></span><br><span class="line"><span class="comment">#         dice = dice.mean().item()</span></span><br><span class="line"></span><br><span class="line">        num_neg = <span class="built_in">len</span>(neg_index)</span><br><span class="line">        num_pos = <span class="built_in">len</span>(pos_index)</span><br><span class="line">    <span class="keyword">return</span> dice, dice_neg, dice_pos, num_neg, num_pos</span><br><span class="line"></span><br><span class="line"><span class="class"><span class="keyword">class</span> <span class="title">Meter</span>:</span></span><br><span class="line">    <span class="string">&#x27;&#x27;&#x27;A meter to keep track of iou and dice scores throughout an epoch&#x27;&#x27;&#x27;</span></span><br><span class="line">    <span class="function"><span class="keyword">def</span> <span class="title">__init__</span>(<span class="params">self, phase, epoch</span>):</span></span><br><span class="line">        self.base_threshold = <span class="number">0.5</span> <span class="comment"># &lt;&lt;&lt;&lt;&lt;&lt;&lt;&lt;&lt;&lt;&lt; here&#x27;s the threshold</span></span><br><span class="line">        self.base_dice_scores = []</span><br><span class="line">        self.dice_neg_scores = []</span><br><span class="line">        self.dice_pos_scores = []</span><br><span class="line">        self.iou_scores = []</span><br><span class="line"></span><br><span class="line">    <span class="function"><span class="keyword">def</span> <span class="title">update</span>(<span class="params">self, targets, outputs</span>):</span></span><br><span class="line">        probs = torch.sigmoid(outputs)</span><br><span class="line">        dice, dice_neg, dice_pos, _, _ = metric(probs, targets, self.base_threshold)</span><br><span class="line">        self.base_dice_scores.extend(dice.tolist())</span><br><span class="line">        self.dice_pos_scores.extend(dice_pos.tolist())</span><br><span class="line">        self.dice_neg_scores.extend(dice_neg.tolist())</span><br><span class="line">        preds = predict(probs, self.base_threshold)</span><br><span class="line">        iou = compute_iou_batch(preds, targets, classes=[<span class="number">1</span>])</span><br><span class="line">        self.iou_scores.append(iou)</span><br><span class="line"></span><br><span class="line">    <span class="function"><span class="keyword">def</span> <span class="title">get_metrics</span>(<span class="params">self</span>):</span></span><br><span class="line">        dice = np.nanmean(self.base_dice_scores)</span><br><span class="line">        dice_neg = np.nanmean(self.dice_neg_scores)</span><br><span class="line">        dice_pos = np.nanmean(self.dice_pos_scores)</span><br><span class="line">        dices = [dice, dice_neg, dice_pos]</span><br><span class="line">        iou = np.nanmean(self.iou_scores)</span><br><span class="line">        <span class="keyword">return</span> dices, iou</span><br><span class="line"></span><br><span class="line"><span class="function"><span class="keyword">def</span> <span class="title">epoch_log</span>(<span class="params">phase, epoch, epoch_loss, meter, start</span>):</span></span><br><span class="line">    <span class="string">&#x27;&#x27;&#x27;logging the metrics at the end of an epoch&#x27;&#x27;&#x27;</span></span><br><span class="line">    dices, iou = meter.get_metrics()</span><br><span class="line">    dice, dice_neg, dice_pos = dices</span><br><span class="line">    <span class="built_in">print</span>(<span class="string">&quot;Loss: %0.4f | IoU: %0.4f | dice: %0.4f | dice_neg: %0.4f | dice_pos: %0.4f&quot;</span> % (epoch_loss, iou, dice, dice_neg, dice_pos))</span><br><span class="line">    <span class="keyword">return</span> dice, iou</span><br><span class="line"></span><br><span class="line"><span class="function"><span class="keyword">def</span> <span class="title">compute_ious</span>(<span class="params">pred, label, classes, ignore_index=<span class="number">255</span>, only_present=<span class="literal">True</span></span>):</span></span><br><span class="line">    <span class="string">&#x27;&#x27;&#x27;computes iou for one ground truth mask and predicted mask&#x27;&#x27;&#x27;</span></span><br><span class="line">    pred[label == ignore_index] = <span class="number">0</span></span><br><span class="line">    ious = []</span><br><span class="line">    <span class="keyword">for</span> c <span class="keyword">in</span> classes:</span><br><span class="line">        label_c = label == c</span><br><span class="line">        <span class="keyword">if</span> only_present <span class="keyword">and</span> np.<span class="built_in">sum</span>(label_c) == <span class="number">0</span>:</span><br><span class="line">            ious.append(np.nan)</span><br><span class="line">            <span class="keyword">continue</span></span><br><span class="line"></span><br><span class="line">        pred_c = pred == c</span><br><span class="line">        intersection = np.logical_and(pred_c, label_c).<span class="built_in">sum</span>()</span><br><span class="line">        union = np.logical_or(pred_c, label_c).<span class="built_in">sum</span>()</span><br><span class="line">        <span class="keyword">if</span> union != <span class="number">0</span>:</span><br><span class="line">            ious.append(intersection / union)</span><br><span class="line"></span><br><span class="line">    <span class="keyword">return</span> ious <span class="keyword">if</span> ious <span class="keyword">else</span> [<span class="number">1</span>]</span><br><span class="line"></span><br><span class="line"><span class="function"><span class="keyword">def</span> <span class="title">compute_iou_batch</span>(<span class="params">outputs, labels, classes=<span class="literal">None</span></span>):</span></span><br><span class="line">    <span class="string">&#x27;&#x27;&#x27;computes mean iou for a batch of ground truth masks and predicted masks&#x27;&#x27;&#x27;</span></span><br><span class="line">    ious = []</span><br><span class="line">    preds = np.copy(outputs) <span class="comment"># copy is imp</span></span><br><span class="line">    labels = np.array(labels) <span class="comment"># tensor to np</span></span><br><span class="line">    <span class="keyword">for</span> pred, label <span class="keyword">in</span> <span class="built_in">zip</span>(preds, labels):</span><br><span class="line">        ious.append(np.nanmean(compute_ious(pred, label, classes)))</span><br><span class="line">    iou = np.nanmean(ious)</span><br><span class="line">    <span class="keyword">return</span> iou</span><br></pre></td></tr></table></figure>
+<p>这一部分是计算衡量指标Dice和IoU。<br>各个指标的意义可以参考如下资料：<br><a target="_blank" rel="noopener" href="https://www.zdaiot.com/MachineLearning/%E5%9B%BE%E5%83%8F%E5%88%86%E5%89%B2/%E5%9B%BE%E5%83%8F%E5%88%86%E5%89%B2%E8%AF%84%E4%BB%B7%E6%8C%87%E6%A0%87/">图像分割评价指标</a></p>
+<h1 id="模型初始化"><a href="#模型初始化" class="headerlink" title="模型初始化"></a>模型初始化</h1><figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">import</span> segmentation_models_pytorch <span class="keyword">as</span> smp</span><br><span class="line">model = smp.Unet(<span class="string">&quot;resnet18&quot;</span>, encoder_weights=<span class="string">&quot;imagenet&quot;</span>, classes=<span class="number">4</span>, activation=<span class="literal">None</span>)</span><br></pre></td></tr></table></figure>
+<p>对UNet网络设定具体的参数，如backbone选择resnet18，预训练权重为imagenet，四分类，无激活函数等。<br>可以具体看一下该模型：</p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">model</span><br></pre></td></tr></table></figure>
+<p>输出结果太长了，不再具体显示。</p>
+<h1 id="模型训练和验证"><a href="#模型训练和验证" class="headerlink" title="模型训练和验证"></a>模型训练和验证</h1><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br><span class="line">52</span><br><span class="line">53</span><br><span class="line">54</span><br><span class="line">55</span><br><span class="line">56</span><br><span class="line">57</span><br><span class="line">58</span><br><span class="line">59</span><br><span class="line">60</span><br><span class="line">61</span><br><span class="line">62</span><br><span class="line">63</span><br><span class="line">64</span><br><span class="line">65</span><br><span class="line">66</span><br><span class="line">67</span><br><span class="line">68</span><br><span class="line">69</span><br><span class="line">70</span><br><span class="line">71</span><br><span class="line">72</span><br><span class="line">73</span><br><span class="line">74</span><br><span class="line">75</span><br><span class="line">76</span><br><span class="line">77</span><br><span class="line">78</span><br><span class="line">79</span><br><span class="line">80</span><br><span class="line">81</span><br><span class="line">82</span><br><span class="line">83</span><br><span class="line">84</span><br><span class="line">85</span><br><span class="line">86</span><br><span class="line">87</span><br><span class="line">88</span><br><span class="line">89</span><br><span class="line">90</span><br><span class="line">91</span><br><span class="line">92</span><br><span class="line">93</span><br><span class="line">94</span><br><span class="line">95</span><br><span class="line">96</span><br><span class="line">97</span><br><span class="line">98</span><br><span class="line">99</span><br></pre></td><td class="code"><pre><span class="line">class Trainer(object):</span><br><span class="line"></span><br><span class="line">    &#39;&#39;&#39;This class takes care of training and validation of our model&#39;&#39;&#39;</span><br><span class="line"></span><br><span class="line">    def __init__(self, model):</span><br><span class="line">        self.num_workers &#x3D; 6</span><br><span class="line">        self.batch_size &#x3D; &#123;&quot;train&quot;: 4, &quot;val&quot;: 4&#125;</span><br><span class="line">        self.accumulation_steps &#x3D; 32 &#x2F;&#x2F; self.batch_size[&#39;train&#39;]</span><br><span class="line">        self.lr &#x3D; 5e-4</span><br><span class="line">        self.num_epochs &#x3D; 20</span><br><span class="line">        self.best_loss &#x3D; float(&quot;inf&quot;)</span><br><span class="line">        self.phases &#x3D; [&quot;train&quot;, &quot;val&quot;]</span><br><span class="line">        self.device &#x3D; torch.device(&quot;cuda:0&quot;)</span><br><span class="line">        torch.set_default_tensor_type(&quot;torch.cuda.FloatTensor&quot;)</span><br><span class="line">        self.net &#x3D; model</span><br><span class="line">        self.criterion &#x3D; torch.nn.BCEWithLogitsLoss()</span><br><span class="line">        self.optimizer &#x3D; optim.Adam(self.net.parameters(), lr&#x3D;self.lr)</span><br><span class="line">        self.scheduler &#x3D; ReduceLROnPlateau(self.optimizer, mode&#x3D;&quot;min&quot;, patience&#x3D;3, verbose&#x3D;True)</span><br><span class="line">        self.net &#x3D; self.net.to(self.device)</span><br><span class="line">        cudnn.benchmark &#x3D; True</span><br><span class="line">        self.dataloaders &#x3D; &#123;</span><br><span class="line">            phase: provider(</span><br><span class="line">                data_folder&#x3D;data_folder,</span><br><span class="line">                df_path&#x3D;train_df_path,</span><br><span class="line">                phase&#x3D;phase,</span><br><span class="line">                mean&#x3D;(0.485, 0.456, 0.406),</span><br><span class="line">                std&#x3D;(0.229, 0.224, 0.225),</span><br><span class="line">                batch_size&#x3D;self.batch_size[phase],</span><br><span class="line">                num_workers&#x3D;self.num_workers,</span><br><span class="line">            )</span><br><span class="line">            for phase in self.phases</span><br><span class="line">        &#125;</span><br><span class="line">        self.losses &#x3D; &#123;phase: [] for phase in self.phases&#125;</span><br><span class="line">        self.iou_scores &#x3D; &#123;phase: [] for phase in self.phases&#125;</span><br><span class="line">        self.dice_scores &#x3D; &#123;phase: [] for phase in self.phases&#125;</span><br><span class="line"></span><br><span class="line">    def forward(self, images, targets):</span><br><span class="line">        images &#x3D; images.to(self.device)</span><br><span class="line">        masks &#x3D; targets.to(self.device)</span><br><span class="line">        outputs &#x3D; self.net(images)</span><br><span class="line">        loss &#x3D; self.criterion(outputs, masks)</span><br><span class="line">        return loss, outputs</span><br><span class="line"></span><br><span class="line">    def iterate(self, epoch, phase):</span><br><span class="line">        meter &#x3D; Meter(phase, epoch)</span><br><span class="line">        start &#x3D; time.strftime(&quot;%H:%M:%S&quot;)</span><br><span class="line">        print(f&quot;Starting epoch: &#123;epoch&#125; | phase: &#123;phase&#125; | ⏰: &#123;start&#125;&quot;)</span><br><span class="line">        batch_size &#x3D; self.batch_size[phase]</span><br><span class="line">        self.net.train(phase &#x3D;&#x3D; &quot;train&quot;)</span><br><span class="line">        dataloader &#x3D; self.dataloaders[phase]</span><br><span class="line">        running_loss &#x3D; 0.0</span><br><span class="line">        total_batches &#x3D; len(dataloader)</span><br><span class="line">#         tk0 &#x3D; tqdm(dataloader, total&#x3D;total_batches)</span><br><span class="line"></span><br><span class="line">        self.optimizer.zero_grad()</span><br><span class="line">        for itr, batch in enumerate(dataloader): # replace &#96;dataloader&#96; with &#96;tk0&#96; for tqdm</span><br><span class="line">            images, targets &#x3D; batch</span><br><span class="line">            loss, outputs &#x3D; self.forward(images, targets)</span><br><span class="line">            loss &#x3D; loss &#x2F; self.accumulation_steps</span><br><span class="line">            if phase &#x3D;&#x3D; &quot;train&quot;:</span><br><span class="line">                loss.backward()</span><br><span class="line"></span><br><span class="line">                if (itr + 1 ) % self.accumulation_steps &#x3D;&#x3D; 0:</span><br><span class="line">                    self.optimizer.step()</span><br><span class="line">                    self.optimizer.zero_grad()</span><br><span class="line"></span><br><span class="line">            running_loss +&#x3D; loss.item()</span><br><span class="line">            outputs &#x3D; outputs.detach().cpu()</span><br><span class="line">            meter.update(targets, outputs)</span><br><span class="line"></span><br><span class="line">#             tk0.set_postfix(loss&#x3D;(running_loss &#x2F; ((itr + 1))))</span><br><span class="line"></span><br><span class="line">        epoch_loss &#x3D; (running_loss * self.accumulation_steps) &#x2F; total_batches</span><br><span class="line">        dice, iou &#x3D; epoch_log(phase, epoch, epoch_loss, meter, start)</span><br><span class="line">        self.losses[phase].append(epoch_loss)</span><br><span class="line">        self.dice_scores[phase].append(dice)</span><br><span class="line">        self.iou_scores[phase].append(iou)</span><br><span class="line">        torch.cuda.empty_cache()</span><br><span class="line">        return epoch_loss</span><br><span class="line"></span><br><span class="line">    def start(self):</span><br><span class="line">        for epoch in range(self.num_epochs):</span><br><span class="line">            self.iterate(epoch, &quot;train&quot;)</span><br><span class="line">            state &#x3D; &#123;</span><br><span class="line">                &quot;epoch&quot;: epoch,</span><br><span class="line">                &quot;best_loss&quot;: self.best_loss,</span><br><span class="line">                &quot;state_dict&quot;: self.net.state_dict(),</span><br><span class="line">                &quot;optimizer&quot;: self.optimizer.state_dict(),</span><br><span class="line">            &#125;</span><br><span class="line"></span><br><span class="line">            with torch.no_grad():</span><br><span class="line">                val_loss &#x3D; self.iterate(epoch, &quot;val&quot;)</span><br><span class="line">                self.scheduler.step(val_loss)</span><br><span class="line"></span><br><span class="line">            if val_loss &lt; self.best_loss:</span><br><span class="line">                print(&quot;******** New optimal found, saving state ********&quot;)</span><br><span class="line">                state[&quot;best_loss&quot;] &#x3D; self.best_loss &#x3D; val_loss</span><br><span class="line">                torch.save(state, &quot;.&#x2F;model.pth&quot;)</span><br><span class="line">            print()</span><br></pre></td></tr></table></figure>
+
+<p>定义了Trainer类，用来处理模型的训练和验证。</p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line">sample_submission_path = <span class="string">&#x27;/content/drive/My Drive/severstal/sample_submission.csv&#x27;</span></span><br><span class="line">train_df_path = <span class="string">&#x27;/content/drive/My Drive/severstal/train.csv&#x27;</span></span><br><span class="line">data_folder = <span class="string">&quot;/content/drive/My Drive/severstal&quot;</span></span><br><span class="line">test_data_folder = <span class="string">&quot;/content/drive/My Drive/severstal/test_images&quot;</span></span><br></pre></td></tr></table></figure>
+<p>设定一系列路径。</p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">model_trainer = Trainer(model)</span><br><span class="line">model_trainer.start()</span><br></pre></td></tr></table></figure>
+
+<p>下面就进入漫长的训练和验证阶段，因为这里是分析源码功能，不对精确性做考虑，所以这里将默认的20个epoches改为了2个，输出结果为：</p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br></pre></td><td class="code"><pre><span class="line">Starting epoch: <span class="number">0</span> | phase: train | ⏰: 03:<span class="number">39</span>:08</span><br><span class="line">Loss: <span class="number">0.0386</span> | IoU: <span class="number">0.1436</span> | dice: <span class="number">0.3747</span> | dice_neg: <span class="number">0.5761</span> | dice_pos: <span class="number">0.1963</span></span><br><span class="line">Starting epoch: <span class="number">0</span> | phase: val | ⏰: 03:<span class="number">59</span>:<span class="number">18</span></span><br><span class="line">Loss: <span class="number">0.0205</span> | IoU: <span class="number">0.3210</span> | dice: <span class="number">0.5299</span> | dice_neg: <span class="number">0.6596</span> | dice_pos: <span class="number">0.4149</span></span><br><span class="line">******** New optimal found, saving state ********</span><br><span class="line"></span><br><span class="line">Starting epoch: <span class="number">1</span> | phase: train | ⏰: 04:03:09</span><br><span class="line">Loss: <span class="number">0.0196</span> | IoU: <span class="number">0.2905</span> | dice: <span class="number">0.5555</span> | dice_neg: <span class="number">0.7579</span> | dice_pos: <span class="number">0.3763</span></span><br><span class="line">Starting epoch: <span class="number">1</span> | phase: val | ⏰: 04:<span class="number">21</span>:04</span><br><span class="line">Loss: <span class="number">0.0166</span> | IoU: <span class="number">0.2829</span> | dice: <span class="number">0.6151</span> | dice_neg: <span class="number">0.9035</span> | dice_pos: <span class="number">0.3596</span></span><br><span class="line">******** New optimal found, saving state ********</span><br></pre></td></tr></table></figure>
+
+<p>可以看出，一个epoch大约需要25分钟时间。<br>查看一下此时Colab所使用的GPU：</p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">torch.cuda.get_device_name(<span class="number">0</span>)</span><br></pre></td></tr></table></figure>
+
+<p>可以看出此时是Tesla T4，Google还挺给力。<br>如果是需要长时间的训练，当前Google Colab还有一些小tricks，比如最好不要关闭浏览器窗口，因为关闭后90mins后就会该实例就会被切断。但一直保持浏览器窗口也只能最多训练12 hours。见：<br><a target="_blank" rel="noopener" href="https://stackoverflow.com/questions/55050988/can-i-run-a-google-colab-free-edition-script-and-then-shutdown-my-computer">Can i run a google colab (free edition) script and then shutdown my computer?</a><br>也有网友分享了一个简单的JS函数来模拟点击，自动重连，见：<br><a target="_blank" rel="noopener" href="https://medium.com/@shivamrawat_756/how-to-prevent-google-colab-from-disconnecting-717b88a128c0">How to prevent Google Colab from disconnecting?</a></p>
+<h1 id="得分作图"><a href="#得分作图" class="headerlink" title="得分作图"></a>得分作图</h1><figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment"># PLOT TRAINING</span></span><br><span class="line">losses = model_trainer.losses</span><br><span class="line">dice_scores = model_trainer.dice_scores <span class="comment"># overall dice</span></span><br><span class="line">iou_scores = model_trainer.iou_scores</span><br><span class="line"></span><br><span class="line"><span class="function"><span class="keyword">def</span> <span class="title">plot</span>(<span class="params">scores, name</span>):</span></span><br><span class="line">    plt.figure(figsize=(<span class="number">15</span>,<span class="number">5</span>))</span><br><span class="line">    plt.plot(<span class="built_in">range</span>(<span class="built_in">len</span>(scores[<span class="string">&quot;train&quot;</span>])), scores[<span class="string">&quot;train&quot;</span>], label=<span class="string">f&#x27;train <span class="subst">&#123;name&#125;</span>&#x27;</span>)</span><br><span class="line">    plt.plot(<span class="built_in">range</span>(<span class="built_in">len</span>(scores[<span class="string">&quot;train&quot;</span>])), scores[<span class="string">&quot;val&quot;</span>], label=<span class="string">f&#x27;val <span class="subst">&#123;name&#125;</span>&#x27;</span>)</span><br><span class="line">    plt.title(<span class="string">f&#x27;<span class="subst">&#123;name&#125;</span> plot&#x27;</span>); plt.xlabel(<span class="string">&#x27;Epoch&#x27;</span>); plt.ylabel(<span class="string">f&#x27;<span class="subst">&#123;name&#125;</span>&#x27;</span>);</span><br><span class="line">    plt.legend(); </span><br><span class="line">    plt.show()</span><br><span class="line"></span><br><span class="line">plot(losses, <span class="string">&quot;BCE loss&quot;</span>)</span><br><span class="line">plot(dice_scores, <span class="string">&quot;Dice score&quot;</span>)</span><br><span class="line">plot(iou_scores, <span class="string">&quot;IoU score&quot;</span>)</span><br></pre></td></tr></table></figure>
+
+<p>如图，因为仅训练了2个epoches，所以这里的作图只是展示一下。<br><img src="https://user-images.githubusercontent.com/6218739/74802202-19787f00-5314-11ea-8ec0-bbe861ccfd1e.png" alt="image"><br><img src="https://user-images.githubusercontent.com/6218739/74802207-1ed5c980-5314-11ea-88f3-f04125adf692.png" alt="image"><br><img src="https://user-images.githubusercontent.com/6218739/74802212-2301e700-5314-11ea-83b6-d1a22c538149.png" alt="image"></p>
+<h1 id="推理和提交"><a href="#推理和提交" class="headerlink" title="推理和提交"></a>推理和提交</h1><p>因为原文中作者是在Kaggle GPU上进行训练，整个训练过程约400分钟，超过了Kaggle的60min的限制，所以作者没有在这个notebook中进行推理和提交。他又写了两个一个notebook来进行后面的推理和提交，见<a target="_blank" rel="noopener" href="https://www.kaggle.com/rishabhiitbhu/unet-pytorch-inference-kernel">这里</a>。</p>
+<p>因为这里没有实际的训练，所以这里将这一个后续的notebook也直接附在这里。</p>
+<h2 id="定义测试数据集"><a href="#定义测试数据集" class="headerlink" title="定义测试数据集"></a>定义测试数据集</h2><figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br></pre></td><td class="code"><pre><span class="line"><span class="class"><span class="keyword">class</span> <span class="title">TestDataset</span>(<span class="params">Dataset</span>):</span></span><br><span class="line">    <span class="string">&#x27;&#x27;&#x27;Dataset for test prediction&#x27;&#x27;&#x27;</span></span><br><span class="line"></span><br><span class="line">    <span class="function"><span class="keyword">def</span> <span class="title">__init__</span>(<span class="params">self, root, df, mean, std</span>):</span></span><br><span class="line">        self.root = root</span><br><span class="line">        df[<span class="string">&#x27;ImageId&#x27;</span>] = df[<span class="string">&#x27;ImageId_ClassId&#x27;</span>].apply(<span class="keyword">lambda</span> x: x.split(<span class="string">&#x27;_&#x27;</span>)[<span class="number">0</span>])</span><br><span class="line">        self.fnames = df[<span class="string">&#x27;ImageId&#x27;</span>].unique().tolist()</span><br><span class="line">        self.num_samples = <span class="built_in">len</span>(self.fnames)</span><br><span class="line">        self.transform = Compose(</span><br><span class="line">            [</span><br><span class="line">                Normalize(mean=mean, std=std, p=<span class="number">1</span>),</span><br><span class="line">                ToTensor(),</span><br><span class="line">            ]</span><br><span class="line">        )</span><br><span class="line"></span><br><span class="line">    <span class="function"><span class="keyword">def</span> <span class="title">__getitem__</span>(<span class="params">self, idx</span>):</span></span><br><span class="line">        fname = self.fnames[idx]</span><br><span class="line">        path = os.path.join(self.root, fname)</span><br><span class="line">        image = cv2.imread(path)</span><br><span class="line">        images = self.transform(image=image)[<span class="string">&quot;image&quot;</span>]</span><br><span class="line">        <span class="keyword">return</span> fname, images</span><br><span class="line"></span><br><span class="line">    <span class="function"><span class="keyword">def</span> <span class="title">__len__</span>(<span class="params">self</span>):</span></span><br><span class="line">        <span class="keyword">return</span> self.num_samples</span><br><span class="line"></span><br><span class="line"><span class="comment"># initialize test dataloader</span></span><br><span class="line">best_threshold = <span class="number">0.5</span></span><br><span class="line">num_workers = <span class="number">2</span></span><br><span class="line">batch_size = <span class="number">4</span></span><br><span class="line"><span class="built_in">print</span>(<span class="string">&#x27;best_threshold&#x27;</span>, best_threshold)</span><br><span class="line">min_size = <span class="number">3500</span></span><br><span class="line">mean = (<span class="number">0.485</span>, <span class="number">0.456</span>, <span class="number">0.406</span>)</span><br><span class="line">std = (<span class="number">0.229</span>, <span class="number">0.224</span>, <span class="number">0.225</span>)</span><br><span class="line">df = pd.read_csv(sample_submission_path)</span><br><span class="line">testset = DataLoader(</span><br><span class="line">    TestDataset(test_data_folder, df, mean, std),</span><br><span class="line">    batch_size=batch_size,</span><br><span class="line">    shuffle=<span class="literal">False</span>,</span><br><span class="line">    num_workers=num_workers,</span><br><span class="line">    pin_memory=<span class="literal">True</span></span><br><span class="line">)</span><br></pre></td></tr></table></figure>
+<p>为测试集创建PyTorch规范的Dataset和DataLoader。</p>
+<h2 id="后处理"><a href="#后处理" class="headerlink" title="后处理"></a>后处理</h2><figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="keyword">def</span> <span class="title">post_process</span>(<span class="params">probability, threshold, min_size</span>):</span></span><br><span class="line">    <span class="string">&#x27;&#x27;&#x27;Post processing of each predicted mask, components with lesser number of pixels</span></span><br><span class="line"><span class="string">    than `min_size` are ignored&#x27;&#x27;&#x27;</span></span><br><span class="line">    mask = cv2.threshold(probability, threshold, <span class="number">1</span>, cv2.THRESH_BINARY)[<span class="number">1</span>]</span><br><span class="line">    num_component, component = cv2.connectedComponents(mask.astype(np.uint8))</span><br><span class="line">    predictions = np.zeros((<span class="number">256</span>, <span class="number">1600</span>), np.float32)</span><br><span class="line"></span><br><span class="line">    num = <span class="number">0</span></span><br><span class="line"></span><br><span class="line">    <span class="keyword">for</span> c <span class="keyword">in</span> <span class="built_in">range</span>(<span class="number">1</span>, num_component):</span><br><span class="line">        p = (component == c)</span><br><span class="line">        <span class="keyword">if</span> p.<span class="built_in">sum</span>() &gt; min_size:</span><br><span class="line">            predictions[p] = <span class="number">1</span></span><br><span class="line">            num += <span class="number">1</span></span><br><span class="line">    <span class="keyword">return</span> predictions, num</span><br></pre></td></tr></table></figure>
+<p>这一步是对掩膜进行后处理。</p>
+<h2 id="加载模型"><a href="#加载模型" class="headerlink" title="加载模型"></a>加载模型</h2><figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment"># Initialize mode and load trained weights</span></span><br><span class="line">ckpt_path = <span class="string">&quot;model.pth&quot;</span></span><br><span class="line">device = torch.device(<span class="string">&quot;cuda&quot;</span>)</span><br><span class="line">model = smp.Unet(<span class="string">&quot;resnet18&quot;</span>, encoder_weights=<span class="literal">None</span>, classes=<span class="number">4</span>, activation=<span class="literal">None</span>)</span><br><span class="line">model.to(device)</span><br><span class="line">model.<span class="built_in">eval</span>()</span><br><span class="line">state = torch.load(ckpt_path, map_location=<span class="keyword">lambda</span> storage, loc: storage)</span><br><span class="line">model.load_state_dict(state[<span class="string">&quot;state_dict&quot;</span>])</span><br></pre></td></tr></table></figure>
+<p>这一步是初始化模型及加载模型。这也是持久化的需求。<br>该模型文件pth是之前训练时自动存储的。</p>
+<h2 id="推理并生成提交文件"><a href="#推理并生成提交文件" class="headerlink" title="推理并生成提交文件"></a>推理并生成提交文件</h2><figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment"># start prediction</span></span><br><span class="line">predictions = []</span><br><span class="line"><span class="keyword">for</span> i, batch <span class="keyword">in</span> <span class="built_in">enumerate</span>(tqdm(testset)):</span><br><span class="line">    fnames, images = batch</span><br><span class="line">    batch_preds = torch.sigmoid(model(images.to(device)))</span><br><span class="line">    batch_preds = batch_preds.detach().cpu().numpy()</span><br><span class="line"></span><br><span class="line">    <span class="keyword">for</span> fname, preds <span class="keyword">in</span> <span class="built_in">zip</span>(fnames, batch_preds):</span><br><span class="line">        <span class="keyword">for</span> cls, pred <span class="keyword">in</span> <span class="built_in">enumerate</span>(preds):</span><br><span class="line">            pred, num = post_process(pred, best_threshold, min_size)</span><br><span class="line">            rle = mask2rle(pred)</span><br><span class="line">            name = fname + <span class="string">f&quot;_<span class="subst">&#123;cls+<span class="number">1</span>&#125;</span>&quot;</span></span><br><span class="line">            predictions.append([name, rle])</span><br><span class="line"></span><br><span class="line"><span class="comment"># save predictions to submission.csv</span></span><br><span class="line">df = pd.DataFrame(predictions, columns=[<span class="string">&#x27;ImageId_ClassId&#x27;</span>, <span class="string">&#x27;EncodedPixels&#x27;</span>])</span><br><span class="line">df.to_csv(<span class="string">&quot;submission.csv&quot;</span>, index=<span class="literal">False</span>)</span><br></pre></td></tr></table></figure>
+<p>可以发现，此时当前目录下回生成submission.csv文件，里面的掩膜信息也是用RLE游程编码的。</p>
+
+    </div>
+
+    
+    
+    
+        <div class="reward-container">
+  <div></div>
+  <button onclick="var qr = document.getElementById('qr'); qr.style.display = (qr.style.display === 'none') ? 'block' : 'none';">
+    Donate
+  </button>
+  <div id="qr" style="display: none;">
+      
+      <div style="display: inline-block;">
+        <img src="/images/wechat_reward.png" alt="Xin-Bo Qi(亓欣波) WeChat Pay">
+        <p>WeChat Pay</p>
+      </div>
+
+  </div>
+</div>
+
+
+      <footer class="post-footer">
+          <div class="post-tags">
+              <a href="/tags/kaggle/" rel="tag"># kaggle</a>
+          </div>
+
+        
+
+
+        
+    <div class="post-nav">
+      <div class="post-nav-item">
+    <a href="/2020/02/15/kaggle-steel/" rel="prev" title="Kaggle钢铁赛：基于PyTorch/UNet算法的钢材表面缺陷检测——（1）数据集分析和可视化">
+      <i class="fa fa-chevron-left"></i> Kaggle钢铁赛：基于PyTorch/UNet算法的钢材表面缺陷检测——（1）数据集分析和可视化
+    </a></div>
+      <div class="post-nav-item">
+    <a href="/2020/02/26/ImagePy_17/" rel="next" title="ImagePy解析：17 -- 重构版ImagePy解析">
+      ImagePy解析：17 -- 重构版ImagePy解析 <i class="fa fa-chevron-right"></i>
+    </a></div>
+    </div>
+      </footer>
+    
+  </article>
+  
+  
+  
+
+
+
+          </div>
+          
+    
+  <div class="comments">
+    <div id="disqus_thread">
+      <noscript>Please enable JavaScript to view the comments powered by Disqus.</noscript>
+    </div>
+  </div>
+  
+
+<script>
+  window.addEventListener('tabs:register', () => {
+    let { activeClass } = CONFIG.comments;
+    if (CONFIG.comments.storage) {
+      activeClass = localStorage.getItem('comments_active') || activeClass;
+    }
+    if (activeClass) {
+      let activeTab = document.querySelector(`a[href="#comment-${activeClass}"]`);
+      if (activeTab) {
+        activeTab.click();
+      }
+    }
+  });
+  if (CONFIG.comments.storage) {
+    window.addEventListener('tabs:click', event => {
+      if (!event.target.matches('.tabs-comment .tab-content .tab-pane')) return;
+      let commentClass = event.target.classList[1];
+      localStorage.setItem('comments_active', commentClass);
+    });
+  }
+</script>
+
+        </div>
+          
+  
+  <div class="toggle sidebar-toggle">
+    <span class="toggle-line toggle-line-first"></span>
+    <span class="toggle-line toggle-line-middle"></span>
+    <span class="toggle-line toggle-line-last"></span>
+  </div>
+
+  <aside class="sidebar">
+    <div class="sidebar-inner">
+
+      <ul class="sidebar-nav motion-element">
+        <li class="sidebar-nav-toc">
+          Table of Contents
+        </li>
+        <li class="sidebar-nav-overview">
+          Overview
+        </li>
+      </ul>
+
+      <!--noindex-->
+      <div class="post-toc-wrap sidebar-panel">
+          <div class="post-toc motion-element"><ol class="nav"><li class="nav-item nav-level-1"><a class="nav-link" href="#%E7%AE%80%E4%BB%8B"><span class="nav-number">1.</span> <span class="nav-text">简介</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#%E5%8A%A0%E8%BD%BD%E9%A2%84%E8%AE%AD%E7%BB%83%E6%A8%A1%E5%9E%8B"><span class="nav-number">2.</span> <span class="nav-text">加载预训练模型</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#%E5%AF%BC%E5%85%A5%E5%BF%85%E8%A6%81%E7%9A%84Python%E5%8C%85"><span class="nav-number">3.</span> <span class="nav-text">导入必要的Python包</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#%E6%8E%A9%E8%86%9C%E7%9A%84%E7%BC%96%E7%A0%81%E5%8F%8A%E8%A7%A3%E7%A0%81"><span class="nav-number">4.</span> <span class="nav-text">掩膜的编码及解码</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#%E8%A1%A1%E9%87%8F%E6%8C%87%E6%A0%87%E5%AE%9A%E4%B9%89"><span class="nav-number">5.</span> <span class="nav-text">衡量指标定义</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#%E6%A8%A1%E5%9E%8B%E5%88%9D%E5%A7%8B%E5%8C%96"><span class="nav-number">6.</span> <span class="nav-text">模型初始化</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#%E6%A8%A1%E5%9E%8B%E8%AE%AD%E7%BB%83%E5%92%8C%E9%AA%8C%E8%AF%81"><span class="nav-number">7.</span> <span class="nav-text">模型训练和验证</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#%E5%BE%97%E5%88%86%E4%BD%9C%E5%9B%BE"><span class="nav-number">8.</span> <span class="nav-text">得分作图</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#%E6%8E%A8%E7%90%86%E5%92%8C%E6%8F%90%E4%BA%A4"><span class="nav-number">9.</span> <span class="nav-text">推理和提交</span></a><ol class="nav-child"><li class="nav-item nav-level-2"><a class="nav-link" href="#%E5%AE%9A%E4%B9%89%E6%B5%8B%E8%AF%95%E6%95%B0%E6%8D%AE%E9%9B%86"><span class="nav-number">9.1.</span> <span class="nav-text">定义测试数据集</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E5%90%8E%E5%A4%84%E7%90%86"><span class="nav-number">9.2.</span> <span class="nav-text">后处理</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E5%8A%A0%E8%BD%BD%E6%A8%A1%E5%9E%8B"><span class="nav-number">9.3.</span> <span class="nav-text">加载模型</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E6%8E%A8%E7%90%86%E5%B9%B6%E7%94%9F%E6%88%90%E6%8F%90%E4%BA%A4%E6%96%87%E4%BB%B6"><span class="nav-number">9.4.</span> <span class="nav-text">推理并生成提交文件</span></a></li></ol></li></ol></div>
+      </div>
+      <!--/noindex-->
+
+      <div class="site-overview-wrap sidebar-panel">
+        <div class="site-author motion-element" itemprop="author" itemscope itemtype="http://schema.org/Person">
+    <img class="site-author-image" itemprop="image" alt="Xin-Bo Qi(亓欣波)"
+      src="/images/avatar.jpg">
+  <p class="site-author-name" itemprop="name">Xin-Bo Qi(亓欣波)</p>
+  <div class="site-description" itemprop="description">Be interesting!</div>
+</div>
+<div class="site-state-wrap motion-element">
+  <nav class="site-state">
+      <div class="site-state-item site-state-posts">
+          <a href="/archives/">
+        
+          <span class="site-state-item-count">120</span>
+          <span class="site-state-item-name">posts</span>
+        </a>
+      </div>
+      <div class="site-state-item site-state-categories">
+            <a href="/categories/">
+          
+        <span class="site-state-item-count">5</span>
+        <span class="site-state-item-name">categories</span></a>
+      </div>
+      <div class="site-state-item site-state-tags">
+            <a href="/tags/">
+          
+        <span class="site-state-item-count">41</span>
+        <span class="site-state-item-name">tags</span></a>
+      </div>
+  </nav>
+</div>
+  <div class="links-of-author motion-element">
+      <span class="links-of-author-item">
+        <a href="https://github.com/qixinbo" title="GitHub → https:&#x2F;&#x2F;github.com&#x2F;qixinbo" rel="noopener" target="_blank"><i class="github fa-fw"></i>GitHub</a>
+      </span>
+      <span class="links-of-author-item">
+        <a href="mailto:qixinbo@gmail.com" title="E-Mail → mailto:qixinbo@gmail.com" rel="noopener" target="_blank"><i class="envelope fa-fw"></i>E-Mail</a>
+      </span>
+  </div>
+
+
+  <div class="links-of-blogroll motion-element">
+    <div class="links-of-blogroll-title"><i class="fa fa-link fa-fw"></i>
+      Links
+    </div>
+    <ul class="links-of-blogroll-list">
+        <li class="links-of-blogroll-item">
+          <a href="https://www.tsinghua.edu.cn/" title="https:&#x2F;&#x2F;www.tsinghua.edu.cn" rel="noopener" target="_blank">THU</a>
+        </li>
+        <li class="links-of-blogroll-item">
+          <a href="http://www.imr.cas.cn/" title="http:&#x2F;&#x2F;www.imr.cas.cn" rel="noopener" target="_blank">IMR</a>
+        </li>
+        <li class="links-of-blogroll-item">
+          <a href="http://www.sdu.edu.cn/" title="http:&#x2F;&#x2F;www.sdu.edu.cn" rel="noopener" target="_blank">SDU</a>
+        </li>
+        <li class="links-of-blogroll-item">
+          <a href="http://liam0205.me/" title="http:&#x2F;&#x2F;liam0205.me&#x2F;" rel="noopener" target="_blank">黄晨成</a>
+        </li>
+    </ul>
+  </div>
+
+      </div>
+
+    </div>
+  </aside>
+  <div id="sidebar-dimmer"></div>
+
+
+      </div>
+    </main>
+
+    <footer class="footer">
+      <div class="footer-inner">
+        
+
+        
+
+<div class="copyright">
+  
+  &copy; 
+  <span itemprop="copyrightYear">2021</span>
+  <span class="with-love">
+    <i class="fa fa-heart"></i>
+  </span>
+  <span class="author" itemprop="copyrightHolder">Xin-Bo Qi(亓欣波)</span>
+</div>
+  <div class="powered-by">Powered by <a href="https://hexo.io/" class="theme-link" rel="noopener" target="_blank">Hexo</a> & <a href="https://theme-next.org/" class="theme-link" rel="noopener" target="_blank">NexT.Gemini</a>
+  </div>
+
+        
+
+
+
+
+
+
+
+
+      </div>
+    </footer>
+  </div>
+
+  
+  <script src="/lib/anime.min.js"></script>
+  <script src="/lib/velocity/velocity.min.js"></script>
+  <script src="/lib/velocity/velocity.ui.min.js"></script>
+
+<script src="/js/utils.js"></script>
+
+<script src="/js/motion.js"></script>
+
+
+<script src="/js/schemes/pisces.js"></script>
+
+
+<script src="/js/next-boot.js"></script>
+
+
+
+
+  
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+  
+
+  
+
+  
+
+<script>
+  function loadCount() {
+    var d = document, s = d.createElement('script');
+    s.src = 'https://qixinbo.disqus.com/count.js';
+    s.id = 'dsq-count-scr';
+    (d.head || d.body).appendChild(s);
+  }
+  // defer loading until the whole page loading is completed
+  window.addEventListener('load', loadCount, false);
+</script>
+<script>
+  var disqus_config = function() {
+    this.page.url = "http://qixinbo.github.io/2020/02/16/kaggle-steel-2/";
+    this.page.identifier = "2020/02/16/kaggle-steel-2/";
+    this.page.title = "Kaggle钢铁赛：基于PyTorch/UNet算法的钢材表面缺陷检测——（2）算法分析";
+    };
+  NexT.utils.loadComments(document.querySelector('#disqus_thread'), () => {
+    if (window.DISQUS) {
+      DISQUS.reset({
+        reload: true,
+        config: disqus_config
+      });
+    } else {
+      var d = document, s = d.createElement('script');
+      s.src = 'https://qixinbo.disqus.com/embed.js';
+      s.setAttribute('data-timestamp', '' + +new Date());
+      (d.head || d.body).appendChild(s);
+    }
+  });
+</script>
+
+</body>
+</html>

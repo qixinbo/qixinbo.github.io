@@ -1,0 +1,635 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=2">
+<meta name="theme-color" content="#222">
+<meta name="generator" content="Hexo 5.4.0">
+  <link rel="apple-touch-icon" sizes="180x180" href="/images/apple-touch-icon-next.png">
+  <link rel="icon" type="image/png" sizes="32x32" href="/favicon.ico">
+  <link rel="icon" type="image/png" sizes="16x16" href="/favicon.ico">
+  <link rel="mask-icon" href="/images/logo.svg" color="#222">
+
+<link rel="stylesheet" href="/css/main.css">
+
+
+<link rel="stylesheet" href="/lib/font-awesome/css/all.min.css">
+
+<script id="hexo-configurations">
+    var NexT = window.NexT || {};
+    var CONFIG = {"hostname":"qixinbo.github.io","root":"/","scheme":"Gemini","version":"7.8.0","exturl":false,"sidebar":{"position":"left","display":"post","padding":18,"offset":12,"onmobile":false},"copycode":{"enable":false,"show_result":false,"style":null},"back2top":{"enable":true,"sidebar":false,"scrollpercent":false},"bookmark":{"enable":false,"color":"#222","save":"auto"},"fancybox":false,"mediumzoom":false,"lazyload":false,"pangu":false,"comments":{"style":"tabs","active":null,"storage":true,"lazyload":false,"nav":null},"algolia":{"hits":{"per_page":10},"labels":{"input_placeholder":"Search for Posts","hits_empty":"We didn't find any results for the search: ${query}","hits_stats":"${hits} results found in ${time} ms"}},"localsearch":{"enable":false,"trigger":"auto","top_n_per_article":1,"unescape":false,"preload":false},"motion":{"enable":true,"async":false,"transition":{"post_block":"fadeIn","post_header":"slideDownIn","post_body":"slideDownIn","coll_header":"slideLeftIn","sidebar":"slideUpIn"}}};
+  </script>
+
+  <meta name="description" content="写在前面——如何阅读OpenPhase源码OpenPhase的源码真的是挺难读的，它是一整套完全的很成熟的求解相场模型的框架，其模块化完成度很高(尤其设计的数据结构面面俱到，号称能处理所有类型的数据)，所以用它来解方程时写的代码很少，但带来一个问题是你必须先读懂它：高度集成的代码让初学者“一进去就出不来”(从而迷失在各个类中)或“压根进不去”(一行代码就完成一个大功能，根本不知道怎么入手)。我的建">
+<meta property="og:type" content="article">
+<meta property="og:title" content="OpenPhase实例学习系列：HeatEquation算例全解析">
+<meta property="og:url" content="http://qixinbo.github.io/2016/03/30/openphase-HeatEquation/index.html">
+<meta property="og:site_name" content="亓欣波">
+<meta property="og:description" content="写在前面——如何阅读OpenPhase源码OpenPhase的源码真的是挺难读的，它是一整套完全的很成熟的求解相场模型的框架，其模块化完成度很高(尤其设计的数据结构面面俱到，号称能处理所有类型的数据)，所以用它来解方程时写的代码很少，但带来一个问题是你必须先读懂它：高度集成的代码让初学者“一进去就出不来”(从而迷失在各个类中)或“压根进不去”(一行代码就完成一个大功能，根本不知道怎么入手)。我的建">
+<meta property="og:locale" content="en_US">
+<meta property="og:image" content="https://ws1.sinaimg.cn/large/0072Lfvtly1fvji79gecjj30iz06gmxc.jpg">
+<meta property="article:published_time" content="2016-03-30T14:00:48.000Z">
+<meta property="article:modified_time" content="2021-03-25T07:20:30.801Z">
+<meta property="article:author" content="Xin-Bo Qi(亓欣波)">
+<meta property="article:tag" content="openphase">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:image" content="https://ws1.sinaimg.cn/large/0072Lfvtly1fvji79gecjj30iz06gmxc.jpg">
+
+<link rel="canonical" href="http://qixinbo.github.io/2016/03/30/openphase-HeatEquation/">
+
+
+<script id="page-configurations">
+  // https://hexo.io/docs/variables.html
+  CONFIG.page = {
+    sidebar: "",
+    isHome : false,
+    isPost : true,
+    lang   : 'en'
+  };
+</script>
+
+  <title>OpenPhase实例学习系列：HeatEquation算例全解析 | 亓欣波</title>
+  
+
+
+
+
+
+
+  <noscript>
+  <style>
+  .use-motion .brand,
+  .use-motion .menu-item,
+  .sidebar-inner,
+  .use-motion .post-block,
+  .use-motion .pagination,
+  .use-motion .comments,
+  .use-motion .post-header,
+  .use-motion .post-body,
+  .use-motion .collection-header { opacity: initial; }
+
+  .use-motion .site-title,
+  .use-motion .site-subtitle {
+    opacity: initial;
+    top: initial;
+  }
+
+  .use-motion .logo-line-before i { left: initial; }
+  .use-motion .logo-line-after i { right: initial; }
+  </style>
+</noscript>
+
+</head>
+
+<body itemscope itemtype="http://schema.org/WebPage">
+  <div class="container use-motion">
+    <div class="headband"></div>
+
+    <header class="header" itemscope itemtype="http://schema.org/WPHeader">
+      <div class="header-inner"><div class="site-brand-container">
+  <div class="site-nav-toggle">
+    <div class="toggle" aria-label="Toggle navigation bar">
+      <span class="toggle-line toggle-line-first"></span>
+      <span class="toggle-line toggle-line-middle"></span>
+      <span class="toggle-line toggle-line-last"></span>
+    </div>
+  </div>
+
+  <div class="site-meta">
+
+    <a href="/" class="brand" rel="start">
+      <span class="logo-line-before"><i></i></span>
+      <h1 class="site-title">亓欣波</h1>
+      <span class="logo-line-after"><i></i></span>
+    </a>
+      <p class="site-subtitle" itemprop="description">Hi, I am Xin-Bo Qi (亓欣波)</p>
+  </div>
+
+  <div class="site-nav-right">
+    <div class="toggle popup-trigger">
+    </div>
+  </div>
+</div>
+
+
+
+
+<nav class="site-nav">
+  <ul id="menu" class="main-menu menu">
+        <li class="menu-item menu-item-home">
+
+    <a href="/" rel="section"><i class="home fa-fw"></i>Home</a>
+
+  </li>
+        <li class="menu-item menu-item-categories">
+
+    <a href="/categories/" rel="section"><i class="th fa-fw"></i>Categories</a>
+
+  </li>
+        <li class="menu-item menu-item-archives">
+
+    <a href="/archives/" rel="section"><i class="archive fa-fw"></i>Archives</a>
+
+  </li>
+        <li class="menu-item menu-item-tags">
+
+    <a href="/tags/" rel="section"><i class="tags fa-fw"></i>Tags</a>
+
+  </li>
+        <li class="menu-item menu-item-scholar">
+
+    <a href="/scholar/" rel="section"><i class="bar-chart fa-fw"></i>scholar</a>
+
+  </li>
+        <li class="menu-item menu-item-sources">
+
+    <a href="/sources/" rel="section"><i class="rss fa-fw"></i>sources</a>
+
+  </li>
+        <li class="menu-item menu-item-gallery">
+
+    <a href="/gallery/" rel="section"><i class="file-image-o fa-fw"></i>gallery</a>
+
+  </li>
+        <li class="menu-item menu-item-about">
+
+    <a href="/about/" rel="section"><i class="user fa-fw"></i>About</a>
+
+  </li>
+        <li class="menu-item menu-item-commonweal">
+
+    <a href="/404.html" rel="section"><i class="heartbeat fa-fw"></i>Commonweal 404</a>
+
+  </li>
+  </ul>
+</nav>
+
+
+
+
+</div>
+    </header>
+
+    
+  <div class="back-to-top">
+    <i class="fa fa-arrow-up"></i>
+    <span>0%</span>
+  </div>
+
+
+    <main class="main">
+      <div class="main-inner">
+        <div class="content-wrap">
+          
+
+          <div class="content post posts-expand">
+            
+
+    
+  
+  
+  <article itemscope itemtype="http://schema.org/Article" class="post-block" lang="en">
+    <link itemprop="mainEntityOfPage" href="http://qixinbo.github.io/2016/03/30/openphase-HeatEquation/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="image" content="/images/avatar.jpg">
+      <meta itemprop="name" content="Xin-Bo Qi(亓欣波)">
+      <meta itemprop="description" content="Be interesting!">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="亓欣波">
+    </span>
+      <header class="post-header">
+        <h1 class="post-title" itemprop="name headline">
+          OpenPhase实例学习系列：HeatEquation算例全解析
+        </h1>
+
+        <div class="post-meta">
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="far fa-calendar"></i>
+              </span>
+              <span class="post-meta-item-text">Posted on</span>
+
+              <time title="Created: 2016-03-30 22:00:48" itemprop="dateCreated datePublished" datetime="2016-03-30T22:00:48+08:00">2016-03-30</time>
+            </span>
+              <span class="post-meta-item">
+                <span class="post-meta-item-icon">
+                  <i class="far fa-calendar-check"></i>
+                </span>
+                <span class="post-meta-item-text">Edited on</span>
+                <time title="Modified: 2021-03-25 15:20:30" itemprop="dateModified" datetime="2021-03-25T15:20:30+08:00">2021-03-25</time>
+              </span>
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="far fa-folder"></i>
+              </span>
+              <span class="post-meta-item-text">In</span>
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+                  <a href="/categories/computational-material-science/" itemprop="url" rel="index"><span itemprop="name">computational material science</span></a>
+                </span>
+            </span>
+
+          
+  
+  <span class="post-meta-item">
+    
+      <span class="post-meta-item-icon">
+        <i class="far fa-comment"></i>
+      </span>
+      <span class="post-meta-item-text">Disqus: </span>
+    
+    <a title="disqus" href="/2016/03/30/openphase-HeatEquation/#disqus_thread" itemprop="discussionUrl">
+      <span class="post-comments-count disqus-comment-count" data-disqus-identifier="2016/03/30/openphase-HeatEquation/" itemprop="commentCount"></span>
+    </a>
+  </span>
+  
+  
+
+        </div>
+      </header>
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+        <h1 id="写在前面——如何阅读OpenPhase源码"><a href="#写在前面——如何阅读OpenPhase源码" class="headerlink" title="写在前面——如何阅读OpenPhase源码"></a>写在前面——如何阅读OpenPhase源码</h1><p>OpenPhase的源码真的是挺难读的，它是一整套完全的很成熟的求解相场模型的框架，其模块化完成度很高(尤其设计的数据结构面面俱到，号称能处理所有类型的数据)，所以用它来解方程时写的代码很少，但带来一个问题是你必须先读懂它：高度集成的代码让初学者“一进去就出不来”(从而迷失在各个类中)或“压根进不去”(一行代码就完成一个大功能，根本不知道怎么入手)。<br>我的建议是：</p>
+<ol>
+<li>善用Doxygen<br>OpenPhase支持Doxygen，其注释也较全面，使用Doxygen生成类之间的关系图，方便理清思路。<br>附录有Doxygen生成的dot图的涵义说明。</li>
+<li>使用gdb调试<br>刚开始可能不知道OpenPhase里各个参数的值是多少，可以使用gdb逐步调试且输出关键参数的值，增加理性认识。也可以在源码中加cout来输出，但这样有些麻烦。</li>
+</ol>
+<p>本文尝试对HeatEquation这个算例进行详细解析，试图理清OpenPhase的计算思路。</p>
+<h1 id="模拟参数"><a href="#模拟参数" class="headerlink" title="模拟参数"></a>模拟参数</h1><p>本例模拟参数分布在四个opi文件中：</p>
+<h2 id="ProjectInput-opi文件"><a href="#ProjectInput-opi文件" class="headerlink" title="ProjectInput.opi文件"></a>ProjectInput.opi文件</h2><p>此文件中的参数是通过Settings类的ReadInput函数读入。<br>针对本例，读入的重要参数有：</p>
+<ul>
+<li>晶粒个数是2: Ngrans=2</li>
+<li>相的个数是2: Nphses=2</li>
+<li>格点数目为：Nx=64, Ny=1, Nz=64</li>
+<li>网格间距为：dx=1.0</li>
+<li>界面宽度占格点的数目为：iWidth=0</li>
+<li>系统实际温度：T=500</li>
+<li>OpenMP线程个数：nOMP=2</li>
+</ul>
+<h2 id="BoundaryConditions-opi文件"><a href="#BoundaryConditions-opi文件" class="headerlink" title="BoundaryConditions.opi文件"></a>BoundaryConditions.opi文件</h2><p>此文件中的参数通过BoundaryConditions类的ReadInput函数读入。</p>
+<ul>
+<li>六个边界的边界条件：BC0X=Free, BCNX=Free, BC0Y=Free, BCNY=Free, BC0Z=Free, BCNZ=Free</li>
+</ul>
+<h2 id="Temperature-opi文件"><a href="#Temperature-opi文件" class="headerlink" title="Temperature.opi文件"></a>Temperature.opi文件</h2><p>此文件中的参数通过Temperature类的ReadInput函数读入。</p>
+<ul>
+<li>初始温度梯度所在位置的坐标：R0X=32, R0Y=32, R0Z=32</li>
+<li>初始温度梯度：DT_DRX=0, DT_DRY=0, DT_DRZ=0</li>
+<li>冷却速度：DT_Dt=0</li>
+</ul>
+<h2 id="Heat-opi文件"><a href="#Heat-opi文件" class="headerlink" title="Heat.opi文件"></a>Heat.opi文件</h2><p>此文件中的参数通过Heat类的ReadInput函数读入。</p>
+<ul>
+<li>相0的热扩散率：ThermalDiffusivity_0=13.0e-5</li>
+<li>相0的热容：HeatCapacity_0=0.465e-3</li>
+<li>相1的热扩散率：ThermalDiffusivity_0=0.0</li>
+<li>相0的热容：HeatCapacity_0=5.0</li>
+</ul>
+<h1 id="初始化"><a href="#初始化" class="headerlink" title="初始化"></a>初始化</h1><h2 id="相场的初始化："><a href="#相场的初始化：" class="headerlink" title="相场的初始化："></a>相场的初始化：</h2><ol>
+<li>依次读入三个维度的格点数目、网格间距、界面宽度、相的个数</li>
+<li>分配Fields场空间<br>Fields是Storage3D&lt;Node,0&gt;类型的场，通过Allocate函数给其成员变量赋值：<br>Size_X=Nx+2=66, Size_Y=Ny+2=3, Size_Z=Nz+2=66<br>同时开辟出一块大小为Size_X<em>Size_Y</em>Size_Z=13068的Node类型的内存，将初始地址赋给指针Array。</li>
+<li>分配Fractions场空间<br>Fractions是Storage3D&lt;double,1&gt;类型的场，同样通过Allocate函数给其成员变量(这里是四个)赋值：<br>Size_X=Nx+2=66, Size_Y=Ny+2=3, Size_Z=Nz+2=66, Size_N=Nphases=2<br>但它开辟出一块的double类型的内存大小为Size_X*Size_Y*Size_Z*Size_N=26136，同时将初始地址赋给指针Array。</li>
+<li>分配Laplacians场空间<br>Laplacians场的类型及操作与Fields场相同。</li>
+<li>分配Gradients场空间<br>Gradients场的类型是Storage3D&lt;NodeV,0&gt;，其操作与之前的Fields相同，注意Array返回类型不同。</li>
+<li>分配Normals场空间<br>Normals同Gradients场。</li>
+<li>分配Flags场空间<br>Flags场是Storage3D&lt;int,0&gt;类型，操作如前，只是返回类型不同</li>
+<li>分配FieldIndex场空间<br>FieldIndex同Flags场。</li>
+<li>分配FieldsStatistics场空间<br>FieldsStatistics场是GrainInfo类型的场，其Allocate函数传入晶粒个数Ngrains和相个数Nphases，此处初始化就直接将Ngrains设为1，该场的成员变量GrainStorage是一个元素为Grain类型的容器，Allocate函数将该容器的大小(即里面元素的个数)设定为Ngrains*Nphases=1*2=2，同时对该场的成员变量Nphases赋值。</li>
+<li>对相场的成员变量TotFractions(是元素为double的容器)的尺寸设定为Nphases=2，传入iWidth，对RefVolume赋值，根据Nx等与iWidth的关系判断，此处为0。</li>
+</ol>
+<h2 id="温度场的初始化"><a href="#温度场的初始化" class="headerlink" title="温度场的初始化"></a>温度场的初始化</h2><p>与相场的初始化的逻辑相同，也是读入网格格点、相的个数、网格间距。对场Tx、Txdx、qdot三个场分配空间，注意Txdx的Array指向dVector3类型的变量。初始温度T0=500, 初始温度梯度dT_dr是一个dVector3的变量，此处调用它的set_to_zero成员函数将其成员变量Storage[]清零(这里调用了c++的memset函数)。初始温度梯度所在的位置r0也是一个dVector3，其set_to_zero同理。</p>
+<h2 id="热传导方程求解器的初始化"><a href="#热传导方程求解器的初始化" class="headerlink" title="热传导方程求解器的初始化"></a>热传导方程求解器的初始化</h2><p>与以上的逻辑相同，相继读入网格格点、相的个数、网格间距。成员变量PhaseThermalDiffusivity是一个类型为Storage<double>的变量，其Alllocate函数传入Nphases，将它传给自己的成员变量Size_X=2,同时开辟一个大小为Size_X的指向double的指针Array。PhaseHeatCapacity、PhaseDensity同理。EffectiveThermalDiffusivity、EffectiveHeatCapacity、EffectiveDensity则都是Storage3D&lt;double,0&gt;类型，其Allocate过程之前已描述过。</p>
+<h2 id="边界条件的初始化"><a href="#边界条件的初始化" class="headerlink" title="边界条件的初始化"></a>边界条件的初始化</h2><p>其Initialize函数传入的是Settings类，但此处初始化中直接将其六个int型的成员变量BC0X、BCNX、BC0Y、BCNY、BC0Z、BCNZ都用OpenPhase的整型常量Periodic=0来赋值。</p>
+<p>以上可以看出，OpenPhase在设计Initialize函数时并没有完全真的读入相应的参数并初始化，而是采取类似于定义一个变量并赋无意义的初值这样的做法。下面是真正的读取输入文件。</p>
+<h2 id="边界条件读取输入文件"><a href="#边界条件读取输入文件" class="headerlink" title="边界条件读取输入文件"></a>边界条件读取输入文件</h2><p>调用ReadInput函数，传入的形参是FileName字符串，实参是ProjectDir+BCInputFileName，这两个字符串是命令空间OpenPhase的全局变量，默认是ProjectDir = “ProjectInput/“和BCInputFileName = “BoundaryConditions.opi”。<br>调用Type.h定义的ReadParameterF函数读取.opi中的数据(详见后面的解析)，取得了该文件的字符串，然后通过判断字符串，将相应的边界条件的整型数值传入BCOX、BCNX等六个成员变量：0是周期性边界；1是非流动边界；2是自由边界；3是固定边界。</p>
+<h2 id="温度场读取输入文件"><a href="#温度场读取输入文件" class="headerlink" title="温度场读取输入文件"></a>温度场读取输入文件</h2><p>通过ReadInput函数读取初始温度梯度所在位置的坐标，并赋值给其成员变量r0，即r0[0]=R0X=32,r0[1]=R0Y=32,r0[2]=R0Z=32，起始r0[]是一个运算符重载，实际将参数传给r0的成员变量Storage数组中。同理将初始温度梯度赋值给dT_dr，即dT_dr[0]=DT_DRX=0,dT_dr[1]=DT_DRY=0,dT_dr[2]=DT_DRZ=0。最后将冷却速度赋值给成员变量dT_dt。</p>
+<h2 id="热传导求解器读取输入文件"><a href="#热传导求解器读取输入文件" class="headerlink" title="热传导求解器读取输入文件"></a>热传导求解器读取输入文件</h2><p>Heat的ReadInput函数有些特殊，其会对不同的相进行循环，对于相的指标n，分别将热导率和热容存入PhaseThermalDiffusivity和PhaseHeatCapacity中，注意[]依然是一个运算符重载，实际是将数值存入变量的Array指针指向的地址中。</p>
+<p>经过上面的初始化，各个物理场中存储了正确的模拟参数，下面是初始条件设置。</p>
+<h1 id="相的分布设定"><a href="#相的分布设定" class="headerlink" title="相的分布设定"></a>相的分布设定</h1><h2 id="Initializations-Single函数"><a href="#Initializations-Single函数" class="headerlink" title="Initializations::Single函数"></a>Initializations::Single函数</h2><p>该函数首先调用PhaseField类的FieldStatistics成员变量的add_grain函数，传入的参数是PhaseIndex这个重要参数，此处的实参是0，即代表0号相。注意GrainStorage在之前相场的初始化分配FieldsStatistics时已经设定了，其size()=2，经过add_grain后，返回locIndex=0，GrainStorage[0].Exist=true。</p>
+<p>然后对格点进行循环，对Flags、Fields、FieldIndex这三个成员变量进行设定。注意到之前初始化时Allocate后开辟的各自的Array指针的地址都是Size_X*Size_Y*Size_Z=66*3*66=13068大小，故循环是for(int i = 0; i &lt; Nx+2; ++i)这样的类型。注意赋值时使用Storage&lt;T,0&gt;的()运算符重载，返回指向不同偏移量的Array指针，该偏移量为(Size_Y*x+y)*Size_Z+z，这是一个神奇的表达式，它起始为0，中间连续加1，最终为(3*65+2)*66+65=13067，正好满足13068的大小，其实奥妙在这里：<br>(Size_Y*x+y)*Size_Z+z=(Size_Y*(Size_X-1)+Size_Y-1)*Size_Z+Size_Z-1=Size_X*Size_Y*Size_Z-1<br>就这样取得Array指针指向的所有地址后，再对其赋值。对于Flags(i,j,k)，其返回值是int型，直接赋值0。而对于Fields，其返回值是Node类型，其再调用Node类型的set函数(注意是有两个形参的set)。具体的set过程为：Node类的Fields成员变量(注意与前面的Fields区别)是一个元素为FieldEntry的容器，FieldEntry是一个结构体，从Fields.begin()开始做循环时，发现里面根本没有东西，就新建一个NewEntry，并将传入的两个参数,一个是locIndex=0赋给NewEntry的index，一个是1.0赋给NewEntry的value，NewEntry的另外两个值为0，然后将NewEntry压入Fields中。后面对于FieldIndex(i,j,k)就很自然地取得刚刚的index。</p>
+<p>最后的Finalize函数由多个部分组成：</p>
+<ol>
+<li>FinalizeStepOne(BoundaryCondition&amp;)函数。<br>它使用了OpenMP的并行计算方法，这个地方不好用gdb调试，所以可以直接在源码中用cout输出。首先用omp_get_num_threads()得到线程总数，此处为nOMP=2，然后用omp_get_thread_num()得到线程标识，分别为0和1，然后将x方向的格点分为两段，分别是从1到32和从33到64，然后对三维的格点进行循环，判断Flags(i,j,k)是否为0，因为上面已经设定此值为0，所以此处不进入if处理。</li>
+<li>SetBoundaryConditions(BoundaryCondition&amp;)函数。<br>此函数传入BoundaryCondition类的对象，实际是接着调用BC的SetX、SetY、SetZ三个成员函数，注意这里有个函数重载，传入的参数分别是PhaseField类的Fields和FieldIndex成员变量。SetX函数是根据不同的边界条件对Fields和FieldIndex进行设定。如对Periodic边界条件，让0号和64条件相同，1和65号相同。注意这里面设定的对应编号。对于左边界，如果是NoFlux边界条件，则让0号和1号相同，如果是Free边界，则让0号+2号等于2倍的1号。Fixed边界则不做处理。对于右边界，有同样的处理。SetY和SetZ亦同。</li>
+<li>SetFlags函数<br>其会对Interface(i,j,k)函数作判断，然后满足某些条件后将Flags(i,j,k)=Interface(i,j,k)+1。此处没有满足if条件，所以不做处理。</li>
+<li>SetFlagsBC函数<br>此处调用SetX等对Flags进行边界条件的处理。</li>
+<li>CalculateFractions函数<br>计算相分数，此处也会作一些判断，但此时仍然未满足条件，只是将所有地方的Fractions都置为1。</li>
+<li>CalculateLaplacians函数<br>计算拉普拉斯算子，仍然没满足条件，所以未分析。</li>
+<li>CalculateGradients函数<br>计算梯度，处理同上。</li>
+<li>SetGradientsBC函数<br>设置梯度边界条件</li>
+<li>CalculateNormals函数<br>计算法线向量</li>
+<li>CalculateVolumes函数<br>计算相体积。</li>
+</ol>
+<h2 id="Initializations-Sphere函数"><a href="#Initializations-Sphere函数" class="headerlink" title="Initializations:Sphere函数"></a>Initializations:Sphere函数</h2><p>Sphere函数与Single函数逻辑类似，Single相当于Sphere的一个初级版本，很多变量都是0，因此对相场的设置很简单，而Sphere则进一步将不同的相分开，赋予不同的属性，因此更能加深对代码的理解。<br>这部分的具体步骤不再详述。</p>
+<h1 id="对条件的进一步设定"><a href="#对条件的进一步设定" class="headerlink" title="对条件的进一步设定"></a>对条件的进一步设定</h1><p>此部分对于温度场有了进一步设置，如初始温度Tx.T0和热源Tx.qdot。</p>
+<h1 id="求解温度场"><a href="#求解温度场" class="headerlink" title="求解温度场"></a>求解温度场</h1><p>主要利用Heat类的Solve成员函数。</p>
+<h2 id="判断稳定性"><a href="#判断稳定性" class="headerlink" title="判断稳定性"></a>判断稳定性</h2><p>判断时间步长与网格间距之间的关系是否满足稳定性要求。<br>这里设定为dt/(dx*dx)&lt;0.5。</p>
+<h2 id="Temperature-SetBoundaryConditions-BC-函数"><a href="#Temperature-SetBoundaryConditions-BC-函数" class="headerlink" title="Temperature.SetBoundaryConditions(BC)函数"></a>Temperature.SetBoundaryConditions(BC)函数</h2><p>传入Tx参数对Ghost Nodes设定边界条件。</p>
+<h2 id="SetEffectiveProperties-Phase-函数"><a href="#SetEffectiveProperties-Phase-函数" class="headerlink" title="SetEffectiveProperties(Phase)函数"></a>SetEffectiveProperties(Phase)函数</h2><p>这一步是将相场的热容、热扩散率、密度等材料物性参数传递到Heat类的对应的成员变量中。</p>
+<h2 id="CalculateLaplacian-Temperature-函数"><a href="#CalculateLaplacian-Temperature-函数" class="headerlink" title="CalculateLaplacian(Temperature)函数"></a>CalculateLaplacian(Temperature)函数</h2><p>这一步使用有限差分方法计算拉普拉斯项——二阶微分项，具体的差分格式是中心差分。</p>
+<h2 id="UpdateTemperature-Temperature-dt-函数"><a href="#UpdateTemperature-Temperature-dt-函数" class="headerlink" title="UpdateTemperature(Temperature, dt)函数"></a>UpdateTemperature(Temperature, dt)函数</h2><p>求解热传导方程,更新温度场</p>
+<h1 id="输出"><a href="#输出" class="headerlink" title="输出"></a>输出</h1><p>相场的输出用Phi.WriteVTK(tStep)函数，格式是标准的VTK格式，格式的具体解析见<a target="_blank" rel="noopener" href="http://qixinbo.info/2016/02/22/openphase-vtk/">此文</a>。<br>具体输出的内容为：<br>(1)格点的编号，共Nx*Ny*Nz个点，排列次序为：<br>1  |  1  |  1<br>2  |  1  |  1<br>…| … | …<br>64 |  1  |  64<br>(2)输出第一个场——Interfaces，1代表界面，0代表体相<br>(3)输出第二个场——PhaseFields，<br>(4)输出第三个场——PhaseFraction，该场的个数与相的个数Nphases相等<br>(5)输出第四个场——ColorScale，<br>(6)输出第五个场——Flags，</p>
+<h1 id="注意事项"><a href="#注意事项" class="headerlink" title="注意事项"></a>注意事项</h1><ol>
+<li>不同的变量用的编号不同，有的是从0号到63号，有的是从1号到64号，还有65号的，这期间应涉及一个特殊处理——Ghost nodes，暂时没弄明白怎么回事，留待以后解决。</li>
+</ol>
+<h1 id="附录一：Doxygen的dot图的涵义"><a href="#附录一：Doxygen的dot图的涵义" class="headerlink" title="附录一：Doxygen的dot图的涵义"></a>附录一：Doxygen的dot图的涵义</h1><p><img src="https://ws1.sinaimg.cn/large/0072Lfvtly1fvji79gecjj30iz06gmxc.jpg" alt="doxygen_dot"></p>
+<h2 id="上图中的box的涵义："><a href="#上图中的box的涵义：" class="headerlink" title="上图中的box的涵义："></a>上图中的box的涵义：</h2><ul>
+<li>实心的灰色box代表绘制此图所基于的结构体或类</li>
+<li>黑色边界的box意味着此结构体或类有记录</li>
+<li>灰色边界的box意味着此结构体或类无记录</li>
+<li>红色边界的box意味着此有记录的结构体或类的关系没有被完全绘制出来<h2 id="上图中的箭头的涵义："><a href="#上图中的箭头的涵义：" class="headerlink" title="上图中的箭头的涵义："></a>上图中的箭头的涵义：</h2></li>
+<li>深蓝色箭头表示两类之间的public继承关系(上方的类是父类，下方的为子类)</li>
+<li>深绿色箭头表示两类之间的protected继承关系</li>
+<li>深红色箭头表示private继承关系</li>
+<li>紫色虚线箭头表示其所指的类或结构体被包含或使用，上面的label是使用此类的变量</li>
+<li>黄色虚线箭头表示模板实例和模板类之间的关系，上面的label是该实例的模板参数</li>
+</ul>
+<h1 id="附录二：ReadParameterF函数"><a href="#附录二：ReadParameterF函数" class="headerlink" title="附录二：ReadParameterF函数"></a>附录二：ReadParameterF函数</h1><p>ReadParameterF函数有四个形参：文件流inp、字符串Key、整型变量necessary、字符串defaultVal。传入的实参是BoundaryCondition.opi，将其赋值给inp，将字符串BCOX、BCNX等赋值给Key。<br>开始读入文件时，截取文件开头一直到字符的内容，赋值给tmp，如果没有这个字符，则抛出一个错误信息；然后再继续读取文件，将空格之前的字符串赋值给ReadKey字符串，如BC0X，将ReadKey与Key通过compare函数对比，如果两者不同的话，则继续读取；如果相同的话，再将后续到字符:的内容赋值给tmp，接着将直到回车符的字符串赋值给tFileName，如Free。为了使格式整齐，使用字符串的erase等函数删除空格，然后调用Info类的GetStandard输出。将tFileName填入ReturnValue中，返回此值。</p>
+
+    </div>
+
+    
+    
+    
+        <div class="reward-container">
+  <div></div>
+  <button onclick="var qr = document.getElementById('qr'); qr.style.display = (qr.style.display === 'none') ? 'block' : 'none';">
+    Donate
+  </button>
+  <div id="qr" style="display: none;">
+      
+      <div style="display: inline-block;">
+        <img src="/images/wechat_reward.png" alt="Xin-Bo Qi(亓欣波) WeChat Pay">
+        <p>WeChat Pay</p>
+      </div>
+
+  </div>
+</div>
+
+
+      <footer class="post-footer">
+          <div class="post-tags">
+              <a href="/tags/openphase/" rel="tag"># openphase</a>
+          </div>
+
+        
+
+
+        
+    <div class="post-nav">
+      <div class="post-nav-item">
+    <a href="/2016/03/29/gdb-tutorial/" rel="prev" title="gdb调试c++程序知识点">
+      <i class="fa fa-chevron-left"></i> gdb调试c++程序知识点
+    </a></div>
+      <div class="post-nav-item">
+    <a href="/2016/04/05/kwn-model/" rel="next" title="形核、生长和粗化同时进行的数值处理方法——KWN模型">
+      形核、生长和粗化同时进行的数值处理方法——KWN模型 <i class="fa fa-chevron-right"></i>
+    </a></div>
+    </div>
+      </footer>
+    
+  </article>
+  
+  
+  
+
+
+
+          </div>
+          
+    
+  <div class="comments">
+    <div id="disqus_thread">
+      <noscript>Please enable JavaScript to view the comments powered by Disqus.</noscript>
+    </div>
+  </div>
+  
+
+<script>
+  window.addEventListener('tabs:register', () => {
+    let { activeClass } = CONFIG.comments;
+    if (CONFIG.comments.storage) {
+      activeClass = localStorage.getItem('comments_active') || activeClass;
+    }
+    if (activeClass) {
+      let activeTab = document.querySelector(`a[href="#comment-${activeClass}"]`);
+      if (activeTab) {
+        activeTab.click();
+      }
+    }
+  });
+  if (CONFIG.comments.storage) {
+    window.addEventListener('tabs:click', event => {
+      if (!event.target.matches('.tabs-comment .tab-content .tab-pane')) return;
+      let commentClass = event.target.classList[1];
+      localStorage.setItem('comments_active', commentClass);
+    });
+  }
+</script>
+
+        </div>
+          
+  
+  <div class="toggle sidebar-toggle">
+    <span class="toggle-line toggle-line-first"></span>
+    <span class="toggle-line toggle-line-middle"></span>
+    <span class="toggle-line toggle-line-last"></span>
+  </div>
+
+  <aside class="sidebar">
+    <div class="sidebar-inner">
+
+      <ul class="sidebar-nav motion-element">
+        <li class="sidebar-nav-toc">
+          Table of Contents
+        </li>
+        <li class="sidebar-nav-overview">
+          Overview
+        </li>
+      </ul>
+
+      <!--noindex-->
+      <div class="post-toc-wrap sidebar-panel">
+          <div class="post-toc motion-element"><ol class="nav"><li class="nav-item nav-level-1"><a class="nav-link" href="#%E5%86%99%E5%9C%A8%E5%89%8D%E9%9D%A2%E2%80%94%E2%80%94%E5%A6%82%E4%BD%95%E9%98%85%E8%AF%BBOpenPhase%E6%BA%90%E7%A0%81"><span class="nav-number">1.</span> <span class="nav-text">写在前面——如何阅读OpenPhase源码</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#%E6%A8%A1%E6%8B%9F%E5%8F%82%E6%95%B0"><span class="nav-number">2.</span> <span class="nav-text">模拟参数</span></a><ol class="nav-child"><li class="nav-item nav-level-2"><a class="nav-link" href="#ProjectInput-opi%E6%96%87%E4%BB%B6"><span class="nav-number">2.1.</span> <span class="nav-text">ProjectInput.opi文件</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#BoundaryConditions-opi%E6%96%87%E4%BB%B6"><span class="nav-number">2.2.</span> <span class="nav-text">BoundaryConditions.opi文件</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#Temperature-opi%E6%96%87%E4%BB%B6"><span class="nav-number">2.3.</span> <span class="nav-text">Temperature.opi文件</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#Heat-opi%E6%96%87%E4%BB%B6"><span class="nav-number">2.4.</span> <span class="nav-text">Heat.opi文件</span></a></li></ol></li><li class="nav-item nav-level-1"><a class="nav-link" href="#%E5%88%9D%E5%A7%8B%E5%8C%96"><span class="nav-number">3.</span> <span class="nav-text">初始化</span></a><ol class="nav-child"><li class="nav-item nav-level-2"><a class="nav-link" href="#%E7%9B%B8%E5%9C%BA%E7%9A%84%E5%88%9D%E5%A7%8B%E5%8C%96%EF%BC%9A"><span class="nav-number">3.1.</span> <span class="nav-text">相场的初始化：</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E6%B8%A9%E5%BA%A6%E5%9C%BA%E7%9A%84%E5%88%9D%E5%A7%8B%E5%8C%96"><span class="nav-number">3.2.</span> <span class="nav-text">温度场的初始化</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E7%83%AD%E4%BC%A0%E5%AF%BC%E6%96%B9%E7%A8%8B%E6%B1%82%E8%A7%A3%E5%99%A8%E7%9A%84%E5%88%9D%E5%A7%8B%E5%8C%96"><span class="nav-number">3.3.</span> <span class="nav-text">热传导方程求解器的初始化</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E8%BE%B9%E7%95%8C%E6%9D%A1%E4%BB%B6%E7%9A%84%E5%88%9D%E5%A7%8B%E5%8C%96"><span class="nav-number">3.4.</span> <span class="nav-text">边界条件的初始化</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E8%BE%B9%E7%95%8C%E6%9D%A1%E4%BB%B6%E8%AF%BB%E5%8F%96%E8%BE%93%E5%85%A5%E6%96%87%E4%BB%B6"><span class="nav-number">3.5.</span> <span class="nav-text">边界条件读取输入文件</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E6%B8%A9%E5%BA%A6%E5%9C%BA%E8%AF%BB%E5%8F%96%E8%BE%93%E5%85%A5%E6%96%87%E4%BB%B6"><span class="nav-number">3.6.</span> <span class="nav-text">温度场读取输入文件</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E7%83%AD%E4%BC%A0%E5%AF%BC%E6%B1%82%E8%A7%A3%E5%99%A8%E8%AF%BB%E5%8F%96%E8%BE%93%E5%85%A5%E6%96%87%E4%BB%B6"><span class="nav-number">3.7.</span> <span class="nav-text">热传导求解器读取输入文件</span></a></li></ol></li><li class="nav-item nav-level-1"><a class="nav-link" href="#%E7%9B%B8%E7%9A%84%E5%88%86%E5%B8%83%E8%AE%BE%E5%AE%9A"><span class="nav-number">4.</span> <span class="nav-text">相的分布设定</span></a><ol class="nav-child"><li class="nav-item nav-level-2"><a class="nav-link" href="#Initializations-Single%E5%87%BD%E6%95%B0"><span class="nav-number">4.1.</span> <span class="nav-text">Initializations::Single函数</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#Initializations-Sphere%E5%87%BD%E6%95%B0"><span class="nav-number">4.2.</span> <span class="nav-text">Initializations:Sphere函数</span></a></li></ol></li><li class="nav-item nav-level-1"><a class="nav-link" href="#%E5%AF%B9%E6%9D%A1%E4%BB%B6%E7%9A%84%E8%BF%9B%E4%B8%80%E6%AD%A5%E8%AE%BE%E5%AE%9A"><span class="nav-number">5.</span> <span class="nav-text">对条件的进一步设定</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#%E6%B1%82%E8%A7%A3%E6%B8%A9%E5%BA%A6%E5%9C%BA"><span class="nav-number">6.</span> <span class="nav-text">求解温度场</span></a><ol class="nav-child"><li class="nav-item nav-level-2"><a class="nav-link" href="#%E5%88%A4%E6%96%AD%E7%A8%B3%E5%AE%9A%E6%80%A7"><span class="nav-number">6.1.</span> <span class="nav-text">判断稳定性</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#Temperature-SetBoundaryConditions-BC-%E5%87%BD%E6%95%B0"><span class="nav-number">6.2.</span> <span class="nav-text">Temperature.SetBoundaryConditions(BC)函数</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#SetEffectiveProperties-Phase-%E5%87%BD%E6%95%B0"><span class="nav-number">6.3.</span> <span class="nav-text">SetEffectiveProperties(Phase)函数</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#CalculateLaplacian-Temperature-%E5%87%BD%E6%95%B0"><span class="nav-number">6.4.</span> <span class="nav-text">CalculateLaplacian(Temperature)函数</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#UpdateTemperature-Temperature-dt-%E5%87%BD%E6%95%B0"><span class="nav-number">6.5.</span> <span class="nav-text">UpdateTemperature(Temperature, dt)函数</span></a></li></ol></li><li class="nav-item nav-level-1"><a class="nav-link" href="#%E8%BE%93%E5%87%BA"><span class="nav-number">7.</span> <span class="nav-text">输出</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#%E6%B3%A8%E6%84%8F%E4%BA%8B%E9%A1%B9"><span class="nav-number">8.</span> <span class="nav-text">注意事项</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#%E9%99%84%E5%BD%95%E4%B8%80%EF%BC%9ADoxygen%E7%9A%84dot%E5%9B%BE%E7%9A%84%E6%B6%B5%E4%B9%89"><span class="nav-number">9.</span> <span class="nav-text">附录一：Doxygen的dot图的涵义</span></a><ol class="nav-child"><li class="nav-item nav-level-2"><a class="nav-link" href="#%E4%B8%8A%E5%9B%BE%E4%B8%AD%E7%9A%84box%E7%9A%84%E6%B6%B5%E4%B9%89%EF%BC%9A"><span class="nav-number">9.1.</span> <span class="nav-text">上图中的box的涵义：</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E4%B8%8A%E5%9B%BE%E4%B8%AD%E7%9A%84%E7%AE%AD%E5%A4%B4%E7%9A%84%E6%B6%B5%E4%B9%89%EF%BC%9A"><span class="nav-number">9.2.</span> <span class="nav-text">上图中的箭头的涵义：</span></a></li></ol></li><li class="nav-item nav-level-1"><a class="nav-link" href="#%E9%99%84%E5%BD%95%E4%BA%8C%EF%BC%9AReadParameterF%E5%87%BD%E6%95%B0"><span class="nav-number">10.</span> <span class="nav-text">附录二：ReadParameterF函数</span></a></li></ol></div>
+      </div>
+      <!--/noindex-->
+
+      <div class="site-overview-wrap sidebar-panel">
+        <div class="site-author motion-element" itemprop="author" itemscope itemtype="http://schema.org/Person">
+    <img class="site-author-image" itemprop="image" alt="Xin-Bo Qi(亓欣波)"
+      src="/images/avatar.jpg">
+  <p class="site-author-name" itemprop="name">Xin-Bo Qi(亓欣波)</p>
+  <div class="site-description" itemprop="description">Be interesting!</div>
+</div>
+<div class="site-state-wrap motion-element">
+  <nav class="site-state">
+      <div class="site-state-item site-state-posts">
+          <a href="/archives/">
+        
+          <span class="site-state-item-count">120</span>
+          <span class="site-state-item-name">posts</span>
+        </a>
+      </div>
+      <div class="site-state-item site-state-categories">
+            <a href="/categories/">
+          
+        <span class="site-state-item-count">5</span>
+        <span class="site-state-item-name">categories</span></a>
+      </div>
+      <div class="site-state-item site-state-tags">
+            <a href="/tags/">
+          
+        <span class="site-state-item-count">41</span>
+        <span class="site-state-item-name">tags</span></a>
+      </div>
+  </nav>
+</div>
+  <div class="links-of-author motion-element">
+      <span class="links-of-author-item">
+        <a href="https://github.com/qixinbo" title="GitHub → https:&#x2F;&#x2F;github.com&#x2F;qixinbo" rel="noopener" target="_blank"><i class="github fa-fw"></i>GitHub</a>
+      </span>
+      <span class="links-of-author-item">
+        <a href="mailto:qixinbo@gmail.com" title="E-Mail → mailto:qixinbo@gmail.com" rel="noopener" target="_blank"><i class="envelope fa-fw"></i>E-Mail</a>
+      </span>
+  </div>
+
+
+  <div class="links-of-blogroll motion-element">
+    <div class="links-of-blogroll-title"><i class="fa fa-link fa-fw"></i>
+      Links
+    </div>
+    <ul class="links-of-blogroll-list">
+        <li class="links-of-blogroll-item">
+          <a href="https://www.tsinghua.edu.cn/" title="https:&#x2F;&#x2F;www.tsinghua.edu.cn" rel="noopener" target="_blank">THU</a>
+        </li>
+        <li class="links-of-blogroll-item">
+          <a href="http://www.imr.cas.cn/" title="http:&#x2F;&#x2F;www.imr.cas.cn" rel="noopener" target="_blank">IMR</a>
+        </li>
+        <li class="links-of-blogroll-item">
+          <a href="http://www.sdu.edu.cn/" title="http:&#x2F;&#x2F;www.sdu.edu.cn" rel="noopener" target="_blank">SDU</a>
+        </li>
+        <li class="links-of-blogroll-item">
+          <a href="http://liam0205.me/" title="http:&#x2F;&#x2F;liam0205.me&#x2F;" rel="noopener" target="_blank">黄晨成</a>
+        </li>
+    </ul>
+  </div>
+
+      </div>
+
+    </div>
+  </aside>
+  <div id="sidebar-dimmer"></div>
+
+
+      </div>
+    </main>
+
+    <footer class="footer">
+      <div class="footer-inner">
+        
+
+        
+
+<div class="copyright">
+  
+  &copy; 
+  <span itemprop="copyrightYear">2021</span>
+  <span class="with-love">
+    <i class="fa fa-heart"></i>
+  </span>
+  <span class="author" itemprop="copyrightHolder">Xin-Bo Qi(亓欣波)</span>
+</div>
+  <div class="powered-by">Powered by <a href="https://hexo.io/" class="theme-link" rel="noopener" target="_blank">Hexo</a> & <a href="https://theme-next.org/" class="theme-link" rel="noopener" target="_blank">NexT.Gemini</a>
+  </div>
+
+        
+
+
+
+
+
+
+
+
+      </div>
+    </footer>
+  </div>
+
+  
+  <script src="/lib/anime.min.js"></script>
+  <script src="/lib/velocity/velocity.min.js"></script>
+  <script src="/lib/velocity/velocity.ui.min.js"></script>
+
+<script src="/js/utils.js"></script>
+
+<script src="/js/motion.js"></script>
+
+
+<script src="/js/schemes/pisces.js"></script>
+
+
+<script src="/js/next-boot.js"></script>
+
+
+
+
+  
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+  
+
+  
+
+  
+
+<script>
+  function loadCount() {
+    var d = document, s = d.createElement('script');
+    s.src = 'https://qixinbo.disqus.com/count.js';
+    s.id = 'dsq-count-scr';
+    (d.head || d.body).appendChild(s);
+  }
+  // defer loading until the whole page loading is completed
+  window.addEventListener('load', loadCount, false);
+</script>
+<script>
+  var disqus_config = function() {
+    this.page.url = "http://qixinbo.github.io/2016/03/30/openphase-HeatEquation/";
+    this.page.identifier = "2016/03/30/openphase-HeatEquation/";
+    this.page.title = "OpenPhase实例学习系列：HeatEquation算例全解析";
+    };
+  NexT.utils.loadComments(document.querySelector('#disqus_thread'), () => {
+    if (window.DISQUS) {
+      DISQUS.reset({
+        reload: true,
+        config: disqus_config
+      });
+    } else {
+      var d = document, s = d.createElement('script');
+      s.src = 'https://qixinbo.disqus.com/embed.js';
+      s.setAttribute('data-timestamp', '' + +new Date());
+      (d.head || d.body).appendChild(s);
+    }
+  });
+</script>
+
+</body>
+</html>

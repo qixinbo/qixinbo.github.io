@@ -1,0 +1,567 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=2">
+<meta name="theme-color" content="#222">
+<meta name="generator" content="Hexo 5.4.0">
+  <link rel="apple-touch-icon" sizes="180x180" href="/images/apple-touch-icon-next.png">
+  <link rel="icon" type="image/png" sizes="32x32" href="/favicon.ico">
+  <link rel="icon" type="image/png" sizes="16x16" href="/favicon.ico">
+  <link rel="mask-icon" href="/images/logo.svg" color="#222">
+
+<link rel="stylesheet" href="/css/main.css">
+
+
+<link rel="stylesheet" href="/lib/font-awesome/css/all.min.css">
+
+<script id="hexo-configurations">
+    var NexT = window.NexT || {};
+    var CONFIG = {"hostname":"qixinbo.github.io","root":"/","scheme":"Gemini","version":"7.8.0","exturl":false,"sidebar":{"position":"left","display":"post","padding":18,"offset":12,"onmobile":false},"copycode":{"enable":false,"show_result":false,"style":null},"back2top":{"enable":true,"sidebar":false,"scrollpercent":false},"bookmark":{"enable":false,"color":"#222","save":"auto"},"fancybox":false,"mediumzoom":false,"lazyload":false,"pangu":false,"comments":{"style":"tabs","active":null,"storage":true,"lazyload":false,"nav":null},"algolia":{"hits":{"per_page":10},"labels":{"input_placeholder":"Search for Posts","hits_empty":"We didn't find any results for the search: ${query}","hits_stats":"${hits} results found in ${time} ms"}},"localsearch":{"enable":false,"trigger":"auto","top_n_per_article":1,"unescape":false,"preload":false},"motion":{"enable":true,"async":false,"transition":{"post_block":"fadeIn","post_header":"slideDownIn","post_body":"slideDownIn","coll_header":"slideLeftIn","sidebar":"slideUpIn"}}};
+  </script>
+
+  <meta name="description" content="这一部分详解ImagePy的工具条是如何加载的。 构建工具条入口通过build_tools这个函数来构建工具条： 1self.toolbar &#x3D; toolsloader.build_tools(self, &amp;#x27;tools&amp;#x27;, &amp;#x27;plugins&amp;#x27;, None, True) 这几个实参所对应的该函数的形参依次为：tools传入toolpath, plugins传入">
+<meta property="og:type" content="article">
+<meta property="og:title" content="ImagePy解析：3 -- 工具条加载详解">
+<meta property="og:url" content="http://qixinbo.github.io/2019/08/29/ImagePy_3/index.html">
+<meta property="og:site_name" content="亓欣波">
+<meta property="og:description" content="这一部分详解ImagePy的工具条是如何加载的。 构建工具条入口通过build_tools这个函数来构建工具条： 1self.toolbar &#x3D; toolsloader.build_tools(self, &amp;#x27;tools&amp;#x27;, &amp;#x27;plugins&amp;#x27;, None, True) 这几个实参所对应的该函数的形参依次为：tools传入toolpath, plugins传入">
+<meta property="og:locale" content="en_US">
+<meta property="article:published_time" content="2019-08-28T16:00:00.000Z">
+<meta property="article:modified_time" content="2021-03-25T07:20:30.416Z">
+<meta property="article:author" content="Xin-Bo Qi(亓欣波)">
+<meta property="article:tag" content="ImagePy">
+<meta name="twitter:card" content="summary">
+
+<link rel="canonical" href="http://qixinbo.github.io/2019/08/29/ImagePy_3/">
+
+
+<script id="page-configurations">
+  // https://hexo.io/docs/variables.html
+  CONFIG.page = {
+    sidebar: "",
+    isHome : false,
+    isPost : true,
+    lang   : 'en'
+  };
+</script>
+
+  <title>ImagePy解析：3 -- 工具条加载详解 | 亓欣波</title>
+  
+
+
+
+
+
+
+  <noscript>
+  <style>
+  .use-motion .brand,
+  .use-motion .menu-item,
+  .sidebar-inner,
+  .use-motion .post-block,
+  .use-motion .pagination,
+  .use-motion .comments,
+  .use-motion .post-header,
+  .use-motion .post-body,
+  .use-motion .collection-header { opacity: initial; }
+
+  .use-motion .site-title,
+  .use-motion .site-subtitle {
+    opacity: initial;
+    top: initial;
+  }
+
+  .use-motion .logo-line-before i { left: initial; }
+  .use-motion .logo-line-after i { right: initial; }
+  </style>
+</noscript>
+
+</head>
+
+<body itemscope itemtype="http://schema.org/WebPage">
+  <div class="container use-motion">
+    <div class="headband"></div>
+
+    <header class="header" itemscope itemtype="http://schema.org/WPHeader">
+      <div class="header-inner"><div class="site-brand-container">
+  <div class="site-nav-toggle">
+    <div class="toggle" aria-label="Toggle navigation bar">
+      <span class="toggle-line toggle-line-first"></span>
+      <span class="toggle-line toggle-line-middle"></span>
+      <span class="toggle-line toggle-line-last"></span>
+    </div>
+  </div>
+
+  <div class="site-meta">
+
+    <a href="/" class="brand" rel="start">
+      <span class="logo-line-before"><i></i></span>
+      <h1 class="site-title">亓欣波</h1>
+      <span class="logo-line-after"><i></i></span>
+    </a>
+      <p class="site-subtitle" itemprop="description">Hi, I am Xin-Bo Qi (亓欣波)</p>
+  </div>
+
+  <div class="site-nav-right">
+    <div class="toggle popup-trigger">
+    </div>
+  </div>
+</div>
+
+
+
+
+<nav class="site-nav">
+  <ul id="menu" class="main-menu menu">
+        <li class="menu-item menu-item-home">
+
+    <a href="/" rel="section"><i class="home fa-fw"></i>Home</a>
+
+  </li>
+        <li class="menu-item menu-item-categories">
+
+    <a href="/categories/" rel="section"><i class="th fa-fw"></i>Categories</a>
+
+  </li>
+        <li class="menu-item menu-item-archives">
+
+    <a href="/archives/" rel="section"><i class="archive fa-fw"></i>Archives</a>
+
+  </li>
+        <li class="menu-item menu-item-tags">
+
+    <a href="/tags/" rel="section"><i class="tags fa-fw"></i>Tags</a>
+
+  </li>
+        <li class="menu-item menu-item-scholar">
+
+    <a href="/scholar/" rel="section"><i class="bar-chart fa-fw"></i>scholar</a>
+
+  </li>
+        <li class="menu-item menu-item-sources">
+
+    <a href="/sources/" rel="section"><i class="rss fa-fw"></i>sources</a>
+
+  </li>
+        <li class="menu-item menu-item-gallery">
+
+    <a href="/gallery/" rel="section"><i class="file-image-o fa-fw"></i>gallery</a>
+
+  </li>
+        <li class="menu-item menu-item-about">
+
+    <a href="/about/" rel="section"><i class="user fa-fw"></i>About</a>
+
+  </li>
+        <li class="menu-item menu-item-commonweal">
+
+    <a href="/404.html" rel="section"><i class="heartbeat fa-fw"></i>Commonweal 404</a>
+
+  </li>
+  </ul>
+</nav>
+
+
+
+
+</div>
+    </header>
+
+    
+  <div class="back-to-top">
+    <i class="fa fa-arrow-up"></i>
+    <span>0%</span>
+  </div>
+
+
+    <main class="main">
+      <div class="main-inner">
+        <div class="content-wrap">
+          
+
+          <div class="content post posts-expand">
+            
+
+    
+  
+  
+  <article itemscope itemtype="http://schema.org/Article" class="post-block" lang="en">
+    <link itemprop="mainEntityOfPage" href="http://qixinbo.github.io/2019/08/29/ImagePy_3/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="image" content="/images/avatar.jpg">
+      <meta itemprop="name" content="Xin-Bo Qi(亓欣波)">
+      <meta itemprop="description" content="Be interesting!">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="亓欣波">
+    </span>
+      <header class="post-header">
+        <h1 class="post-title" itemprop="name headline">
+          ImagePy解析：3 -- 工具条加载详解
+        </h1>
+
+        <div class="post-meta">
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="far fa-calendar"></i>
+              </span>
+              <span class="post-meta-item-text">Posted on</span>
+
+              <time title="Created: 2019-08-29 00:00:00" itemprop="dateCreated datePublished" datetime="2019-08-29T00:00:00+08:00">2019-08-29</time>
+            </span>
+              <span class="post-meta-item">
+                <span class="post-meta-item-icon">
+                  <i class="far fa-calendar-check"></i>
+                </span>
+                <span class="post-meta-item-text">Edited on</span>
+                <time title="Modified: 2021-03-25 15:20:30" itemprop="dateModified" datetime="2021-03-25T15:20:30+08:00">2021-03-25</time>
+              </span>
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="far fa-folder"></i>
+              </span>
+              <span class="post-meta-item-text">In</span>
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+                  <a href="/categories/computational-material-science/" itemprop="url" rel="index"><span itemprop="name">computational material science</span></a>
+                </span>
+            </span>
+
+          
+  
+  <span class="post-meta-item">
+    
+      <span class="post-meta-item-icon">
+        <i class="far fa-comment"></i>
+      </span>
+      <span class="post-meta-item-text">Disqus: </span>
+    
+    <a title="disqus" href="/2019/08/29/ImagePy_3/#disqus_thread" itemprop="discussionUrl">
+      <span class="post-comments-count disqus-comment-count" data-disqus-identifier="2019/08/29/ImagePy_3/" itemprop="commentCount"></span>
+    </a>
+  </span>
+  
+  
+
+        </div>
+      </header>
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+        <p>这一部分详解ImagePy的工具条是如何加载的。</p>
+<h1 id="构建工具条入口"><a href="#构建工具条入口" class="headerlink" title="构建工具条入口"></a>构建工具条入口</h1><p>通过build_tools这个函数来构建工具条：</p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">self.toolbar = toolsloader.build_tools(self, <span class="string">&#x27;tools&#x27;</span>, <span class="string">&#x27;plugins&#x27;</span>, <span class="literal">None</span>, <span class="literal">True</span>)</span><br></pre></td></tr></table></figure>
+<p>这几个实参所对应的该函数的形参依次为：tools传入toolpath, plugins传入extends（这个参数目前看没有用处），None传入bar，True赋给report。<br>下面详细看这个函数做了什么。</p>
+<h1 id="递归获得所有工具的类文件和图标文件"><a href="#递归获得所有工具的类文件和图标文件" class="headerlink" title="递归获得所有工具的类文件和图标文件"></a>递归获得所有工具的类文件和图标文件</h1><p>上面的build_tools函数又会调用loader的build_tools函数，这个函数所做的东西跟前面加载插件时的逻辑基本是相同的，都是为了递归获得所有工具的类文件，不过这里还会获得图标文件。</p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">datas = loader.build_tools(toolspath, report)</span><br><span class="line"><span class="built_in">print</span>(<span class="string">&quot;datas = &quot;</span>, datas)</span><br></pre></td></tr></table></figure>
+<p>如果tools文件夹下仅保留部分文件，那么上面的返回结果如下：</p>
+<figure class="highlight"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">datas =  (&lt;module &#x27;imagepy.tools&#x27; from &#x27;D:\\imagepy-master\\imagepy\\tools\\__init__.py&#x27;&gt;, [(&lt;module &#x27;imagepy.tools.Measure&#x27; from &#x27;D:\\imagepy-master\\imagepy\\tools\\Measure\\__init__.py&#x27;&gt;, [(&lt;class &#x27;imagepy.tools.Measure.distance_tol.Plugin&#x27;&gt;, &#x27;D:\\imagepy-master\\imagepy\\tools\\Measure/distance.gif&#x27;), (&lt;class &#x27;imagepy.tools.Measure.profile_tol.Plugin&#x27;&gt;, &#x27;D:\\imagepy-master\\imagepy\\tools\\Measure/profile.gif&#x27;)]), (&lt;module &#x27;imagepy.tools.Standard&#x27; from &#x27;D:\\imagepy-master\\imagepy\\tools\\Standard\\__init__.py&#x27;&gt;, [(&lt;class &#x27;imagepy.tools.Standard.point_tol.Plugin&#x27;&gt;, &#x27;D:\\imagepy-master\\imagepy\\tools\\Standard/point.gif&#x27;)])])</span><br></pre></td></tr></table></figure>
+<p>可以看出，上述数据结构的层级类似于构建菜单时得到的结果。</p>
+<p>#解析为wxpython工具条<br>使用的函数为：</p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">toolsbar = buildToolsBar(parent, datas, bar)</span><br></pre></td></tr></table></figure>
+<p>即，将上面得到的datas元组传入，然后该函数首先创建了wxpython的penel对象，并用BoxSizer进行组织：</p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">if</span> toolsbar <span class="keyword">is</span> <span class="literal">None</span>:</span><br><span class="line">    box = wx.BoxSizer( wx.HORIZONTAL )</span><br><span class="line">    toolsbar = wx.Panel( parent, wx.ID_ANY,  wx.DefaultPosition, wx.DefaultSize, wx.TAB_TRAVERSAL )</span><br><span class="line">    toolsbar.SetSizer( box )</span><br><span class="line"><span class="keyword">else</span>:</span><br><span class="line">    box = toolsbar.GetSizer()</span><br><span class="line">    toolsbar.DestroyChildren()</span><br><span class="line">    box.Clear()</span><br></pre></td></tr></table></figure>
+<p>注意，ImagePy创建工具条不是使用的wxPython默认的ToolBar对象，而是使用的wxPython的panel对象，应该是为了考虑更加灵活的控制。<br>然后将获得工具条层级关系传入下面的add_tools函数中，注意，这个地方传入的是datas这个tuple的第三维度，即：</p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line"><span class="built_in">print</span>(<span class="string">&quot;datas[1][0][1] = &quot;</span>, datas[<span class="number">1</span>][<span class="number">0</span>][<span class="number">1</span>])</span><br><span class="line">add_tools(toolsbar, datas[<span class="number">1</span>][<span class="number">0</span>][<span class="number">1</span>], clear=<span class="literal">True</span>)</span><br></pre></td></tr></table></figure>
+<p>原因可以从上面的输出中进行追究：</p>
+<figure class="highlight"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">datas[1][0][1] =  [(&lt;class &#x27;imagepy.tools.Measure.distance_tol.Plugin&#x27;&gt;, &#x27;D:\\imagepy-master\\imagepy\\tools\\Measure/distance.gif&#x27;), (&lt;class &#x27;imagepy.tools.Measure.profile_tol.Plugin&#x27;&gt;, &#x27;D:\\imagepy-master\\imagepy\\tools\\Measure/profile.gif&#x27;)]</span><br></pre></td></tr></table></figure>
+<p>可以看出，第一个index选择1，是因为选择它之前扫描到的tools文件夹下的所有工具形成的list；第二个index选择0，代表第一个文件夹，即Measure文件夹；第二个index选择1，即选择Measure文件夹下的所有工具形成的list。其实，看下方的代码，ImagePy还会加载第二个文件夹，但此时源代码中有一个bug，即如果tools文件夹只有一个子文件夹，那么就会报错，无法启动，因此这里对ImagePy源码可以修改，增加一个判断，如果有多于两个文件夹，才会加载下方的代码，即：</p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">if</span> <span class="built_in">len</span>(datas[<span class="number">1</span>]) &gt; <span class="number">1</span>:</span><br><span class="line">    ...</span><br><span class="line">    <span class="built_in">print</span>(<span class="string">&quot;datas[1][1][1] = &quot;</span>, datas[<span class="number">1</span>][<span class="number">1</span>][<span class="number">1</span>])</span><br><span class="line">    add_tools(toolsbar, datas[<span class="number">1</span>][<span class="number">1</span>][<span class="number">1</span>])</span><br></pre></td></tr></table></figure>
+<p>GitHub上我提了一个Pull Request，见：<br><a target="_blank" rel="noopener" href="https://github.com/Image-Py/imagepy/pull/65">fix the startup error when only there is only one toolbar</a></p>
+<p>然后下面进入add_tools函数：</p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="keyword">def</span> <span class="title">add_tools</span>(<span class="params">bar, datas, clear=<span class="literal">False</span>, curids=[]</span>):</span></span><br><span class="line">    box = bar.GetSizer()</span><br><span class="line">    <span class="keyword">if</span> <span class="keyword">not</span> clear:</span><br><span class="line">        <span class="keyword">for</span> curid <span class="keyword">in</span> curids:</span><br><span class="line">            curid.Destroy()</span><br><span class="line">    <span class="keyword">del</span> curids[:]</span><br><span class="line"></span><br><span class="line">    <span class="keyword">for</span> data <span class="keyword">in</span> datas:</span><br><span class="line">        <span class="built_in">print</span>(<span class="string">&quot;data = &quot;</span>, data)</span><br><span class="line">        <span class="comment"># 将扫描到的icon图像文件制作成wxPython的BitmapButton</span></span><br><span class="line">        btn = wx.BitmapButton(bar, wx.ID_ANY, make_bitmap(wx.Bitmap(data[<span class="number">1</span>])), wx.DefaultPosition, (<span class="number">32</span>,<span class="number">32</span>), wx.BU_AUTODRAW|wx.RAISED_BORDER )       </span><br><span class="line">        <span class="keyword">if</span> <span class="keyword">not</span> clear:curids.append(btn)       </span><br><span class="line">        <span class="comment"># 判断是否在界面上直接显示，还是收缩起来，点击后再显示</span></span><br><span class="line">        <span class="keyword">if</span> clear:</span><br><span class="line">            <span class="built_in">print</span>(<span class="string">&quot;--- It is clear ---&quot;</span>)</span><br><span class="line">            <span class="comment"># 将这个button直接添加进入BoxSizer中</span></span><br><span class="line">            box.Add(btn)</span><br><span class="line">        <span class="keyword">else</span>:</span><br><span class="line">            <span class="built_in">print</span>(<span class="string">&quot;--- It is not clear&quot;</span>)</span><br><span class="line">            <span class="comment"># 如果是收缩起来，则在特定位置加入，而不是直接加入，这里的特定位置是box已有的所有的item数-2，之所以是减去2，与之前box添加的东西有关，具体可以看下面的输出，即在box添加的分割线后添加</span></span><br><span class="line">            <span class="built_in">print</span>(<span class="string">&quot;length of box&#x27;s children = &quot;</span>, <span class="built_in">len</span>(box.GetChildren()))</span><br><span class="line">            <span class="keyword">for</span> child <span class="keyword">in</span> box.GetChildren():</span><br><span class="line">                <span class="built_in">print</span>(<span class="string">&quot;box&#x27;s children = &quot;</span>, child.GetWindow())</span><br><span class="line">            box.Insert(<span class="built_in">len</span>(box.GetChildren())-<span class="number">2</span>, btn)</span><br><span class="line"></span><br><span class="line">        <span class="comment"># 为该button绑定“左键按下”的鼠标事件   </span></span><br><span class="line">        btn.Bind( wx.EVT_LEFT_DOWN, <span class="keyword">lambda</span> x, p=data[<span class="number">0</span>]:f(p(), x))</span><br><span class="line"></span><br><span class="line">        <span class="comment"># 为该button绑定“右键按下”的鼠标事件</span></span><br><span class="line">        btn.Bind( wx.EVT_RIGHT_DOWN, <span class="keyword">lambda</span> x, p=data[<span class="number">0</span>]: IPy.show_md(p.title, DocumentManager.get(p.title)))</span><br><span class="line"></span><br><span class="line">        <span class="comment"># 为该button绑定“鼠标移入”的鼠标事件</span></span><br><span class="line">        btn.Bind( wx.EVT_ENTER_WINDOW, <span class="keyword">lambda</span> x, p=<span class="string">&#x27;&quot;&#123;&#125;&quot; Tool&#x27;</span>.<span class="built_in">format</span>(data[<span class="number">0</span>].title): set_info(p))       </span><br><span class="line"></span><br><span class="line">        <span class="keyword">if</span> <span class="keyword">not</span> <span class="built_in">isinstance</span>(data[<span class="number">0</span>], Macros) <span class="keyword">and</span> <span class="built_in">issubclass</span>(data[<span class="number">0</span>], Tool):</span><br><span class="line">            btn.Bind(wx.EVT_LEFT_DCLICK, <span class="keyword">lambda</span> x, p=data[<span class="number">0</span>]:p().show())</span><br><span class="line"></span><br><span class="line">        btn.SetDefault()</span><br><span class="line">    box.Layout()</span><br><span class="line">    bar.Refresh()</span><br></pre></td></tr></table></figure>
+<p>上面的输出为：</p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br></pre></td><td class="code"><pre><span class="line">datas[1][0][1] =  [(&lt;class &#x27;imagepy.tools.Measure.distance_tol.Plugin&#x27;&gt;, &#x27;D:\\imagepy-master\\imagepy\\tools\\Measure/distance.gif&#x27;), (&lt;class &#x27;imagepy.tools.Measure.profile_tol.Plugin&#x27;&gt;, &#x27;D:\\imagepy-master\\imagepy\\tools\\Measure/profile.gif&#x27;)]</span><br><span class="line">data =  (&lt;class &#x27;imagepy.tools.Measure.distance_tol.Plugin&#x27;&gt;, &#x27;D:\\imagepy-master\\imagepy\\tools\\Measure/distance.gif&#x27;)</span><br><span class="line">--- It <span class="keyword">is</span> clear ---</span><br><span class="line">data =  (&lt;class &#x27;imagepy.tools.Measure.profile_tol.Plugin&#x27;&gt;, &#x27;D:\\imagepy-master\\imagepy\\tools\\Measure/profile.gif&#x27;)</span><br><span class="line">--- It <span class="keyword">is</span> clear ---</span><br><span class="line">datas[1][1][1] =  [(&lt;class &#x27;imagepy.tools.Standard.point_tol.Plugin&#x27;&gt;, &#x27;D:\\imagepy-master\\imagepy\\tools\\Standard/point.gif&#x27;)]</span><br><span class="line">data =  (&lt;class &#x27;imagepy.tools.Standard.point_tol.Plugin&#x27;&gt;, &#x27;D:\\imagepy-master\\imagepy\\tools\\Standard/point.gif&#x27;)</span><br><span class="line">--- It <span class="keyword">is</span> <span class="keyword">not</span> clear</span><br><span class="line">length of box<span class="string">&#x27;s children =  5</span></span><br><span class="line"><span class="string">box&#x27;</span>s children =  &lt;wx._core.BitmapButton <span class="built_in">object</span> at <span class="number">0x0000020B2C24E558</span>&gt;</span><br><span class="line">box<span class="string">&#x27;s children =  &lt;wx._core.BitmapButton object at 0x0000020B2C24E708&gt;</span></span><br><span class="line"><span class="string">box&#x27;</span>s children =  &lt;wx._core.StaticLine <span class="built_in">object</span> at <span class="number">0x0000020B2C24E8B8</span>&gt;</span><br><span class="line">box<span class="string">&#x27;s children =  None</span></span><br><span class="line"><span class="string">box&#x27;</span>s children =  &lt;wx._core.BitmapButton <span class="built_in">object</span> at <span class="number">0x0000020B2C24E828</span>&gt;</span><br><span class="line"></span><br></pre></td></tr></table></figure>
+
+<h1 id="工具按钮绑定鼠标事件"><a href="#工具按钮绑定鼠标事件" class="headerlink" title="工具按钮绑定鼠标事件"></a>工具按钮绑定鼠标事件</h1><p>前面代码已经简略描述了如何为工具绑定鼠标事件：</p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line">btn.Bind( wx.EVT_LEFT_DOWN, <span class="keyword">lambda</span> x, p=data[<span class="number">0</span>]:f(p(), x))</span><br><span class="line">btn.Bind( wx.EVT_RIGHT_DOWN, <span class="keyword">lambda</span> x, p=data[<span class="number">0</span>]: IPy.show_md(p.title, DocumentManager.get(p.title)))</span><br><span class="line">btn.Bind( wx.EVT_ENTER_WINDOW, <span class="keyword">lambda</span> x, p=<span class="string">&#x27;&quot;&#123;&#125;&quot; Tool&#x27;</span>.<span class="built_in">format</span>(data[<span class="number">0</span>].title): set_info(p))</span><br><span class="line"></span><br><span class="line"><span class="keyword">if</span> <span class="keyword">not</span> <span class="built_in">isinstance</span>(data[<span class="number">0</span>], Macros) <span class="keyword">and</span> <span class="built_in">issubclass</span>(data[<span class="number">0</span>], Tool):</span><br><span class="line">    btn.Bind(wx.EVT_LEFT_DCLICK, <span class="keyword">lambda</span> x, p=data[<span class="number">0</span>]:p().show())</span><br></pre></td></tr></table></figure>
+<p>首先还是使用了lambda算子，即匿名函数，进行事件绑定。<br>这里的工具都是继承了Tool这个引擎，事件触发的也都是Tool引擎本身的函数或者该特定工具重载的同名函数。<br>值得注意的是，这里的右键按下事件，会调用IPy的显示markdown的功能，再次说明IPy将常用功能抽象出来的作用。<br>另外，工具的加载不像插件的加载那样，会加入到一个管理器Manager中，工具的加载就是对wxPython的panel的渲染，然后绑定鼠标事件。</p>
+
+    </div>
+
+    
+    
+    
+        <div class="reward-container">
+  <div></div>
+  <button onclick="var qr = document.getElementById('qr'); qr.style.display = (qr.style.display === 'none') ? 'block' : 'none';">
+    Donate
+  </button>
+  <div id="qr" style="display: none;">
+      
+      <div style="display: inline-block;">
+        <img src="/images/wechat_reward.png" alt="Xin-Bo Qi(亓欣波) WeChat Pay">
+        <p>WeChat Pay</p>
+      </div>
+
+  </div>
+</div>
+
+
+      <footer class="post-footer">
+          <div class="post-tags">
+              <a href="/tags/ImagePy/" rel="tag"># ImagePy</a>
+          </div>
+
+        
+
+
+        
+    <div class="post-nav">
+      <div class="post-nav-item">
+    <a href="/2019/08/09/ImagePy_2/" rel="prev" title="ImagePy解析：2 -- 插件加载详解">
+      <i class="fa fa-chevron-left"></i> ImagePy解析：2 -- 插件加载详解
+    </a></div>
+      <div class="post-nav-item">
+    <a href="/2019/08/30/git-multi-account/" rel="next" title="Git配置单机器多账号配置">
+      Git配置单机器多账号配置 <i class="fa fa-chevron-right"></i>
+    </a></div>
+    </div>
+      </footer>
+    
+  </article>
+  
+  
+  
+
+
+
+          </div>
+          
+    
+  <div class="comments">
+    <div id="disqus_thread">
+      <noscript>Please enable JavaScript to view the comments powered by Disqus.</noscript>
+    </div>
+  </div>
+  
+
+<script>
+  window.addEventListener('tabs:register', () => {
+    let { activeClass } = CONFIG.comments;
+    if (CONFIG.comments.storage) {
+      activeClass = localStorage.getItem('comments_active') || activeClass;
+    }
+    if (activeClass) {
+      let activeTab = document.querySelector(`a[href="#comment-${activeClass}"]`);
+      if (activeTab) {
+        activeTab.click();
+      }
+    }
+  });
+  if (CONFIG.comments.storage) {
+    window.addEventListener('tabs:click', event => {
+      if (!event.target.matches('.tabs-comment .tab-content .tab-pane')) return;
+      let commentClass = event.target.classList[1];
+      localStorage.setItem('comments_active', commentClass);
+    });
+  }
+</script>
+
+        </div>
+          
+  
+  <div class="toggle sidebar-toggle">
+    <span class="toggle-line toggle-line-first"></span>
+    <span class="toggle-line toggle-line-middle"></span>
+    <span class="toggle-line toggle-line-last"></span>
+  </div>
+
+  <aside class="sidebar">
+    <div class="sidebar-inner">
+
+      <ul class="sidebar-nav motion-element">
+        <li class="sidebar-nav-toc">
+          Table of Contents
+        </li>
+        <li class="sidebar-nav-overview">
+          Overview
+        </li>
+      </ul>
+
+      <!--noindex-->
+      <div class="post-toc-wrap sidebar-panel">
+          <div class="post-toc motion-element"><ol class="nav"><li class="nav-item nav-level-1"><a class="nav-link" href="#%E6%9E%84%E5%BB%BA%E5%B7%A5%E5%85%B7%E6%9D%A1%E5%85%A5%E5%8F%A3"><span class="nav-number">1.</span> <span class="nav-text">构建工具条入口</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#%E9%80%92%E5%BD%92%E8%8E%B7%E5%BE%97%E6%89%80%E6%9C%89%E5%B7%A5%E5%85%B7%E7%9A%84%E7%B1%BB%E6%96%87%E4%BB%B6%E5%92%8C%E5%9B%BE%E6%A0%87%E6%96%87%E4%BB%B6"><span class="nav-number">2.</span> <span class="nav-text">递归获得所有工具的类文件和图标文件</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#%E5%B7%A5%E5%85%B7%E6%8C%89%E9%92%AE%E7%BB%91%E5%AE%9A%E9%BC%A0%E6%A0%87%E4%BA%8B%E4%BB%B6"><span class="nav-number">3.</span> <span class="nav-text">工具按钮绑定鼠标事件</span></a></li></ol></div>
+      </div>
+      <!--/noindex-->
+
+      <div class="site-overview-wrap sidebar-panel">
+        <div class="site-author motion-element" itemprop="author" itemscope itemtype="http://schema.org/Person">
+    <img class="site-author-image" itemprop="image" alt="Xin-Bo Qi(亓欣波)"
+      src="/images/avatar.jpg">
+  <p class="site-author-name" itemprop="name">Xin-Bo Qi(亓欣波)</p>
+  <div class="site-description" itemprop="description">Be interesting!</div>
+</div>
+<div class="site-state-wrap motion-element">
+  <nav class="site-state">
+      <div class="site-state-item site-state-posts">
+          <a href="/archives/">
+        
+          <span class="site-state-item-count">120</span>
+          <span class="site-state-item-name">posts</span>
+        </a>
+      </div>
+      <div class="site-state-item site-state-categories">
+            <a href="/categories/">
+          
+        <span class="site-state-item-count">5</span>
+        <span class="site-state-item-name">categories</span></a>
+      </div>
+      <div class="site-state-item site-state-tags">
+            <a href="/tags/">
+          
+        <span class="site-state-item-count">41</span>
+        <span class="site-state-item-name">tags</span></a>
+      </div>
+  </nav>
+</div>
+  <div class="links-of-author motion-element">
+      <span class="links-of-author-item">
+        <a href="https://github.com/qixinbo" title="GitHub → https:&#x2F;&#x2F;github.com&#x2F;qixinbo" rel="noopener" target="_blank"><i class="github fa-fw"></i>GitHub</a>
+      </span>
+      <span class="links-of-author-item">
+        <a href="mailto:qixinbo@gmail.com" title="E-Mail → mailto:qixinbo@gmail.com" rel="noopener" target="_blank"><i class="envelope fa-fw"></i>E-Mail</a>
+      </span>
+  </div>
+
+
+  <div class="links-of-blogroll motion-element">
+    <div class="links-of-blogroll-title"><i class="fa fa-link fa-fw"></i>
+      Links
+    </div>
+    <ul class="links-of-blogroll-list">
+        <li class="links-of-blogroll-item">
+          <a href="https://www.tsinghua.edu.cn/" title="https:&#x2F;&#x2F;www.tsinghua.edu.cn" rel="noopener" target="_blank">THU</a>
+        </li>
+        <li class="links-of-blogroll-item">
+          <a href="http://www.imr.cas.cn/" title="http:&#x2F;&#x2F;www.imr.cas.cn" rel="noopener" target="_blank">IMR</a>
+        </li>
+        <li class="links-of-blogroll-item">
+          <a href="http://www.sdu.edu.cn/" title="http:&#x2F;&#x2F;www.sdu.edu.cn" rel="noopener" target="_blank">SDU</a>
+        </li>
+        <li class="links-of-blogroll-item">
+          <a href="http://liam0205.me/" title="http:&#x2F;&#x2F;liam0205.me&#x2F;" rel="noopener" target="_blank">黄晨成</a>
+        </li>
+    </ul>
+  </div>
+
+      </div>
+
+    </div>
+  </aside>
+  <div id="sidebar-dimmer"></div>
+
+
+      </div>
+    </main>
+
+    <footer class="footer">
+      <div class="footer-inner">
+        
+
+        
+
+<div class="copyright">
+  
+  &copy; 
+  <span itemprop="copyrightYear">2021</span>
+  <span class="with-love">
+    <i class="fa fa-heart"></i>
+  </span>
+  <span class="author" itemprop="copyrightHolder">Xin-Bo Qi(亓欣波)</span>
+</div>
+  <div class="powered-by">Powered by <a href="https://hexo.io/" class="theme-link" rel="noopener" target="_blank">Hexo</a> & <a href="https://theme-next.org/" class="theme-link" rel="noopener" target="_blank">NexT.Gemini</a>
+  </div>
+
+        
+
+
+
+
+
+
+
+
+      </div>
+    </footer>
+  </div>
+
+  
+  <script src="/lib/anime.min.js"></script>
+  <script src="/lib/velocity/velocity.min.js"></script>
+  <script src="/lib/velocity/velocity.ui.min.js"></script>
+
+<script src="/js/utils.js"></script>
+
+<script src="/js/motion.js"></script>
+
+
+<script src="/js/schemes/pisces.js"></script>
+
+
+<script src="/js/next-boot.js"></script>
+
+
+
+
+  
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+  
+
+  
+
+  
+
+<script>
+  function loadCount() {
+    var d = document, s = d.createElement('script');
+    s.src = 'https://qixinbo.disqus.com/count.js';
+    s.id = 'dsq-count-scr';
+    (d.head || d.body).appendChild(s);
+  }
+  // defer loading until the whole page loading is completed
+  window.addEventListener('load', loadCount, false);
+</script>
+<script>
+  var disqus_config = function() {
+    this.page.url = "http://qixinbo.github.io/2019/08/29/ImagePy_3/";
+    this.page.identifier = "2019/08/29/ImagePy_3/";
+    this.page.title = "ImagePy解析：3 -- 工具条加载详解";
+    };
+  NexT.utils.loadComments(document.querySelector('#disqus_thread'), () => {
+    if (window.DISQUS) {
+      DISQUS.reset({
+        reload: true,
+        config: disqus_config
+      });
+    } else {
+      var d = document, s = d.createElement('script');
+      s.src = 'https://qixinbo.disqus.com/embed.js';
+      s.setAttribute('data-timestamp', '' + +new Date());
+      (d.head || d.body).appendChild(s);
+    }
+  });
+</script>
+
+</body>
+</html>

@@ -1,0 +1,597 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=2">
+<meta name="theme-color" content="#222">
+<meta name="generator" content="Hexo 5.4.0">
+  <link rel="apple-touch-icon" sizes="180x180" href="/images/apple-touch-icon-next.png">
+  <link rel="icon" type="image/png" sizes="32x32" href="/favicon.ico">
+  <link rel="icon" type="image/png" sizes="16x16" href="/favicon.ico">
+  <link rel="mask-icon" href="/images/logo.svg" color="#222">
+
+<link rel="stylesheet" href="/css/main.css">
+
+
+<link rel="stylesheet" href="/lib/font-awesome/css/all.min.css">
+
+<script id="hexo-configurations">
+    var NexT = window.NexT || {};
+    var CONFIG = {"hostname":"qixinbo.github.io","root":"/","scheme":"Gemini","version":"7.8.0","exturl":false,"sidebar":{"position":"left","display":"post","padding":18,"offset":12,"onmobile":false},"copycode":{"enable":false,"show_result":false,"style":null},"back2top":{"enable":true,"sidebar":false,"scrollpercent":false},"bookmark":{"enable":false,"color":"#222","save":"auto"},"fancybox":false,"mediumzoom":false,"lazyload":false,"pangu":false,"comments":{"style":"tabs","active":null,"storage":true,"lazyload":false,"nav":null},"algolia":{"hits":{"per_page":10},"labels":{"input_placeholder":"Search for Posts","hits_empty":"We didn't find any results for the search: ${query}","hits_stats":"${hits} results found in ${time} ms"}},"localsearch":{"enable":false,"trigger":"auto","top_n_per_article":1,"unescape":false,"preload":false},"motion":{"enable":true,"async":false,"transition":{"post_block":"fadeIn","post_header":"slideDownIn","post_body":"slideDownIn","coll_header":"slideLeftIn","sidebar":"slideUpIn"}}};
+  </script>
+
+  <meta name="description" content="%%%%% 更新日志 %%%%%2019-10-11更新：增加ImageManager管理器解析%%%%%%%%%%%%%%%%%%%% 参考文献：创建图像ImagePy开发文档 —— 常用汇总ImagePy开发文档 —— 图像封装类 新建图像的插件最简单的新建图像的插件代码如下： 1234567891011121314from imagepy.core.engine import Freefro">
+<meta property="og:type" content="article">
+<meta property="og:title" content="ImagePy解析：8 -- 由新建图像谈起（引出IPy、ImagePlus、Canvas、ImageManager）">
+<meta property="og:url" content="http://qixinbo.github.io/2019/10/05/ImagePy_8/index.html">
+<meta property="og:site_name" content="亓欣波">
+<meta property="og:description" content="%%%%% 更新日志 %%%%%2019-10-11更新：增加ImageManager管理器解析%%%%%%%%%%%%%%%%%%%% 参考文献：创建图像ImagePy开发文档 —— 常用汇总ImagePy开发文档 —— 图像封装类 新建图像的插件最简单的新建图像的插件代码如下： 1234567891011121314from imagepy.core.engine import Freefro">
+<meta property="og:locale" content="en_US">
+<meta property="article:published_time" content="2019-10-04T16:00:00.000Z">
+<meta property="article:modified_time" content="2021-03-25T07:20:30.431Z">
+<meta property="article:author" content="Xin-Bo Qi(亓欣波)">
+<meta property="article:tag" content="ImagePy">
+<meta name="twitter:card" content="summary">
+
+<link rel="canonical" href="http://qixinbo.github.io/2019/10/05/ImagePy_8/">
+
+
+<script id="page-configurations">
+  // https://hexo.io/docs/variables.html
+  CONFIG.page = {
+    sidebar: "",
+    isHome : false,
+    isPost : true,
+    lang   : 'en'
+  };
+</script>
+
+  <title>ImagePy解析：8 -- 由新建图像谈起（引出IPy、ImagePlus、Canvas、ImageManager） | 亓欣波</title>
+  
+
+
+
+
+
+
+  <noscript>
+  <style>
+  .use-motion .brand,
+  .use-motion .menu-item,
+  .sidebar-inner,
+  .use-motion .post-block,
+  .use-motion .pagination,
+  .use-motion .comments,
+  .use-motion .post-header,
+  .use-motion .post-body,
+  .use-motion .collection-header { opacity: initial; }
+
+  .use-motion .site-title,
+  .use-motion .site-subtitle {
+    opacity: initial;
+    top: initial;
+  }
+
+  .use-motion .logo-line-before i { left: initial; }
+  .use-motion .logo-line-after i { right: initial; }
+  </style>
+</noscript>
+
+</head>
+
+<body itemscope itemtype="http://schema.org/WebPage">
+  <div class="container use-motion">
+    <div class="headband"></div>
+
+    <header class="header" itemscope itemtype="http://schema.org/WPHeader">
+      <div class="header-inner"><div class="site-brand-container">
+  <div class="site-nav-toggle">
+    <div class="toggle" aria-label="Toggle navigation bar">
+      <span class="toggle-line toggle-line-first"></span>
+      <span class="toggle-line toggle-line-middle"></span>
+      <span class="toggle-line toggle-line-last"></span>
+    </div>
+  </div>
+
+  <div class="site-meta">
+
+    <a href="/" class="brand" rel="start">
+      <span class="logo-line-before"><i></i></span>
+      <h1 class="site-title">亓欣波</h1>
+      <span class="logo-line-after"><i></i></span>
+    </a>
+      <p class="site-subtitle" itemprop="description">Hi, I am Xin-Bo Qi (亓欣波)</p>
+  </div>
+
+  <div class="site-nav-right">
+    <div class="toggle popup-trigger">
+    </div>
+  </div>
+</div>
+
+
+
+
+<nav class="site-nav">
+  <ul id="menu" class="main-menu menu">
+        <li class="menu-item menu-item-home">
+
+    <a href="/" rel="section"><i class="home fa-fw"></i>Home</a>
+
+  </li>
+        <li class="menu-item menu-item-categories">
+
+    <a href="/categories/" rel="section"><i class="th fa-fw"></i>Categories</a>
+
+  </li>
+        <li class="menu-item menu-item-archives">
+
+    <a href="/archives/" rel="section"><i class="archive fa-fw"></i>Archives</a>
+
+  </li>
+        <li class="menu-item menu-item-tags">
+
+    <a href="/tags/" rel="section"><i class="tags fa-fw"></i>Tags</a>
+
+  </li>
+        <li class="menu-item menu-item-scholar">
+
+    <a href="/scholar/" rel="section"><i class="bar-chart fa-fw"></i>scholar</a>
+
+  </li>
+        <li class="menu-item menu-item-sources">
+
+    <a href="/sources/" rel="section"><i class="rss fa-fw"></i>sources</a>
+
+  </li>
+        <li class="menu-item menu-item-gallery">
+
+    <a href="/gallery/" rel="section"><i class="file-image-o fa-fw"></i>gallery</a>
+
+  </li>
+        <li class="menu-item menu-item-about">
+
+    <a href="/about/" rel="section"><i class="user fa-fw"></i>About</a>
+
+  </li>
+        <li class="menu-item menu-item-commonweal">
+
+    <a href="/404.html" rel="section"><i class="heartbeat fa-fw"></i>Commonweal 404</a>
+
+  </li>
+  </ul>
+</nav>
+
+
+
+
+</div>
+    </header>
+
+    
+  <div class="back-to-top">
+    <i class="fa fa-arrow-up"></i>
+    <span>0%</span>
+  </div>
+
+
+    <main class="main">
+      <div class="main-inner">
+        <div class="content-wrap">
+          
+
+          <div class="content post posts-expand">
+            
+
+    
+  
+  
+  <article itemscope itemtype="http://schema.org/Article" class="post-block" lang="en">
+    <link itemprop="mainEntityOfPage" href="http://qixinbo.github.io/2019/10/05/ImagePy_8/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="image" content="/images/avatar.jpg">
+      <meta itemprop="name" content="Xin-Bo Qi(亓欣波)">
+      <meta itemprop="description" content="Be interesting!">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="亓欣波">
+    </span>
+      <header class="post-header">
+        <h1 class="post-title" itemprop="name headline">
+          ImagePy解析：8 -- 由新建图像谈起（引出IPy、ImagePlus、Canvas、ImageManager）
+        </h1>
+
+        <div class="post-meta">
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="far fa-calendar"></i>
+              </span>
+              <span class="post-meta-item-text">Posted on</span>
+
+              <time title="Created: 2019-10-05 00:00:00" itemprop="dateCreated datePublished" datetime="2019-10-05T00:00:00+08:00">2019-10-05</time>
+            </span>
+              <span class="post-meta-item">
+                <span class="post-meta-item-icon">
+                  <i class="far fa-calendar-check"></i>
+                </span>
+                <span class="post-meta-item-text">Edited on</span>
+                <time title="Modified: 2021-03-25 15:20:30" itemprop="dateModified" datetime="2021-03-25T15:20:30+08:00">2021-03-25</time>
+              </span>
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="far fa-folder"></i>
+              </span>
+              <span class="post-meta-item-text">In</span>
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+                  <a href="/categories/computational-material-science/" itemprop="url" rel="index"><span itemprop="name">computational material science</span></a>
+                </span>
+            </span>
+
+          
+  
+  <span class="post-meta-item">
+    
+      <span class="post-meta-item-icon">
+        <i class="far fa-comment"></i>
+      </span>
+      <span class="post-meta-item-text">Disqus: </span>
+    
+    <a title="disqus" href="/2019/10/05/ImagePy_8/#disqus_thread" itemprop="discussionUrl">
+      <span class="post-comments-count disqus-comment-count" data-disqus-identifier="2019/10/05/ImagePy_8/" itemprop="commentCount"></span>
+    </a>
+  </span>
+  
+  
+
+        </div>
+      </header>
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+        <p>%%%%% 更新日志 %%%%%<br>2019-10-11更新：增加ImageManager管理器解析<br>%%%%%%%%%%%%%%%%%%%%</p>
+<p>参考文献：<br><a target="_blank" rel="noopener" href="https://github.com/Image-Py/demoplugin/blob/master/doc/chinese/free.md#%E5%88%9B%E5%BB%BA%E5%9B%BE%E5%83%8F">创建图像</a><br><a target="_blank" rel="noopener" href="https://zhuanlan.zhihu.com/p/25474453">ImagePy开发文档 —— 常用汇总</a><br><a target="_blank" rel="noopener" href="https://zhuanlan.zhihu.com/p/25474501">ImagePy开发文档 —— 图像封装类</a></p>
+<h1 id="新建图像的插件"><a href="#新建图像的插件" class="headerlink" title="新建图像的插件"></a>新建图像的插件</h1><p>最简单的新建图像的插件代码如下：</p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">from</span> imagepy.core.engine <span class="keyword">import</span> Free</span><br><span class="line"><span class="keyword">from</span> imagepy <span class="keyword">import</span> IPy</span><br><span class="line"><span class="keyword">import</span> numpy <span class="keyword">as</span> np</span><br><span class="line"></span><br><span class="line"><span class="class"><span class="keyword">class</span> <span class="title">Plugin</span>(<span class="params">Free</span>):</span></span><br><span class="line">    title = <span class="string">&#x27;New Image Demo&#x27;</span></span><br><span class="line">    para = &#123;<span class="string">&#x27;name&#x27;</span>:<span class="string">&#x27;new image&#x27;</span>,<span class="string">&#x27;w&#x27;</span>:<span class="number">300</span>, <span class="string">&#x27;h&#x27;</span>:<span class="number">300</span>&#125;</span><br><span class="line">    view = [(<span class="built_in">str</span>, <span class="string">&#x27;name&#x27;</span>, <span class="string">&#x27;name&#x27;</span>,<span class="string">&#x27;&#x27;</span>),</span><br><span class="line">            (<span class="built_in">int</span>, <span class="string">&#x27;w&#x27;</span>, (<span class="number">1</span>,<span class="number">2048</span>), <span class="number">0</span>,  <span class="string">&#x27;width&#x27;</span>, <span class="string">&#x27;pix&#x27;</span>),</span><br><span class="line">            (<span class="built_in">int</span>, <span class="string">&#x27;h&#x27;</span>, (<span class="number">1</span>,<span class="number">2048</span>), <span class="number">0</span>,  <span class="string">&#x27;height&#x27;</span>, <span class="string">&#x27;pix&#x27;</span>)]</span><br><span class="line"></span><br><span class="line">    <span class="function"><span class="keyword">def</span> <span class="title">run</span>(<span class="params">self, para = <span class="literal">None</span></span>):</span></span><br><span class="line">        imgs = [np.zeros((para[<span class="string">&#x27;h&#x27;</span>], para[<span class="string">&#x27;w&#x27;</span>]), dtype=np.uint8)]</span><br><span class="line">        IPy.show_img(imgs, para[<span class="string">&#x27;name&#x27;</span>])</span><br></pre></td></tr></table></figure>
+<p>该插件的写法可以参考之前的解析文章，在run()方法中接收para的宽度w和高度h的数值，然后通过numpy的zeros函数生成了一个全是0的array数组，注意imgs变量又对该array数组加入了一个方括号，即将其转化为python的列表（其实从后面可以看出，该列表的长度就是整个图像栈有多少个slices），所以imgs的具体数值就是：</p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><span class="line">imgs =  [array([[<span class="number">0</span>, <span class="number">0</span>, <span class="number">0</span>, ..., <span class="number">0</span>, <span class="number">0</span>, <span class="number">0</span>],</span><br><span class="line">       [<span class="number">0</span>, <span class="number">0</span>, <span class="number">0</span>, ..., <span class="number">0</span>, <span class="number">0</span>, <span class="number">0</span>],</span><br><span class="line">       [<span class="number">0</span>, <span class="number">0</span>, <span class="number">0</span>, ..., <span class="number">0</span>, <span class="number">0</span>, <span class="number">0</span>],</span><br><span class="line">       ...,</span><br><span class="line">       [<span class="number">0</span>, <span class="number">0</span>, <span class="number">0</span>, ..., <span class="number">0</span>, <span class="number">0</span>, <span class="number">0</span>],</span><br><span class="line">       [<span class="number">0</span>, <span class="number">0</span>, <span class="number">0</span>, ..., <span class="number">0</span>, <span class="number">0</span>, <span class="number">0</span>],</span><br><span class="line">       [<span class="number">0</span>, <span class="number">0</span>, <span class="number">0</span>, ..., <span class="number">0</span>, <span class="number">0</span>, <span class="number">0</span>]], dtype=uint8)]</span><br></pre></td></tr></table></figure>
+<p>然后将imgs和用户输入的图像名称传入IPy的show_img()方法。到这里就可以看出，ImagePy是将传统的numpy数组（一般的图像库都是将图像读作numpy数组）进行了进一步的封装，这个封装类就是ImagePlus，后面再具体分析ImagePlus。</p>
+<h1 id="IPy常用工具集"><a href="#IPy常用工具集" class="headerlink" title="IPy常用工具集"></a>IPy常用工具集</h1><p>上面将imgs传入了IPy的show_img()方法，实际IPy是一些常用功能的汇总，比如展示一幅图像，获取当前图像窗口等功能，其实这些功能是分布在各个功能组建中的，IPy只是重新引用和整理，并且IPy处于最顶层目录，随处都可以方便的引用这样以来，提高了开发效率。（语出上面的参看文献）<br>具体看show_img()方法：</p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="keyword">def</span> <span class="title">showimg</span>(<span class="params">imgs, title</span>):</span></span><br><span class="line">    <span class="built_in">print</span>(<span class="string">&#x27;show img&#x27;</span>)</span><br><span class="line">    <span class="keyword">from</span> .core <span class="keyword">import</span> ImagePlus</span><br><span class="line">    ips = ImagePlus(imgs, title)</span><br><span class="line">    showips(ips)</span><br><span class="line"></span><br><span class="line">pub.subscribe(showimg, <span class="string">&#x27;showimg&#x27;</span>)</span><br><span class="line"><span class="function"><span class="keyword">def</span> <span class="title">show_img</span>(<span class="params">imgs, title</span>):</span></span><br><span class="line">    <span class="keyword">if</span> uimode()==<span class="string">&#x27;no&#x27;</span>:</span><br><span class="line">        <span class="keyword">from</span> .core <span class="keyword">import</span> manager, ImagePlus</span><br><span class="line">        <span class="keyword">from</span> .ui.canvasframe <span class="keyword">import</span> VirturlCanvas</span><br><span class="line">        frame = VirturlCanvas(ImagePlus(imgs, title))</span><br><span class="line">    <span class="keyword">else</span>:wx.CallAfter(pub.sendMessage, <span class="string">&#x27;showimg&#x27;</span>, imgs=imgs, title=title)</span><br></pre></td></tr></table></figure>
+<p>可以看出，该方法又通过Publisher/Subscriber机制调用了showimg()方法，这里就引出了ImagePlus封装类：</p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">ips = ImagePlus(imgs, title)</span><br></pre></td></tr></table></figure>
+<p>ImagePlus接收imgs和title，组装成了ImagePlus类型的ips。</p>
+<h1 id="ImagePlus图像封装类"><a href="#ImagePlus图像封装类" class="headerlink" title="ImagePlus图像封装类"></a>ImagePlus图像封装类</h1><p>ImagePy 采用 Numpy 数组作为图像数据结构，Numpy 非常强大，但是要让它能够支持我们的全部特性（索引色支持，撤销，选区支持，多通道支持，图像栈支持），还需要一些其他的数据给予必要的辅助，因而我们有了ImagePlus类（语出上面的参考文献）。<br>下面看看ImagePlus收到imgs后干了什么：</p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="keyword">def</span> <span class="title">set_imgs</span>(<span class="params">self, imgs</span>):</span></span><br><span class="line">    self.is3d = <span class="keyword">not</span> <span class="built_in">isinstance</span>(imgs, <span class="built_in">list</span>)</span><br><span class="line">    self.scrchanged = <span class="literal">True</span></span><br><span class="line">    self.snap = <span class="literal">None</span></span><br><span class="line">    self.imgs = imgs</span><br><span class="line">    self.size = self.imgs[<span class="number">0</span>].shape[:<span class="number">2</span>]</span><br><span class="line">    self.height, self.width = self.size</span><br><span class="line">    self.imgtype = get_img_type(self.imgs)</span><br><span class="line">    <span class="keyword">if</span> self.imgs[<span class="number">0</span>].ndim==<span class="number">2</span>: self.channels = <span class="number">1</span></span><br><span class="line">    <span class="keyword">else</span>: self.channels = self.imgs[<span class="number">0</span>].shape[<span class="number">2</span>]</span><br><span class="line">    self.dtype = self.imgs[<span class="number">0</span>].dtype</span><br><span class="line">    <span class="keyword">if</span> self.dtype == np.uint8: self.<span class="built_in">range</span> = (<span class="number">0</span>, <span class="number">255</span>)</span><br><span class="line">    <span class="keyword">else</span>: self.<span class="built_in">range</span> = self.get_updown(<span class="string">&#x27;all&#x27;</span>, <span class="string">&#x27;one&#x27;</span>)</span><br><span class="line">    <span class="keyword">if</span> self.dtype == np.uint8:</span><br><span class="line">        self.chan_range = [(<span class="number">0</span>, <span class="number">255</span>)] * self.channels</span><br><span class="line">    <span class="keyword">else</span>: self.chan_range = self.get_updown(<span class="string">&#x27;all&#x27;</span>, <span class="string">&#x27;all&#x27;</span>, step=<span class="number">512</span>)</span><br><span class="line">    self.chan = (<span class="number">0</span>, [<span class="number">0</span>,<span class="number">1</span>,<span class="number">2</span>])[self.channels==<span class="number">3</span>]</span><br></pre></td></tr></table></figure>
+<p>针对于上述图像，经过初始化后，其对应的ImagePlus的各个属性值为：</p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br></pre></td><td class="code"><pre><span class="line">self.is3d =  <span class="literal">False</span></span><br><span class="line">self.size =  (<span class="number">300</span>, <span class="number">300</span>)</span><br><span class="line">self.<span class="built_in">type</span> =  <span class="number">8</span>-bit</span><br><span class="line">self.imgs[<span class="number">0</span>].shape =  (<span class="number">300</span>, <span class="number">300</span>)</span><br><span class="line">self.channels =  <span class="number">1</span></span><br><span class="line">self.dtype =  uint8</span><br><span class="line">self.chan =  <span class="number">0</span></span><br><span class="line">self.chan_range =  [(<span class="number">0</span>, <span class="number">255</span>)]</span><br><span class="line">self.<span class="built_in">range</span> =  (<span class="number">0</span>, <span class="number">255</span>)</span><br></pre></td></tr></table></figure>
+<p>如果是使用ImagePy源码里的new_plg，即：</p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">import</span> wx,os</span><br><span class="line"><span class="keyword">from</span> imagepy.ui.canvasframe <span class="keyword">import</span> CanvasFrame</span><br><span class="line"><span class="keyword">import</span> numpy <span class="keyword">as</span> np</span><br><span class="line"><span class="keyword">from</span> imagepy <span class="keyword">import</span> IPy</span><br><span class="line"></span><br><span class="line"><span class="keyword">from</span> imagepy.core.engine <span class="keyword">import</span> Free</span><br><span class="line"></span><br><span class="line"><span class="class"><span class="keyword">class</span> <span class="title">Plugin</span>(<span class="params">Free</span>):</span></span><br><span class="line">    title = <span class="string">&#x27;New&#x27;</span></span><br><span class="line">    para = &#123;<span class="string">&#x27;name&#x27;</span>:<span class="string">&#x27;Undefined&#x27;</span>,<span class="string">&#x27;width&#x27;</span>:<span class="number">300</span>, <span class="string">&#x27;height&#x27;</span>:<span class="number">300</span>, <span class="string">&#x27;type&#x27;</span>:<span class="string">&#x27;8-bit&#x27;</span>,<span class="string">&#x27;slice&#x27;</span>:<span class="number">1</span>&#125;</span><br><span class="line">    view = [(<span class="built_in">str</span>, <span class="string">&#x27;name&#x27;</span>, <span class="string">&#x27;name&#x27;</span>, <span class="string">&#x27;&#x27;</span>),</span><br><span class="line">            (<span class="built_in">int</span>, <span class="string">&#x27;width&#x27;</span>,  (<span class="number">1</span>,<span class="number">10240</span>), <span class="number">0</span>,  <span class="string">&#x27;width&#x27;</span>, <span class="string">&#x27;pix&#x27;</span>),</span><br><span class="line">            (<span class="built_in">int</span>, <span class="string">&#x27;height&#x27;</span>, (<span class="number">1</span>,<span class="number">10240</span>), <span class="number">0</span>,  <span class="string">&#x27;height&#x27;</span>, <span class="string">&#x27;pix&#x27;</span>),</span><br><span class="line">            (<span class="built_in">list</span>, <span class="string">&#x27;type&#x27;</span>, [<span class="string">&#x27;8-bit&#x27;</span>,<span class="string">&#x27;RGB&#x27;</span>], <span class="built_in">str</span>, <span class="string">&#x27;Type&#x27;</span>, <span class="string">&#x27;&#x27;</span>),</span><br><span class="line">            (<span class="built_in">int</span>, <span class="string">&#x27;slice&#x27;</span>,  (<span class="number">1</span>,<span class="number">2048</span>), <span class="number">0</span>,  <span class="string">&#x27;slice&#x27;</span>, <span class="string">&#x27;&#x27;</span>)]</span><br><span class="line"></span><br><span class="line">    <span class="comment">#process</span></span><br><span class="line">    <span class="function"><span class="keyword">def</span> <span class="title">run</span>(<span class="params">self, para = <span class="literal">None</span></span>):</span></span><br><span class="line">        w, h = para[<span class="string">&#x27;width&#x27;</span>], para[<span class="string">&#x27;height&#x27;</span>]</span><br><span class="line">        channels = (<span class="number">1</span>,<span class="number">3</span>)[para[<span class="string">&#x27;type&#x27;</span>]==<span class="string">&#x27;RGB&#x27;</span>]</span><br><span class="line">        slices = para[<span class="string">&#x27;slice&#x27;</span>]</span><br><span class="line">        shape = (h,w,channels) <span class="keyword">if</span> channels!=<span class="number">1</span> <span class="keyword">else</span> (h,w)</span><br><span class="line">        imgs = [np.zeros(shape, dtype=np.uint8) <span class="keyword">for</span> i <span class="keyword">in</span> <span class="built_in">range</span>(slices)]</span><br><span class="line">        IPy.show_img(imgs, para[<span class="string">&#x27;name&#x27;</span>])</span><br></pre></td></tr></table></figure>
+<p>且此时设定Type为RGB、slice为2，那么此时图像的各个ImagePlus属性值为：</p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br></pre></td><td class="code"><pre><span class="line">self.is3d =  <span class="literal">False</span></span><br><span class="line">self.size =  (<span class="number">300</span>, <span class="number">300</span>)</span><br><span class="line">self.<span class="built_in">type</span> =  rgb</span><br><span class="line">self.imgs[<span class="number">0</span>].shape =  (<span class="number">300</span>, <span class="number">300</span>, <span class="number">3</span>)</span><br><span class="line">self.channels =  <span class="number">3</span></span><br><span class="line">self.dtype =  uint8</span><br><span class="line">self.chan =  [<span class="number">0</span>, <span class="number">1</span>, <span class="number">2</span>]</span><br><span class="line">self.chan_range =  [(<span class="number">0</span>, <span class="number">255</span>), (<span class="number">0</span>, <span class="number">255</span>), (<span class="number">0</span>, <span class="number">255</span>)]</span><br><span class="line">self.<span class="built_in">range</span> =  (<span class="number">0</span>, <span class="number">255</span>)</span><br></pre></td></tr></table></figure>
+<p>这里插一句，上面的插件的run()函数中判断channels的值的语句为：</p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">channels = (<span class="number">1</span>,<span class="number">3</span>)[para[<span class="string">&#x27;type&#x27;</span>]==<span class="string">&#x27;RGB&#x27;</span>]</span><br></pre></td></tr></table></figure>
+<p>这是Python的一种特殊的条件表达式，称为元组条件表达式，即(X, Y)[C]，如果C为False，则返回X，如果C为True，则返回Y，这是因为在Python中，True等于1，而False等于0，这就相当于在元组中使用0和1来选取数据。<br>元组条件表达式在这里是没有问题的，但下面的两篇文章有个提醒，在使用这样的条件表达式时，需要注意如下问题，即元组是提前构建数据，则X和Y会提前运行，然后再用True(1)/False(0)来索引到数据。如果X和Y是比较耗资源的运算，则会开销比较大，另外如果有异常运算，也会直接报错。此时建议使用X if C else Y的条件表达式形式。<br><a target="_blank" rel="noopener" href="https://oldj.net/blog/2010/10/17/python-ternary-operator/">Python中的三元操作</a><br><a target="_blank" rel="noopener" href="https://wiki.jikexueyuan.com/project/interpy-zh/ternary_operators/ternary_operators.html">三元运算符</a></p>
+<p>回到两张图像的对比，可以看出对于一张8-bit的只有一个slice的图像与一张RGB的有两个slices的图像来说，两者的图像类型type、图像矩阵的shape、通道标识chan、通道范围chan_range都是不同的。<br>这里再插一句，对于ImagePlus类的range和img属性，ImagePy采取了既非普通属性、又非方法调用的方式来设定和读取，即property装饰器的方法，这样的好处有两点：（1）相比于普通的属性，这样可以进行参数检查，保证安全性和合理性；（2）相比于set()和get()这样的配对函数，这样的方式又更加简洁。其实原理就是property装饰器将一个getter方法变成了属性，同时生成了一个setter装饰器，负责将setter方法变成属性赋值。对比img和range这两个属性，可以发现，range有property和相应的setter装饰器，而img只有property装饰器，这表明range是可读可写，而img是只读方式。这里的知识点见廖大爷的如下教程：<br><a target="_blank" rel="noopener" href="https://www.liaoxuefeng.com/wiki/1016959663602400/1017502538658208">使用@property</a></p>
+<p>另外，这个img属性的具体定义：</p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">@property</span></span><br><span class="line"><span class="function"><span class="keyword">def</span> <span class="title">img</span>(<span class="params">self</span>):</span><span class="keyword">return</span> self.imgs[self.cur]</span><br></pre></td></tr></table></figure>
+<p>可以看出，img具体调用的是哪个图像还与当前的游标有关。</p>
+<h1 id="Canvas画布"><a href="#Canvas画布" class="headerlink" title="Canvas画布"></a>Canvas画布</h1><p>继续回到IPy，可以看出构造了ImagePlus类型的ips后，就继续调用IPy的showips()函数：</p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br></pre></td><td class="code"><pre><span class="line">showips(ips)</span><br><span class="line"></span><br><span class="line"><span class="function"><span class="keyword">def</span> <span class="title">showips</span>(<span class="params">ips</span>):</span></span><br><span class="line">    <span class="keyword">if</span> uimode()==<span class="string">&#x27;ipy&#x27;</span>:</span><br><span class="line">        <span class="keyword">from</span> .ui.canvasframe <span class="keyword">import</span> CanvasPanel</span><br><span class="line">        canvasp = CanvasPanel(curapp.canvasnb)</span><br><span class="line">        canvasp.set_ips(ips)</span><br><span class="line">        curapp.canvasnb.add_page( canvasp, ips)</span><br><span class="line">        <span class="comment">#canvasp.canvas.initBuffer()</span></span><br><span class="line">        curapp.auimgr.Update()</span><br><span class="line"></span><br><span class="line">    <span class="keyword">elif</span> uimode()==<span class="string">&#x27;ij&#x27;</span>:</span><br><span class="line">        <span class="keyword">from</span> .ui.canvasframe <span class="keyword">import</span> CanvasFrame</span><br><span class="line">        frame = CanvasFrame(curapp)</span><br><span class="line">        frame.set_ips(ips)</span><br><span class="line">        frame.Show()</span><br></pre></td></tr></table></figure>
+<p>根据当前的UI界面是ImagePy风格还是ImageJ风格，来以不同的方式显示图像。其实ImageJ风格的CanvasFrame也是调用了ImagePy自定义的CanvasPanel，它是一张张图像分成不同的窗口显示，而ImagePy风格的显示方式是以标签页的形式聚合显示不同图像，即传入CanvasPanel的是curapp.canvasnb，查看这个canvasnb即可知道，它是CanvasNoteBook类型的数据，其派生自wx.lib.agw.aui.AuiNotebook。<br>CanvasPanel又调用了同级目录canvas下的Canvas类，前面已经提到，该类已经从ImagePy中解耦，可以作为独立组件运行。<br>Canvas类的运行过程乍一看不好理解，其实它是利用了wxPython的SizeEvent：</p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line">    self.bindEvents()</span><br><span class="line"><span class="function"><span class="keyword">def</span> <span class="title">bindEvents</span>(<span class="params">self</span>):</span></span><br><span class="line">    <span class="keyword">for</span> event, handler <span class="keyword">in</span> [ \</span><br><span class="line">            (wx.EVT_SIZE, self.on_size)]:</span><br><span class="line">        self.Bind(event, handler)</span><br></pre></td></tr></table></figure>
+<p>即当窗口绘制时，就会调用on_size()函数，然后就会执行一系列的绘图等操作。<br>ImagePy的Canvas是个定制的wxPython Panel，它显示图像的基本原理是利用wxPython的GDI接口，具体是wxPython的BufferedDC，以及其DrawBitmap()函数。</p>
+<p>当创建Canvas对象后，接着就是将图像传入其中，即：</p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment"># CanvasPanel设置ips</span></span><br><span class="line">canvasp.set_ips(ips)</span><br><span class="line"></span><br><span class="line"><span class="comment"># CanvasFrame设置ips，实际也是调用的CanvasPanel</span></span><br><span class="line">frame.set_ips(ips)</span><br></pre></td></tr></table></figure>
+<p>然后就是将这些Panel显示出来：</p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment"># imagepy风格的Panel显示</span></span><br><span class="line">curapp.canvasnb.add_page( canvasp, ips)</span><br><span class="line">curapp.auimgr.Update()</span><br><span class="line"></span><br><span class="line"><span class="comment"># imagej风格的Panel显示</span></span><br><span class="line">frame.Show()</span><br></pre></td></tr></table></figure>
+<p>以imagej风格为例（因为它相对简单，直接Show()出来，没有标签页那些东西需要分析），当Show()方法（这是wxPython的每个frame显示时都要调用的方法）被调用时，就会产生“激活”事件（wx.ActivateEvent），即：</p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line">self.Bind(wx.EVT_ACTIVATE, self.on_valid)</span><br><span class="line"><span class="function"><span class="keyword">def</span> <span class="title">on_valid</span>(<span class="params">self, event</span>):</span></span><br><span class="line">    <span class="keyword">if</span> event.GetActive():</span><br><span class="line">        ImageManager.add(self.canvaspanel.ips)</span><br><span class="line">        WindowsManager.add(self.canvaspanel)</span><br></pre></td></tr></table></figure>
+<p>一旦被激活，可以看出，此时接着就会将当前的ips和当前的panel加入到ImageManager管理器和WindowsManager管理器中。<br>下面就以ImageManager为例详细分析一下管理器的运行路径。</p>
+<h1 id="ImageManager管理器"><a href="#ImageManager管理器" class="headerlink" title="ImageManager管理器"></a>ImageManager管理器</h1><p>管理器是 ImagePy 里很重要的一个概念，作为插件系统，各个部件都是松散耦合。而管理器的作用就是全局协调。（语出上面的参考文献）<br>先来看一下ImageManager的全貌：</p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br></pre></td><td class="code"><pre><span class="line"><span class="class"><span class="keyword">class</span> <span class="title">ImageManager</span>:</span></span><br><span class="line">    imgs = []</span><br><span class="line"><span class="meta">    @classmethod</span></span><br><span class="line">    <span class="function"><span class="keyword">def</span> <span class="title">add</span>(<span class="params">cls, ips</span>):</span></span><br><span class="line">        …       </span><br><span class="line"><span class="meta">    @classmethod</span></span><br><span class="line">    <span class="function"><span class="keyword">def</span> <span class="title">remove</span>(<span class="params">cls, ips</span>):</span></span><br><span class="line">        …           </span><br><span class="line"><span class="meta">    @classmethod</span></span><br><span class="line">    <span class="function"><span class="keyword">def</span> <span class="title">get</span>(<span class="params">cls, title=<span class="literal">None</span></span>):</span></span><br><span class="line">        …         </span><br><span class="line"><span class="meta">    @classmethod</span></span><br><span class="line">    <span class="function"><span class="keyword">def</span> <span class="title">get_titles</span>(<span class="params">cls</span>):</span></span><br><span class="line">        …       </span><br><span class="line"><span class="meta">    @classmethod</span></span><br><span class="line">    <span class="function"><span class="keyword">def</span> <span class="title">name</span>(<span class="params">cls, name</span>):</span></span><br><span class="line">        …</span><br></pre></td></tr></table></figure>
+<p>首先注意到这个类与之前类的定义的一个很大不同就是每个方法前面都加了classmethod修饰符，这样的好处是调用这些方法时不需要实例化，不需要 self 参数，但第一个参数需要是表示自身类的 cls 参数，可以来调用类的属性，类的方法，实例化对象等。参考资料有：<br><a target="_blank" rel="noopener" href="http://www.runoob.com/python/python-func-classmethod.html">Python classmethod 修饰符</a><br><a target="_blank" rel="noopener" href="https://blog.csdn.net/handsomekang/article/details/9615239">飘逸的python - @staticmethod和@classmethod的作用与区别</a><br><a target="_blank" rel="noopener" href="https://zhuanlan.zhihu.com/p/28010894">正确理解Python中的 @staticmethod@classmethod方法</a></p>
+<p>然后具体看一下add()方法：</p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">@classmethod</span></span><br><span class="line"><span class="function"><span class="keyword">def</span> <span class="title">add</span>(<span class="params">cls, ips</span>):</span></span><br><span class="line">    <span class="built_in">print</span>(<span class="string">&quot;ips in add() = &quot;</span>, ips)</span><br><span class="line">    cls.remove(ips)</span><br><span class="line">    callback = <span class="keyword">lambda</span> a: cls.remove(a())</span><br><span class="line">    <span class="function"><span class="keyword">def</span> <span class="title">callback</span>(<span class="params">a</span>):</span></span><br><span class="line">        cls.remove(a())</span><br><span class="line">    <span class="built_in">print</span>(<span class="string">&#x27;~~~ ~~~ image add!&#x27;</span>)</span><br><span class="line">    cls.imgs.insert(<span class="number">0</span>, weakref.ref(ips, callback))</span><br><span class="line">    <span class="built_in">print</span>(<span class="string">&quot;~~~ ~~~ ImageManager = &quot;</span>, cls.imgs)</span><br><span class="line"></span><br><span class="line"><span class="meta">@classmethod</span></span><br><span class="line"><span class="function"><span class="keyword">def</span> <span class="title">remove</span>(<span class="params">cls, ips</span>):</span></span><br><span class="line">    <span class="keyword">for</span> i <span class="keyword">in</span> cls.imgs:</span><br><span class="line">        <span class="keyword">if</span> i() == ips:</span><br><span class="line">            <span class="built_in">print</span>(<span class="string">&quot;ips in remove() = &quot;</span>, ips)</span><br><span class="line">            <span class="built_in">print</span>(<span class="string">&quot;~~~ ~~~ !!! remove imgs !!!&quot;</span>)</span><br><span class="line">            cls.imgs.remove(i)</span><br></pre></td></tr></table></figure>
+<p>add()首先就调用了该类的remove()方法，在这个方法里会判断该图像ips是否在ImageManager的imgs列表中，如果有则删除。<br>插一句，这个remove方法不只是在add()中调用，在关闭某张图像时，也会调用，因为：</p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><span class="line">self.Bind(wx.EVT_CLOSE, self.on_close)</span><br><span class="line"><span class="function"><span class="keyword">def</span> <span class="title">on_close</span>(<span class="params">self, event</span>):</span></span><br><span class="line">    WindowsManager.remove(self.canvaspanel)</span><br><span class="line">    ImageManager.remove(self.canvaspanel.ips)</span><br><span class="line">    self.canvaspanel.ips = <span class="literal">None</span></span><br><span class="line">    self.canvaspanel.back = <span class="literal">None</span></span><br><span class="line">    event.Skip()</span><br></pre></td></tr></table></figure>
+<p>然后定义了一个lambda表达式，虽然它是匿名函数，但是这里还是给它取了个名字callback，那其实这里有个问题需要后续研究一下，即这个lambda表达式与下面接着的显式定义的callback()函数有何不同。。。这个地方没明白，留作后续详细解读。。<br>插一句lambda表达式的知识点，见：<br><a target="_blank" rel="noopener" href="https://foofish.net/lambda.html">什么时候使用Lambda函数？</a></p>
+<p>然后就是将当前图像ips插入到imgs列表中，这里用到了weakref弱引用，参考资料见：<br><a target="_blank" rel="noopener" href="https://docs.python.org/zh-cn/3/library/weakref.html">weakref — 弱引用</a><br><a target="_blank" rel="noopener" href="https://xrlin.github.io/python%E4%B8%AD%E7%9A%84weakref(%E5%BC%B1%E5%BC%95%E7%94%A8)/">python中的weakref(弱引用)</a><br><a target="_blank" rel="noopener" href="https://learnku.com/docs/pymotw/weakref-a-weak-reference-to-an-object/3372">3.9. weakref — 实现对象的弱引用</a><br>引用上面资料中对weakref的用途：</p>
+<blockquote>
+<p> python使用weakref模块可以实现对象的弱引用，python中的垃圾回收机制是通过对象的引用计数来触发的，当对象间有相互引用时，垃圾回收会失败，这时可以使用weakref模块实现对象的弱引用，给对象设置弱引用并不会增加对象的引用计数，所以不会影响内存的回收，同时也正是因为弱引用不会增加对象的 引用计数，弱引用并不能保证原对象存在，弱引用的初衷是为了在进行大对象处理时实现缓存机制，比如从而节省资源占用，比如当你需要处理大量的二进制图片文件对象时，为了方便读写，我们需要进行一个图片名称到图片对象的映射，如果使用字典进行存储对象和名称的映射的存储，那么在程序运行期间，所有的图片对象都不会被销毁，因为此时对象已经作为dict对象中的key或者value，这就造成了过多的资源消耗，若此时使用weakref模块的WeakKeyDictionary和WeakValueDictionary类对对象进行弱引用，则可以减少资源占用，方便进行内存回收。</p>
+</blockquote>
+<blockquote>
+<p>回调函数callback的用途：在引用 「死亡」 并且没有其他引用指向原始对象的时候将引用对象作为参数传递给回调函数。这个功能的一种应用方法是从缓存中删除弱引用对象。</p>
+</blockquote>
+<p>有一点需要额外注意的是，使用weakref.ref()获得对象引用后，下面调用时需要加上括号才能获得原对象，如果是使用weakref.proxy()获得引用，则调用时不需要加上括号。</p>
+<p>下面做一个测试，看看上面的代码中的print信息都有啥。<br>具体操作是这样的：先新建一个图像，名为Undefined，然后再新建一个图像，名为Undefined-1，然后关闭Undefined-1。<br>操作下来，print的信息如下：</p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br></pre></td><td class="code"><pre><span class="line">ips <span class="keyword">in</span> add() =  &lt;imagepy.core.wraper.imageplus.ImagePlus <span class="built_in">object</span> at <span class="number">0x000002914889F5C0</span>&gt;</span><br><span class="line">~~~ ~~~ image add!</span><br><span class="line">~~~ ~~~ ImageManager =  [&lt;weakref at <span class="number">0x0000029148895548</span>; to <span class="string">&#x27;ImagePlus&#x27;</span> at <span class="number">0x000002914889F5C0</span>&gt;]</span><br><span class="line"></span><br><span class="line">ips <span class="keyword">in</span> add() =  &lt;imagepy.core.wraper.imageplus.ImagePlus <span class="built_in">object</span> at <span class="number">0x0000029148883198</span>&gt;</span><br><span class="line">~~~ ~~~ image add!</span><br><span class="line">~~~ ~~~ ImageManager =  [&lt;weakref at <span class="number">0x00000291447469A8</span>; to <span class="string">&#x27;ImagePlus&#x27;</span> at <span class="number">0x0000029148883198</span>&gt;, &lt;weakref at <span class="number">0x0000029148895548</span>; to <span class="string">&#x27;ImagePlus&#x27;</span> at <span class="number">0x000002914889F5C0</span>&gt;]</span><br><span class="line"> </span><br><span class="line">ips <span class="keyword">in</span> remove() =  &lt;imagepy.core.wraper.imageplus.ImagePlus <span class="built_in">object</span> at <span class="number">0x0000029148883198</span>&gt;</span><br><span class="line">~~~ ~~~ !!! remove imgs !!!</span><br><span class="line">ips <span class="keyword">in</span> add() =  &lt;imagepy.core.wraper.imageplus.ImagePlus <span class="built_in">object</span> at <span class="number">0x000002914889F5C0</span>&gt;</span><br><span class="line">ips <span class="keyword">in</span> remove() =  &lt;imagepy.core.wraper.imageplus.ImagePlus <span class="built_in">object</span> at <span class="number">0x000002914889F5C0</span>&gt;</span><br><span class="line">~~~ ~~~ !!! remove imgs !!!</span><br><span class="line">~~~ ~~~ image add!</span><br><span class="line">~~~ ~~~ ImageManager =  [&lt;weakref at <span class="number">0x0000029148895548</span>; to <span class="string">&#x27;ImagePlus&#x27;</span> at <span class="number">0x000002914889F5C0</span>&gt;]</span><br></pre></td></tr></table></figure>
+<p>从打印信息就可以一目了然地知道运行路径，即先add一张图像，然后再add另一张图像，这样ImageManager中就有两张图像引用，然后再remove第二张图像，这里注意，其实remove掉第二张照片后，第一张照片又会被add一下，然后再被remove，然后再insert到列表中，就像最后几行所示。原因就是因为第二张图像被删掉后，第一张图像的Canvas组件又被activated激活了，然后就会再调用add()方法。<br>其实不光是删掉图像后会激活另一张图像，也可以通过点击另一张图像来激活它，就会发现上面的过程又会重复一遍，即先删除图像，再添加它，这样带来的效果就是当前被激活的图像始终在ImageManager的imgs列表的第一个。<br>设计巧妙啊！</p>
+
+    </div>
+
+    
+    
+    
+        <div class="reward-container">
+  <div></div>
+  <button onclick="var qr = document.getElementById('qr'); qr.style.display = (qr.style.display === 'none') ? 'block' : 'none';">
+    Donate
+  </button>
+  <div id="qr" style="display: none;">
+      
+      <div style="display: inline-block;">
+        <img src="/images/wechat_reward.png" alt="Xin-Bo Qi(亓欣波) WeChat Pay">
+        <p>WeChat Pay</p>
+      </div>
+
+  </div>
+</div>
+
+
+      <footer class="post-footer">
+          <div class="post-tags">
+              <a href="/tags/ImagePy/" rel="tag"># ImagePy</a>
+          </div>
+
+        
+
+
+        
+    <div class="post-nav">
+      <div class="post-nav-item">
+    <a href="/2019/09/30/ImagePy_7/" rel="prev" title="ImagePy解析：7 -- ImagePy插件运行解析">
+      <i class="fa fa-chevron-left"></i> ImagePy解析：7 -- ImagePy插件运行解析
+    </a></div>
+      <div class="post-nav-item">
+    <a href="/2019/10/06/ImagePy_9/" rel="next" title="ImagePy解析：9 -- Filter引擎及其衍生的图像取反插件">
+      ImagePy解析：9 -- Filter引擎及其衍生的图像取反插件 <i class="fa fa-chevron-right"></i>
+    </a></div>
+    </div>
+      </footer>
+    
+  </article>
+  
+  
+  
+
+
+
+          </div>
+          
+    
+  <div class="comments">
+    <div id="disqus_thread">
+      <noscript>Please enable JavaScript to view the comments powered by Disqus.</noscript>
+    </div>
+  </div>
+  
+
+<script>
+  window.addEventListener('tabs:register', () => {
+    let { activeClass } = CONFIG.comments;
+    if (CONFIG.comments.storage) {
+      activeClass = localStorage.getItem('comments_active') || activeClass;
+    }
+    if (activeClass) {
+      let activeTab = document.querySelector(`a[href="#comment-${activeClass}"]`);
+      if (activeTab) {
+        activeTab.click();
+      }
+    }
+  });
+  if (CONFIG.comments.storage) {
+    window.addEventListener('tabs:click', event => {
+      if (!event.target.matches('.tabs-comment .tab-content .tab-pane')) return;
+      let commentClass = event.target.classList[1];
+      localStorage.setItem('comments_active', commentClass);
+    });
+  }
+</script>
+
+        </div>
+          
+  
+  <div class="toggle sidebar-toggle">
+    <span class="toggle-line toggle-line-first"></span>
+    <span class="toggle-line toggle-line-middle"></span>
+    <span class="toggle-line toggle-line-last"></span>
+  </div>
+
+  <aside class="sidebar">
+    <div class="sidebar-inner">
+
+      <ul class="sidebar-nav motion-element">
+        <li class="sidebar-nav-toc">
+          Table of Contents
+        </li>
+        <li class="sidebar-nav-overview">
+          Overview
+        </li>
+      </ul>
+
+      <!--noindex-->
+      <div class="post-toc-wrap sidebar-panel">
+          <div class="post-toc motion-element"><ol class="nav"><li class="nav-item nav-level-1"><a class="nav-link" href="#%E6%96%B0%E5%BB%BA%E5%9B%BE%E5%83%8F%E7%9A%84%E6%8F%92%E4%BB%B6"><span class="nav-number">1.</span> <span class="nav-text">新建图像的插件</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#IPy%E5%B8%B8%E7%94%A8%E5%B7%A5%E5%85%B7%E9%9B%86"><span class="nav-number">2.</span> <span class="nav-text">IPy常用工具集</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#ImagePlus%E5%9B%BE%E5%83%8F%E5%B0%81%E8%A3%85%E7%B1%BB"><span class="nav-number">3.</span> <span class="nav-text">ImagePlus图像封装类</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#Canvas%E7%94%BB%E5%B8%83"><span class="nav-number">4.</span> <span class="nav-text">Canvas画布</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#ImageManager%E7%AE%A1%E7%90%86%E5%99%A8"><span class="nav-number">5.</span> <span class="nav-text">ImageManager管理器</span></a></li></ol></div>
+      </div>
+      <!--/noindex-->
+
+      <div class="site-overview-wrap sidebar-panel">
+        <div class="site-author motion-element" itemprop="author" itemscope itemtype="http://schema.org/Person">
+    <img class="site-author-image" itemprop="image" alt="Xin-Bo Qi(亓欣波)"
+      src="/images/avatar.jpg">
+  <p class="site-author-name" itemprop="name">Xin-Bo Qi(亓欣波)</p>
+  <div class="site-description" itemprop="description">Be interesting!</div>
+</div>
+<div class="site-state-wrap motion-element">
+  <nav class="site-state">
+      <div class="site-state-item site-state-posts">
+          <a href="/archives/">
+        
+          <span class="site-state-item-count">120</span>
+          <span class="site-state-item-name">posts</span>
+        </a>
+      </div>
+      <div class="site-state-item site-state-categories">
+            <a href="/categories/">
+          
+        <span class="site-state-item-count">5</span>
+        <span class="site-state-item-name">categories</span></a>
+      </div>
+      <div class="site-state-item site-state-tags">
+            <a href="/tags/">
+          
+        <span class="site-state-item-count">41</span>
+        <span class="site-state-item-name">tags</span></a>
+      </div>
+  </nav>
+</div>
+  <div class="links-of-author motion-element">
+      <span class="links-of-author-item">
+        <a href="https://github.com/qixinbo" title="GitHub → https:&#x2F;&#x2F;github.com&#x2F;qixinbo" rel="noopener" target="_blank"><i class="github fa-fw"></i>GitHub</a>
+      </span>
+      <span class="links-of-author-item">
+        <a href="mailto:qixinbo@gmail.com" title="E-Mail → mailto:qixinbo@gmail.com" rel="noopener" target="_blank"><i class="envelope fa-fw"></i>E-Mail</a>
+      </span>
+  </div>
+
+
+  <div class="links-of-blogroll motion-element">
+    <div class="links-of-blogroll-title"><i class="fa fa-link fa-fw"></i>
+      Links
+    </div>
+    <ul class="links-of-blogroll-list">
+        <li class="links-of-blogroll-item">
+          <a href="https://www.tsinghua.edu.cn/" title="https:&#x2F;&#x2F;www.tsinghua.edu.cn" rel="noopener" target="_blank">THU</a>
+        </li>
+        <li class="links-of-blogroll-item">
+          <a href="http://www.imr.cas.cn/" title="http:&#x2F;&#x2F;www.imr.cas.cn" rel="noopener" target="_blank">IMR</a>
+        </li>
+        <li class="links-of-blogroll-item">
+          <a href="http://www.sdu.edu.cn/" title="http:&#x2F;&#x2F;www.sdu.edu.cn" rel="noopener" target="_blank">SDU</a>
+        </li>
+        <li class="links-of-blogroll-item">
+          <a href="http://liam0205.me/" title="http:&#x2F;&#x2F;liam0205.me&#x2F;" rel="noopener" target="_blank">黄晨成</a>
+        </li>
+    </ul>
+  </div>
+
+      </div>
+
+    </div>
+  </aside>
+  <div id="sidebar-dimmer"></div>
+
+
+      </div>
+    </main>
+
+    <footer class="footer">
+      <div class="footer-inner">
+        
+
+        
+
+<div class="copyright">
+  
+  &copy; 
+  <span itemprop="copyrightYear">2021</span>
+  <span class="with-love">
+    <i class="fa fa-heart"></i>
+  </span>
+  <span class="author" itemprop="copyrightHolder">Xin-Bo Qi(亓欣波)</span>
+</div>
+  <div class="powered-by">Powered by <a href="https://hexo.io/" class="theme-link" rel="noopener" target="_blank">Hexo</a> & <a href="https://theme-next.org/" class="theme-link" rel="noopener" target="_blank">NexT.Gemini</a>
+  </div>
+
+        
+
+
+
+
+
+
+
+
+      </div>
+    </footer>
+  </div>
+
+  
+  <script src="/lib/anime.min.js"></script>
+  <script src="/lib/velocity/velocity.min.js"></script>
+  <script src="/lib/velocity/velocity.ui.min.js"></script>
+
+<script src="/js/utils.js"></script>
+
+<script src="/js/motion.js"></script>
+
+
+<script src="/js/schemes/pisces.js"></script>
+
+
+<script src="/js/next-boot.js"></script>
+
+
+
+
+  
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+  
+
+  
+
+  
+
+<script>
+  function loadCount() {
+    var d = document, s = d.createElement('script');
+    s.src = 'https://qixinbo.disqus.com/count.js';
+    s.id = 'dsq-count-scr';
+    (d.head || d.body).appendChild(s);
+  }
+  // defer loading until the whole page loading is completed
+  window.addEventListener('load', loadCount, false);
+</script>
+<script>
+  var disqus_config = function() {
+    this.page.url = "http://qixinbo.github.io/2019/10/05/ImagePy_8/";
+    this.page.identifier = "2019/10/05/ImagePy_8/";
+    this.page.title = "ImagePy解析：8 -- 由新建图像谈起（引出IPy、ImagePlus、Canvas、ImageManager）";
+    };
+  NexT.utils.loadComments(document.querySelector('#disqus_thread'), () => {
+    if (window.DISQUS) {
+      DISQUS.reset({
+        reload: true,
+        config: disqus_config
+      });
+    } else {
+      var d = document, s = d.createElement('script');
+      s.src = 'https://qixinbo.disqus.com/embed.js';
+      s.setAttribute('data-timestamp', '' + +new Date());
+      (d.head || d.body).appendChild(s);
+    }
+  });
+</script>
+
+</body>
+</html>

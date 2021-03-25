@@ -1,0 +1,583 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=2">
+<meta name="theme-color" content="#222">
+<meta name="generator" content="Hexo 5.4.0">
+  <link rel="apple-touch-icon" sizes="180x180" href="/images/apple-touch-icon-next.png">
+  <link rel="icon" type="image/png" sizes="32x32" href="/favicon.ico">
+  <link rel="icon" type="image/png" sizes="16x16" href="/favicon.ico">
+  <link rel="mask-icon" href="/images/logo.svg" color="#222">
+
+<link rel="stylesheet" href="/css/main.css">
+
+
+<link rel="stylesheet" href="/lib/font-awesome/css/all.min.css">
+
+<script id="hexo-configurations">
+    var NexT = window.NexT || {};
+    var CONFIG = {"hostname":"qixinbo.github.io","root":"/","scheme":"Gemini","version":"7.8.0","exturl":false,"sidebar":{"position":"left","display":"post","padding":18,"offset":12,"onmobile":false},"copycode":{"enable":false,"show_result":false,"style":null},"back2top":{"enable":true,"sidebar":false,"scrollpercent":false},"bookmark":{"enable":false,"color":"#222","save":"auto"},"fancybox":false,"mediumzoom":false,"lazyload":false,"pangu":false,"comments":{"style":"tabs","active":null,"storage":true,"lazyload":false,"nav":null},"algolia":{"hits":{"per_page":10},"labels":{"input_placeholder":"Search for Posts","hits_empty":"We didn't find any results for the search: ${query}","hits_stats":"${hits} results found in ${time} ms"}},"localsearch":{"enable":false,"trigger":"auto","top_n_per_article":1,"unescape":false,"preload":false},"motion":{"enable":true,"async":false,"transition":{"post_block":"fadeIn","post_header":"slideDownIn","post_body":"slideDownIn","coll_header":"slideLeftIn","sidebar":"slideUpIn"}}};
+  </script>
+
+  <meta name="description" content="%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%更新日志：2019-9-30 更新：增加了ImageJ和ImagePy两种UI加载方式的对比 以下为正文%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%% ImagePy的主界面就是名为ImagePy的类，这一部分详解主界面是如何渲染出来的。 父类初始化ImagePy这个类是继承自wxPython的Fra">
+<meta property="og:type" content="article">
+<meta property="og:title" content="ImagePy解析：4 -- 主界面渲染">
+<meta property="og:url" content="http://qixinbo.github.io/2019/08/31/ImagePy_4/index.html">
+<meta property="og:site_name" content="亓欣波">
+<meta property="og:description" content="%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%更新日志：2019-9-30 更新：增加了ImageJ和ImagePy两种UI加载方式的对比 以下为正文%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%% ImagePy的主界面就是名为ImagePy的类，这一部分详解主界面是如何渲染出来的。 父类初始化ImagePy这个类是继承自wxPython的Fra">
+<meta property="og:locale" content="en_US">
+<meta property="article:published_time" content="2019-08-30T16:00:00.000Z">
+<meta property="article:modified_time" content="2021-03-25T07:20:30.416Z">
+<meta property="article:author" content="Xin-Bo Qi(亓欣波)">
+<meta property="article:tag" content="ImagePy">
+<meta name="twitter:card" content="summary">
+
+<link rel="canonical" href="http://qixinbo.github.io/2019/08/31/ImagePy_4/">
+
+
+<script id="page-configurations">
+  // https://hexo.io/docs/variables.html
+  CONFIG.page = {
+    sidebar: "",
+    isHome : false,
+    isPost : true,
+    lang   : 'en'
+  };
+</script>
+
+  <title>ImagePy解析：4 -- 主界面渲染 | 亓欣波</title>
+  
+
+
+
+
+
+
+  <noscript>
+  <style>
+  .use-motion .brand,
+  .use-motion .menu-item,
+  .sidebar-inner,
+  .use-motion .post-block,
+  .use-motion .pagination,
+  .use-motion .comments,
+  .use-motion .post-header,
+  .use-motion .post-body,
+  .use-motion .collection-header { opacity: initial; }
+
+  .use-motion .site-title,
+  .use-motion .site-subtitle {
+    opacity: initial;
+    top: initial;
+  }
+
+  .use-motion .logo-line-before i { left: initial; }
+  .use-motion .logo-line-after i { right: initial; }
+  </style>
+</noscript>
+
+</head>
+
+<body itemscope itemtype="http://schema.org/WebPage">
+  <div class="container use-motion">
+    <div class="headband"></div>
+
+    <header class="header" itemscope itemtype="http://schema.org/WPHeader">
+      <div class="header-inner"><div class="site-brand-container">
+  <div class="site-nav-toggle">
+    <div class="toggle" aria-label="Toggle navigation bar">
+      <span class="toggle-line toggle-line-first"></span>
+      <span class="toggle-line toggle-line-middle"></span>
+      <span class="toggle-line toggle-line-last"></span>
+    </div>
+  </div>
+
+  <div class="site-meta">
+
+    <a href="/" class="brand" rel="start">
+      <span class="logo-line-before"><i></i></span>
+      <h1 class="site-title">亓欣波</h1>
+      <span class="logo-line-after"><i></i></span>
+    </a>
+      <p class="site-subtitle" itemprop="description">Hi, I am Xin-Bo Qi (亓欣波)</p>
+  </div>
+
+  <div class="site-nav-right">
+    <div class="toggle popup-trigger">
+    </div>
+  </div>
+</div>
+
+
+
+
+<nav class="site-nav">
+  <ul id="menu" class="main-menu menu">
+        <li class="menu-item menu-item-home">
+
+    <a href="/" rel="section"><i class="home fa-fw"></i>Home</a>
+
+  </li>
+        <li class="menu-item menu-item-categories">
+
+    <a href="/categories/" rel="section"><i class="th fa-fw"></i>Categories</a>
+
+  </li>
+        <li class="menu-item menu-item-archives">
+
+    <a href="/archives/" rel="section"><i class="archive fa-fw"></i>Archives</a>
+
+  </li>
+        <li class="menu-item menu-item-tags">
+
+    <a href="/tags/" rel="section"><i class="tags fa-fw"></i>Tags</a>
+
+  </li>
+        <li class="menu-item menu-item-scholar">
+
+    <a href="/scholar/" rel="section"><i class="bar-chart fa-fw"></i>scholar</a>
+
+  </li>
+        <li class="menu-item menu-item-sources">
+
+    <a href="/sources/" rel="section"><i class="rss fa-fw"></i>sources</a>
+
+  </li>
+        <li class="menu-item menu-item-gallery">
+
+    <a href="/gallery/" rel="section"><i class="file-image-o fa-fw"></i>gallery</a>
+
+  </li>
+        <li class="menu-item menu-item-about">
+
+    <a href="/about/" rel="section"><i class="user fa-fw"></i>About</a>
+
+  </li>
+        <li class="menu-item menu-item-commonweal">
+
+    <a href="/404.html" rel="section"><i class="heartbeat fa-fw"></i>Commonweal 404</a>
+
+  </li>
+  </ul>
+</nav>
+
+
+
+
+</div>
+    </header>
+
+    
+  <div class="back-to-top">
+    <i class="fa fa-arrow-up"></i>
+    <span>0%</span>
+  </div>
+
+
+    <main class="main">
+      <div class="main-inner">
+        <div class="content-wrap">
+          
+
+          <div class="content post posts-expand">
+            
+
+    
+  
+  
+  <article itemscope itemtype="http://schema.org/Article" class="post-block" lang="en">
+    <link itemprop="mainEntityOfPage" href="http://qixinbo.github.io/2019/08/31/ImagePy_4/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="image" content="/images/avatar.jpg">
+      <meta itemprop="name" content="Xin-Bo Qi(亓欣波)">
+      <meta itemprop="description" content="Be interesting!">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="亓欣波">
+    </span>
+      <header class="post-header">
+        <h1 class="post-title" itemprop="name headline">
+          ImagePy解析：4 -- 主界面渲染
+        </h1>
+
+        <div class="post-meta">
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="far fa-calendar"></i>
+              </span>
+              <span class="post-meta-item-text">Posted on</span>
+
+              <time title="Created: 2019-08-31 00:00:00" itemprop="dateCreated datePublished" datetime="2019-08-31T00:00:00+08:00">2019-08-31</time>
+            </span>
+              <span class="post-meta-item">
+                <span class="post-meta-item-icon">
+                  <i class="far fa-calendar-check"></i>
+                </span>
+                <span class="post-meta-item-text">Edited on</span>
+                <time title="Modified: 2021-03-25 15:20:30" itemprop="dateModified" datetime="2021-03-25T15:20:30+08:00">2021-03-25</time>
+              </span>
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="far fa-folder"></i>
+              </span>
+              <span class="post-meta-item-text">In</span>
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+                  <a href="/categories/computational-material-science/" itemprop="url" rel="index"><span itemprop="name">computational material science</span></a>
+                </span>
+            </span>
+
+          
+  
+  <span class="post-meta-item">
+    
+      <span class="post-meta-item-icon">
+        <i class="far fa-comment"></i>
+      </span>
+      <span class="post-meta-item-text">Disqus: </span>
+    
+    <a title="disqus" href="/2019/08/31/ImagePy_4/#disqus_thread" itemprop="discussionUrl">
+      <span class="post-comments-count disqus-comment-count" data-disqus-identifier="2019/08/31/ImagePy_4/" itemprop="commentCount"></span>
+    </a>
+  </span>
+  
+  
+
+        </div>
+      </header>
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+        <p>%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%<br>更新日志：<br>2019-9-30 更新：<br>增加了ImageJ和ImagePy两种UI加载方式的对比</p>
+<p>以下为正文<br>%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%</p>
+<p>ImagePy的主界面就是名为ImagePy的类，这一部分详解主界面是如何渲染出来的。</p>
+<h1 id="父类初始化"><a href="#父类初始化" class="headerlink" title="父类初始化"></a>父类初始化</h1><p>ImagePy这个类是继承自wxPython的Frame类，所以首先对这个类进行初始化，包括名称、尺寸、位置、样式等。</p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">wx.Frame.__init__ ( self, parent, <span class="built_in">id</span> = wx.ID_ANY, title = <span class="string">&#x27;ImagePy&#x27;</span>,</span><br><span class="line">                    size = wx.Size(-<span class="number">1</span>,-<span class="number">1</span>), pos = wx.DefaultPosition,</span><br><span class="line">                    style = wx.RESIZE_BORDER|wx.DEFAULT_FRAME_STYLE|wx.TAB_TRAVERSAL )</span><br></pre></td></tr></table></figure>
+
+<h1 id="创建AuiManager管理器，用来管理复杂布局"><a href="#创建AuiManager管理器，用来管理复杂布局" class="headerlink" title="创建AuiManager管理器，用来管理复杂布局"></a>创建AuiManager管理器，用来管理复杂布局</h1><p>ImagePy使用AuiManager来管理复杂界面</p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">self.auimgr = aui.AuiManager()</span><br><span class="line">self.auimgr.SetManagedWindow( self )</span><br></pre></td></tr></table></figure>
+<p>Aui等于Advanced User Interface，它可以用来方便地管理多个面板，尤其是对于可停靠的（dockable）和可悬浮的（floating）的面板。<br>一个很好的关于AuiManager的教程见：<br><a target="_blank" rel="noopener" href="https://perphyliu.wordpress.com/2010/01/02/day-4-wxpython-aui%E4%BB%8B%E7%BB%8D/">Day 4: wxPython AUI介绍</a><br>其使用套路如下：</p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">#（1）生成AuiManager实例：以wx.Frame或其子类的实例为参数，用来生成一个AuiManager实例以实现对该Frame实例的管理</span></span><br><span class="line">self._mgr = wx.aui.AuiManager(self)</span><br><span class="line"></span><br><span class="line"><span class="comment">#（2）添加面板：AuiManager中可以添加若干个面板；它使用AuiPaneInfo用来控制面板的位置、大小等属性</span></span><br><span class="line">text1 = wx.TextCtrl(self, -<span class="number">1</span>, <span class="string">&#x27;Pane 1 - sample text&#x27;</span>,  wx.DefaultPosition, wx.Size(<span class="number">200</span>,<span class="number">150</span>), wx.NO_BORDER | wx.TE_MULTILINE)</span><br><span class="line">self._mgr.AddPane(text1, wx.aui.AuiPaneInfo().Left().MaximizeButton(<span class="literal">True</span>))</span><br><span class="line"></span><br><span class="line"><span class="comment">#（3）更新AuiManager实例：调用Update()方法将AuiManager中的面板添加到其所管理的Frame中</span></span><br><span class="line">self._mgr.Update()</span><br><span class="line"></span><br><span class="line"><span class="comment">#（4）卸载AuiManager实例：退出应用程序时应调用UnInit方法以回收资源</span></span><br><span class="line">self._mgr.UnInit()</span><br></pre></td></tr></table></figure>
+
+<p>完整的示例代码如下：</p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br><span class="line">52</span><br><span class="line">53</span><br><span class="line">54</span><br><span class="line">55</span><br><span class="line">56</span><br><span class="line">57</span><br><span class="line">58</span><br><span class="line">59</span><br><span class="line">60</span><br><span class="line">61</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">#!/usr/bin/env python</span></span><br><span class="line"><span class="keyword">import</span> wx</span><br><span class="line"><span class="keyword">import</span> wx.aui</span><br><span class="line"></span><br><span class="line"><span class="class"><span class="keyword">class</span> <span class="title">MyFrame</span>(<span class="params">wx.Frame</span>):</span></span><br><span class="line">      <span class="function"><span class="keyword">def</span> <span class="title">__init__</span>(<span class="params">self, parent, <span class="built_in">id</span>=-<span class="number">1</span>, title=<span class="string">&#x27;wx.aui Test&#x27;</span>,</span></span></span><br><span class="line"><span class="function"><span class="params">                  pos=wx.DefaultPosition, size=(<span class="params"><span class="number">800</span>, <span class="number">600</span></span>),</span></span></span><br><span class="line"><span class="function"><span class="params">                  style=wx.DEFAULT_FRAME_STYLE</span>):</span></span><br><span class="line">            wx.Frame.__init__(self, parent, <span class="built_in">id</span>, title, pos, size, style)</span><br><span class="line">            self._mgr = wx.aui.AuiManager(self)</span><br><span class="line"></span><br><span class="line">            <span class="comment"># create several text controls</span></span><br><span class="line">            text1 = wx.TextCtrl(self, -<span class="number">1</span>, <span class="string">&#x27;Pane 1 - sample text&#x27;</span>,</span><br><span class="line">                                wx.DefaultPosition, wx.Size(<span class="number">200</span>,<span class="number">150</span>),</span><br><span class="line">                                wx.NO_BORDER | wx.TE_MULTILINE)</span><br><span class="line"></span><br><span class="line">            text2 = wx.TextCtrl(self, -<span class="number">1</span>, <span class="string">&#x27;Pane 2 - sample text&#x27;</span>,</span><br><span class="line">                                wx.DefaultPosition, wx.Size(<span class="number">200</span>,<span class="number">150</span>),</span><br><span class="line">                                wx.NO_BORDER | wx.TE_MULTILINE)</span><br><span class="line"></span><br><span class="line">            text3 = wx.TextCtrl(self, -<span class="number">1</span>, <span class="string">&#x27;Main content window&#x27;</span>,</span><br><span class="line">                                wx.DefaultPosition, wx.Size(<span class="number">200</span>,<span class="number">150</span>),</span><br><span class="line">                                wx.NO_BORDER | wx.TE_MULTILINE)</span><br><span class="line"></span><br><span class="line">            <span class="comment"># add the panes to the manager</span></span><br><span class="line">            self._mgr.AddPane(text1, wx.aui.AuiPaneInfo().Left().MaximizeButton(<span class="literal">True</span>))</span><br><span class="line">            self._mgr.AddPane(text2, wx.aui.AuiPaneInfo().Bottom().MaximizeButton(<span class="literal">True</span>))</span><br><span class="line">            self._mgr.AddPane(text3, wx.aui.AuiPaneInfo().Center())</span><br><span class="line"></span><br><span class="line">            <span class="comment"># Create toolbar</span></span><br><span class="line">            toolbar = wx.ToolBar(self, -<span class="number">1</span>, wx.DefaultPosition, wx.DefaultSize,</span><br><span class="line">                             wx.TB_FLAT | wx.TB_NODIVIDER | wx.TB_HORZ_TEXT)</span><br><span class="line">            toolbar.SetToolBitmapSize(wx.Size(<span class="number">16</span>,<span class="number">16</span>))</span><br><span class="line">            toolbar_bmp1 = wx.ArtProvider.GetBitmap(wx.ART_NORMAL_FILE, wx.ART_OTHER, wx.Size(<span class="number">16</span>, <span class="number">16</span>))</span><br><span class="line">            toolbar.AddTool(<span class="number">101</span>, <span class="string">&quot;Item 1&quot;</span>, toolbar_bmp1)</span><br><span class="line">            toolbar.AddTool(<span class="number">101</span>, <span class="string">&quot;Item 2&quot;</span>, toolbar_bmp1)</span><br><span class="line">            toolbar.AddTool(<span class="number">101</span>, <span class="string">&quot;Item 3&quot;</span>, toolbar_bmp1)</span><br><span class="line">            toolbar.AddTool(<span class="number">101</span>, <span class="string">&quot;Item 4&quot;</span>, toolbar_bmp1)</span><br><span class="line">            toolbar.AddSeparator()</span><br><span class="line">            toolbar.AddTool(<span class="number">101</span>, <span class="string">&quot;Item 5&quot;</span>, toolbar_bmp1)</span><br><span class="line">            toolbar.AddTool(<span class="number">101</span>, <span class="string">&quot;Item 6&quot;</span>, toolbar_bmp1)</span><br><span class="line">            toolbar.AddTool(<span class="number">101</span>, <span class="string">&quot;Item 7&quot;</span>, toolbar_bmp1)</span><br><span class="line">            toolbar.AddTool(<span class="number">101</span>, <span class="string">&quot;Item 8&quot;</span>, toolbar_bmp1)</span><br><span class="line">            toolbar.Realize()</span><br><span class="line">            self._mgr.AddPane(toolbar, wx.aui.AuiPaneInfo().Name(<span class="string">&quot;toolbar&quot;</span>).Caption(<span class="string">&quot;Toolbar Demo&quot;</span>).ToolbarPane().Top().LeftDockable(<span class="literal">False</span>).RightDockable(<span class="literal">False</span>))</span><br><span class="line"></span><br><span class="line">            <span class="comment"># tell the manager to &#x27;commit&#x27; all the changes just made</span></span><br><span class="line">            self._mgr.Update()</span><br><span class="line">            self.Bind(wx.EVT_CLOSE, self.OnClose)</span><br><span class="line"></span><br><span class="line">      <span class="function"><span class="keyword">def</span> <span class="title">OnClose</span>(<span class="params">self, event</span>):</span></span><br><span class="line">            <span class="comment"># deinitialize the frame manager</span></span><br><span class="line">            self._mgr.UnInit()</span><br><span class="line">            <span class="comment"># delete the frame</span></span><br><span class="line">            self.Destroy()</span><br><span class="line"></span><br><span class="line">app = wx.App()</span><br><span class="line">frame = MyFrame(<span class="literal">None</span>)</span><br><span class="line">frame.Show()</span><br><span class="line">app.MainLoop()</span><br><span class="line"></span><br></pre></td></tr></table></figure>
+
+<h1 id="设置图标"><a href="#设置图标" class="headerlink" title="设置图标"></a>设置图标</h1><figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line">logopath = os.path.join(root_dir, <span class="string">&#x27;data/logo.ico&#x27;</span>)</span><br><span class="line">self.SetIcon(wx.Icon(logopath, wx.BITMAP_TYPE_ICO))</span><br><span class="line"></span><br><span class="line">IPy.curapp = self</span><br><span class="line"><span class="comment"># 根据UI的模式，设置窗口的最大、最小尺寸以及变化幅度。这个UI的模式是通过configmanager模块读取preference.cfg配置文件获得的。</span></span><br><span class="line">self.SetSizeHints( wx.Size(<span class="number">900</span>,<span class="number">700</span>) <span class="keyword">if</span> IPy.uimode() == <span class="string">&#x27;ipy&#x27;</span> <span class="keyword">else</span> wx.Size( <span class="number">580</span>,-<span class="number">1</span> ))</span><br></pre></td></tr></table></figure>
+
+<h1 id="根据路径添加菜单项"><a href="#根据路径添加菜单项" class="headerlink" title="根据路径添加菜单项"></a>根据路径添加菜单项</h1><figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">self.menubar = pluginloader.buildMenuBarByPath(self, <span class="string">&#x27;menus&#x27;</span>, <span class="string">&#x27;plugins&#x27;</span>, <span class="literal">None</span>, <span class="literal">True</span>)</span><br><span class="line">self.SetMenuBar( self.menubar )</span><br></pre></td></tr></table></figure>
+<p>这一部分是核心，详细的解析过程见本系列的第二部分。</p>
+<h1 id="创建快捷键映射"><a href="#创建快捷键映射" class="headerlink" title="创建快捷键映射"></a>创建快捷键映射</h1><figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">self.shortcut = pluginloader.buildShortcut(self)</span><br><span class="line">self.SetAcceleratorTable(self.shortcut)</span><br></pre></td></tr></table></figure>
+
+<h1 id="构建工具条"><a href="#构建工具条" class="headerlink" title="构建工具条"></a>构建工具条</h1><figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">self.toolbar = toolsloader.build_tools(self, <span class="string">&#x27;tools&#x27;</span>, <span class="string">&#x27;plugins&#x27;</span>, <span class="literal">None</span>, <span class="literal">True</span>)</span><br></pre></td></tr></table></figure>
+<p>这一部分也是核心，详细解析过程见本系列的第三部分。</p>
+<h1 id="设置显示样式"><a href="#设置显示样式" class="headerlink" title="设置显示样式"></a>设置显示样式</h1><p>根据UI的模式为”ipy”或”ij”来调整UI的样式为仿ImageJ还是自带的ImagePy样式。</p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line"><span class="built_in">print</span>(IPy.uimode())</span><br><span class="line"><span class="keyword">if</span> IPy.uimode()==<span class="string">&#x27;ipy&#x27;</span>: self.load_aui()</span><br><span class="line"><span class="keyword">else</span>: self.load_ijui()</span><br><span class="line">self.load_document()</span><br><span class="line">self.Fit()</span><br></pre></td></tr></table></figure>
+<p>两种样式的相同点和不同点在于：<br>（1）相同点：都有菜单栏和工具栏，其中菜单栏已经在上面创建，工具栏的创建如下：</p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">self.auimgr.AddPane(self.toolbar, aui.AuiPaneInfo() .Left()  .PinButton( <span class="literal">True</span> )</span><br><span class="line">            .CaptionVisible( <span class="literal">True</span> ).Dock().Resizable().FloatingSize( wx.DefaultSize ).MaxSize(wx.Size( <span class="number">32</span>,-<span class="number">1</span> ))</span><br><span class="line">            . BottomDockable( <span class="literal">True</span> ).TopDockable( <span class="literal">False</span> ).Layer( <span class="number">10</span> ) )</span><br></pre></td></tr></table></figure>
+<p>（2）不同点：ImagePy会显示navigator、histogram等组件。（ImageJ也会加载这些组件，但是隐藏显示）<br>首先扫描widgets文件夹下的组件，其扫描方式与plugins、tools相同。</p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">self.widgets = widgetsloader.build_widgets(self, <span class="string">&#x27;widgets&#x27;</span>, <span class="string">&#x27;plugins&#x27;</span>)</span><br></pre></td></tr></table></figure>
+<p>即调用了widgetsloader的build_widgets函数，其中该函数中又接着调用了loader类下的build_widgets函数：</p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">datas = loader.build_widgets(toolspath)</span><br><span class="line"><span class="built_in">print</span>(<span class="string">&quot;widgets = &quot;</span>, datas)</span><br></pre></td></tr></table></figure>
+<p>因为widgets有两个组件：navigator和histogram，其中histogram又细分为histogram和curve两个组件，因为这一步输出的结果为：</p>
+<figure class="highlight"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">widgets =  (&lt;module &#x27;imagepy.widgets&#x27; from &#x27;D:\\imagepy-master\\imagepy\\widgets\\__init__.py&#x27;&gt;, [(&lt;module &#x27;imagepy.widgets.histogram&#x27; from &#x27;D:\\imagepy-master\\imagepy\\widgets\\histogram\\__init__.py&#x27;&gt;, [&lt;class &#x27;imagepy.widgets.histogram.histogram_wgt.Plugin&#x27;&gt;, &lt;class &#x27;imagepy.widgets.histogram.curve_wgt.Plugin&#x27;&gt;]), (&lt;module &#x27;imagepy.widgets.navigator&#x27; from &#x27;D:\\imagepy-master\\imagepy\\widgets\\navigator\\__init__.py&#x27;&gt;, [&lt;class &#x27;imagepy.widgets.navigator.navigator_wgt.Plugin&#x27;&gt;])])</span><br></pre></td></tr></table></figure>
+<p>注意，仍然是(pg, subtree)这样的返回格式。UI上使用了wxPython的Choicebook来在同一个组件类的不同插件间进行选择。navigator、histogram和curve这三个组件也都是在wxPython的Panel基础上进行定制，高级，见识了~~</p>
+<h1 id="创建底部状态栏"><a href="#创建底部状态栏" class="headerlink" title="创建底部状态栏"></a>创建底部状态栏</h1><figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line">self.stapanel = stapanel = wx.Panel( self, wx.ID_ANY, wx.DefaultPosition, wx.DefaultSize, wx.TAB_TRAVERSAL )</span><br><span class="line">sizersta = wx.BoxSizer( wx.HORIZONTAL )</span><br><span class="line">self.txt_info = wx.StaticText( stapanel, wx.ID_ANY, <span class="string">&quot;ImagePy  v0.2&quot;</span>, wx.DefaultPosition, wx.DefaultSize, <span class="number">0</span> )</span><br><span class="line">self.txt_info.Wrap( -<span class="number">1</span> )</span><br><span class="line"><span class="comment">#self.txt_info.SetBackgroundColour( wx.SystemSettings.GetColour( wx.SYS_COLOUR_INFOBK ) )</span></span><br><span class="line">sizersta.Add( self.txt_info, <span class="number">1</span>, wx.ALIGN_BOTTOM|wx.BOTTOM|wx.LEFT|wx.RIGHT, <span class="number">2</span> )</span><br></pre></td></tr></table></figure>
+<h1 id="创建底部进度条"><a href="#创建底部进度条" class="headerlink" title="创建底部进度条"></a>创建底部进度条</h1><figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">self.pro_bar = wx.Gauge( stapanel, wx.ID_ANY, <span class="number">100</span>, wx.DefaultPosition, wx.Size( <span class="number">100</span>,<span class="number">15</span> ), wx.GA_HORIZONTAL )</span><br><span class="line">sizersta.Add( self.pro_bar, <span class="number">0</span>, wx.ALIGN_BOTTOM|wx.BOTTOM|wx.LEFT|wx.RIGHT, <span class="number">2</span> )</span><br><span class="line">stapanel.SetSizer(sizersta)</span><br></pre></td></tr></table></figure>
+
+<h1 id="为底部的这个panel增加拖放文件直接打开的功能"><a href="#为底部的这个panel增加拖放文件直接打开的功能" class="headerlink" title="为底部的这个panel增加拖放文件直接打开的功能"></a>为底部的这个panel增加拖放文件直接打开的功能</h1><figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line">stapanel.SetDropTarget(FileDrop())</span><br><span class="line">self.auimgr.AddPane( stapanel,  aui.AuiPaneInfo() .Bottom() .CaptionVisible( <span class="literal">False</span> ).PinButton( <span class="literal">True</span> )</span><br><span class="line">    .PaneBorder( <span class="literal">False</span> ).Dock().Resizable().FloatingSize( wx.DefaultSize ).DockFixed( <span class="literal">True</span> )</span><br><span class="line">    . MinSize(wx.Size(-<span class="number">1</span>, <span class="number">20</span>)). MaxSize(wx.Size(-<span class="number">1</span>, <span class="number">20</span>)).Layer( <span class="number">10</span> ) )</span><br></pre></td></tr></table></figure>
+
+<h1 id="更新Aui管理器"><a href="#更新Aui管理器" class="headerlink" title="更新Aui管理器"></a>更新Aui管理器</h1><figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br></pre></td><td class="code"><pre><span class="line">self.Centre( wx.BOTH )</span><br><span class="line">self.Layout()</span><br><span class="line">self.auimgr.Update()</span><br><span class="line">self.Fit()</span><br><span class="line">self.Centre( wx.BOTH )</span><br><span class="line"></span><br><span class="line"><span class="keyword">if</span>(IPy.uimode()==<span class="string">&#x27;ij&#x27;</span>):</span><br><span class="line">    self.SetMaxSize((-<span class="number">1</span>, self.GetSize()[<span class="number">1</span>]))</span><br><span class="line">    self.SetMinSize(self.GetSize())</span><br><span class="line">self.update = <span class="literal">False</span></span><br></pre></td></tr></table></figure>
+<h1 id="绑定事件逻辑"><a href="#绑定事件逻辑" class="headerlink" title="绑定事件逻辑"></a>绑定事件逻辑</h1><figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment"># 为关闭按钮绑定on_close逻辑</span></span><br><span class="line">self.Bind(wx.EVT_CLOSE, self.on_close)</span><br><span class="line"></span><br><span class="line"><span class="comment"># 为AuiManager管理器所管理的panel的关闭按钮绑定on_pan_close逻辑，但目前发现并没有起到作用。。:(</span></span><br><span class="line">self.Bind(aui.EVT_AUI_PANE_CLOSE, self.on_pan_close)</span><br></pre></td></tr></table></figure>
+
+<h1 id="创建并启动多线程"><a href="#创建并启动多线程" class="headerlink" title="创建并启动多线程"></a>创建并启动多线程</h1><figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">thread = threading.Thread(<span class="literal">None</span>, self.hold, ())</span><br><span class="line">thread.setDaemon(<span class="literal">True</span>)</span><br><span class="line">thread.start()</span><br></pre></td></tr></table></figure>
+
+<p>它所执行的函数是其中的hold函数，具体涉及了ImagePy的任务管理器TaskManager，后面具体分析。</p>
+
+    </div>
+
+    
+    
+    
+        <div class="reward-container">
+  <div></div>
+  <button onclick="var qr = document.getElementById('qr'); qr.style.display = (qr.style.display === 'none') ? 'block' : 'none';">
+    Donate
+  </button>
+  <div id="qr" style="display: none;">
+      
+      <div style="display: inline-block;">
+        <img src="/images/wechat_reward.png" alt="Xin-Bo Qi(亓欣波) WeChat Pay">
+        <p>WeChat Pay</p>
+      </div>
+
+  </div>
+</div>
+
+
+      <footer class="post-footer">
+          <div class="post-tags">
+              <a href="/tags/ImagePy/" rel="tag"># ImagePy</a>
+          </div>
+
+        
+
+
+        
+    <div class="post-nav">
+      <div class="post-nav-item">
+    <a href="/2019/08/30/git-multi-account/" rel="prev" title="Git配置单机器多账号配置">
+      <i class="fa fa-chevron-left"></i> Git配置单机器多账号配置
+    </a></div>
+      <div class="post-nav-item">
+    <a href="/2019/09/01/ImagePy_5/" rel="next" title="ImagePy解析：5 -- wxPython多线程编程">
+      ImagePy解析：5 -- wxPython多线程编程 <i class="fa fa-chevron-right"></i>
+    </a></div>
+    </div>
+      </footer>
+    
+  </article>
+  
+  
+  
+
+
+
+          </div>
+          
+    
+  <div class="comments">
+    <div id="disqus_thread">
+      <noscript>Please enable JavaScript to view the comments powered by Disqus.</noscript>
+    </div>
+  </div>
+  
+
+<script>
+  window.addEventListener('tabs:register', () => {
+    let { activeClass } = CONFIG.comments;
+    if (CONFIG.comments.storage) {
+      activeClass = localStorage.getItem('comments_active') || activeClass;
+    }
+    if (activeClass) {
+      let activeTab = document.querySelector(`a[href="#comment-${activeClass}"]`);
+      if (activeTab) {
+        activeTab.click();
+      }
+    }
+  });
+  if (CONFIG.comments.storage) {
+    window.addEventListener('tabs:click', event => {
+      if (!event.target.matches('.tabs-comment .tab-content .tab-pane')) return;
+      let commentClass = event.target.classList[1];
+      localStorage.setItem('comments_active', commentClass);
+    });
+  }
+</script>
+
+        </div>
+          
+  
+  <div class="toggle sidebar-toggle">
+    <span class="toggle-line toggle-line-first"></span>
+    <span class="toggle-line toggle-line-middle"></span>
+    <span class="toggle-line toggle-line-last"></span>
+  </div>
+
+  <aside class="sidebar">
+    <div class="sidebar-inner">
+
+      <ul class="sidebar-nav motion-element">
+        <li class="sidebar-nav-toc">
+          Table of Contents
+        </li>
+        <li class="sidebar-nav-overview">
+          Overview
+        </li>
+      </ul>
+
+      <!--noindex-->
+      <div class="post-toc-wrap sidebar-panel">
+          <div class="post-toc motion-element"><ol class="nav"><li class="nav-item nav-level-1"><a class="nav-link" href="#%E7%88%B6%E7%B1%BB%E5%88%9D%E5%A7%8B%E5%8C%96"><span class="nav-number">1.</span> <span class="nav-text">父类初始化</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#%E5%88%9B%E5%BB%BAAuiManager%E7%AE%A1%E7%90%86%E5%99%A8%EF%BC%8C%E7%94%A8%E6%9D%A5%E7%AE%A1%E7%90%86%E5%A4%8D%E6%9D%82%E5%B8%83%E5%B1%80"><span class="nav-number">2.</span> <span class="nav-text">创建AuiManager管理器，用来管理复杂布局</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#%E8%AE%BE%E7%BD%AE%E5%9B%BE%E6%A0%87"><span class="nav-number">3.</span> <span class="nav-text">设置图标</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#%E6%A0%B9%E6%8D%AE%E8%B7%AF%E5%BE%84%E6%B7%BB%E5%8A%A0%E8%8F%9C%E5%8D%95%E9%A1%B9"><span class="nav-number">4.</span> <span class="nav-text">根据路径添加菜单项</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#%E5%88%9B%E5%BB%BA%E5%BF%AB%E6%8D%B7%E9%94%AE%E6%98%A0%E5%B0%84"><span class="nav-number">5.</span> <span class="nav-text">创建快捷键映射</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#%E6%9E%84%E5%BB%BA%E5%B7%A5%E5%85%B7%E6%9D%A1"><span class="nav-number">6.</span> <span class="nav-text">构建工具条</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#%E8%AE%BE%E7%BD%AE%E6%98%BE%E7%A4%BA%E6%A0%B7%E5%BC%8F"><span class="nav-number">7.</span> <span class="nav-text">设置显示样式</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#%E5%88%9B%E5%BB%BA%E5%BA%95%E9%83%A8%E7%8A%B6%E6%80%81%E6%A0%8F"><span class="nav-number">8.</span> <span class="nav-text">创建底部状态栏</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#%E5%88%9B%E5%BB%BA%E5%BA%95%E9%83%A8%E8%BF%9B%E5%BA%A6%E6%9D%A1"><span class="nav-number">9.</span> <span class="nav-text">创建底部进度条</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#%E4%B8%BA%E5%BA%95%E9%83%A8%E7%9A%84%E8%BF%99%E4%B8%AApanel%E5%A2%9E%E5%8A%A0%E6%8B%96%E6%94%BE%E6%96%87%E4%BB%B6%E7%9B%B4%E6%8E%A5%E6%89%93%E5%BC%80%E7%9A%84%E5%8A%9F%E8%83%BD"><span class="nav-number">10.</span> <span class="nav-text">为底部的这个panel增加拖放文件直接打开的功能</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#%E6%9B%B4%E6%96%B0Aui%E7%AE%A1%E7%90%86%E5%99%A8"><span class="nav-number">11.</span> <span class="nav-text">更新Aui管理器</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#%E7%BB%91%E5%AE%9A%E4%BA%8B%E4%BB%B6%E9%80%BB%E8%BE%91"><span class="nav-number">12.</span> <span class="nav-text">绑定事件逻辑</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#%E5%88%9B%E5%BB%BA%E5%B9%B6%E5%90%AF%E5%8A%A8%E5%A4%9A%E7%BA%BF%E7%A8%8B"><span class="nav-number">13.</span> <span class="nav-text">创建并启动多线程</span></a></li></ol></div>
+      </div>
+      <!--/noindex-->
+
+      <div class="site-overview-wrap sidebar-panel">
+        <div class="site-author motion-element" itemprop="author" itemscope itemtype="http://schema.org/Person">
+    <img class="site-author-image" itemprop="image" alt="Xin-Bo Qi(亓欣波)"
+      src="/images/avatar.jpg">
+  <p class="site-author-name" itemprop="name">Xin-Bo Qi(亓欣波)</p>
+  <div class="site-description" itemprop="description">Be interesting!</div>
+</div>
+<div class="site-state-wrap motion-element">
+  <nav class="site-state">
+      <div class="site-state-item site-state-posts">
+          <a href="/archives/">
+        
+          <span class="site-state-item-count">120</span>
+          <span class="site-state-item-name">posts</span>
+        </a>
+      </div>
+      <div class="site-state-item site-state-categories">
+            <a href="/categories/">
+          
+        <span class="site-state-item-count">5</span>
+        <span class="site-state-item-name">categories</span></a>
+      </div>
+      <div class="site-state-item site-state-tags">
+            <a href="/tags/">
+          
+        <span class="site-state-item-count">41</span>
+        <span class="site-state-item-name">tags</span></a>
+      </div>
+  </nav>
+</div>
+  <div class="links-of-author motion-element">
+      <span class="links-of-author-item">
+        <a href="https://github.com/qixinbo" title="GitHub → https:&#x2F;&#x2F;github.com&#x2F;qixinbo" rel="noopener" target="_blank"><i class="github fa-fw"></i>GitHub</a>
+      </span>
+      <span class="links-of-author-item">
+        <a href="mailto:qixinbo@gmail.com" title="E-Mail → mailto:qixinbo@gmail.com" rel="noopener" target="_blank"><i class="envelope fa-fw"></i>E-Mail</a>
+      </span>
+  </div>
+
+
+  <div class="links-of-blogroll motion-element">
+    <div class="links-of-blogroll-title"><i class="fa fa-link fa-fw"></i>
+      Links
+    </div>
+    <ul class="links-of-blogroll-list">
+        <li class="links-of-blogroll-item">
+          <a href="https://www.tsinghua.edu.cn/" title="https:&#x2F;&#x2F;www.tsinghua.edu.cn" rel="noopener" target="_blank">THU</a>
+        </li>
+        <li class="links-of-blogroll-item">
+          <a href="http://www.imr.cas.cn/" title="http:&#x2F;&#x2F;www.imr.cas.cn" rel="noopener" target="_blank">IMR</a>
+        </li>
+        <li class="links-of-blogroll-item">
+          <a href="http://www.sdu.edu.cn/" title="http:&#x2F;&#x2F;www.sdu.edu.cn" rel="noopener" target="_blank">SDU</a>
+        </li>
+        <li class="links-of-blogroll-item">
+          <a href="http://liam0205.me/" title="http:&#x2F;&#x2F;liam0205.me&#x2F;" rel="noopener" target="_blank">黄晨成</a>
+        </li>
+    </ul>
+  </div>
+
+      </div>
+
+    </div>
+  </aside>
+  <div id="sidebar-dimmer"></div>
+
+
+      </div>
+    </main>
+
+    <footer class="footer">
+      <div class="footer-inner">
+        
+
+        
+
+<div class="copyright">
+  
+  &copy; 
+  <span itemprop="copyrightYear">2021</span>
+  <span class="with-love">
+    <i class="fa fa-heart"></i>
+  </span>
+  <span class="author" itemprop="copyrightHolder">Xin-Bo Qi(亓欣波)</span>
+</div>
+  <div class="powered-by">Powered by <a href="https://hexo.io/" class="theme-link" rel="noopener" target="_blank">Hexo</a> & <a href="https://theme-next.org/" class="theme-link" rel="noopener" target="_blank">NexT.Gemini</a>
+  </div>
+
+        
+
+
+
+
+
+
+
+
+      </div>
+    </footer>
+  </div>
+
+  
+  <script src="/lib/anime.min.js"></script>
+  <script src="/lib/velocity/velocity.min.js"></script>
+  <script src="/lib/velocity/velocity.ui.min.js"></script>
+
+<script src="/js/utils.js"></script>
+
+<script src="/js/motion.js"></script>
+
+
+<script src="/js/schemes/pisces.js"></script>
+
+
+<script src="/js/next-boot.js"></script>
+
+
+
+
+  
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+  
+
+  
+
+  
+
+<script>
+  function loadCount() {
+    var d = document, s = d.createElement('script');
+    s.src = 'https://qixinbo.disqus.com/count.js';
+    s.id = 'dsq-count-scr';
+    (d.head || d.body).appendChild(s);
+  }
+  // defer loading until the whole page loading is completed
+  window.addEventListener('load', loadCount, false);
+</script>
+<script>
+  var disqus_config = function() {
+    this.page.url = "http://qixinbo.github.io/2019/08/31/ImagePy_4/";
+    this.page.identifier = "2019/08/31/ImagePy_4/";
+    this.page.title = "ImagePy解析：4 -- 主界面渲染";
+    };
+  NexT.utils.loadComments(document.querySelector('#disqus_thread'), () => {
+    if (window.DISQUS) {
+      DISQUS.reset({
+        reload: true,
+        config: disqus_config
+      });
+    } else {
+      var d = document, s = d.createElement('script');
+      s.src = 'https://qixinbo.disqus.com/embed.js';
+      s.setAttribute('data-timestamp', '' + +new Date());
+      (d.head || d.body).appendChild(s);
+    }
+  });
+</script>
+
+</body>
+</html>

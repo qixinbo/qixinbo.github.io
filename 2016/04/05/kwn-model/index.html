@@ -1,0 +1,573 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=2">
+<meta name="theme-color" content="#222">
+<meta name="generator" content="Hexo 5.4.0">
+  <link rel="apple-touch-icon" sizes="180x180" href="/images/apple-touch-icon-next.png">
+  <link rel="icon" type="image/png" sizes="32x32" href="/favicon.ico">
+  <link rel="icon" type="image/png" sizes="16x16" href="/favicon.ico">
+  <link rel="mask-icon" href="/images/logo.svg" color="#222">
+
+<link rel="stylesheet" href="/css/main.css">
+
+
+<link rel="stylesheet" href="/lib/font-awesome/css/all.min.css">
+
+<script id="hexo-configurations">
+    var NexT = window.NexT || {};
+    var CONFIG = {"hostname":"qixinbo.github.io","root":"/","scheme":"Gemini","version":"7.8.0","exturl":false,"sidebar":{"position":"left","display":"post","padding":18,"offset":12,"onmobile":false},"copycode":{"enable":false,"show_result":false,"style":null},"back2top":{"enable":true,"sidebar":false,"scrollpercent":false},"bookmark":{"enable":false,"color":"#222","save":"auto"},"fancybox":false,"mediumzoom":false,"lazyload":false,"pangu":false,"comments":{"style":"tabs","active":null,"storage":true,"lazyload":false,"nav":null},"algolia":{"hits":{"per_page":10},"labels":{"input_placeholder":"Search for Posts","hits_empty":"We didn't find any results for the search: ${query}","hits_stats":"${hits} results found in ${time} ms"}},"localsearch":{"enable":false,"trigger":"auto","top_n_per_article":1,"unescape":false,"preload":false},"motion":{"enable":true,"async":false,"transition":{"post_block":"fadeIn","post_header":"slideDownIn","post_body":"slideDownIn","coll_header":"slideLeftIn","sidebar":"slideUpIn"}}};
+  </script>
+
+  <meta name="description" content="析出反应通常来说，过饱和亚稳合金中的析出反应可分为三个不同的阶段：  析出相的形核，这来源于过饱和基体中局部区域的成分起伏，且符合统计规律。 析出相的生长，其受溶质元素扩散控制，且与周围的第二相不产生竞争关系。 析出相的粗化，此过程中小尺寸的颗粒溶解，使得大尺寸的颗粒继续生长。  前两个过程是由相变的自由能差驱动，其在达到平衡相体积分数后就结束，而粗化则只是界面能降低的过程，可以一直持续到仅有一个">
+<meta property="og:type" content="article">
+<meta property="og:title" content="形核、生长和粗化同时进行的数值处理方法——KWN模型">
+<meta property="og:url" content="http://qixinbo.github.io/2016/04/05/kwn-model/index.html">
+<meta property="og:site_name" content="亓欣波">
+<meta property="og:description" content="析出反应通常来说，过饱和亚稳合金中的析出反应可分为三个不同的阶段：  析出相的形核，这来源于过饱和基体中局部区域的成分起伏，且符合统计规律。 析出相的生长，其受溶质元素扩散控制，且与周围的第二相不产生竞争关系。 析出相的粗化，此过程中小尺寸的颗粒溶解，使得大尺寸的颗粒继续生长。  前两个过程是由相变的自由能差驱动，其在达到平衡相体积分数后就结束，而粗化则只是界面能降低的过程，可以一直持续到仅有一个">
+<meta property="og:locale" content="en_US">
+<meta property="article:published_time" content="2016-04-04T16:00:00.000Z">
+<meta property="article:modified_time" content="2021-03-25T07:20:30.717Z">
+<meta property="article:author" content="Xin-Bo Qi(亓欣波)">
+<meta property="article:tag" content="model">
+<meta property="article:tag" content="KWN">
+<meta property="article:tag" content="phasetransform">
+<meta name="twitter:card" content="summary">
+
+<link rel="canonical" href="http://qixinbo.github.io/2016/04/05/kwn-model/">
+
+
+<script id="page-configurations">
+  // https://hexo.io/docs/variables.html
+  CONFIG.page = {
+    sidebar: "",
+    isHome : false,
+    isPost : true,
+    lang   : 'en'
+  };
+</script>
+
+  <title>形核、生长和粗化同时进行的数值处理方法——KWN模型 | 亓欣波</title>
+  
+
+
+
+
+
+
+  <noscript>
+  <style>
+  .use-motion .brand,
+  .use-motion .menu-item,
+  .sidebar-inner,
+  .use-motion .post-block,
+  .use-motion .pagination,
+  .use-motion .comments,
+  .use-motion .post-header,
+  .use-motion .post-body,
+  .use-motion .collection-header { opacity: initial; }
+
+  .use-motion .site-title,
+  .use-motion .site-subtitle {
+    opacity: initial;
+    top: initial;
+  }
+
+  .use-motion .logo-line-before i { left: initial; }
+  .use-motion .logo-line-after i { right: initial; }
+  </style>
+</noscript>
+
+</head>
+
+<body itemscope itemtype="http://schema.org/WebPage">
+  <div class="container use-motion">
+    <div class="headband"></div>
+
+    <header class="header" itemscope itemtype="http://schema.org/WPHeader">
+      <div class="header-inner"><div class="site-brand-container">
+  <div class="site-nav-toggle">
+    <div class="toggle" aria-label="Toggle navigation bar">
+      <span class="toggle-line toggle-line-first"></span>
+      <span class="toggle-line toggle-line-middle"></span>
+      <span class="toggle-line toggle-line-last"></span>
+    </div>
+  </div>
+
+  <div class="site-meta">
+
+    <a href="/" class="brand" rel="start">
+      <span class="logo-line-before"><i></i></span>
+      <h1 class="site-title">亓欣波</h1>
+      <span class="logo-line-after"><i></i></span>
+    </a>
+      <p class="site-subtitle" itemprop="description">Hi, I am Xin-Bo Qi (亓欣波)</p>
+  </div>
+
+  <div class="site-nav-right">
+    <div class="toggle popup-trigger">
+    </div>
+  </div>
+</div>
+
+
+
+
+<nav class="site-nav">
+  <ul id="menu" class="main-menu menu">
+        <li class="menu-item menu-item-home">
+
+    <a href="/" rel="section"><i class="home fa-fw"></i>Home</a>
+
+  </li>
+        <li class="menu-item menu-item-categories">
+
+    <a href="/categories/" rel="section"><i class="th fa-fw"></i>Categories</a>
+
+  </li>
+        <li class="menu-item menu-item-archives">
+
+    <a href="/archives/" rel="section"><i class="archive fa-fw"></i>Archives</a>
+
+  </li>
+        <li class="menu-item menu-item-tags">
+
+    <a href="/tags/" rel="section"><i class="tags fa-fw"></i>Tags</a>
+
+  </li>
+        <li class="menu-item menu-item-scholar">
+
+    <a href="/scholar/" rel="section"><i class="bar-chart fa-fw"></i>scholar</a>
+
+  </li>
+        <li class="menu-item menu-item-sources">
+
+    <a href="/sources/" rel="section"><i class="rss fa-fw"></i>sources</a>
+
+  </li>
+        <li class="menu-item menu-item-gallery">
+
+    <a href="/gallery/" rel="section"><i class="file-image-o fa-fw"></i>gallery</a>
+
+  </li>
+        <li class="menu-item menu-item-about">
+
+    <a href="/about/" rel="section"><i class="user fa-fw"></i>About</a>
+
+  </li>
+        <li class="menu-item menu-item-commonweal">
+
+    <a href="/404.html" rel="section"><i class="heartbeat fa-fw"></i>Commonweal 404</a>
+
+  </li>
+  </ul>
+</nav>
+
+
+
+
+</div>
+    </header>
+
+    
+  <div class="back-to-top">
+    <i class="fa fa-arrow-up"></i>
+    <span>0%</span>
+  </div>
+
+
+    <main class="main">
+      <div class="main-inner">
+        <div class="content-wrap">
+          
+
+          <div class="content post posts-expand">
+            
+
+    
+  
+  
+  <article itemscope itemtype="http://schema.org/Article" class="post-block" lang="en">
+    <link itemprop="mainEntityOfPage" href="http://qixinbo.github.io/2016/04/05/kwn-model/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="image" content="/images/avatar.jpg">
+      <meta itemprop="name" content="Xin-Bo Qi(亓欣波)">
+      <meta itemprop="description" content="Be interesting!">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="亓欣波">
+    </span>
+      <header class="post-header">
+        <h1 class="post-title" itemprop="name headline">
+          形核、生长和粗化同时进行的数值处理方法——KWN模型
+        </h1>
+
+        <div class="post-meta">
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="far fa-calendar"></i>
+              </span>
+              <span class="post-meta-item-text">Posted on</span>
+
+              <time title="Created: 2016-04-05 00:00:00" itemprop="dateCreated datePublished" datetime="2016-04-05T00:00:00+08:00">2016-04-05</time>
+            </span>
+              <span class="post-meta-item">
+                <span class="post-meta-item-icon">
+                  <i class="far fa-calendar-check"></i>
+                </span>
+                <span class="post-meta-item-text">Edited on</span>
+                <time title="Modified: 2021-03-25 15:20:30" itemprop="dateModified" datetime="2021-03-25T15:20:30+08:00">2021-03-25</time>
+              </span>
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="far fa-folder"></i>
+              </span>
+              <span class="post-meta-item-text">In</span>
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+                  <a href="/categories/computational-material-science/" itemprop="url" rel="index"><span itemprop="name">computational material science</span></a>
+                </span>
+            </span>
+
+          
+  
+  <span class="post-meta-item">
+    
+      <span class="post-meta-item-icon">
+        <i class="far fa-comment"></i>
+      </span>
+      <span class="post-meta-item-text">Disqus: </span>
+    
+    <a title="disqus" href="/2016/04/05/kwn-model/#disqus_thread" itemprop="discussionUrl">
+      <span class="post-comments-count disqus-comment-count" data-disqus-identifier="2016/04/05/kwn-model/" itemprop="commentCount"></span>
+    </a>
+  </span>
+  
+  
+
+        </div>
+      </header>
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+        <h1 id="析出反应"><a href="#析出反应" class="headerlink" title="析出反应"></a>析出反应</h1><p>通常来说，过饱和亚稳合金中的析出反应可分为三个不同的阶段：</p>
+<ol>
+<li>析出相的形核，这来源于过饱和基体中局部区域的成分起伏，且符合统计规律。</li>
+<li>析出相的生长，其受溶质元素扩散控制，且与周围的第二相不产生竞争关系。</li>
+<li>析出相的粗化，此过程中小尺寸的颗粒溶解，使得大尺寸的颗粒继续生长。</li>
+</ol>
+<p>前两个过程是由相变的自由能差驱动，其在达到平衡相体积分数后就结束，而粗化则只是界面能降低的过程，可以一直持续到仅有一个颗粒为止。另外，生长和粗化这两个阶段较难区分，实际上这里是为了分析方便，对于不同阶段配合真实的边界条件而采用不同的处理方法。</p>
+<h2 id="形核"><a href="#形核" class="headerlink" title="形核"></a>形核</h2><p>形核模型可采用基于随机性形核的经典形核理论或基于确定性形核的自由生长模型。<br>经典形核理论的形核率的表达式为：<br>$$ J=e^{-t_w/t}z\beta N_0 e^{-\frac{\Delta G^*}{kT}} $$<br>其中$\Delta G^*=\frac{4\pi}{3}R^{* 2}\gamma$是包含$n^*$个原子的半径为$R^*$的临界晶核的形成功，$\gamma$是界面能。<br>$z=(\Delta G^*/(3\pi kT n^{* 2}))^{1/2}$是Zeldovich因子。<br>$\beta=(D \overline{c}/\lambda^2)$是从平均浓度为$\overline{c}$的基体中加入临界晶核的速率。D是有效扩散率。$N_0$是单位体积原子位置数目，$t_w$是孕育期，$\lambda$是原子跃迁宽度。</p>
+<h2 id="生长"><a href="#生长" class="headerlink" title="生长"></a>生长</h2><p>设一已形核的稳定的半径为R、浓度为$c_p$的球形颗粒嵌入过饱和基体中，远离颗粒的基体中的浓度为$\overline{c}(t)$，那么该颗粒的生长速率为：<br>$$ \frac{dR}{dt}=v(R)=\frac{\overline{c}(t)-c_R}{c_p-c_R}\frac{D}{R} $$<br>其中，$c_R$是界面上的基体溶质浓度，其已经考虑了Gibbs-Thomson效应。</p>
+<h2 id="粗化"><a href="#粗化" class="headerlink" title="粗化"></a>粗化</h2><p>粗化是大的颗粒继续生长而小的颗粒溶解的过程。因此粗化的表现方式还在于生长速率方程上：速率为正，表示粗化;速率为负，表示溶解。</p>
+<p>1984年Kampmann和Wagner提出了一种在经典形核和生长理论框架下精确描述整个析出过程的数值方法，其在没有近似假定的条件下能够计算尺寸分布随时间的演化过程，自称为N model (Numerical model)，以后人们称为KWN(Kampmann-Wagner-Numerical)模型。</p>
+<blockquote>
+<p>   Decomposition of Alloys: the Early Stages. Proceedings of the 2nd Acta-Scripta Metallurgica Conference 1984. 1984.<br>   R. Wagner, R. Kampmann, P.W. Voorhees. Homogeneous Second-Phase Precipitation. Phase Transformations in Materials. Wiley-VCH Verlag GmbH &amp; Co. KGaA, 1991. pp. 309-407.</p>
+</blockquote>
+<p>KWN模型也不是无中生有的，起源于Langer-Schwartz模型，后对LS模型加以改进形成MLS模型，最终提出了KWN模型。</p>
+<h1 id="计算流程"><a href="#计算流程" class="headerlink" title="计算流程"></a>计算流程</h1><h2 id="初始化"><a href="#初始化" class="headerlink" title="初始化"></a>初始化</h2><ul>
+<li>输入基本物性参数：扩散系数、界面能、混合熵、相变潜热、热容、摩尔体积、相图参数等</li>
+<li>设定实验条件：相变温度、冷却速度、初始浓度及其他实验条件</li>
+<li>颗粒尺寸分布：一般颗粒的初始分布为空。还有一种尺寸分布PSD(particles size distribution)特指自由生长模型中提供异质形核位置的分布，如铝合金凝固中的孕育剂质点，但因为其尚未形核，故不能放入颗粒的尺寸区间中。</li>
+</ul>
+<h2 id="设定边界条件"><a href="#设定边界条件" class="headerlink" title="设定边界条件"></a>设定边界条件</h2><p>将时间和尺寸分布离散化，时间步长$\Delta t$，尺寸步长$\Delta R$。<br>采用自动调整的时间步长，防止某一尺寸区间的移动距离超过尺寸步长：<br>$$\Delta t=\frac{\Delta R}{2}\frac{1}{MAX|dR/dt|}$$<br>但实际计算中，最大速度通常在最小半径的晶核中出现(根据生长速度方程可以得出，甚至对于非常小的晶核，可以得到无限大的速度)，而这些晶核正在溶解，因此需要将过小的晶核排除。另一方面，在具有最大尺寸的区间中，也可能因为其速度为正而不断产生新的更大的尺寸区间。总结来说，需要对尺寸分布的上下限设定一个阈值。<br>具体设置需要根据所研究的过程进行试错，如KW在1984年文献中建议：至少包含200个区间，其中大于平均半径的区间至少有50个，小于平均半径的某一固定分数的尺寸从区间中移除，从而限制区间的个数。对于时间步长，保证在粗化阶段，平均半径在5000个时间步后达到自身的两倍。(KW从数值上给出了建议，不过具体问题需要具体分析)</p>
+<h2 id="计算临界形核半径"><a href="#计算临界形核半径" class="headerlink" title="计算临界形核半径"></a>计算临界形核半径</h2><p>根据所选模型的不同，临界形核半径的计算有两种不同的计算方法：<br>(1)随机形核模型：<br>根据Gibbs-Thomson条件，得到界面浓度与半径的关系：<br>$$c_R=c_e exp(\frac{2\gamma V_m}{R_g T}\frac{1}{R})$$<br>其中，$c_e$是不考虑GT效应的相图中的平衡浓度，$V_m$是摩尔体积，$R_g$是气体常数。当半径等于临界半径时，颗粒既不生长也不溶解。因此根据生长速率方程和Gibbs-Thomson条件可以得到临界半径$R^*$的表达式：<br>$$ R^*=\frac{2\gamma V_m}{R_g T}\frac{1}{ln\frac{\overline{c}}{c_e}}<br>=K\gamma\frac{1}{ln\frac{\overline{c}}{c_e}}$$</p>
+<p>(2)自由生长模型：<br>$$R^*=\frac{2\gamma}{\Delta S_f \Delta T}$$</p>
+<h2 id="更新尺寸区间中的颗粒数目"><a href="#更新尺寸区间中的颗粒数目" class="headerlink" title="更新尺寸区间中的颗粒数目"></a>更新尺寸区间中的颗粒数目</h2><p>尺寸区间中的颗粒数目的变化跟两方面的因素有关：(1)新形核的颗粒进入包含临界形核半径的尺寸空间中;(2)已形核的颗粒的生长或溶解导致其可能向相邻的尺寸空间中迁移。<br>(1)新形核的颗粒的数目：<br>(I)根据随机性形核模型计算形核率：<br>$$ J=e^{-t_w/t}z\beta N_0 e^{-\frac{\delta G^*}{kT}} $$<br>$$ \Delta N=J \Delta t $$<br>将这些新形成的核心放入包含临界半径的尺寸区间中。<br>(II)根据自由生长模型，大于等于临界形核半径的尺寸区间中的孕育剂直接转化为颗粒，注意将之前已转化的孕育剂排除。</p>
+<p>注意：赋予新形核的质点半径比临界半径大10%，以使它们顺利生长。</p>
+<p>(2)已形核的颗粒的生长或溶解：<br>$$\Delta R=v(R)\Delta t$$<br>由于之前采用了自动调整的时间步长，因此这里可以保证颗粒的迁移只在相邻尺寸区间中进行。</p>
+<h2 id="计算平均基体浓度"><a href="#计算平均基体浓度" class="headerlink" title="计算平均基体浓度"></a>计算平均基体浓度</h2><p>根据已知的形核数目、尺寸及颗粒的平均浓度，通过质量守恒定律计算平均基体浓度$\overline{c}$：<br>$$ \sum_{j=1}^{NOS}\frac{4}{3}\pi R_j^3 n_j c_{p,j}<br>+(V_{Domain}-\sum_{j=1}^{NOS}\frac{4}{3}\pi R_j^3 n_j)\overline{c}=V_{Domain}c_0$$<br>其中，$R_j, n_j, c_{p,j}$分别是第j个尺寸区间的颗粒的半径、个数和平均浓度，共有$NOS$个尺寸区间，$V_{Domain}$是总体积，那么$N_j=n_j/V_{Domain}$就是第j个区间的单位体积的数目，即数密度。因此，化简一下，可以得到平均基体浓度的表达式为：<br>$$\overline{c}=c_0-(c_{p,j}-\overline{c})\sum_{j=1}^{NOS}\frac{4}{3}\pi R_j^3 N_j$$</p>
+<h2 id="计算界面上的基体浓度和颗粒浓度"><a href="#计算界面上的基体浓度和颗粒浓度" class="headerlink" title="计算界面上的基体浓度和颗粒浓度"></a>计算界面上的基体浓度和颗粒浓度</h2><p>首先根据考虑Gibbs-Thomson条件的局域平衡的相图计算界面上的基体浓度：<br>$$T^*=T(c_R)-\Delta T_r=T(c_R-\frac{2\gamma}{\Delta S_f R})$$<br>然后根据溶质再分配定律计算界面上的颗粒浓度：<br>$$c_p^*=k c_R$$</p>
+<h2 id="计算颗粒生长速度"><a href="#计算颗粒生长速度" class="headerlink" title="计算颗粒生长速度"></a>计算颗粒生长速度</h2><p>根据晶粒的生长速率方程，判断是生长还是溶解。<br>$$ \frac{dR}{dt}=v(R)=\frac{\overline{c}(t)-c_R}{c_p-c_R}\frac{D}{R} $$</p>
+<h2 id="更新颗粒平均浓度"><a href="#更新颗粒平均浓度" class="headerlink" title="更新颗粒平均浓度"></a>更新颗粒平均浓度</h2><p>对于颗粒中的平均浓度$c_{p,j}$，其与界面上颗粒浓度的关系可以按两种模型处理，<br>一种是无限扩散，即：<br>$$c_{p,j}=c_{p,j}^*$$<br>一种是无扩散，即：<br>$$c_{p,j}=\frac{\int_0^{R_j}c_{p,j}^* 4\pi r^2dr}{4\pi R_j^3/3}<br>=\frac{3\int_0^{R_j}c_{p,j}^* r^2dr}{R_j^3}<br>$$</p>
+<h2 id="计算平均颗粒尺寸和总的数密度"><a href="#计算平均颗粒尺寸和总的数密度" class="headerlink" title="计算平均颗粒尺寸和总的数密度"></a>计算平均颗粒尺寸和总的数密度</h2><h2 id="存储结果并进入下一步循环"><a href="#存储结果并进入下一步循环" class="headerlink" title="存储结果并进入下一步循环"></a>存储结果并进入下一步循环</h2><h1 id="附录"><a href="#附录" class="headerlink" title="附录"></a>附录</h1>
+    </div>
+
+    
+    
+    
+        <div class="reward-container">
+  <div></div>
+  <button onclick="var qr = document.getElementById('qr'); qr.style.display = (qr.style.display === 'none') ? 'block' : 'none';">
+    Donate
+  </button>
+  <div id="qr" style="display: none;">
+      
+      <div style="display: inline-block;">
+        <img src="/images/wechat_reward.png" alt="Xin-Bo Qi(亓欣波) WeChat Pay">
+        <p>WeChat Pay</p>
+      </div>
+
+  </div>
+</div>
+
+
+      <footer class="post-footer">
+          <div class="post-tags">
+              <a href="/tags/model/" rel="tag"># model</a>
+              <a href="/tags/KWN/" rel="tag"># KWN</a>
+              <a href="/tags/phasetransform/" rel="tag"># phasetransform</a>
+          </div>
+
+        
+
+
+        
+    <div class="post-nav">
+      <div class="post-nav-item">
+    <a href="/2016/03/30/openphase-HeatEquation/" rel="prev" title="OpenPhase实例学习系列：HeatEquation算例全解析">
+      <i class="fa fa-chevron-left"></i> OpenPhase实例学习系列：HeatEquation算例全解析
+    </a></div>
+      <div class="post-nav-item">
+    <a href="/2016/04/24/mathematica-areaCalc/" rel="next" title="用Mathematica统计区域所占面积比">
+      用Mathematica统计区域所占面积比 <i class="fa fa-chevron-right"></i>
+    </a></div>
+    </div>
+      </footer>
+    
+  </article>
+  
+  
+  
+
+
+
+          </div>
+          
+    
+  <div class="comments">
+    <div id="disqus_thread">
+      <noscript>Please enable JavaScript to view the comments powered by Disqus.</noscript>
+    </div>
+  </div>
+  
+
+<script>
+  window.addEventListener('tabs:register', () => {
+    let { activeClass } = CONFIG.comments;
+    if (CONFIG.comments.storage) {
+      activeClass = localStorage.getItem('comments_active') || activeClass;
+    }
+    if (activeClass) {
+      let activeTab = document.querySelector(`a[href="#comment-${activeClass}"]`);
+      if (activeTab) {
+        activeTab.click();
+      }
+    }
+  });
+  if (CONFIG.comments.storage) {
+    window.addEventListener('tabs:click', event => {
+      if (!event.target.matches('.tabs-comment .tab-content .tab-pane')) return;
+      let commentClass = event.target.classList[1];
+      localStorage.setItem('comments_active', commentClass);
+    });
+  }
+</script>
+
+        </div>
+          
+  
+  <div class="toggle sidebar-toggle">
+    <span class="toggle-line toggle-line-first"></span>
+    <span class="toggle-line toggle-line-middle"></span>
+    <span class="toggle-line toggle-line-last"></span>
+  </div>
+
+  <aside class="sidebar">
+    <div class="sidebar-inner">
+
+      <ul class="sidebar-nav motion-element">
+        <li class="sidebar-nav-toc">
+          Table of Contents
+        </li>
+        <li class="sidebar-nav-overview">
+          Overview
+        </li>
+      </ul>
+
+      <!--noindex-->
+      <div class="post-toc-wrap sidebar-panel">
+          <div class="post-toc motion-element"><ol class="nav"><li class="nav-item nav-level-1"><a class="nav-link" href="#%E6%9E%90%E5%87%BA%E5%8F%8D%E5%BA%94"><span class="nav-number">1.</span> <span class="nav-text">析出反应</span></a><ol class="nav-child"><li class="nav-item nav-level-2"><a class="nav-link" href="#%E5%BD%A2%E6%A0%B8"><span class="nav-number">1.1.</span> <span class="nav-text">形核</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E7%94%9F%E9%95%BF"><span class="nav-number">1.2.</span> <span class="nav-text">生长</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E7%B2%97%E5%8C%96"><span class="nav-number">1.3.</span> <span class="nav-text">粗化</span></a></li></ol></li><li class="nav-item nav-level-1"><a class="nav-link" href="#%E8%AE%A1%E7%AE%97%E6%B5%81%E7%A8%8B"><span class="nav-number">2.</span> <span class="nav-text">计算流程</span></a><ol class="nav-child"><li class="nav-item nav-level-2"><a class="nav-link" href="#%E5%88%9D%E5%A7%8B%E5%8C%96"><span class="nav-number">2.1.</span> <span class="nav-text">初始化</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E8%AE%BE%E5%AE%9A%E8%BE%B9%E7%95%8C%E6%9D%A1%E4%BB%B6"><span class="nav-number">2.2.</span> <span class="nav-text">设定边界条件</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E8%AE%A1%E7%AE%97%E4%B8%B4%E7%95%8C%E5%BD%A2%E6%A0%B8%E5%8D%8A%E5%BE%84"><span class="nav-number">2.3.</span> <span class="nav-text">计算临界形核半径</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E6%9B%B4%E6%96%B0%E5%B0%BA%E5%AF%B8%E5%8C%BA%E9%97%B4%E4%B8%AD%E7%9A%84%E9%A2%97%E7%B2%92%E6%95%B0%E7%9B%AE"><span class="nav-number">2.4.</span> <span class="nav-text">更新尺寸区间中的颗粒数目</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E8%AE%A1%E7%AE%97%E5%B9%B3%E5%9D%87%E5%9F%BA%E4%BD%93%E6%B5%93%E5%BA%A6"><span class="nav-number">2.5.</span> <span class="nav-text">计算平均基体浓度</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E8%AE%A1%E7%AE%97%E7%95%8C%E9%9D%A2%E4%B8%8A%E7%9A%84%E5%9F%BA%E4%BD%93%E6%B5%93%E5%BA%A6%E5%92%8C%E9%A2%97%E7%B2%92%E6%B5%93%E5%BA%A6"><span class="nav-number">2.6.</span> <span class="nav-text">计算界面上的基体浓度和颗粒浓度</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E8%AE%A1%E7%AE%97%E9%A2%97%E7%B2%92%E7%94%9F%E9%95%BF%E9%80%9F%E5%BA%A6"><span class="nav-number">2.7.</span> <span class="nav-text">计算颗粒生长速度</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E6%9B%B4%E6%96%B0%E9%A2%97%E7%B2%92%E5%B9%B3%E5%9D%87%E6%B5%93%E5%BA%A6"><span class="nav-number">2.8.</span> <span class="nav-text">更新颗粒平均浓度</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E8%AE%A1%E7%AE%97%E5%B9%B3%E5%9D%87%E9%A2%97%E7%B2%92%E5%B0%BA%E5%AF%B8%E5%92%8C%E6%80%BB%E7%9A%84%E6%95%B0%E5%AF%86%E5%BA%A6"><span class="nav-number">2.9.</span> <span class="nav-text">计算平均颗粒尺寸和总的数密度</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E5%AD%98%E5%82%A8%E7%BB%93%E6%9E%9C%E5%B9%B6%E8%BF%9B%E5%85%A5%E4%B8%8B%E4%B8%80%E6%AD%A5%E5%BE%AA%E7%8E%AF"><span class="nav-number">2.10.</span> <span class="nav-text">存储结果并进入下一步循环</span></a></li></ol></li><li class="nav-item nav-level-1"><a class="nav-link" href="#%E9%99%84%E5%BD%95"><span class="nav-number">3.</span> <span class="nav-text">附录</span></a></li></ol></div>
+      </div>
+      <!--/noindex-->
+
+      <div class="site-overview-wrap sidebar-panel">
+        <div class="site-author motion-element" itemprop="author" itemscope itemtype="http://schema.org/Person">
+    <img class="site-author-image" itemprop="image" alt="Xin-Bo Qi(亓欣波)"
+      src="/images/avatar.jpg">
+  <p class="site-author-name" itemprop="name">Xin-Bo Qi(亓欣波)</p>
+  <div class="site-description" itemprop="description">Be interesting!</div>
+</div>
+<div class="site-state-wrap motion-element">
+  <nav class="site-state">
+      <div class="site-state-item site-state-posts">
+          <a href="/archives/">
+        
+          <span class="site-state-item-count">120</span>
+          <span class="site-state-item-name">posts</span>
+        </a>
+      </div>
+      <div class="site-state-item site-state-categories">
+            <a href="/categories/">
+          
+        <span class="site-state-item-count">5</span>
+        <span class="site-state-item-name">categories</span></a>
+      </div>
+      <div class="site-state-item site-state-tags">
+            <a href="/tags/">
+          
+        <span class="site-state-item-count">41</span>
+        <span class="site-state-item-name">tags</span></a>
+      </div>
+  </nav>
+</div>
+  <div class="links-of-author motion-element">
+      <span class="links-of-author-item">
+        <a href="https://github.com/qixinbo" title="GitHub → https:&#x2F;&#x2F;github.com&#x2F;qixinbo" rel="noopener" target="_blank"><i class="github fa-fw"></i>GitHub</a>
+      </span>
+      <span class="links-of-author-item">
+        <a href="mailto:qixinbo@gmail.com" title="E-Mail → mailto:qixinbo@gmail.com" rel="noopener" target="_blank"><i class="envelope fa-fw"></i>E-Mail</a>
+      </span>
+  </div>
+
+
+  <div class="links-of-blogroll motion-element">
+    <div class="links-of-blogroll-title"><i class="fa fa-link fa-fw"></i>
+      Links
+    </div>
+    <ul class="links-of-blogroll-list">
+        <li class="links-of-blogroll-item">
+          <a href="https://www.tsinghua.edu.cn/" title="https:&#x2F;&#x2F;www.tsinghua.edu.cn" rel="noopener" target="_blank">THU</a>
+        </li>
+        <li class="links-of-blogroll-item">
+          <a href="http://www.imr.cas.cn/" title="http:&#x2F;&#x2F;www.imr.cas.cn" rel="noopener" target="_blank">IMR</a>
+        </li>
+        <li class="links-of-blogroll-item">
+          <a href="http://www.sdu.edu.cn/" title="http:&#x2F;&#x2F;www.sdu.edu.cn" rel="noopener" target="_blank">SDU</a>
+        </li>
+        <li class="links-of-blogroll-item">
+          <a href="http://liam0205.me/" title="http:&#x2F;&#x2F;liam0205.me&#x2F;" rel="noopener" target="_blank">黄晨成</a>
+        </li>
+    </ul>
+  </div>
+
+      </div>
+
+    </div>
+  </aside>
+  <div id="sidebar-dimmer"></div>
+
+
+      </div>
+    </main>
+
+    <footer class="footer">
+      <div class="footer-inner">
+        
+
+        
+
+<div class="copyright">
+  
+  &copy; 
+  <span itemprop="copyrightYear">2021</span>
+  <span class="with-love">
+    <i class="fa fa-heart"></i>
+  </span>
+  <span class="author" itemprop="copyrightHolder">Xin-Bo Qi(亓欣波)</span>
+</div>
+  <div class="powered-by">Powered by <a href="https://hexo.io/" class="theme-link" rel="noopener" target="_blank">Hexo</a> & <a href="https://theme-next.org/" class="theme-link" rel="noopener" target="_blank">NexT.Gemini</a>
+  </div>
+
+        
+
+
+
+
+
+
+
+
+      </div>
+    </footer>
+  </div>
+
+  
+  <script src="/lib/anime.min.js"></script>
+  <script src="/lib/velocity/velocity.min.js"></script>
+  <script src="/lib/velocity/velocity.ui.min.js"></script>
+
+<script src="/js/utils.js"></script>
+
+<script src="/js/motion.js"></script>
+
+
+<script src="/js/schemes/pisces.js"></script>
+
+
+<script src="/js/next-boot.js"></script>
+
+
+
+
+  
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+  
+
+  
+
+  
+
+<script>
+  function loadCount() {
+    var d = document, s = d.createElement('script');
+    s.src = 'https://qixinbo.disqus.com/count.js';
+    s.id = 'dsq-count-scr';
+    (d.head || d.body).appendChild(s);
+  }
+  // defer loading until the whole page loading is completed
+  window.addEventListener('load', loadCount, false);
+</script>
+<script>
+  var disqus_config = function() {
+    this.page.url = "http://qixinbo.github.io/2016/04/05/kwn-model/";
+    this.page.identifier = "2016/04/05/kwn-model/";
+    this.page.title = "形核、生长和粗化同时进行的数值处理方法——KWN模型";
+    };
+  NexT.utils.loadComments(document.querySelector('#disqus_thread'), () => {
+    if (window.DISQUS) {
+      DISQUS.reset({
+        reload: true,
+        config: disqus_config
+      });
+    } else {
+      var d = document, s = d.createElement('script');
+      s.src = 'https://qixinbo.disqus.com/embed.js';
+      s.setAttribute('data-timestamp', '' + +new Date());
+      (d.head || d.body).appendChild(s);
+    }
+  });
+</script>
+
+</body>
+</html>

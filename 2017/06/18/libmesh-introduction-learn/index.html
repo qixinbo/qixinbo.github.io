@@ -1,0 +1,573 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=2">
+<meta name="theme-color" content="#222">
+<meta name="generator" content="Hexo 5.4.0">
+  <link rel="apple-touch-icon" sizes="180x180" href="/images/apple-touch-icon-next.png">
+  <link rel="icon" type="image/png" sizes="32x32" href="/favicon.ico">
+  <link rel="icon" type="image/png" sizes="16x16" href="/favicon.ico">
+  <link rel="mask-icon" href="/images/logo.svg" color="#222">
+
+<link rel="stylesheet" href="/css/main.css">
+
+
+<link rel="stylesheet" href="/lib/font-awesome/css/all.min.css">
+
+<script id="hexo-configurations">
+    var NexT = window.NexT || {};
+    var CONFIG = {"hostname":"qixinbo.github.io","root":"/","scheme":"Gemini","version":"7.8.0","exturl":false,"sidebar":{"position":"left","display":"post","padding":18,"offset":12,"onmobile":false},"copycode":{"enable":false,"show_result":false,"style":null},"back2top":{"enable":true,"sidebar":false,"scrollpercent":false},"bookmark":{"enable":false,"color":"#222","save":"auto"},"fancybox":false,"mediumzoom":false,"lazyload":false,"pangu":false,"comments":{"style":"tabs","active":null,"storage":true,"lazyload":false,"nav":null},"algolia":{"hits":{"per_page":10},"labels":{"input_placeholder":"Search for Posts","hits_empty":"We didn't find any results for the search: ${query}","hits_stats":"${hits} results found in ${time} ms"}},"localsearch":{"enable":false,"trigger":"auto","top_n_per_article":1,"unescape":false,"preload":false},"motion":{"enable":true,"async":false,"transition":{"post_block":"fadeIn","post_header":"slideDownIn","post_body":"slideDownIn","coll_header":"slideLeftIn","sidebar":"slideUpIn"}}};
+  </script>
+
+  <meta name="description" content="Intro 1第一个例子演示了怎样创建一个Mesh Object。头文件： 123#include &quot;libmesh&#x2F;libmesh.h&quot;  &#x2F;&#x2F;用来初始化库#include &quot;libmesh&#x2F;mesh.h&quot;  &#x2F;&#x2F;包含基本的mesh功能using namespace libMesh;  &#x2F;&#x2F;所有的东西都在libMesh命名空间中 入口函数代码：  1Lib">
+<meta property="og:type" content="article">
+<meta property="og:title" content="libMesh的5个Introduction教学例子学习">
+<meta property="og:url" content="http://qixinbo.github.io/2017/06/18/libmesh-introduction-learn/index.html">
+<meta property="og:site_name" content="亓欣波">
+<meta property="og:description" content="Intro 1第一个例子演示了怎样创建一个Mesh Object。头文件： 123#include &quot;libmesh&#x2F;libmesh.h&quot;  &#x2F;&#x2F;用来初始化库#include &quot;libmesh&#x2F;mesh.h&quot;  &#x2F;&#x2F;包含基本的mesh功能using namespace libMesh;  &#x2F;&#x2F;所有的东西都在libMesh命名空间中 入口函数代码：  1Lib">
+<meta property="og:locale" content="en_US">
+<meta property="article:published_time" content="2017-06-17T16:00:00.000Z">
+<meta property="article:modified_time" content="2021-03-25T07:20:30.732Z">
+<meta property="article:author" content="Xin-Bo Qi(亓欣波)">
+<meta property="article:tag" content="linux">
+<meta property="article:tag" content="libmesh">
+<meta name="twitter:card" content="summary">
+
+<link rel="canonical" href="http://qixinbo.github.io/2017/06/18/libmesh-introduction-learn/">
+
+
+<script id="page-configurations">
+  // https://hexo.io/docs/variables.html
+  CONFIG.page = {
+    sidebar: "",
+    isHome : false,
+    isPost : true,
+    lang   : 'en'
+  };
+</script>
+
+  <title>libMesh的5个Introduction教学例子学习 | 亓欣波</title>
+  
+
+
+
+
+
+
+  <noscript>
+  <style>
+  .use-motion .brand,
+  .use-motion .menu-item,
+  .sidebar-inner,
+  .use-motion .post-block,
+  .use-motion .pagination,
+  .use-motion .comments,
+  .use-motion .post-header,
+  .use-motion .post-body,
+  .use-motion .collection-header { opacity: initial; }
+
+  .use-motion .site-title,
+  .use-motion .site-subtitle {
+    opacity: initial;
+    top: initial;
+  }
+
+  .use-motion .logo-line-before i { left: initial; }
+  .use-motion .logo-line-after i { right: initial; }
+  </style>
+</noscript>
+
+</head>
+
+<body itemscope itemtype="http://schema.org/WebPage">
+  <div class="container use-motion">
+    <div class="headband"></div>
+
+    <header class="header" itemscope itemtype="http://schema.org/WPHeader">
+      <div class="header-inner"><div class="site-brand-container">
+  <div class="site-nav-toggle">
+    <div class="toggle" aria-label="Toggle navigation bar">
+      <span class="toggle-line toggle-line-first"></span>
+      <span class="toggle-line toggle-line-middle"></span>
+      <span class="toggle-line toggle-line-last"></span>
+    </div>
+  </div>
+
+  <div class="site-meta">
+
+    <a href="/" class="brand" rel="start">
+      <span class="logo-line-before"><i></i></span>
+      <h1 class="site-title">亓欣波</h1>
+      <span class="logo-line-after"><i></i></span>
+    </a>
+      <p class="site-subtitle" itemprop="description">Hi, I am Xin-Bo Qi (亓欣波)</p>
+  </div>
+
+  <div class="site-nav-right">
+    <div class="toggle popup-trigger">
+    </div>
+  </div>
+</div>
+
+
+
+
+<nav class="site-nav">
+  <ul id="menu" class="main-menu menu">
+        <li class="menu-item menu-item-home">
+
+    <a href="/" rel="section"><i class="home fa-fw"></i>Home</a>
+
+  </li>
+        <li class="menu-item menu-item-categories">
+
+    <a href="/categories/" rel="section"><i class="th fa-fw"></i>Categories</a>
+
+  </li>
+        <li class="menu-item menu-item-archives">
+
+    <a href="/archives/" rel="section"><i class="archive fa-fw"></i>Archives</a>
+
+  </li>
+        <li class="menu-item menu-item-tags">
+
+    <a href="/tags/" rel="section"><i class="tags fa-fw"></i>Tags</a>
+
+  </li>
+        <li class="menu-item menu-item-scholar">
+
+    <a href="/scholar/" rel="section"><i class="bar-chart fa-fw"></i>scholar</a>
+
+  </li>
+        <li class="menu-item menu-item-sources">
+
+    <a href="/sources/" rel="section"><i class="rss fa-fw"></i>sources</a>
+
+  </li>
+        <li class="menu-item menu-item-gallery">
+
+    <a href="/gallery/" rel="section"><i class="file-image-o fa-fw"></i>gallery</a>
+
+  </li>
+        <li class="menu-item menu-item-about">
+
+    <a href="/about/" rel="section"><i class="user fa-fw"></i>About</a>
+
+  </li>
+        <li class="menu-item menu-item-commonweal">
+
+    <a href="/404.html" rel="section"><i class="heartbeat fa-fw"></i>Commonweal 404</a>
+
+  </li>
+  </ul>
+</nav>
+
+
+
+
+</div>
+    </header>
+
+    
+  <div class="back-to-top">
+    <i class="fa fa-arrow-up"></i>
+    <span>0%</span>
+  </div>
+
+
+    <main class="main">
+      <div class="main-inner">
+        <div class="content-wrap">
+          
+
+          <div class="content post posts-expand">
+            
+
+    
+  
+  
+  <article itemscope itemtype="http://schema.org/Article" class="post-block" lang="en">
+    <link itemprop="mainEntityOfPage" href="http://qixinbo.github.io/2017/06/18/libmesh-introduction-learn/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="image" content="/images/avatar.jpg">
+      <meta itemprop="name" content="Xin-Bo Qi(亓欣波)">
+      <meta itemprop="description" content="Be interesting!">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="亓欣波">
+    </span>
+      <header class="post-header">
+        <h1 class="post-title" itemprop="name headline">
+          libMesh的5个Introduction教学例子学习
+        </h1>
+
+        <div class="post-meta">
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="far fa-calendar"></i>
+              </span>
+              <span class="post-meta-item-text">Posted on</span>
+
+              <time title="Created: 2017-06-18 00:00:00" itemprop="dateCreated datePublished" datetime="2017-06-18T00:00:00+08:00">2017-06-18</time>
+            </span>
+              <span class="post-meta-item">
+                <span class="post-meta-item-icon">
+                  <i class="far fa-calendar-check"></i>
+                </span>
+                <span class="post-meta-item-text">Edited on</span>
+                <time title="Modified: 2021-03-25 15:20:30" itemprop="dateModified" datetime="2021-03-25T15:20:30+08:00">2021-03-25</time>
+              </span>
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="far fa-folder"></i>
+              </span>
+              <span class="post-meta-item-text">In</span>
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+                  <a href="/categories/programming/" itemprop="url" rel="index"><span itemprop="name">programming</span></a>
+                </span>
+            </span>
+
+          
+  
+  <span class="post-meta-item">
+    
+      <span class="post-meta-item-icon">
+        <i class="far fa-comment"></i>
+      </span>
+      <span class="post-meta-item-text">Disqus: </span>
+    
+    <a title="disqus" href="/2017/06/18/libmesh-introduction-learn/#disqus_thread" itemprop="discussionUrl">
+      <span class="post-comments-count disqus-comment-count" data-disqus-identifier="2017/06/18/libmesh-introduction-learn/" itemprop="commentCount"></span>
+    </a>
+  </span>
+  
+  
+
+        </div>
+      </header>
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+        <h1 id="Intro-1"><a href="#Intro-1" class="headerlink" title="Intro 1"></a>Intro 1</h1><p>第一个例子演示了怎样创建一个Mesh Object。<br>头文件：</p>
+<figure class="highlight cpp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">#<span class="meta-keyword">include</span> <span class="meta-string">&quot;libmesh/libmesh.h&quot;</span>  <span class="comment">//用来初始化库</span></span></span><br><span class="line"><span class="meta">#<span class="meta-keyword">include</span> <span class="meta-string">&quot;libmesh/mesh.h&quot;</span>  <span class="comment">//包含基本的mesh功能</span></span></span><br><span class="line"><span class="keyword">using</span> <span class="keyword">namespace</span> libMesh;  <span class="comment">//所有的东西都在libMesh命名空间中</span></span><br></pre></td></tr></table></figure>
+<p>入口函数代码： </p>
+<figure class="highlight cpp"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"><span class="function">LibMeshInit <span class="title">init</span> <span class="params">(argc, argv)</span></span>; <span class="comment">// 初始化，这是必要的一步，因为libMesh可能依赖其他的比如MPI、PETSc等函数库</span></span><br></pre></td></tr></table></figure>
+<p>因为该程序的用法是：</p>
+<figure class="highlight cpp"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">./ex1 -d DIM input_mesh_name [-o output_mesh_name]</span><br></pre></td></tr></table></figure>
+<p>所有这里会有一个参数个数的判断，如果少于4个参数，就会报错，提示正确的用法：</p>
+<figure class="highlight cpp"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"><span class="built_in">libmesh_error_msg</span>(<span class="string">&quot;Usage: &quot;</span> &lt;&lt; argv[<span class="number">0</span>] &lt;&lt; <span class="string">&quot; -d 2 in.mesh [-o out.mesh]&quot;</span>);</span><br></pre></td></tr></table></figure>
+<p>以下是对mesh object的操作：</p>
+<figure class="highlight cpp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line"><span class="function">Mesh <span class="title">mesh</span><span class="params">(init.comm())</span></span>;  <span class="comment">// 在默认通信子上创建一个Mesh</span></span><br><span class="line">mesh.<span class="built_in">read</span>(argv[<span class="number">3</span>]);  <span class="comment">//读入网格文件</span></span><br><span class="line">mesh.<span class="built_in">print_info</span>();  <span class="comment">//在屏幕上输出网格信息</span></span><br><span class="line">mesh.<span class="built_in">write</span>(argv[<span class="number">5</span>]);  <span class="comment">//输出网格文件</span></span><br></pre></td></tr></table></figure>
+<h1 id="Intro-2"><a href="#Intro-2" class="headerlink" title="Intro 2"></a>Intro 2</h1><p>第二个例子演示了怎样创建一个标量方程。同时引入了PETSc，默认情形下方程数据都存入PETSc vector中。<br>头文件：</p>
+<figure class="highlight cpp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">#<span class="meta-keyword">include</span> <span class="meta-string">&lt;iostream&gt;</span> <span class="comment">// C++头文件</span></span></span><br><span class="line"><span class="comment">//实现网格功能的基本头文件</span></span><br><span class="line"><span class="meta">#<span class="meta-keyword">include</span> <span class="meta-string">&quot;libmesh/libmesh.h&quot;</span></span></span><br><span class="line"><span class="meta">#<span class="meta-keyword">include</span> <span class="meta-string">&quot;libmesh/mesh.h&quot;</span></span></span><br><span class="line"><span class="meta">#<span class="meta-keyword">include</span> <span class="meta-string">&quot;libmesh/mesh_generation.h&quot;</span> <span class="comment">// 定义多种生成网格的组件</span></span></span><br><span class="line"><span class="meta">#<span class="meta-keyword">include</span> <span class="meta-string">&quot;libmesh/equation_systems.h&quot;</span> <span class="comment">// 定义方程系统</span></span></span><br><span class="line"><span class="comment">// 定义简单的稳态系统</span></span><br><span class="line"><span class="meta">#<span class="meta-keyword">include</span> <span class="meta-string">&quot;libmesh/linear_implicit_system.h&quot;</span> </span></span><br><span class="line"><span class="meta">#<span class="meta-keyword">include</span> <span class="meta-string">&quot;libmesh/transient_system.h&quot;</span></span></span><br><span class="line"><span class="meta">#<span class="meta-keyword">include</span> <span class="meta-string">&quot;libmesh/explicit_system.h&quot;</span></span></span><br><span class="line"></span><br><span class="line"><span class="keyword">using</span> <span class="keyword">namespace</span> libMesh;</span><br></pre></td></tr></table></figure>
+<p>源码：</p>
+<figure class="highlight cpp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line"><span class="function">Mesh <span class="title">mesh</span><span class="params">(init.comm())</span></span>; <span class="comment">// 创建mesh</span></span><br><span class="line">MeshTools::Genertion::<span class="built_in">build_square</span> (mesh,<span class="number">5</span>,<span class="number">5</span>); <span class="comment">// 划分成5×5的方形grid</span></span><br></pre></td></tr></table></figure>
+<p>这样创建的网格就有5<em>5=25个单元elements，6</em>6=36个节点nodes。</p>
+<figure class="highlight cpp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br></pre></td><td class="code"><pre><span class="line"><span class="function">EquationSystems <span class="title">eqution_systems</span> <span class="params">(mesh)</span></span>; <span class="comment">// 创建方程，需要将mesh传递给equation</span></span><br><span class="line">equation_systems.add_system&lt;TransientLinearImplicitSystem&gt;(<span class="string">&quot;Simple System&quot;</span>); <span class="comment">// 往方程系统中添加一个方程，并命名</span></span><br><span class="line">equation_systems.<span class="built_in">get_system</span>(<span class="string">&quot;Simple System&quot;</span>).<span class="built_in">add_variable</span>(<span class="string">&quot;u&quot;</span>, FIRST); <span class="comment">// 给方程添加变量</span></span><br><span class="line">equation_systems.add_system&lt;ExplicitSystem&gt;(<span class="string">&quot;Complex System&quot;</span>); <span class="comment">// 再次添加一个方程</span></span><br><span class="line">equation_systems.<span class="built_in">get_system</span>(<span class="string">&quot;Complex System&quot;</span>).<span class="built_in">add_variable</span>(<span class="string">&quot;c&quot;</span>, FIRST); <span class="comment">// 添加c变量</span></span><br><span class="line">equation_systems.<span class="built_in">get_system</span>(<span class="string">&quot;Complex System&quot;</span>).<span class="built_in">add_variable</span>(<span class="string">&quot;T&quot;</span>, FIRST); <span class="comment">// 添加T变量</span></span><br><span class="line">equation_systems.<span class="built_in">get_system</span>(<span class="string">&quot;Complex System&quot;</span>).<span class="built_in">add_variable</span>(<span class="string">&quot;dv&quot;</span>, SECOND, MONONIAL); <span class="comment">// 添加dv变量</span></span><br><span class="line"></span><br><span class="line">equation_systems.<span class="built_in">init</span>(); <span class="comment">// 初始化方程系统的数据结构</span></span><br><span class="line"></span><br><span class="line">mesh.<span class="built_in">print_info</span>(); <span class="comment">// 在屏幕上打印网格信息</span></span><br><span class="line"></span><br><span class="line">equation_systems.<span class="built_in">print_info</span>(); <span class="comment">// 在屏幕上打印方程系统信息</span></span><br><span class="line"></span><br><span class="line">equation_systems.<span class="built_in">write</span>(argv[<span class="number">1</span>],WRITE); <span class="comment">// 将方程信息输出到文件中</span></span><br><span class="line">equation_systems.<span class="built_in">clear</span>(); <span class="comment">// 清除方程的数据结构</span></span><br><span class="line">equaiton_systems.<span class="built_in">read</span>(argv[<span class="number">1</span>],READ); <span class="comment">// 读入刚才的文件, 这三步可用于周期性地存储结果，并接着计算</span></span><br></pre></td></tr></table></figure>
+<h1 id="Intro-3"><a href="#Intro-3" class="headerlink" title="Intro 3"></a>Intro 3</h1><p>这个例子演示了怎样求解Possion方程。同样展示了矩阵组装、解析解对比、单元迭代等功能。</p>
+<p>头文件：</p>
+<figure class="highlight cpp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">#<span class="meta-keyword">include</span> <span class="meta-string">&quot;libmesh/fe.h&quot;</span> <span class="comment">// 定义有限元对象</span></span></span><br><span class="line"><span class="meta">#<span class="meta-keyword">include</span> <span class="meta-string">&quot;libmesh/quadrature_gauss.h&quot;</span> <span class="comment">// 定义高斯积分规则</span></span></span><br><span class="line"></span><br><span class="line"><span class="comment">// 定义有限元刚度矩阵和解向量</span></span><br><span class="line"><span class="meta">#<span class="meta-keyword">include</span> <span class="meta-string">&quot;libmesh/sparse_matrix.h&quot;</span></span></span><br><span class="line"><span class="meta">#<span class="meta-keyword">include</span> <span class="meta-string">&quot;libmesh/numeric_vector.h&quot;</span></span></span><br><span class="line"><span class="meta">#<span class="meta-keyword">include</span> <span class="meta-string">&quot;libmesh/dense_matrix.h&quot;</span></span></span><br><span class="line"><span class="meta">#<span class="meta-keyword">include</span> <span class="meta-string">&quot;libmesh/dense_vector.h&quot;</span></span></span><br><span class="line"><span class="meta">#<span class="meta-keyword">include</span> <span class="meta-string">&quot;libmesh/elem.h&quot;</span></span></span><br><span class="line"></span><br><span class="line"><span class="meta">#<span class="meta-keyword">include</span> <span class="meta-string">&quot;libmesh/dof_map.h&quot;</span> <span class="comment">// 定义自由度映射</span></span></span><br></pre></td></tr></table></figure>
+
+<p>源码：</p>
+<figure class="highlight cpp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br></pre></td><td class="code"><pre><span class="line">MeshTools::Generation::<span class="built_in">build_square</span>(mesh, <span class="number">15</span>,<span class="number">15</span>,<span class="number">-1.0</span>,<span class="number">1.0</span>,<span class="number">-1.0</span>,<span class="number">1.0</span>,QUAD9); <span class="comment">// 设定生成网格的计算域、网格密度和类型</span></span><br><span class="line"><span class="function">EquationSystems <span class="title">equation_systems</span><span class="params">(mesh)</span></span>;</span><br><span class="line">equation_systems.add_system&lt;LinearImplicitSystem&gt;(<span class="string">&quot;Possion&quot;</span>);</span><br><span class="line">equation_systems.<span class="built_in">get_system</span>(<span class="string">&quot;Possion&quot;</span>).<span class="built_in">add_variable</span>(<span class="string">&quot;u&quot;</span>, SECOND);</span><br><span class="line"></span><br><span class="line"><span class="comment">// 指定一个指向矩阵组装功能的指针，具体的组装方法见函数实现</span></span><br><span class="line">equation_systems.<span class="built_in">get_system</span>(<span class="string">&quot;Possion&quot;</span>).<span class="built_in">attatch_assemble_function</span> (assemble_possion); </span><br><span class="line"></span><br><span class="line"><span class="comment">// 求解Possion方程，这将组装线性系统，并调用数值求解器，对于PETSc来说，可以在命令行中指定求解器 -ksp_type cg</span></span><br><span class="line">equation_systems.<span class="built_in">get_system</span>(<span class="string">&quot;Possion&quot;</span>).<span class="built_in">solve</span>();</span><br></pre></td></tr></table></figure>
+<p>具体的组装方法：</p>
+<figure class="highlight cpp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br><span class="line">52</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">const</span> MeshBase &amp; mesh = es.<span class="built_in">get_mesh</span>(); <span class="comment">// 得到mesh对象的const引用</span></span><br><span class="line"><span class="keyword">const</span> <span class="keyword">unsigned</span> <span class="keyword">int</span> dim = mesh.<span class="built_in">mesh_dimension</span>(); <span class="comment">// 得到dimension</span></span><br><span class="line">LinearImplicitsystem &amp; system = es.get_system&lt;LinearImplicitsystem&gt;(<span class="string">&quot;Possion&quot;</span>); <span class="comment">// 得到方程系统的引用</span></span><br><span class="line"><span class="keyword">const</span> DofMap &amp; dof_map = system.<span class="built_in">get_dof_map</span>(); <span class="comment">// 得到自由度映射</span></span><br><span class="line">FEType fe_type =  dof_map.<span class="built_in">variable_type</span>(<span class="number">0</span>); <span class="comment">// 得到系统的第一个且这里是唯一一个变量的有限单元类型的引用</span></span><br><span class="line"><span class="function">UniquePtr&lt;FEBase&gt; <span class="title">fe</span> <span class="params">(FEBase::build(dim,fe_type))</span></span>; <span class="comment">// 基于有限单元类型创建一个有限元对象</span></span><br><span class="line"><span class="function">QGauss <span class="title">qrule</span> <span class="params">(dim, FIFTH)</span></span>; <span class="comment">// 使用5次高斯积分准则</span></span><br><span class="line">fe -&gt; <span class="built_in">attatch_quadrature_rule</span> (&amp;qrule); <span class="comment">//告诉有限元对象使用该高斯积分准则</span></span><br><span class="line"></span><br><span class="line"><span class="function">UniquePtr&lt;FEBase&gt; <span class="title">fe_face</span> <span class="params">(FEBase::build(dim,fe_type))</span></span>; <span class="comment">// 创建一个特殊的有限元对象，用于边界积分</span></span><br><span class="line"><span class="function">QGauss <span class="title">qface</span> <span class="params">(dim<span class="number">-1</span>, FIFTH)</span></span>; <span class="comment">// 边界上的积分准则的dimension比单元的小1</span></span><br><span class="line">fe_face -&gt; <span class="built_in">attatch_quadrature_rule</span> (&amp;qface); <span class="comment">//告诉有限元对象使用该高斯积分准则</span></span><br><span class="line"></span><br><span class="line"><span class="keyword">const</span> std::vector&lt;Real&gt; &amp; JxW = fe-&gt;<span class="built_in">get_JxW</span>(); <span class="comment">// 得到Jacobian矩阵与积分权重的乘积</span></span><br><span class="line"><span class="keyword">const</span> std::vector&lt;Point&gt; &amp; q_point = fe -&gt; <span class="built_in">get_xyz</span>(); <span class="comment">// 得到单元积分点的坐标</span></span><br><span class="line"><span class="keyword">const</span> std::vector&lt;std::vector&lt;Real&gt; &gt; &amp; phi = fe -&gt; <span class="built_in">get_phi</span>(); <span class="comment">// 得到积分点上的形函数</span></span><br><span class="line"><span class="keyword">const</span> std::vector&lt;std::vector&lt;RealGradient&gt; &gt; &amp; dphi = fe -&gt; <span class="built_in">get_dphi</span>(); <span class="comment">// 得到积分点上的形函数梯度</span></span><br><span class="line"></span><br><span class="line">DenseMatrix&lt;Number&gt; Ke; <span class="comment">// 定义存储单元刚度矩阵的数据结构</span></span><br><span class="line">DenseVector&lt;Number&gt; Fe; <span class="comment">// 定义存储单元右端项向量的数据结构</span></span><br><span class="line"></span><br><span class="line">std::vector&lt;dof_id_type&gt; dof_indices; <span class="comment">// 存储自由度的全局标识</span></span><br><span class="line"></span><br><span class="line"><span class="comment">// 下面是对所有单元进行循环，计算单元刚度矩阵和右端项对全局的贡献</span></span><br><span class="line">MeshBase::const_element_iterator el = mesh.<span class="built_in">active_local_elements_begin</span>(); <span class="comment">// 起始单元</span></span><br><span class="line"><span class="keyword">const</span> MeshBase::const_element_iterator end_el = mesh.<span class="built_in">active_local_element_end</span>();  <span class="comment">// 结束单元</span></span><br><span class="line"></span><br><span class="line"><span class="keyword">for</span> (; el != end_el; ++el) <span class="comment">// for循环</span></span><br><span class="line">&#123; <span class="keyword">const</span> Elem * elem = *el; <span class="comment">// 存储一下当前单元的指针，便于后续的语法表示</span></span><br><span class="line">dof_map.<span class="built_in">dof_indices</span>(elem, dof_indices); <span class="comment">// 得到当前单元的全局自由度标识，从而知道该单元往哪个全局自由度上做贡献</span></span><br><span class="line">fe-&gt;<span class="built_in">reinit</span>(elem); <span class="comment">// 计算当前单元的特定信息，包括积分点的位置和形函数及其梯度。</span></span><br><span class="line">Ke.<span class="built_in">resize</span>(dof_indices.<span class="built_in">size</span>(),dof_indices.<span class="built_in">size</span>()); <span class="comment">// 在累加之前先置0</span></span><br><span class="line">Fe.<span class="built_in">resize</span>(dof_indices.<span class="built_in">size</span>()); <span class="comment">//在累加之前先置0</span></span><br><span class="line"></span><br><span class="line"><span class="comment">// 然后在该单元的所有积分点上进行循环</span></span><br><span class="line"><span class="keyword">for</span> (<span class="keyword">unsigned</span> <span class="keyword">int</span> qp=<span class="number">0</span>; qp &lt; qrule.<span class="built_in">n_points</span>(); qp++)&#123;</span><br><span class="line"><span class="comment">// 下面是构建单元刚度矩阵，包括一个嵌套循环</span></span><br><span class="line"><span class="keyword">for</span> (std::<span class="keyword">size_t</span> i=<span class="number">0</span>; i&lt; phi.<span class="built_in">size</span>(); i++)</span><br><span class="line">  <span class="keyword">for</span>(std::<span class="keyword">size_t</span> j=<span class="number">0</span>; j&lt; phi.<span class="built_in">size</span>(); j++)</span><br><span class="line">    &#123;</span><br><span class="line">      <span class="built_in">Ke</span>(i,j)+=JxW[qp]*(dphi[i][qp]*dphi[j][qp]);</span><br><span class="line">    &#125;</span><br><span class="line"><span class="comment">// 下面是构建单元右端项</span></span><br><span class="line"><span class="keyword">for</span> (std::<span class="keyword">size_t</span> i=<span class="number">0</span>; i &lt; phi.<span class="built_in">size</span>(); i++)</span><br><span class="line"><span class="built_in">Fe</span>(i) += JxW[qp]*fxy*phi[i][qp]; <span class="comment">//fxy是源项</span></span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="comment">// 还要施加边界条件，该部分详见原代码</span></span><br><span class="line"></span><br><span class="line">system.matrix-&gt;<span class="built_in">add_matrix</span>(Ke, dof_indices); <span class="comment">// 将单元刚度矩阵的贡献叠加到全局上</span></span><br><span class="line">system.rhs-&gt;<span class="built_in">add_vector</span>(Fe, dof_indices); <span class="comment">// 将单元右端项的贡献叠加导全局上</span></span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<h1 id="Intro-4"><a href="#Intro-4" class="headerlink" title="Intro 4"></a>Intro 4</h1><p>该例子是基于例子3，展示了通过很小的改动来实现与维度无关的编程。<br>同时引出PerfLog类来查看性能，从而确定瓶颈所在以实现优化。<br>头文件：</p>
+<figure class="highlight cpp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">#<span class="meta-keyword">include</span> <span class="meta-string">&quot;libmesh/perf_log.h&quot;</span> <span class="comment">// 是一个性能日志组件</span></span></span><br><span class="line"><span class="meta">#<span class="meta-keyword">include</span> <span class="meta-string">&quot;libmesh/dirichlet_boundaries.h&quot;</span> <span class="comment">// 施加Dirichlet边界条件</span></span></span><br><span class="line"><span class="meta">#<span class="meta-keyword">include</span> <span class="meta-string">&quot;libmesh/getpot.h&quot;</span> <span class="comment">// GetPot命令行解析</span></span></span><br></pre></td></tr></table></figure>
+<p>源代码：</p>
+<figure class="highlight cpp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br></pre></td><td class="code"><pre><span class="line"><span class="function">GetPot <span class="title">command_line</span> <span class="params">(argc, argv)</span></span>; <span class="comment">// 创建一个GetPot对象来解析命令行</span></span><br><span class="line"></span><br><span class="line"><span class="keyword">int</span> dim = <span class="number">2</span>;</span><br><span class="line"><span class="keyword">if</span>(command_line.<span class="built_in">search</span>(<span class="number">1</span>, <span class="string">&quot;-d&quot;</span>)) </span><br><span class="line">  dim = command_line.<span class="built_in">next</span>(dim);  <span class="comment">// 读取命令行中设定的dim</span></span><br><span class="line"></span><br><span class="line"><span class="comment">// 根据不同的dimension来生成网格</span></span><br><span class="line">MeshTools::Generation::<span class="built_in">build_cube</span> (mesh,</span><br><span class="line">                                   ps,</span><br><span class="line">                                   (dim&gt;<span class="number">1</span>) ? ps : <span class="number">0</span>,</span><br><span class="line">                                   (dim&gt;<span class="number">2</span>) ? ps : <span class="number">0</span>,</span><br><span class="line">                                   <span class="number">-1.</span>, <span class="number">1.</span>,</span><br><span class="line">                                   -halfwidth, halfwidth,</span><br><span class="line">                                   -halfheight, halfheight,</span><br><span class="line">                                   (dim==<span class="number">1</span>)    ? EDGE2 :</span><br><span class="line">                                   ((dim == <span class="number">2</span>) ? QUAD4 : HEX8));</span><br><span class="line"></span><br><span class="line">perf_log.<span class="built_in">push</span>(<span class="string">&quot;elem init&quot;</span>); <span class="comment">// 开始记录形函数初始化过程</span></span><br><span class="line">perf_log.<span class="built_in">pop</span>(<span class="string">&quot;elem init&quot;</span>); <span class="comment">// 结束记录形函数初始化过程，push和pop成对出现，否则会报错</span></span><br></pre></td></tr></table></figure>
+<h1 id="Intro-5"><a href="#Intro-5" class="headerlink" title="Intro 5"></a>Intro 5</h1><p>第五个例子展示了怎样方便调整积分准则。<br>源码：</p>
+<figure class="highlight cpp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">QuadratureType quad_type = INVALID_Q_RULE; <span class="comment">// 定义积分类型</span></span><br><span class="line">quad_type = <span class="keyword">static_cast</span>&lt;QuadratureType&gt;(std::<span class="built_in">atoi</span>(argv[<span class="number">2</span>])); <span class="comment">// 从命令行中读取积分类型</span></span><br></pre></td></tr></table></figure>
+
+
+    </div>
+
+    
+    
+    
+        <div class="reward-container">
+  <div></div>
+  <button onclick="var qr = document.getElementById('qr'); qr.style.display = (qr.style.display === 'none') ? 'block' : 'none';">
+    Donate
+  </button>
+  <div id="qr" style="display: none;">
+      
+      <div style="display: inline-block;">
+        <img src="/images/wechat_reward.png" alt="Xin-Bo Qi(亓欣波) WeChat Pay">
+        <p>WeChat Pay</p>
+      </div>
+
+  </div>
+</div>
+
+
+      <footer class="post-footer">
+          <div class="post-tags">
+              <a href="/tags/linux/" rel="tag"># linux</a>
+              <a href="/tags/libmesh/" rel="tag"># libmesh</a>
+          </div>
+
+        
+
+
+        
+    <div class="post-nav">
+      <div class="post-nav-item">
+    <a href="/2017/02/14/moose-run/" rel="prev" title="多物理场面向对象模拟环境MOOSE运行过程分析">
+      <i class="fa fa-chevron-left"></i> 多物理场面向对象模拟环境MOOSE运行过程分析
+    </a></div>
+      <div class="post-nav-item">
+    <a href="/2017/07/09/cplusplus-template/" rel="next" title="C++模板深度解析 (转载)">
+      C++模板深度解析 (转载) <i class="fa fa-chevron-right"></i>
+    </a></div>
+    </div>
+      </footer>
+    
+  </article>
+  
+  
+  
+
+
+
+          </div>
+          
+    
+  <div class="comments">
+    <div id="disqus_thread">
+      <noscript>Please enable JavaScript to view the comments powered by Disqus.</noscript>
+    </div>
+  </div>
+  
+
+<script>
+  window.addEventListener('tabs:register', () => {
+    let { activeClass } = CONFIG.comments;
+    if (CONFIG.comments.storage) {
+      activeClass = localStorage.getItem('comments_active') || activeClass;
+    }
+    if (activeClass) {
+      let activeTab = document.querySelector(`a[href="#comment-${activeClass}"]`);
+      if (activeTab) {
+        activeTab.click();
+      }
+    }
+  });
+  if (CONFIG.comments.storage) {
+    window.addEventListener('tabs:click', event => {
+      if (!event.target.matches('.tabs-comment .tab-content .tab-pane')) return;
+      let commentClass = event.target.classList[1];
+      localStorage.setItem('comments_active', commentClass);
+    });
+  }
+</script>
+
+        </div>
+          
+  
+  <div class="toggle sidebar-toggle">
+    <span class="toggle-line toggle-line-first"></span>
+    <span class="toggle-line toggle-line-middle"></span>
+    <span class="toggle-line toggle-line-last"></span>
+  </div>
+
+  <aside class="sidebar">
+    <div class="sidebar-inner">
+
+      <ul class="sidebar-nav motion-element">
+        <li class="sidebar-nav-toc">
+          Table of Contents
+        </li>
+        <li class="sidebar-nav-overview">
+          Overview
+        </li>
+      </ul>
+
+      <!--noindex-->
+      <div class="post-toc-wrap sidebar-panel">
+          <div class="post-toc motion-element"><ol class="nav"><li class="nav-item nav-level-1"><a class="nav-link" href="#Intro-1"><span class="nav-number">1.</span> <span class="nav-text">Intro 1</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#Intro-2"><span class="nav-number">2.</span> <span class="nav-text">Intro 2</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#Intro-3"><span class="nav-number">3.</span> <span class="nav-text">Intro 3</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#Intro-4"><span class="nav-number">4.</span> <span class="nav-text">Intro 4</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#Intro-5"><span class="nav-number">5.</span> <span class="nav-text">Intro 5</span></a></li></ol></div>
+      </div>
+      <!--/noindex-->
+
+      <div class="site-overview-wrap sidebar-panel">
+        <div class="site-author motion-element" itemprop="author" itemscope itemtype="http://schema.org/Person">
+    <img class="site-author-image" itemprop="image" alt="Xin-Bo Qi(亓欣波)"
+      src="/images/avatar.jpg">
+  <p class="site-author-name" itemprop="name">Xin-Bo Qi(亓欣波)</p>
+  <div class="site-description" itemprop="description">Be interesting!</div>
+</div>
+<div class="site-state-wrap motion-element">
+  <nav class="site-state">
+      <div class="site-state-item site-state-posts">
+          <a href="/archives/">
+        
+          <span class="site-state-item-count">120</span>
+          <span class="site-state-item-name">posts</span>
+        </a>
+      </div>
+      <div class="site-state-item site-state-categories">
+            <a href="/categories/">
+          
+        <span class="site-state-item-count">5</span>
+        <span class="site-state-item-name">categories</span></a>
+      </div>
+      <div class="site-state-item site-state-tags">
+            <a href="/tags/">
+          
+        <span class="site-state-item-count">41</span>
+        <span class="site-state-item-name">tags</span></a>
+      </div>
+  </nav>
+</div>
+  <div class="links-of-author motion-element">
+      <span class="links-of-author-item">
+        <a href="https://github.com/qixinbo" title="GitHub → https:&#x2F;&#x2F;github.com&#x2F;qixinbo" rel="noopener" target="_blank"><i class="github fa-fw"></i>GitHub</a>
+      </span>
+      <span class="links-of-author-item">
+        <a href="mailto:qixinbo@gmail.com" title="E-Mail → mailto:qixinbo@gmail.com" rel="noopener" target="_blank"><i class="envelope fa-fw"></i>E-Mail</a>
+      </span>
+  </div>
+
+
+  <div class="links-of-blogroll motion-element">
+    <div class="links-of-blogroll-title"><i class="fa fa-link fa-fw"></i>
+      Links
+    </div>
+    <ul class="links-of-blogroll-list">
+        <li class="links-of-blogroll-item">
+          <a href="https://www.tsinghua.edu.cn/" title="https:&#x2F;&#x2F;www.tsinghua.edu.cn" rel="noopener" target="_blank">THU</a>
+        </li>
+        <li class="links-of-blogroll-item">
+          <a href="http://www.imr.cas.cn/" title="http:&#x2F;&#x2F;www.imr.cas.cn" rel="noopener" target="_blank">IMR</a>
+        </li>
+        <li class="links-of-blogroll-item">
+          <a href="http://www.sdu.edu.cn/" title="http:&#x2F;&#x2F;www.sdu.edu.cn" rel="noopener" target="_blank">SDU</a>
+        </li>
+        <li class="links-of-blogroll-item">
+          <a href="http://liam0205.me/" title="http:&#x2F;&#x2F;liam0205.me&#x2F;" rel="noopener" target="_blank">黄晨成</a>
+        </li>
+    </ul>
+  </div>
+
+      </div>
+
+    </div>
+  </aside>
+  <div id="sidebar-dimmer"></div>
+
+
+      </div>
+    </main>
+
+    <footer class="footer">
+      <div class="footer-inner">
+        
+
+        
+
+<div class="copyright">
+  
+  &copy; 
+  <span itemprop="copyrightYear">2021</span>
+  <span class="with-love">
+    <i class="fa fa-heart"></i>
+  </span>
+  <span class="author" itemprop="copyrightHolder">Xin-Bo Qi(亓欣波)</span>
+</div>
+  <div class="powered-by">Powered by <a href="https://hexo.io/" class="theme-link" rel="noopener" target="_blank">Hexo</a> & <a href="https://theme-next.org/" class="theme-link" rel="noopener" target="_blank">NexT.Gemini</a>
+  </div>
+
+        
+
+
+
+
+
+
+
+
+      </div>
+    </footer>
+  </div>
+
+  
+  <script src="/lib/anime.min.js"></script>
+  <script src="/lib/velocity/velocity.min.js"></script>
+  <script src="/lib/velocity/velocity.ui.min.js"></script>
+
+<script src="/js/utils.js"></script>
+
+<script src="/js/motion.js"></script>
+
+
+<script src="/js/schemes/pisces.js"></script>
+
+
+<script src="/js/next-boot.js"></script>
+
+
+
+
+  
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+  
+
+  
+
+  
+
+<script>
+  function loadCount() {
+    var d = document, s = d.createElement('script');
+    s.src = 'https://qixinbo.disqus.com/count.js';
+    s.id = 'dsq-count-scr';
+    (d.head || d.body).appendChild(s);
+  }
+  // defer loading until the whole page loading is completed
+  window.addEventListener('load', loadCount, false);
+</script>
+<script>
+  var disqus_config = function() {
+    this.page.url = "http://qixinbo.github.io/2017/06/18/libmesh-introduction-learn/";
+    this.page.identifier = "2017/06/18/libmesh-introduction-learn/";
+    this.page.title = "libMesh的5个Introduction教学例子学习";
+    };
+  NexT.utils.loadComments(document.querySelector('#disqus_thread'), () => {
+    if (window.DISQUS) {
+      DISQUS.reset({
+        reload: true,
+        config: disqus_config
+      });
+    } else {
+      var d = document, s = d.createElement('script');
+      s.src = 'https://qixinbo.disqus.com/embed.js';
+      s.setAttribute('data-timestamp', '' + +new Date());
+      (d.head || d.body).appendChild(s);
+    }
+  });
+</script>
+
+</body>
+</html>

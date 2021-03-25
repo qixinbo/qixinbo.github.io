@@ -1,0 +1,572 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=2">
+<meta name="theme-color" content="#222">
+<meta name="generator" content="Hexo 5.4.0">
+  <link rel="apple-touch-icon" sizes="180x180" href="/images/apple-touch-icon-next.png">
+  <link rel="icon" type="image/png" sizes="32x32" href="/favicon.ico">
+  <link rel="icon" type="image/png" sizes="16x16" href="/favicon.ico">
+  <link rel="mask-icon" href="/images/logo.svg" color="#222">
+
+<link rel="stylesheet" href="/css/main.css">
+
+
+<link rel="stylesheet" href="/lib/font-awesome/css/all.min.css">
+
+<script id="hexo-configurations">
+    var NexT = window.NexT || {};
+    var CONFIG = {"hostname":"qixinbo.github.io","root":"/","scheme":"Gemini","version":"7.8.0","exturl":false,"sidebar":{"position":"left","display":"post","padding":18,"offset":12,"onmobile":false},"copycode":{"enable":false,"show_result":false,"style":null},"back2top":{"enable":true,"sidebar":false,"scrollpercent":false},"bookmark":{"enable":false,"color":"#222","save":"auto"},"fancybox":false,"mediumzoom":false,"lazyload":false,"pangu":false,"comments":{"style":"tabs","active":null,"storage":true,"lazyload":false,"nav":null},"algolia":{"hits":{"per_page":10},"labels":{"input_placeholder":"Search for Posts","hits_empty":"We didn't find any results for the search: ${query}","hits_stats":"${hits} results found in ${time} ms"}},"localsearch":{"enable":false,"trigger":"auto","top_n_per_article":1,"unescape":false,"preload":false},"motion":{"enable":true,"async":false,"transition":{"post_block":"fadeIn","post_header":"slideDownIn","post_body":"slideDownIn","coll_header":"slideLeftIn","sidebar":"slideUpIn"}}};
+  </script>
+
+  <meta name="description" content="原文在这里，中间增加了一些额外的内容辅助理解。 角点检测(Corner Detection)也称为特征点检测，是图像处理和计算机视觉中用来获取图像局部特征点的一类方法，广泛应用于运动检测、图像匹配、视频跟踪、三维建模以及目标识别等领域中。 局部特征不同于HOG、LBP、Haar等基于区域(Region)的图像局部特征，Harris是基于角点的特征描述子，属于feature detector，主要用">
+<meta property="og:type" content="article">
+<meta property="og:title" content="(转载)Harris角点检测原理">
+<meta property="og:url" content="http://qixinbo.github.io/2020/08/05/harris/index.html">
+<meta property="og:site_name" content="亓欣波">
+<meta property="og:description" content="原文在这里，中间增加了一些额外的内容辅助理解。 角点检测(Corner Detection)也称为特征点检测，是图像处理和计算机视觉中用来获取图像局部特征点的一类方法，广泛应用于运动检测、图像匹配、视频跟踪、三维建模以及目标识别等领域中。 局部特征不同于HOG、LBP、Haar等基于区域(Region)的图像局部特征，Harris是基于角点的特征描述子，属于feature detector，主要用">
+<meta property="og:locale" content="en_US">
+<meta property="og:image" content="https://user-images.githubusercontent.com/6218739/89362741-360d4580-d701-11ea-8779-9d993f5e7dce.png">
+<meta property="og:image" content="https://user-images.githubusercontent.com/6218739/89362908-97351900-d701-11ea-8d13-57cc49354cec.png">
+<meta property="og:image" content="https://user-images.githubusercontent.com/6218739/89366840-3a8a2c00-d70a-11ea-86af-28329b0e68fa.png">
+<meta property="og:image" content="https://user-images.githubusercontent.com/6218739/89378163-d7a68e00-d725-11ea-84fb-06bdb29339d9.png">
+<meta property="og:image" content="https://user-images.githubusercontent.com/6218739/89378770-20ab1200-d727-11ea-8b4e-fb3c4183a5a1.png">
+<meta property="og:image" content="https://user-images.githubusercontent.com/6218739/89379432-61eff180-d728-11ea-98e0-23361456bed1.png">
+<meta property="og:image" content="https://user-images.githubusercontent.com/6218739/89379537-88159180-d728-11ea-9c0f-59f4d5d071ad.png">
+<meta property="og:image" content="https://user-images.githubusercontent.com/6218739/89623622-80d8ba00-d8c7-11ea-9520-728ae9fc1f88.jpg">
+<meta property="og:image" content="https://user-images.githubusercontent.com/6218739/89386440-a6cd5580-d733-11ea-8456-b46674c64b32.png">
+<meta property="og:image" content="https://user-images.githubusercontent.com/6218739/89386536-c9f80500-d733-11ea-9245-75a24c616c6b.png">
+<meta property="og:image" content="https://user-images.githubusercontent.com/6218739/89386732-0d527380-d734-11ea-83fb-93a791fe7f36.png">
+<meta property="article:published_time" content="2020-08-04T16:00:00.000Z">
+<meta property="article:modified_time" content="2021-03-25T07:20:30.632Z">
+<meta property="article:author" content="Xin-Bo Qi(亓欣波)">
+<meta property="article:tag" content="Image">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:image" content="https://user-images.githubusercontent.com/6218739/89362741-360d4580-d701-11ea-8779-9d993f5e7dce.png">
+
+<link rel="canonical" href="http://qixinbo.github.io/2020/08/05/harris/">
+
+
+<script id="page-configurations">
+  // https://hexo.io/docs/variables.html
+  CONFIG.page = {
+    sidebar: "",
+    isHome : false,
+    isPost : true,
+    lang   : 'en'
+  };
+</script>
+
+  <title>(转载)Harris角点检测原理 | 亓欣波</title>
+  
+
+
+
+
+
+
+  <noscript>
+  <style>
+  .use-motion .brand,
+  .use-motion .menu-item,
+  .sidebar-inner,
+  .use-motion .post-block,
+  .use-motion .pagination,
+  .use-motion .comments,
+  .use-motion .post-header,
+  .use-motion .post-body,
+  .use-motion .collection-header { opacity: initial; }
+
+  .use-motion .site-title,
+  .use-motion .site-subtitle {
+    opacity: initial;
+    top: initial;
+  }
+
+  .use-motion .logo-line-before i { left: initial; }
+  .use-motion .logo-line-after i { right: initial; }
+  </style>
+</noscript>
+
+</head>
+
+<body itemscope itemtype="http://schema.org/WebPage">
+  <div class="container use-motion">
+    <div class="headband"></div>
+
+    <header class="header" itemscope itemtype="http://schema.org/WPHeader">
+      <div class="header-inner"><div class="site-brand-container">
+  <div class="site-nav-toggle">
+    <div class="toggle" aria-label="Toggle navigation bar">
+      <span class="toggle-line toggle-line-first"></span>
+      <span class="toggle-line toggle-line-middle"></span>
+      <span class="toggle-line toggle-line-last"></span>
+    </div>
+  </div>
+
+  <div class="site-meta">
+
+    <a href="/" class="brand" rel="start">
+      <span class="logo-line-before"><i></i></span>
+      <h1 class="site-title">亓欣波</h1>
+      <span class="logo-line-after"><i></i></span>
+    </a>
+      <p class="site-subtitle" itemprop="description">Hi, I am Xin-Bo Qi (亓欣波)</p>
+  </div>
+
+  <div class="site-nav-right">
+    <div class="toggle popup-trigger">
+    </div>
+  </div>
+</div>
+
+
+
+
+<nav class="site-nav">
+  <ul id="menu" class="main-menu menu">
+        <li class="menu-item menu-item-home">
+
+    <a href="/" rel="section"><i class="home fa-fw"></i>Home</a>
+
+  </li>
+        <li class="menu-item menu-item-categories">
+
+    <a href="/categories/" rel="section"><i class="th fa-fw"></i>Categories</a>
+
+  </li>
+        <li class="menu-item menu-item-archives">
+
+    <a href="/archives/" rel="section"><i class="archive fa-fw"></i>Archives</a>
+
+  </li>
+        <li class="menu-item menu-item-tags">
+
+    <a href="/tags/" rel="section"><i class="tags fa-fw"></i>Tags</a>
+
+  </li>
+        <li class="menu-item menu-item-scholar">
+
+    <a href="/scholar/" rel="section"><i class="bar-chart fa-fw"></i>scholar</a>
+
+  </li>
+        <li class="menu-item menu-item-sources">
+
+    <a href="/sources/" rel="section"><i class="rss fa-fw"></i>sources</a>
+
+  </li>
+        <li class="menu-item menu-item-gallery">
+
+    <a href="/gallery/" rel="section"><i class="file-image-o fa-fw"></i>gallery</a>
+
+  </li>
+        <li class="menu-item menu-item-about">
+
+    <a href="/about/" rel="section"><i class="user fa-fw"></i>About</a>
+
+  </li>
+        <li class="menu-item menu-item-commonweal">
+
+    <a href="/404.html" rel="section"><i class="heartbeat fa-fw"></i>Commonweal 404</a>
+
+  </li>
+  </ul>
+</nav>
+
+
+
+
+</div>
+    </header>
+
+    
+  <div class="back-to-top">
+    <i class="fa fa-arrow-up"></i>
+    <span>0%</span>
+  </div>
+
+
+    <main class="main">
+      <div class="main-inner">
+        <div class="content-wrap">
+          
+
+          <div class="content post posts-expand">
+            
+
+    
+  
+  
+  <article itemscope itemtype="http://schema.org/Article" class="post-block" lang="en">
+    <link itemprop="mainEntityOfPage" href="http://qixinbo.github.io/2020/08/05/harris/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="image" content="/images/avatar.jpg">
+      <meta itemprop="name" content="Xin-Bo Qi(亓欣波)">
+      <meta itemprop="description" content="Be interesting!">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="亓欣波">
+    </span>
+      <header class="post-header">
+        <h1 class="post-title" itemprop="name headline">
+          (转载)Harris角点检测原理
+        </h1>
+
+        <div class="post-meta">
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="far fa-calendar"></i>
+              </span>
+              <span class="post-meta-item-text">Posted on</span>
+
+              <time title="Created: 2020-08-05 00:00:00" itemprop="dateCreated datePublished" datetime="2020-08-05T00:00:00+08:00">2020-08-05</time>
+            </span>
+              <span class="post-meta-item">
+                <span class="post-meta-item-icon">
+                  <i class="far fa-calendar-check"></i>
+                </span>
+                <span class="post-meta-item-text">Edited on</span>
+                <time title="Modified: 2021-03-25 15:20:30" itemprop="dateModified" datetime="2021-03-25T15:20:30+08:00">2021-03-25</time>
+              </span>
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="far fa-folder"></i>
+              </span>
+              <span class="post-meta-item-text">In</span>
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+                  <a href="/categories/computational-material-science/" itemprop="url" rel="index"><span itemprop="name">computational material science</span></a>
+                </span>
+            </span>
+
+          
+  
+  <span class="post-meta-item">
+    
+      <span class="post-meta-item-icon">
+        <i class="far fa-comment"></i>
+      </span>
+      <span class="post-meta-item-text">Disqus: </span>
+    
+    <a title="disqus" href="/2020/08/05/harris/#disqus_thread" itemprop="discussionUrl">
+      <span class="post-comments-count disqus-comment-count" data-disqus-identifier="2020/08/05/harris/" itemprop="commentCount"></span>
+    </a>
+  </span>
+  
+  
+
+        </div>
+      </header>
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+        <p>原文在<a target="_blank" rel="noopener" href="https://senitco.github.io/2017/06/18/image-feature-harris/">这里</a>，中间增加了一些额外的内容辅助理解。</p>
+<p>角点检测(Corner Detection)也称为特征点检测，是图像处理和计算机视觉中用来获取图像局部特征点的一类方法，广泛应用于运动检测、图像匹配、视频跟踪、三维建模以及目标识别等领域中。</p>
+<h1 id="局部特征"><a href="#局部特征" class="headerlink" title="局部特征"></a>局部特征</h1><p>不同于HOG、LBP、Haar等基于区域(Region)的图像局部特征，Harris是基于角点的特征描述子，属于feature detector，主要用于图像特征点的匹配(match)，在SIFT算法中就有用到此类角点特征；而HOG、LBP、Haar等则是通过提取图像的局部纹理特征(feature extraction)，用于目标的检测和识别等领域。无论是HOG、Haar特征还是Harris角点都属于图像的局部特征，满足局部特征的一些特性。主要有以下几点：</p>
+<ul>
+<li>可重复性(Repeatability)：同一个特征可以出现在不同的图像中，这些图像可以在不同的几何或光学环境下成像。也就是说，同一物体在不同的环境下成像(不同时间、不同角度、不同相机等)，能够检测到同样的特征。</li>
+<li>独特性(Saliency)：特征在某一特定目标上表现为独特性，能够与场景中其他物体相区分，能够达到后续匹配或识别的目的。</li>
+<li>局部性(Locality)；特征能够刻画图像的局部特性，而且对环境影响因子(光照、噪声等)鲁棒。</li>
+<li>紧致性和有效性(Compactness and efficiency)；特征能够有效地表达图像信息，而且在实际应用中运算要尽可能地快。</li>
+</ul>
+<p>相比于考虑局部邻域范围的局部特征，全局特征则是从整个图像中抽取特征，较多地运用在图像检索领域，例如图像的颜色直方图。<br>除了以上几点通用的特性外，对于一些图像匹配、检测识别等任务，可能还需进一步考虑图像的局部不变特征。例如尺度不变性(Scale invariance)和旋转不变性(Rotation invariance)，当图像中的物体或目标发生旋转或者尺度发生变换，依然可以有效地检测或识别。此外，也会考虑局部特征对光照、阴影的不变性。</p>
+<h1 id="Harris角点检测"><a href="#Harris角点检测" class="headerlink" title="Harris角点检测"></a>Harris角点检测</h1><p>特征点在图像中一般有具体的坐标，并具有某些数学特征，如局部最大或最小灰度、以及某些梯度特征等。角点可以简单的认为是两条边的交点，比较严格的定义则是在邻域内具有两个主方向的特征点，也就是说在两个方向上灰度变化剧烈。如下图所示，在各个方向上移动小窗口，如果在所有方向上移动，窗口内灰度都发生变化，则认为是角点；如果任何方向都不变化，则是均匀区域；如果灰度只在一个方向上变化，则可能是图像边缘。<br><img src="https://user-images.githubusercontent.com/6218739/89362741-360d4580-d701-11ea-8779-9d993f5e7dce.png" alt="image"></p>
+<p>对于给定图像$I(x,y)$（即图像强度）和固定尺寸的邻域窗口，计算窗口平移前后各个像素差值的平方和，也就是自相关函数：<br>$$<br>E(u,v)=\Sigma_x\Sigma_yw(x,y)[I(x+u,y+v)-I(x,y)]^2<br>$$<br>其中，窗口加权函数$w(x,y)$可取均值函数或者高斯函数，如下图所示：<br><img src="https://user-images.githubusercontent.com/6218739/89362908-97351900-d701-11ea-8d13-57cc49354cec.png" alt="image"><br>根据泰勒展开，可得到窗口平移后图像的一阶近似（梯度乘以位移，注意$I_x$表示x方向的梯度）：<br>$$<br>I(x+u,y+v)\approx I(x,y)+I_x(x,y)u+I_y(x,y)v<br>$$<br>因此，$E(u,v)$可化为：<br>$$<br>E(u,v) \approx \Sigma_{x,y}w(x,y)[I_x(x,y)u+I_y(x,y)v]^2=\left[u,v\right] M(x,y) \left[ \begin{matrix} u\ v\end{matrix} \right]<br>$$<br>其中：<br>$$<br>M(x,y)=\Sigma_{x,y} w \left[ \begin{matrix} I_x^2&amp; I_xI_y \ I_xI_y &amp; I_y^2\end{matrix} \right] = \left[ \begin{matrix} A&amp; C\ C&amp; B\end{matrix} \right]<br>$$<br>因此，$M$就是偏导数矩阵。<br>可以有多个角度来理解这个矩阵：<br>（1）几何角度：<br>$E(u,v)$可表示为一个二次项函数：<br>$$<br>E(u,v)=Au^2+2Cuv+Bv^2<br>$$<br>其中：<br>$$<br>A=\Sigma_{x,y} w I_x^2, B = \Sigma_{x,y} w I_y^2, C=\Sigma_{x,y} w I_x I_y<br>$$</p>
+<p>二次项函数本质上是一个椭圆函数，椭圆的曲率和尺寸可由$M(x,y)$的特征值$\lambda_1,\lambda_2$决定，椭圆方向由$M(x,y)$的特征向量决定，椭圆方程和其图形分别如下所示：<br><img src="https://user-images.githubusercontent.com/6218739/89366840-3a8a2c00-d70a-11ea-86af-28329b0e68fa.png" alt="image"></p>
+<p>（2）线性代数角度：<br>首先来点线性代数中特征值和特征向量的基本知识：<br>对于一个给定的方阵，它的特征向量经过这个方阵的线性变换后，得到的新向量与原来的特征向量保持在同一条直线上，但其长度或方向也许会改变，这个长度的缩放比例就是特征值。<br><img src="https://user-images.githubusercontent.com/6218739/89378163-d7a68e00-d725-11ea-84fb-06bdb29339d9.png" alt="image"><br>注意：方阵代表了对向量的变换，而不是向量代表了对方阵的变换。对于方阵所产生的变换效果，就可以分解为特征向量和特征值的效果：特征向量代表了旋转，特征值代表了缩放。因此，对于任一向量，如果对其施加了方阵这一变换，就有可能使其旋转和缩放；特别地，对于特征向量这一向量，施加方阵后，就只会缩放，而不会旋转。<br>通过矩阵相似对角化分解，可以得到：<br>$$<br>A=PBP^{-1}<br>$$<br>其中，$B$为对角阵，里面是特征值，决定了缩放；$P$的列向量是单位化的特征向量，并且互相正交，决定了旋转。<br><img src="https://user-images.githubusercontent.com/6218739/89378770-20ab1200-d727-11ea-8b4e-fb3c4183a5a1.png" alt="image"></p>
+<p>一些参考文章：<br><a target="_blank" rel="noopener" href="https://www.jianshu.com/p/a2ef1b585b03">矩阵特征值与特征向量和相似对角化</a><br><a target="_blank" rel="noopener" href="https://www.matongxue.com/madocs/228.html">如何理解矩阵特征值和特征向量？</a></p>
+<p>有了上面的背景，先考虑角点的边界和坐标轴对齐的这种特殊情况，如下图所示，在平移窗口内，只有上侧和左侧边缘，上边缘$I_y$很大而$I_x$很小，左边缘$I_x$很大而$I_y$很小，所以矩阵$M$可化简为（即没有旋转）：<br>$$<br>M=\left[ \begin{matrix} \lambda_1&amp; 0\ 0&amp; \lambda_2\end{matrix} \right]<br>$$<br><img src="https://user-images.githubusercontent.com/6218739/89379432-61eff180-d728-11ea-98e0-23361456bed1.png" alt="image"><br>当角点边界和坐标轴没有对齐时，可对角点进行旋转变换，将其变换到与坐标轴对齐，这种旋转操作可用矩阵的相似对角化来表示，即：<br>$$<br>M=X\Sigma X^T = X \left[ \begin{matrix} \lambda_1&amp; 0\ 0&amp; \lambda_2\end{matrix} \right] X^T<br>$$<br><img src="https://user-images.githubusercontent.com/6218739/89379537-88159180-d728-11ea-9c0f-59f4d5d071ad.png" alt="image"></p>
+<p>再回过头来重新看一下$M$矩阵：<br>$$<br>M(x,y)=\Sigma_{x,y} w \left[ \begin{matrix} I_x^2&amp; I_xI_y \ I_xI_y &amp; I_y^2\end{matrix} \right] = \left[ \begin{matrix} A&amp; C\ C&amp; B\end{matrix} \right]<br>$$<br>时刻注意，式中的$I_x$是梯度，是导数，是灰度强度的差别。<br>对于矩阵$M$，可以将其和协方差矩阵类比，协方差表示多维随机变量之间的相关性，协方差矩阵对角线的元素表示的是各个维度自身的方差，而非对角线上的元素表示的是各个维度之间的相关性，在PCA(主成分分析)中，将协方差矩阵对角化，使不同维度的相关性尽可能的小（相关性为0时就是非对角线元素为0），并取特征值较大的维度，来达到降维的目的。而这里的矩阵M中的对角线元素是灰度强度在某一方向上的梯度的平方，而非对角线上的元素则是灰度在两个不同方向上的梯度的乘积，所以可以将矩阵$M看成是一个二维随机分布的协方差矩阵，通过将其对角化，一方面可以得到两个正交的特征向量，另一方面也可以求取矩阵的两个特征值（与两个方向上的梯度直接相关），并根据这两个特征值来判断角点。</p>
+<p>更多地关于PCA的补充知识：<br><img src="https://user-images.githubusercontent.com/6218739/89623622-80d8ba00-d8c7-11ea-9520-728ae9fc1f88.jpg" alt="20200807152900_1"></p>
+<p>一些参考文章：<br><a target="_blank" rel="noopener" href="https://zhuanlan.zhihu.com/p/37777074">主成分分析（PCA）原理详解</a><br><a target="_blank" rel="noopener" href="https://juejin.im/post/6847902219635785741">PCA算法 | 数据集特征数量太多怎么办？用这个算法对它降维打击！</a><br><a target="_blank" rel="noopener" href="http://commanber.com/2017/04/05/pca-translation/">主成分分析（PCA）简明教程（翻译）</a><br><a target="_blank" rel="noopener" href="https://zhuanlan.zhihu.com/p/45140262">深度学习的预处理：从协方差矩阵到图像白化</a><br><a target="_blank" rel="noopener" href="https://my.oschina.net/gujianhan/blog/225241#OSC_h2_1">PCA （主成分分析）详解 （写给初学者）</a><br><a target="_blank" rel="noopener" href="https://cggos.github.io/computervision/image-process-moments.html">图像空间域分析之图像统计特征</a></p>
+<p><img src="https://user-images.githubusercontent.com/6218739/89386440-a6cd5580-d733-11ea-8456-b46674c64b32.png" alt="image"><br>在判断角点时，无需具体计算矩阵$M$的特征值，而使用下式近似计算角点响应值。<br><img src="https://user-images.githubusercontent.com/6218739/89386536-c9f80500-d733-11ea-9245-75a24c616c6b.png" alt="image"><br>式中，$detM$为矩阵$M$的行列式，$traceM$为矩阵$M$的迹，$\alpha$为一常数，通常取值为0.04~0.06。</p>
+<h1 id="算法实现"><a href="#算法实现" class="headerlink" title="算法实现"></a>算法实现</h1><p><img src="https://user-images.githubusercontent.com/6218739/89386732-0d527380-d734-11ea-83fb-93a791fe7f36.png" alt="image"></p>
+
+    </div>
+
+    
+    
+    
+        <div class="reward-container">
+  <div></div>
+  <button onclick="var qr = document.getElementById('qr'); qr.style.display = (qr.style.display === 'none') ? 'block' : 'none';">
+    Donate
+  </button>
+  <div id="qr" style="display: none;">
+      
+      <div style="display: inline-block;">
+        <img src="/images/wechat_reward.png" alt="Xin-Bo Qi(亓欣波) WeChat Pay">
+        <p>WeChat Pay</p>
+      </div>
+
+  </div>
+</div>
+
+
+      <footer class="post-footer">
+          <div class="post-tags">
+              <a href="/tags/Image/" rel="tag"># Image</a>
+          </div>
+
+        
+
+
+        
+    <div class="post-nav">
+      <div class="post-nav-item">
+    <a href="/2020/08/02/ImagePy_23/" rel="prev" title="ImagePy解析：23 -- ROI操作">
+      <i class="fa fa-chevron-left"></i> ImagePy解析：23 -- ROI操作
+    </a></div>
+      <div class="post-nav-item">
+    <a href="/2020/09/26/wxpython/" rel="next" title="wxPython知识点">
+      wxPython知识点 <i class="fa fa-chevron-right"></i>
+    </a></div>
+    </div>
+      </footer>
+    
+  </article>
+  
+  
+  
+
+
+
+          </div>
+          
+    
+  <div class="comments">
+    <div id="disqus_thread">
+      <noscript>Please enable JavaScript to view the comments powered by Disqus.</noscript>
+    </div>
+  </div>
+  
+
+<script>
+  window.addEventListener('tabs:register', () => {
+    let { activeClass } = CONFIG.comments;
+    if (CONFIG.comments.storage) {
+      activeClass = localStorage.getItem('comments_active') || activeClass;
+    }
+    if (activeClass) {
+      let activeTab = document.querySelector(`a[href="#comment-${activeClass}"]`);
+      if (activeTab) {
+        activeTab.click();
+      }
+    }
+  });
+  if (CONFIG.comments.storage) {
+    window.addEventListener('tabs:click', event => {
+      if (!event.target.matches('.tabs-comment .tab-content .tab-pane')) return;
+      let commentClass = event.target.classList[1];
+      localStorage.setItem('comments_active', commentClass);
+    });
+  }
+</script>
+
+        </div>
+          
+  
+  <div class="toggle sidebar-toggle">
+    <span class="toggle-line toggle-line-first"></span>
+    <span class="toggle-line toggle-line-middle"></span>
+    <span class="toggle-line toggle-line-last"></span>
+  </div>
+
+  <aside class="sidebar">
+    <div class="sidebar-inner">
+
+      <ul class="sidebar-nav motion-element">
+        <li class="sidebar-nav-toc">
+          Table of Contents
+        </li>
+        <li class="sidebar-nav-overview">
+          Overview
+        </li>
+      </ul>
+
+      <!--noindex-->
+      <div class="post-toc-wrap sidebar-panel">
+          <div class="post-toc motion-element"><ol class="nav"><li class="nav-item nav-level-1"><a class="nav-link" href="#%E5%B1%80%E9%83%A8%E7%89%B9%E5%BE%81"><span class="nav-number">1.</span> <span class="nav-text">局部特征</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#Harris%E8%A7%92%E7%82%B9%E6%A3%80%E6%B5%8B"><span class="nav-number">2.</span> <span class="nav-text">Harris角点检测</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#%E7%AE%97%E6%B3%95%E5%AE%9E%E7%8E%B0"><span class="nav-number">3.</span> <span class="nav-text">算法实现</span></a></li></ol></div>
+      </div>
+      <!--/noindex-->
+
+      <div class="site-overview-wrap sidebar-panel">
+        <div class="site-author motion-element" itemprop="author" itemscope itemtype="http://schema.org/Person">
+    <img class="site-author-image" itemprop="image" alt="Xin-Bo Qi(亓欣波)"
+      src="/images/avatar.jpg">
+  <p class="site-author-name" itemprop="name">Xin-Bo Qi(亓欣波)</p>
+  <div class="site-description" itemprop="description">Be interesting!</div>
+</div>
+<div class="site-state-wrap motion-element">
+  <nav class="site-state">
+      <div class="site-state-item site-state-posts">
+          <a href="/archives/">
+        
+          <span class="site-state-item-count">120</span>
+          <span class="site-state-item-name">posts</span>
+        </a>
+      </div>
+      <div class="site-state-item site-state-categories">
+            <a href="/categories/">
+          
+        <span class="site-state-item-count">5</span>
+        <span class="site-state-item-name">categories</span></a>
+      </div>
+      <div class="site-state-item site-state-tags">
+            <a href="/tags/">
+          
+        <span class="site-state-item-count">41</span>
+        <span class="site-state-item-name">tags</span></a>
+      </div>
+  </nav>
+</div>
+  <div class="links-of-author motion-element">
+      <span class="links-of-author-item">
+        <a href="https://github.com/qixinbo" title="GitHub → https:&#x2F;&#x2F;github.com&#x2F;qixinbo" rel="noopener" target="_blank"><i class="github fa-fw"></i>GitHub</a>
+      </span>
+      <span class="links-of-author-item">
+        <a href="mailto:qixinbo@gmail.com" title="E-Mail → mailto:qixinbo@gmail.com" rel="noopener" target="_blank"><i class="envelope fa-fw"></i>E-Mail</a>
+      </span>
+  </div>
+
+
+  <div class="links-of-blogroll motion-element">
+    <div class="links-of-blogroll-title"><i class="fa fa-link fa-fw"></i>
+      Links
+    </div>
+    <ul class="links-of-blogroll-list">
+        <li class="links-of-blogroll-item">
+          <a href="https://www.tsinghua.edu.cn/" title="https:&#x2F;&#x2F;www.tsinghua.edu.cn" rel="noopener" target="_blank">THU</a>
+        </li>
+        <li class="links-of-blogroll-item">
+          <a href="http://www.imr.cas.cn/" title="http:&#x2F;&#x2F;www.imr.cas.cn" rel="noopener" target="_blank">IMR</a>
+        </li>
+        <li class="links-of-blogroll-item">
+          <a href="http://www.sdu.edu.cn/" title="http:&#x2F;&#x2F;www.sdu.edu.cn" rel="noopener" target="_blank">SDU</a>
+        </li>
+        <li class="links-of-blogroll-item">
+          <a href="http://liam0205.me/" title="http:&#x2F;&#x2F;liam0205.me&#x2F;" rel="noopener" target="_blank">黄晨成</a>
+        </li>
+    </ul>
+  </div>
+
+      </div>
+
+    </div>
+  </aside>
+  <div id="sidebar-dimmer"></div>
+
+
+      </div>
+    </main>
+
+    <footer class="footer">
+      <div class="footer-inner">
+        
+
+        
+
+<div class="copyright">
+  
+  &copy; 
+  <span itemprop="copyrightYear">2021</span>
+  <span class="with-love">
+    <i class="fa fa-heart"></i>
+  </span>
+  <span class="author" itemprop="copyrightHolder">Xin-Bo Qi(亓欣波)</span>
+</div>
+  <div class="powered-by">Powered by <a href="https://hexo.io/" class="theme-link" rel="noopener" target="_blank">Hexo</a> & <a href="https://theme-next.org/" class="theme-link" rel="noopener" target="_blank">NexT.Gemini</a>
+  </div>
+
+        
+
+
+
+
+
+
+
+
+      </div>
+    </footer>
+  </div>
+
+  
+  <script src="/lib/anime.min.js"></script>
+  <script src="/lib/velocity/velocity.min.js"></script>
+  <script src="/lib/velocity/velocity.ui.min.js"></script>
+
+<script src="/js/utils.js"></script>
+
+<script src="/js/motion.js"></script>
+
+
+<script src="/js/schemes/pisces.js"></script>
+
+
+<script src="/js/next-boot.js"></script>
+
+
+
+
+  
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+  
+
+  
+
+  
+
+<script>
+  function loadCount() {
+    var d = document, s = d.createElement('script');
+    s.src = 'https://qixinbo.disqus.com/count.js';
+    s.id = 'dsq-count-scr';
+    (d.head || d.body).appendChild(s);
+  }
+  // defer loading until the whole page loading is completed
+  window.addEventListener('load', loadCount, false);
+</script>
+<script>
+  var disqus_config = function() {
+    this.page.url = "http://qixinbo.github.io/2020/08/05/harris/";
+    this.page.identifier = "2020/08/05/harris/";
+    this.page.title = "(转载)Harris角点检测原理";
+    };
+  NexT.utils.loadComments(document.querySelector('#disqus_thread'), () => {
+    if (window.DISQUS) {
+      DISQUS.reset({
+        reload: true,
+        config: disqus_config
+      });
+    } else {
+      var d = document, s = d.createElement('script');
+      s.src = 'https://qixinbo.disqus.com/embed.js';
+      s.setAttribute('data-timestamp', '' + +new Date());
+      (d.head || d.body).appendChild(s);
+    }
+  });
+</script>
+
+</body>
+</html>

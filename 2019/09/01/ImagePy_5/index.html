@@ -1,0 +1,599 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=2">
+<meta name="theme-color" content="#222">
+<meta name="generator" content="Hexo 5.4.0">
+  <link rel="apple-touch-icon" sizes="180x180" href="/images/apple-touch-icon-next.png">
+  <link rel="icon" type="image/png" sizes="32x32" href="/favicon.ico">
+  <link rel="icon" type="image/png" sizes="16x16" href="/favicon.ico">
+  <link rel="mask-icon" href="/images/logo.svg" color="#222">
+
+<link rel="stylesheet" href="/css/main.css">
+
+
+<link rel="stylesheet" href="/lib/font-awesome/css/all.min.css">
+
+<script id="hexo-configurations">
+    var NexT = window.NexT || {};
+    var CONFIG = {"hostname":"qixinbo.github.io","root":"/","scheme":"Gemini","version":"7.8.0","exturl":false,"sidebar":{"position":"left","display":"post","padding":18,"offset":12,"onmobile":false},"copycode":{"enable":false,"show_result":false,"style":null},"back2top":{"enable":true,"sidebar":false,"scrollpercent":false},"bookmark":{"enable":false,"color":"#222","save":"auto"},"fancybox":false,"mediumzoom":false,"lazyload":false,"pangu":false,"comments":{"style":"tabs","active":null,"storage":true,"lazyload":false,"nav":null},"algolia":{"hits":{"per_page":10},"labels":{"input_placeholder":"Search for Posts","hits_empty":"We didn't find any results for the search: ${query}","hits_stats":"${hits} results found in ${time} ms"}},"localsearch":{"enable":false,"trigger":"auto","top_n_per_article":1,"unescape":false,"preload":false},"motion":{"enable":true,"async":false,"transition":{"post_block":"fadeIn","post_header":"slideDownIn","post_body":"slideDownIn","coll_header":"slideLeftIn","sidebar":"slideUpIn"}}};
+  </script>
+
+  <meta name="description" content="参考文献：多线程threadingwxPython Recipes: A Problem - Solution Approach 本篇是对上面这两个参考文章的摘抄学习，第一篇博客介绍了Python怎样多线程编程，第二个是本书，介绍了wxPython怎样多线程编程，实际是在Python多线程编程的基础上开展的。ImagePy也是这样的多线程编程思路，所以本篇可以作为理解ImagePy的辅助材料。 P">
+<meta property="og:type" content="article">
+<meta property="og:title" content="ImagePy解析：5 -- wxPython多线程编程">
+<meta property="og:url" content="http://qixinbo.github.io/2019/09/01/ImagePy_5/index.html">
+<meta property="og:site_name" content="亓欣波">
+<meta property="og:description" content="参考文献：多线程threadingwxPython Recipes: A Problem - Solution Approach 本篇是对上面这两个参考文章的摘抄学习，第一篇博客介绍了Python怎样多线程编程，第二个是本书，介绍了wxPython怎样多线程编程，实际是在Python多线程编程的基础上开展的。ImagePy也是这样的多线程编程思路，所以本篇可以作为理解ImagePy的辅助材料。 P">
+<meta property="og:locale" content="en_US">
+<meta property="article:published_time" content="2019-08-31T16:00:00.000Z">
+<meta property="article:modified_time" content="2021-03-25T07:20:30.416Z">
+<meta property="article:author" content="Xin-Bo Qi(亓欣波)">
+<meta property="article:tag" content="ImagePy">
+<meta name="twitter:card" content="summary">
+
+<link rel="canonical" href="http://qixinbo.github.io/2019/09/01/ImagePy_5/">
+
+
+<script id="page-configurations">
+  // https://hexo.io/docs/variables.html
+  CONFIG.page = {
+    sidebar: "",
+    isHome : false,
+    isPost : true,
+    lang   : 'en'
+  };
+</script>
+
+  <title>ImagePy解析：5 -- wxPython多线程编程 | 亓欣波</title>
+  
+
+
+
+
+
+
+  <noscript>
+  <style>
+  .use-motion .brand,
+  .use-motion .menu-item,
+  .sidebar-inner,
+  .use-motion .post-block,
+  .use-motion .pagination,
+  .use-motion .comments,
+  .use-motion .post-header,
+  .use-motion .post-body,
+  .use-motion .collection-header { opacity: initial; }
+
+  .use-motion .site-title,
+  .use-motion .site-subtitle {
+    opacity: initial;
+    top: initial;
+  }
+
+  .use-motion .logo-line-before i { left: initial; }
+  .use-motion .logo-line-after i { right: initial; }
+  </style>
+</noscript>
+
+</head>
+
+<body itemscope itemtype="http://schema.org/WebPage">
+  <div class="container use-motion">
+    <div class="headband"></div>
+
+    <header class="header" itemscope itemtype="http://schema.org/WPHeader">
+      <div class="header-inner"><div class="site-brand-container">
+  <div class="site-nav-toggle">
+    <div class="toggle" aria-label="Toggle navigation bar">
+      <span class="toggle-line toggle-line-first"></span>
+      <span class="toggle-line toggle-line-middle"></span>
+      <span class="toggle-line toggle-line-last"></span>
+    </div>
+  </div>
+
+  <div class="site-meta">
+
+    <a href="/" class="brand" rel="start">
+      <span class="logo-line-before"><i></i></span>
+      <h1 class="site-title">亓欣波</h1>
+      <span class="logo-line-after"><i></i></span>
+    </a>
+      <p class="site-subtitle" itemprop="description">Hi, I am Xin-Bo Qi (亓欣波)</p>
+  </div>
+
+  <div class="site-nav-right">
+    <div class="toggle popup-trigger">
+    </div>
+  </div>
+</div>
+
+
+
+
+<nav class="site-nav">
+  <ul id="menu" class="main-menu menu">
+        <li class="menu-item menu-item-home">
+
+    <a href="/" rel="section"><i class="home fa-fw"></i>Home</a>
+
+  </li>
+        <li class="menu-item menu-item-categories">
+
+    <a href="/categories/" rel="section"><i class="th fa-fw"></i>Categories</a>
+
+  </li>
+        <li class="menu-item menu-item-archives">
+
+    <a href="/archives/" rel="section"><i class="archive fa-fw"></i>Archives</a>
+
+  </li>
+        <li class="menu-item menu-item-tags">
+
+    <a href="/tags/" rel="section"><i class="tags fa-fw"></i>Tags</a>
+
+  </li>
+        <li class="menu-item menu-item-scholar">
+
+    <a href="/scholar/" rel="section"><i class="bar-chart fa-fw"></i>scholar</a>
+
+  </li>
+        <li class="menu-item menu-item-sources">
+
+    <a href="/sources/" rel="section"><i class="rss fa-fw"></i>sources</a>
+
+  </li>
+        <li class="menu-item menu-item-gallery">
+
+    <a href="/gallery/" rel="section"><i class="file-image-o fa-fw"></i>gallery</a>
+
+  </li>
+        <li class="menu-item menu-item-about">
+
+    <a href="/about/" rel="section"><i class="user fa-fw"></i>About</a>
+
+  </li>
+        <li class="menu-item menu-item-commonweal">
+
+    <a href="/404.html" rel="section"><i class="heartbeat fa-fw"></i>Commonweal 404</a>
+
+  </li>
+  </ul>
+</nav>
+
+
+
+
+</div>
+    </header>
+
+    
+  <div class="back-to-top">
+    <i class="fa fa-arrow-up"></i>
+    <span>0%</span>
+  </div>
+
+
+    <main class="main">
+      <div class="main-inner">
+        <div class="content-wrap">
+          
+
+          <div class="content post posts-expand">
+            
+
+    
+  
+  
+  <article itemscope itemtype="http://schema.org/Article" class="post-block" lang="en">
+    <link itemprop="mainEntityOfPage" href="http://qixinbo.github.io/2019/09/01/ImagePy_5/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="image" content="/images/avatar.jpg">
+      <meta itemprop="name" content="Xin-Bo Qi(亓欣波)">
+      <meta itemprop="description" content="Be interesting!">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="亓欣波">
+    </span>
+      <header class="post-header">
+        <h1 class="post-title" itemprop="name headline">
+          ImagePy解析：5 -- wxPython多线程编程
+        </h1>
+
+        <div class="post-meta">
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="far fa-calendar"></i>
+              </span>
+              <span class="post-meta-item-text">Posted on</span>
+
+              <time title="Created: 2019-09-01 00:00:00" itemprop="dateCreated datePublished" datetime="2019-09-01T00:00:00+08:00">2019-09-01</time>
+            </span>
+              <span class="post-meta-item">
+                <span class="post-meta-item-icon">
+                  <i class="far fa-calendar-check"></i>
+                </span>
+                <span class="post-meta-item-text">Edited on</span>
+                <time title="Modified: 2021-03-25 15:20:30" itemprop="dateModified" datetime="2021-03-25T15:20:30+08:00">2021-03-25</time>
+              </span>
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="far fa-folder"></i>
+              </span>
+              <span class="post-meta-item-text">In</span>
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+                  <a href="/categories/computational-material-science/" itemprop="url" rel="index"><span itemprop="name">computational material science</span></a>
+                </span>
+            </span>
+
+          
+  
+  <span class="post-meta-item">
+    
+      <span class="post-meta-item-icon">
+        <i class="far fa-comment"></i>
+      </span>
+      <span class="post-meta-item-text">Disqus: </span>
+    
+    <a title="disqus" href="/2019/09/01/ImagePy_5/#disqus_thread" itemprop="discussionUrl">
+      <span class="post-comments-count disqus-comment-count" data-disqus-identifier="2019/09/01/ImagePy_5/" itemprop="commentCount"></span>
+    </a>
+  </span>
+  
+  
+
+        </div>
+      </header>
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+        <p>参考文献：<br><a target="_blank" rel="noopener" href="http://www.liujiangblog.com/course/python/79">多线程threading</a><br><a target="_blank" rel="noopener" href="https://www.amazon.com/wxPython-Recipes-Problem-Solution-Approach/dp/1484232364">wxPython Recipes: A Problem - Solution Approach</a></p>
+<p>本篇是对上面这两个参考文章的摘抄学习，第一篇博客介绍了Python怎样多线程编程，第二个是本书，介绍了wxPython怎样多线程编程，实际是在Python多线程编程的基础上开展的。<br>ImagePy也是这样的多线程编程思路，所以本篇可以作为理解ImagePy的辅助材料。</p>
+<h1 id="Python多线程threading"><a href="#Python多线程threading" class="headerlink" title="Python多线程threading"></a>Python多线程threading</h1><p>在Python3中，通过threading模块提供线程的功能。原来的thread模块已废弃。但是threading模块中有个Thread类（大写的T，类名），是模块中最主要的线程类。<br>对于Thread类，它的定义如下：<br>threading.Thread(self, group=None, target=None, name=None, args=(), kwargs=None, *, daemon=None)</p>
+<ul>
+<li>参数group是预留的，用于将来扩展；</li>
+<li>参数target是一个可调用对象，在线程启动后执行；</li>
+<li>参数name是线程的名字。默认值为“Thread-N“，N是一个数字。</li>
+<li>参数args和kwargs分别表示调用target时的参数列表和关键字参数。</li>
+</ul>
+<p>Thread类提供了以下方法和属性:</p>
+<ul>
+<li>start()：启动线程，等待CPU调度</li>
+<li>run()：线程被cpu调度后自动执行的方法</li>
+<li>getName()、setName()和name：用于获取和设置线程的名称。</li>
+<li>setDaemon()：设置为后台线程或前台线程（默认是False，前台线程）。如果是后台线程，主线程执行过程中，后台线程也在进行，主线程执行完毕后，后台线程不论成功与否，均停止。如果是前台线程，主线程执行过程中，前台线程也在进行，主线程执行完毕后，等待前台线程执行完成后，程序才停止。</li>
+<li>ident：获取线程的标识符。线程标识符是一个非零整数，只有在调用了start()方法之后该属性才有效，否则它只返回None。</li>
+<li>is_alive()：判断线程是否是激活的（alive）。从调用start()方法启动线程，到run()方法执行完毕或遇到未处理异常而中断这段时间内，线程是激活的。</li>
+<li>isDaemon()方法和daemon属性：是否为守护线程</li>
+<li>join([timeout])：调用该方法将会使主调线程堵塞，直到被调用线程运行结束或超时。参数timeout是一个数值类型，表示超时时间，如果未提供该参数，那么主调线程将一直堵塞到被调线程结束。</li>
+</ul>
+<h2 id="创建线程"><a href="#创建线程" class="headerlink" title="创建线程"></a>创建线程</h2><p>有两种方式来创建线程：一种是继承Thread类，并重写它的run()方法；另一种是在实例化threading.Thread对象的时候，将线程要执行的任务函数作为参数传入线程。</p>
+<p>第一种方法：</p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">import</span> threading</span><br><span class="line"><span class="class"><span class="keyword">class</span> <span class="title">MyThread</span>(<span class="params">threading.Thread</span>):</span></span><br><span class="line">    <span class="function"><span class="keyword">def</span> <span class="title">__init__</span>(<span class="params">self, thread_name</span>):</span></span><br><span class="line">        <span class="comment"># 注意：一定要显式的调用父类的初始化函数。</span></span><br><span class="line">        <span class="built_in">super</span>(MyThread, self).__init__(name=thread_name)</span><br><span class="line"><span class="function"><span class="keyword">def</span> <span class="title">run</span>(<span class="params">self</span>):</span></span><br><span class="line">        <span class="built_in">print</span>(<span class="string">&quot;%s正在运行中......&quot;</span> % self.name)</span><br><span class="line"><span class="keyword">if</span> __name__ == <span class="string">&#x27;__main__&#x27;</span>:    </span><br><span class="line">    <span class="keyword">for</span> i <span class="keyword">in</span> <span class="built_in">range</span>(<span class="number">10</span>):</span><br><span class="line">        MyThread(<span class="string">&quot;thread-&quot;</span> + <span class="built_in">str</span>(i)).start()</span><br></pre></td></tr></table></figure>
+<p>第二种方法：</p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">import</span> threading</span><br><span class="line"><span class="keyword">import</span> time</span><br><span class="line"></span><br><span class="line"><span class="function"><span class="keyword">def</span> <span class="title">show</span>(<span class="params">arg</span>):</span></span><br><span class="line">    time.sleep(<span class="number">1</span>)</span><br><span class="line">    <span class="built_in">print</span>(<span class="string">&#x27;thread &#x27;</span>+<span class="built_in">str</span>(arg)+<span class="string">&quot; running....&quot;</span>)</span><br><span class="line"></span><br><span class="line"><span class="keyword">if</span> __name__ == <span class="string">&#x27;__main__&#x27;</span>:</span><br><span class="line">    <span class="keyword">for</span> i <span class="keyword">in</span> <span class="built_in">range</span>(<span class="number">10</span>):</span><br><span class="line">        t = threading.Thread(target=show, args=(i,))</span><br><span class="line">        t.start()</span><br></pre></td></tr></table></figure>
+
+<h2 id="线程调用"><a href="#线程调用" class="headerlink" title="线程调用"></a>线程调用</h2><p>在多线程执行过程中，有一个特点要注意，那就是每个线程各执行各的任务，不等待其它的线程，自顾自的完成自己的任务，Python默认会等待最后一个线程执行完毕后才退出。比如：</p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">import</span> time</span><br><span class="line"><span class="keyword">import</span> threading</span><br><span class="line"></span><br><span class="line"><span class="function"><span class="keyword">def</span> <span class="title">doWaiting</span>():</span></span><br><span class="line">    <span class="built_in">print</span>(<span class="string">&#x27;start waiting:&#x27;</span>, time.strftime(<span class="string">&#x27;%H:%M:%S&#x27;</span>))</span><br><span class="line">    time.sleep(<span class="number">3</span>)</span><br><span class="line">    <span class="built_in">print</span>(<span class="string">&#x27;stop waiting&#x27;</span>, time.strftime(<span class="string">&#x27;%H:%M:%S&#x27;</span>))</span><br><span class="line"></span><br><span class="line">t = threading.Thread(target=doWaiting)</span><br><span class="line">t.start()</span><br><span class="line"><span class="comment"># 确保线程t已经启动</span></span><br><span class="line">time.sleep(<span class="number">1</span>)</span><br><span class="line"><span class="built_in">print</span>(<span class="string">&#x27;start job&#x27;</span>)</span><br><span class="line"><span class="built_in">print</span>(<span class="string">&#x27;end job&#x27;</span>)</span><br></pre></td></tr></table></figure>
+<p>上述输出为：</p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line">start waiting: <span class="number">15</span>:<span class="number">27</span>:<span class="number">58</span></span><br><span class="line">start job</span><br><span class="line">end job</span><br><span class="line">stop waiting <span class="number">15</span>:<span class="number">28</span>:01</span><br></pre></td></tr></table></figure>
+<p>上面例子中，主线程没有等待子线程t执行完毕，而是啥都不管，继续往下执行它自己的代码，执行完毕后也没有结束整个程序，而是等待子线程t执行完毕，整个程序才结束。</p>
+<p>有时候希望主线程等等子线程，不要“埋头往前跑”。那就使用join()方法，如下所示：</p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">import</span> time</span><br><span class="line"><span class="keyword">import</span> threading</span><br><span class="line"> </span><br><span class="line"><span class="function"><span class="keyword">def</span> <span class="title">doWaiting</span>():</span></span><br><span class="line">    <span class="built_in">print</span>(<span class="string">&#x27;start waiting:&#x27;</span>, time.strftime(<span class="string">&#x27;%H:%M:%S&#x27;</span>))</span><br><span class="line">    time.sleep(<span class="number">3</span>)</span><br><span class="line">    <span class="built_in">print</span>(<span class="string">&#x27;stop waiting&#x27;</span>, time.strftime(<span class="string">&#x27;%H:%M:%S&#x27;</span>))</span><br><span class="line"></span><br><span class="line">t = threading.Thread(target=doWaiting)</span><br><span class="line">t.start()</span><br><span class="line"><span class="comment"># 确保线程t已经启动</span></span><br><span class="line">time.sleep(<span class="number">1</span>)</span><br><span class="line"><span class="built_in">print</span>(<span class="string">&#x27;start join&#x27;</span>)</span><br><span class="line"><span class="comment"># 将一直堵塞，直到t运行结束。</span></span><br><span class="line">t.join()</span><br><span class="line"><span class="built_in">print</span>(<span class="string">&#x27;end join&#x27;</span>)</span><br></pre></td></tr></table></figure>
+<p>输出为：</p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line">start waiting: <span class="number">15</span>:<span class="number">30</span>:<span class="number">21</span></span><br><span class="line">start join</span><br><span class="line">stop waiting <span class="number">15</span>:<span class="number">30</span>:<span class="number">24</span></span><br><span class="line">end join</span><br></pre></td></tr></table></figure>
+
+<p>还可以使用setDaemon(True)把所有的子线程都变成主线程的守护线程，当主线程结束后，守护子线程也会随之结束，整个程序也跟着退出。如：</p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">import</span> threading</span><br><span class="line"><span class="keyword">import</span> time</span><br><span class="line"> </span><br><span class="line"><span class="function"><span class="keyword">def</span> <span class="title">run</span>():</span></span><br><span class="line">    <span class="built_in">print</span>(threading.current_thread().getName(), <span class="string">&quot;开始工作&quot;</span>)</span><br><span class="line">    time.sleep(<span class="number">2</span>)       <span class="comment"># 子线程停2s</span></span><br><span class="line">    <span class="built_in">print</span>(<span class="string">&quot;子线程工作完毕&quot;</span>)</span><br><span class="line"></span><br><span class="line"><span class="keyword">for</span> i <span class="keyword">in</span> <span class="built_in">range</span>(<span class="number">3</span>):</span><br><span class="line">    t = threading.Thread(target=run,)</span><br><span class="line">    t.setDaemon(<span class="literal">True</span>)   <span class="comment"># 把子线程设置为守护线程，必须在start()之前设置</span></span><br><span class="line">    t.start()</span><br><span class="line"></span><br><span class="line">time.sleep(<span class="number">1</span>)     <span class="comment"># 主线程停1秒</span></span><br><span class="line"><span class="built_in">print</span>(<span class="string">&quot;主线程结束了！&quot;</span>)</span><br><span class="line"><span class="built_in">print</span>(threading.active_count())  <span class="comment"># 输出活跃的线程数</span></span><br><span class="line"></span><br></pre></td></tr></table></figure>
+<p>上述输出为：</p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line">Thread-<span class="number">1</span> 开始工作</span><br><span class="line">Thread-<span class="number">2</span> 开始工作</span><br><span class="line">Thread-<span class="number">3</span> 开始工作</span><br><span class="line">主线程结束了！</span><br><span class="line"><span class="number">4</span></span><br></pre></td></tr></table></figure>
+
+<h1 id="Publish-Subscribe模式"><a href="#Publish-Subscribe模式" class="headerlink" title="Publish-Subscribe模式"></a>Publish-Subscribe模式</h1><p>Publish-Subscribe模式，即发布-订阅模式，是计算机科学中用来在一个程序中的不同部分中进行交流的常用模式。基本思想就是先创建一个或多个subscribers，然后它们会监听publisher发送的特定的消息。<br>wxPython的关于这一模式的实现就是wx.lib.pubsub，但这一API已经deprecated，现在换用PyPubSub，只需稍微把以前的import的wx.lib.pubsub改成pubsub即可。<br>一个例子是：</p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br><span class="line">52</span><br><span class="line">53</span><br><span class="line">54</span><br><span class="line">55</span><br><span class="line">56</span><br><span class="line">57</span><br><span class="line">58</span><br><span class="line">59</span><br><span class="line">60</span><br><span class="line">61</span><br><span class="line">62</span><br><span class="line">63</span><br><span class="line">64</span><br><span class="line">65</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">import</span> wx</span><br><span class="line"><span class="keyword">from</span> pubsub <span class="keyword">import</span> pub</span><br><span class="line"></span><br><span class="line"><span class="class"><span class="keyword">class</span> <span class="title">OtherFrame</span>(<span class="params">wx.Frame</span>):</span></span><br><span class="line">    <span class="function"><span class="keyword">def</span> <span class="title">__init__</span>(<span class="params">self</span>):</span></span><br><span class="line">        <span class="string">&quot;&quot;&quot;Constructor&quot;&quot;&quot;</span></span><br><span class="line">        wx.Frame.__init__(self, <span class="literal">None</span>, wx.ID_ANY, <span class="string">&quot;Secondary Frame&quot;</span>)</span><br><span class="line">        panel = wx.Panel(self)</span><br><span class="line"></span><br><span class="line">        msg = <span class="string">&quot;Enter a Message to send to the main frame&quot;</span></span><br><span class="line">        instructions = wx.StaticText(panel, label=msg)</span><br><span class="line">        self.msgTxt = wx.TextCtrl(panel, value=<span class="string">&quot;&quot;</span>)</span><br><span class="line"></span><br><span class="line">        closeBtn = wx.Button(panel, label=<span class="string">&quot;Send and Close&quot;</span>)</span><br><span class="line">        closeBtn.Bind(wx.EVT_BUTTON, self.onSendAndClose)</span><br><span class="line"> </span><br><span class="line">        sizer = wx.BoxSizer(wx.VERTICAL)</span><br><span class="line">        flags = wx.ALL|wx.CENTER</span><br><span class="line">        sizer.Add(instructions, <span class="number">0</span>, flags, <span class="number">5</span>)</span><br><span class="line">        sizer.Add(self.msgTxt, <span class="number">0</span>, flags, <span class="number">5</span>)</span><br><span class="line">        sizer.Add(closeBtn, <span class="number">0</span>, flags, <span class="number">5</span>)</span><br><span class="line">        panel.SetSizer(sizer)</span><br><span class="line"></span><br><span class="line">    <span class="function"><span class="keyword">def</span> <span class="title">onSendAndClose</span>(<span class="params">self, event</span>):</span></span><br><span class="line">        <span class="string">&quot;&quot;&quot;</span></span><br><span class="line"><span class="string">        Send a message and close frame</span></span><br><span class="line"><span class="string">        &quot;&quot;&quot;</span></span><br><span class="line">        msg = self.msgTxt.GetValue()</span><br><span class="line">        pub.sendMessage(<span class="string">&quot;panelListener&quot;</span>, message=msg)</span><br><span class="line">        pub.sendMessage(<span class="string">&quot;panelListener&quot;</span>, message=<span class="string">&quot;test2&quot;</span>, arg2=<span class="string">&quot;2nd argument!&quot;</span>)</span><br><span class="line">        self.Close()</span><br><span class="line"> </span><br><span class="line"><span class="class"><span class="keyword">class</span> <span class="title">MyPanel</span>(<span class="params">wx.Panel</span>):</span></span><br><span class="line">    <span class="function"><span class="keyword">def</span> <span class="title">__init__</span>(<span class="params">self, parent</span>):</span></span><br><span class="line">        <span class="string">&quot;&quot;&quot;Constructor&quot;&quot;&quot;</span></span><br><span class="line">        wx.Panel.__init__(self, parent)</span><br><span class="line">        pub.subscribe(self.myListener, <span class="string">&quot;panelListener&quot;</span>)</span><br><span class="line"></span><br><span class="line">        btn = wx.Button(self, label=<span class="string">&quot;Open Frame&quot;</span>)</span><br><span class="line">        btn.Bind(wx.EVT_BUTTON, self.onOpenFrame)</span><br><span class="line"></span><br><span class="line">    <span class="function"><span class="keyword">def</span> <span class="title">myListener</span>(<span class="params">self, message, arg2=<span class="literal">None</span></span>):</span></span><br><span class="line">        <span class="built_in">print</span>(<span class="string">&quot;Received the following message: &quot;</span> + message)</span><br><span class="line">        <span class="keyword">if</span> arg2:</span><br><span class="line">            <span class="built_in">print</span>(<span class="string">&quot;Received another arguments: &quot;</span> + <span class="built_in">str</span>(arg2))</span><br><span class="line"></span><br><span class="line">    <span class="function"><span class="keyword">def</span> <span class="title">onOpenFrame</span>(<span class="params">self, event</span>):</span></span><br><span class="line">        <span class="string">&quot;&quot;&quot;</span></span><br><span class="line"><span class="string">        Opens secondary frame</span></span><br><span class="line"><span class="string">        &quot;&quot;&quot;</span></span><br><span class="line">        frame = OtherFrame()</span><br><span class="line">        frame.Show()</span><br><span class="line"></span><br><span class="line"></span><br><span class="line"><span class="class"><span class="keyword">class</span> <span class="title">MyFrame</span>(<span class="params">wx.Frame</span>):</span></span><br><span class="line">    <span class="function"><span class="keyword">def</span> <span class="title">__init__</span>(<span class="params">self</span>):</span></span><br><span class="line">        <span class="string">&quot;&quot;&quot;Constructor&quot;&quot;&quot;</span></span><br><span class="line">        wx.Frame.__init__(self, <span class="literal">None</span>, title=<span class="string">&quot;New PubSub API Tutorial&quot;</span>)</span><br><span class="line">        panel = MyPanel(self)</span><br><span class="line">        self.Show()</span><br><span class="line"></span><br><span class="line"><span class="keyword">if</span> __name__ == <span class="string">&quot;__main__&quot;</span>:</span><br><span class="line">    app = wx.App(<span class="literal">False</span>)</span><br><span class="line">    frame = MyFrame()</span><br><span class="line">    app.MainLoop()</span><br></pre></td></tr></table></figure>
+
+<p>解析如下：<br>（1）首先在MyPanel类中创建subscriber：</p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">pub.subscribe(self.myListener, <span class="string">&quot;panelListener&quot;</span>)</span><br></pre></td></tr></table></figure>
+<p>myListener函数能够接收一个或多个参数，这里设定至少接收一个参数message，以及另一个可选参数arg2。<br>然后将MyPanel中的button与onOpenFrame事件绑定，从而可以调用另一个frame。<br>（2）然后在OtherFrame类中创建publisher：</p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="keyword">def</span> <span class="title">onSendAndClose</span>(<span class="params">self, event</span>):</span></span><br><span class="line">    msg = self.msgTxt.GetValue()</span><br><span class="line">    pub.sendMessage(<span class="string">&quot;panelListener&quot;</span>, message=msg)</span><br><span class="line">    pub.sendMessage(<span class="string">&quot;panelListener&quot;</span>, message=<span class="string">&quot;test2&quot;</span>, arg2=<span class="string">&quot;2nd argument!&quot;</span>)</span><br><span class="line">    self.Close()</span><br></pre></td></tr></table></figure>
+<p>可以看出，这里定义了两个publishers，第一个发送一个参数，第二个发送两个参数。有两点需要注意：<br>一个是subscriber和publisher的事件标识是一致的，这样才能互相接收信号；第二个是在publisher中需要明确写出subscriber的形参名称，否则会报错。<br>但是，注意，pubsub不是线程安全的，需要配合下面的线程安全的方法进行服用。</p>
+<h1 id="wxPython多线程编程"><a href="#wxPython多线程编程" class="headerlink" title="wxPython多线程编程"></a>wxPython多线程编程</h1><p>在wxPython中，有三种线程安全的（thread-safe）的方法：wx.PostEvent、wx.CallAfter和wx.CallLater。据Robin Dunn（wxPython的创建者）所说，wx.CallAfter调用wx.PostEvent来向一个应用对象发送事件，该应用对象将会拥有一个与该事件绑定的事件句柄，然后将根据开发者编写的代码来对事件作出反应；然后根据Mike Driscoll（wxPython Recipes这本书的作者）所理解，wx.CallLater又会调用wx.CallAfter，同时可加上一个特定的时间限制，从而可以实现在等待一定时间后再发送事件。总之，在这三个方法中，wx.CallLater是最抽象的方法，wx.CallAfter次之，wx.PostEvent则是最底层的API。</p>
+<p>在wxPython的邮件列表中，推荐最多的就是使用wx.CallAfter和PubSub的组合，因此推荐使用这种方法来实现多线程。</p>
+<p>一个例子如下（不适用于wxPython老版本，适用于wxPython 3.0和Phoenix版本，因为PubSub更新了API）：</p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br><span class="line">52</span><br><span class="line">53</span><br><span class="line">54</span><br><span class="line">55</span><br><span class="line">56</span><br><span class="line">57</span><br><span class="line">58</span><br><span class="line">59</span><br><span class="line">60</span><br><span class="line">61</span><br><span class="line">62</span><br><span class="line">63</span><br><span class="line">64</span><br><span class="line">65</span><br><span class="line">66</span><br><span class="line">67</span><br><span class="line">68</span><br><span class="line">69</span><br><span class="line">70</span><br><span class="line">71</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment"># wxPython 3.0 and Phoenix</span></span><br><span class="line"><span class="keyword">import</span> time</span><br><span class="line"><span class="keyword">import</span> wx</span><br><span class="line"> </span><br><span class="line"><span class="keyword">from</span> threading <span class="keyword">import</span> Thread</span><br><span class="line"><span class="keyword">from</span> pubsub <span class="keyword">import</span> pub</span><br><span class="line"></span><br><span class="line"><span class="class"><span class="keyword">class</span> <span class="title">TestThread</span>(<span class="params">Thread</span>):</span></span><br><span class="line">    <span class="string">&quot;&quot;&quot;Test Worker Thread Class.&quot;&quot;&quot;</span></span><br><span class="line">    <span class="function"><span class="keyword">def</span> <span class="title">__init__</span>(<span class="params">self</span>):</span></span><br><span class="line">        <span class="string">&quot;&quot;&quot;Init Worker Thread Class.&quot;&quot;&quot;</span></span><br><span class="line">        Thread.__init__(self)</span><br><span class="line">        self.start()    <span class="comment"># start the thread</span></span><br><span class="line"></span><br><span class="line">    <span class="function"><span class="keyword">def</span> <span class="title">run</span>(<span class="params">self</span>):</span></span><br><span class="line">        <span class="string">&quot;&quot;&quot;Run Worker Thread.&quot;&quot;&quot;</span></span><br><span class="line">        <span class="comment"># This is the code executing in the new thread.</span></span><br><span class="line">        <span class="keyword">for</span> i <span class="keyword">in</span> <span class="built_in">range</span>(<span class="number">6</span>):</span><br><span class="line">            time.sleep(<span class="number">10</span>)</span><br><span class="line">            wx.CallAfter(self.postTime, i)</span><br><span class="line">        time.sleep(<span class="number">5</span>)</span><br><span class="line">        wx.CallAfter(pub.sendMessage, <span class="string">&quot;update&quot;</span>, msg=<span class="string">&quot;Thread finished!&quot;</span>)</span><br><span class="line"></span><br><span class="line">    <span class="function"><span class="keyword">def</span> <span class="title">postTime</span>(<span class="params">self, amt</span>):</span></span><br><span class="line">        <span class="string">&quot;&quot;&quot;</span></span><br><span class="line"><span class="string">        Send time to GUI</span></span><br><span class="line"><span class="string">        &quot;&quot;&quot;</span></span><br><span class="line">        amtOfTime = (amt + <span class="number">1</span>) * <span class="number">10</span></span><br><span class="line">        pub.sendMessage(<span class="string">&quot;update&quot;</span>, msg=amtOfTime)</span><br><span class="line"></span><br><span class="line"><span class="class"><span class="keyword">class</span> <span class="title">MyForm</span>(<span class="params">wx.Frame</span>):</span></span><br><span class="line">    <span class="function"><span class="keyword">def</span> <span class="title">__init__</span>(<span class="params">self</span>):</span></span><br><span class="line">        wx.Frame.__init__(self, <span class="literal">None</span>, wx.ID_ANY, <span class="string">&quot;Tutorial&quot;</span>)</span><br><span class="line">        <span class="comment"># Add a panel so it looks the correct on all platforms</span></span><br><span class="line">        panel = wx.Panel(self, wx.ID_ANY)</span><br><span class="line">        self.displayLbl = wx.StaticText(panel,</span><br><span class="line">                                        label=<span class="string">&quot;Amount of time since thread started goes here&quot;</span>)</span><br><span class="line">        self.btn = btn = wx.Button(panel, label=<span class="string">&quot;Start Thread&quot;</span>)</span><br><span class="line">        btn.Bind(wx.EVT_BUTTON, self.onButton)</span><br><span class="line">        sizer = wx.BoxSizer(wx.VERTICAL)</span><br><span class="line">        sizer.Add(self.displayLbl, <span class="number">0</span>, wx.ALL|wx.CENTER, <span class="number">5</span>)</span><br><span class="line">        sizer.Add(btn, <span class="number">0</span>, wx.ALL|wx.CENTER, <span class="number">5</span>)</span><br><span class="line">        panel.SetSizer(sizer)</span><br><span class="line"></span><br><span class="line">        <span class="comment"># create a pubsub receiver</span></span><br><span class="line">        pub.subscribe(self.updateDisplay, <span class="string">&quot;update&quot;</span>)</span><br><span class="line"></span><br><span class="line">    <span class="function"><span class="keyword">def</span> <span class="title">onButton</span>(<span class="params">self, event</span>):</span></span><br><span class="line">        <span class="string">&quot;&quot;&quot;</span></span><br><span class="line"><span class="string">        Runs the thread</span></span><br><span class="line"><span class="string">        &quot;&quot;&quot;</span></span><br><span class="line">        TestThread()</span><br><span class="line">        self.displayLbl.SetLabel(<span class="string">&quot;Thread started!&quot;</span>)</span><br><span class="line">        btn = event.GetEventObject()</span><br><span class="line">        btn.Disable()</span><br><span class="line"></span><br><span class="line">    <span class="function"><span class="keyword">def</span> <span class="title">updateDisplay</span>(<span class="params">self, msg</span>):</span></span><br><span class="line">        <span class="string">&quot;&quot;&quot;</span></span><br><span class="line"><span class="string">        Receives data from thread and updates the display</span></span><br><span class="line"><span class="string">        &quot;&quot;&quot;</span></span><br><span class="line">        t = msg</span><br><span class="line">        <span class="keyword">if</span> <span class="built_in">isinstance</span>(t, <span class="built_in">int</span>):</span><br><span class="line">            self.displayLbl.SetLabel(<span class="string">&quot;Time since thread started: %s seconds&quot;</span> % t)</span><br><span class="line">        <span class="keyword">else</span>:</span><br><span class="line">            self.displayLbl.SetLabel(<span class="string">&quot;%s&quot;</span> % t)</span><br><span class="line">            self.btn.Enable()</span><br><span class="line"><span class="comment"># Run the program</span></span><br><span class="line"><span class="keyword">if</span> __name__ == <span class="string">&quot;__main__&quot;</span>:</span><br><span class="line">    app = wx.App(<span class="literal">False</span>)</span><br><span class="line">    frame = MyForm().Show()</span><br><span class="line">    app.MainLoop()</span><br></pre></td></tr></table></figure>
+<p>解析如下：<br>（1）首先在MyForm中创建一个subscriber：</p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br></pre></td><td class="code"><pre><span class="line">pub.subscribe(self.updateDisplay, <span class="string">&quot;update&quot;</span>)</span><br><span class="line"></span><br><span class="line"><span class="function"><span class="keyword">def</span> <span class="title">updateDisplay</span>(<span class="params">self, msg</span>):</span></span><br><span class="line">    <span class="string">&quot;&quot;&quot;</span></span><br><span class="line"><span class="string">    Receives data from thread and updates the display</span></span><br><span class="line"><span class="string">    &quot;&quot;&quot;</span></span><br><span class="line">    t = msg</span><br><span class="line">    <span class="keyword">if</span> <span class="built_in">isinstance</span>(t, <span class="built_in">int</span>):</span><br><span class="line">        self.displayLbl.SetLabel(<span class="string">&quot;Time since thread started: %s seconds&quot;</span> % t)</span><br><span class="line">    <span class="keyword">else</span>:</span><br><span class="line">        self.displayLbl.SetLabel(<span class="string">&quot;%s&quot;</span> % t)</span><br><span class="line">        self.btn.Enable()</span><br></pre></td></tr></table></figure>
+<p>它所调用的updateDisplay事件处理函数接收一个名为msg的参数，接收后则更新面板上的StaticText组件。<br>（2）通过一个按钮来开启其他线程：</p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><span class="line">btn.Bind(wx.EVT_BUTTON, self.onButton)</span><br><span class="line"></span><br><span class="line"><span class="function"><span class="keyword">def</span> <span class="title">onButton</span>(<span class="params">self, event</span>):</span></span><br><span class="line">    TestThread()</span><br><span class="line">    self.displayLbl.SetLabel(<span class="string">&quot;Thread started!&quot;</span>)</span><br><span class="line">    btn = event.GetEventObject()</span><br><span class="line">    btn.Disable()</span><br></pre></td></tr></table></figure>
+<p>点击MyForm上的这个按钮后，就会开启其他线程，同时将这个按钮置为不可用。<br>（3）其他线程的调用：</p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="keyword">def</span> <span class="title">run</span>(<span class="params">self</span>):</span></span><br><span class="line">    <span class="string">&quot;&quot;&quot;Run Worker Thread.&quot;&quot;&quot;</span></span><br><span class="line">    <span class="comment"># This is the code executing in the new thread.</span></span><br><span class="line">    <span class="keyword">for</span> i <span class="keyword">in</span> <span class="built_in">range</span>(<span class="number">6</span>):</span><br><span class="line">        time.sleep(<span class="number">10</span>)</span><br><span class="line">        wx.CallAfter(self.postTime, i)</span><br><span class="line">    time.sleep(<span class="number">5</span>)</span><br><span class="line">    wx.CallAfter(pub.sendMessage, <span class="string">&quot;update&quot;</span>, msg=<span class="string">&quot;Thread finished!&quot;</span>)</span><br><span class="line"></span><br><span class="line"><span class="function"><span class="keyword">def</span> <span class="title">postTime</span>(<span class="params">self, amt</span>):</span></span><br><span class="line">    amtOfTime = (amt + <span class="number">1</span>) * <span class="number">10</span></span><br><span class="line">    pub.sendMessage(<span class="string">&quot;update&quot;</span>, msg=amtOfTime)</span><br></pre></td></tr></table></figure>
+<p>可以看出，这个新线程在做的事就是进行六次循环，每次等待10秒钟后创建一个发射器，将时间数值发送给接收器，从而更新MyForm面板上的数值。最后，发送一个名为”Thread finished!”的消息给接收器。</p>
+
+    </div>
+
+    
+    
+    
+        <div class="reward-container">
+  <div></div>
+  <button onclick="var qr = document.getElementById('qr'); qr.style.display = (qr.style.display === 'none') ? 'block' : 'none';">
+    Donate
+  </button>
+  <div id="qr" style="display: none;">
+      
+      <div style="display: inline-block;">
+        <img src="/images/wechat_reward.png" alt="Xin-Bo Qi(亓欣波) WeChat Pay">
+        <p>WeChat Pay</p>
+      </div>
+
+  </div>
+</div>
+
+
+      <footer class="post-footer">
+          <div class="post-tags">
+              <a href="/tags/ImagePy/" rel="tag"># ImagePy</a>
+          </div>
+
+        
+
+
+        
+    <div class="post-nav">
+      <div class="post-nav-item">
+    <a href="/2019/08/31/ImagePy_4/" rel="prev" title="ImagePy解析：4 -- 主界面渲染">
+      <i class="fa fa-chevron-left"></i> ImagePy解析：4 -- 主界面渲染
+    </a></div>
+      <div class="post-nav-item">
+    <a href="/2019/09/07/ImagePy_6/" rel="next" title="ImagePy解析：6 -- wxPython GDI绘图和FloatCanvas">
+      ImagePy解析：6 -- wxPython GDI绘图和FloatCanvas <i class="fa fa-chevron-right"></i>
+    </a></div>
+    </div>
+      </footer>
+    
+  </article>
+  
+  
+  
+
+
+
+          </div>
+          
+    
+  <div class="comments">
+    <div id="disqus_thread">
+      <noscript>Please enable JavaScript to view the comments powered by Disqus.</noscript>
+    </div>
+  </div>
+  
+
+<script>
+  window.addEventListener('tabs:register', () => {
+    let { activeClass } = CONFIG.comments;
+    if (CONFIG.comments.storage) {
+      activeClass = localStorage.getItem('comments_active') || activeClass;
+    }
+    if (activeClass) {
+      let activeTab = document.querySelector(`a[href="#comment-${activeClass}"]`);
+      if (activeTab) {
+        activeTab.click();
+      }
+    }
+  });
+  if (CONFIG.comments.storage) {
+    window.addEventListener('tabs:click', event => {
+      if (!event.target.matches('.tabs-comment .tab-content .tab-pane')) return;
+      let commentClass = event.target.classList[1];
+      localStorage.setItem('comments_active', commentClass);
+    });
+  }
+</script>
+
+        </div>
+          
+  
+  <div class="toggle sidebar-toggle">
+    <span class="toggle-line toggle-line-first"></span>
+    <span class="toggle-line toggle-line-middle"></span>
+    <span class="toggle-line toggle-line-last"></span>
+  </div>
+
+  <aside class="sidebar">
+    <div class="sidebar-inner">
+
+      <ul class="sidebar-nav motion-element">
+        <li class="sidebar-nav-toc">
+          Table of Contents
+        </li>
+        <li class="sidebar-nav-overview">
+          Overview
+        </li>
+      </ul>
+
+      <!--noindex-->
+      <div class="post-toc-wrap sidebar-panel">
+          <div class="post-toc motion-element"><ol class="nav"><li class="nav-item nav-level-1"><a class="nav-link" href="#Python%E5%A4%9A%E7%BA%BF%E7%A8%8Bthreading"><span class="nav-number">1.</span> <span class="nav-text">Python多线程threading</span></a><ol class="nav-child"><li class="nav-item nav-level-2"><a class="nav-link" href="#%E5%88%9B%E5%BB%BA%E7%BA%BF%E7%A8%8B"><span class="nav-number">1.1.</span> <span class="nav-text">创建线程</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E7%BA%BF%E7%A8%8B%E8%B0%83%E7%94%A8"><span class="nav-number">1.2.</span> <span class="nav-text">线程调用</span></a></li></ol></li><li class="nav-item nav-level-1"><a class="nav-link" href="#Publish-Subscribe%E6%A8%A1%E5%BC%8F"><span class="nav-number">2.</span> <span class="nav-text">Publish-Subscribe模式</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#wxPython%E5%A4%9A%E7%BA%BF%E7%A8%8B%E7%BC%96%E7%A8%8B"><span class="nav-number">3.</span> <span class="nav-text">wxPython多线程编程</span></a></li></ol></div>
+      </div>
+      <!--/noindex-->
+
+      <div class="site-overview-wrap sidebar-panel">
+        <div class="site-author motion-element" itemprop="author" itemscope itemtype="http://schema.org/Person">
+    <img class="site-author-image" itemprop="image" alt="Xin-Bo Qi(亓欣波)"
+      src="/images/avatar.jpg">
+  <p class="site-author-name" itemprop="name">Xin-Bo Qi(亓欣波)</p>
+  <div class="site-description" itemprop="description">Be interesting!</div>
+</div>
+<div class="site-state-wrap motion-element">
+  <nav class="site-state">
+      <div class="site-state-item site-state-posts">
+          <a href="/archives/">
+        
+          <span class="site-state-item-count">120</span>
+          <span class="site-state-item-name">posts</span>
+        </a>
+      </div>
+      <div class="site-state-item site-state-categories">
+            <a href="/categories/">
+          
+        <span class="site-state-item-count">5</span>
+        <span class="site-state-item-name">categories</span></a>
+      </div>
+      <div class="site-state-item site-state-tags">
+            <a href="/tags/">
+          
+        <span class="site-state-item-count">41</span>
+        <span class="site-state-item-name">tags</span></a>
+      </div>
+  </nav>
+</div>
+  <div class="links-of-author motion-element">
+      <span class="links-of-author-item">
+        <a href="https://github.com/qixinbo" title="GitHub → https:&#x2F;&#x2F;github.com&#x2F;qixinbo" rel="noopener" target="_blank"><i class="github fa-fw"></i>GitHub</a>
+      </span>
+      <span class="links-of-author-item">
+        <a href="mailto:qixinbo@gmail.com" title="E-Mail → mailto:qixinbo@gmail.com" rel="noopener" target="_blank"><i class="envelope fa-fw"></i>E-Mail</a>
+      </span>
+  </div>
+
+
+  <div class="links-of-blogroll motion-element">
+    <div class="links-of-blogroll-title"><i class="fa fa-link fa-fw"></i>
+      Links
+    </div>
+    <ul class="links-of-blogroll-list">
+        <li class="links-of-blogroll-item">
+          <a href="https://www.tsinghua.edu.cn/" title="https:&#x2F;&#x2F;www.tsinghua.edu.cn" rel="noopener" target="_blank">THU</a>
+        </li>
+        <li class="links-of-blogroll-item">
+          <a href="http://www.imr.cas.cn/" title="http:&#x2F;&#x2F;www.imr.cas.cn" rel="noopener" target="_blank">IMR</a>
+        </li>
+        <li class="links-of-blogroll-item">
+          <a href="http://www.sdu.edu.cn/" title="http:&#x2F;&#x2F;www.sdu.edu.cn" rel="noopener" target="_blank">SDU</a>
+        </li>
+        <li class="links-of-blogroll-item">
+          <a href="http://liam0205.me/" title="http:&#x2F;&#x2F;liam0205.me&#x2F;" rel="noopener" target="_blank">黄晨成</a>
+        </li>
+    </ul>
+  </div>
+
+      </div>
+
+    </div>
+  </aside>
+  <div id="sidebar-dimmer"></div>
+
+
+      </div>
+    </main>
+
+    <footer class="footer">
+      <div class="footer-inner">
+        
+
+        
+
+<div class="copyright">
+  
+  &copy; 
+  <span itemprop="copyrightYear">2021</span>
+  <span class="with-love">
+    <i class="fa fa-heart"></i>
+  </span>
+  <span class="author" itemprop="copyrightHolder">Xin-Bo Qi(亓欣波)</span>
+</div>
+  <div class="powered-by">Powered by <a href="https://hexo.io/" class="theme-link" rel="noopener" target="_blank">Hexo</a> & <a href="https://theme-next.org/" class="theme-link" rel="noopener" target="_blank">NexT.Gemini</a>
+  </div>
+
+        
+
+
+
+
+
+
+
+
+      </div>
+    </footer>
+  </div>
+
+  
+  <script src="/lib/anime.min.js"></script>
+  <script src="/lib/velocity/velocity.min.js"></script>
+  <script src="/lib/velocity/velocity.ui.min.js"></script>
+
+<script src="/js/utils.js"></script>
+
+<script src="/js/motion.js"></script>
+
+
+<script src="/js/schemes/pisces.js"></script>
+
+
+<script src="/js/next-boot.js"></script>
+
+
+
+
+  
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+  
+
+  
+
+  
+
+<script>
+  function loadCount() {
+    var d = document, s = d.createElement('script');
+    s.src = 'https://qixinbo.disqus.com/count.js';
+    s.id = 'dsq-count-scr';
+    (d.head || d.body).appendChild(s);
+  }
+  // defer loading until the whole page loading is completed
+  window.addEventListener('load', loadCount, false);
+</script>
+<script>
+  var disqus_config = function() {
+    this.page.url = "http://qixinbo.github.io/2019/09/01/ImagePy_5/";
+    this.page.identifier = "2019/09/01/ImagePy_5/";
+    this.page.title = "ImagePy解析：5 -- wxPython多线程编程";
+    };
+  NexT.utils.loadComments(document.querySelector('#disqus_thread'), () => {
+    if (window.DISQUS) {
+      DISQUS.reset({
+        reload: true,
+        config: disqus_config
+      });
+    } else {
+      var d = document, s = d.createElement('script');
+      s.src = 'https://qixinbo.disqus.com/embed.js';
+      s.setAttribute('data-timestamp', '' + +new Date());
+      (d.head || d.body).appendChild(s);
+    }
+  });
+</script>
+
+</body>
+</html>

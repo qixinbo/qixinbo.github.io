@@ -1,0 +1,638 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=2">
+<meta name="theme-color" content="#222">
+<meta name="generator" content="Hexo 5.4.0">
+  <link rel="apple-touch-icon" sizes="180x180" href="/images/apple-touch-icon-next.png">
+  <link rel="icon" type="image/png" sizes="32x32" href="/favicon.ico">
+  <link rel="icon" type="image/png" sizes="16x16" href="/favicon.ico">
+  <link rel="mask-icon" href="/images/logo.svg" color="#222">
+
+<link rel="stylesheet" href="/css/main.css">
+
+
+<link rel="stylesheet" href="/lib/font-awesome/css/all.min.css">
+
+<script id="hexo-configurations">
+    var NexT = window.NexT || {};
+    var CONFIG = {"hostname":"qixinbo.github.io","root":"/","scheme":"Gemini","version":"7.8.0","exturl":false,"sidebar":{"position":"left","display":"post","padding":18,"offset":12,"onmobile":false},"copycode":{"enable":false,"show_result":false,"style":null},"back2top":{"enable":true,"sidebar":false,"scrollpercent":false},"bookmark":{"enable":false,"color":"#222","save":"auto"},"fancybox":false,"mediumzoom":false,"lazyload":false,"pangu":false,"comments":{"style":"tabs","active":null,"storage":true,"lazyload":false,"nav":null},"algolia":{"hits":{"per_page":10},"labels":{"input_placeholder":"Search for Posts","hits_empty":"We didn't find any results for the search: ${query}","hits_stats":"${hits} results found in ${time} ms"}},"localsearch":{"enable":false,"trigger":"auto","top_n_per_article":1,"unescape":false,"preload":false},"motion":{"enable":true,"async":false,"transition":{"post_block":"fadeIn","post_header":"slideDownIn","post_body":"slideDownIn","coll_header":"slideLeftIn","sidebar":"slideUpIn"}}};
+  </script>
+
+  <meta name="description" content="本文尝试详细地走一遍MOOSE的运行路径，对其加深理解。 编译MOOSE是一个大型工程，从它的编译过程可以看出各个部分之间怎样联系起来。这里以MOOSE的第一个例子为研究对象，分析整个过程。其路径在： 1moose&#x2F;examples&#x2F;ex01_inputfile 整个编译过程都写在了Makefile文件中。 定义环境变量首先先定义一下环境变量： 123EXAMPLE_DIR        ?&#x3D; $">
+<meta property="og:type" content="article">
+<meta property="og:title" content="多物理场面向对象模拟环境MOOSE运行过程分析">
+<meta property="og:url" content="http://qixinbo.github.io/2017/02/14/moose-run/index.html">
+<meta property="og:site_name" content="亓欣波">
+<meta property="og:description" content="本文尝试详细地走一遍MOOSE的运行路径，对其加深理解。 编译MOOSE是一个大型工程，从它的编译过程可以看出各个部分之间怎样联系起来。这里以MOOSE的第一个例子为研究对象，分析整个过程。其路径在： 1moose&#x2F;examples&#x2F;ex01_inputfile 整个编译过程都写在了Makefile文件中。 定义环境变量首先先定义一下环境变量： 123EXAMPLE_DIR        ?&#x3D; $">
+<meta property="og:locale" content="en_US">
+<meta property="article:published_time" content="2017-02-13T16:00:00.000Z">
+<meta property="article:modified_time" content="2021-03-25T07:20:30.770Z">
+<meta property="article:author" content="Xin-Bo Qi(亓欣波)">
+<meta property="article:tag" content="MOOSE">
+<meta name="twitter:card" content="summary">
+
+<link rel="canonical" href="http://qixinbo.github.io/2017/02/14/moose-run/">
+
+
+<script id="page-configurations">
+  // https://hexo.io/docs/variables.html
+  CONFIG.page = {
+    sidebar: "",
+    isHome : false,
+    isPost : true,
+    lang   : 'en'
+  };
+</script>
+
+  <title>多物理场面向对象模拟环境MOOSE运行过程分析 | 亓欣波</title>
+  
+
+
+
+
+
+
+  <noscript>
+  <style>
+  .use-motion .brand,
+  .use-motion .menu-item,
+  .sidebar-inner,
+  .use-motion .post-block,
+  .use-motion .pagination,
+  .use-motion .comments,
+  .use-motion .post-header,
+  .use-motion .post-body,
+  .use-motion .collection-header { opacity: initial; }
+
+  .use-motion .site-title,
+  .use-motion .site-subtitle {
+    opacity: initial;
+    top: initial;
+  }
+
+  .use-motion .logo-line-before i { left: initial; }
+  .use-motion .logo-line-after i { right: initial; }
+  </style>
+</noscript>
+
+</head>
+
+<body itemscope itemtype="http://schema.org/WebPage">
+  <div class="container use-motion">
+    <div class="headband"></div>
+
+    <header class="header" itemscope itemtype="http://schema.org/WPHeader">
+      <div class="header-inner"><div class="site-brand-container">
+  <div class="site-nav-toggle">
+    <div class="toggle" aria-label="Toggle navigation bar">
+      <span class="toggle-line toggle-line-first"></span>
+      <span class="toggle-line toggle-line-middle"></span>
+      <span class="toggle-line toggle-line-last"></span>
+    </div>
+  </div>
+
+  <div class="site-meta">
+
+    <a href="/" class="brand" rel="start">
+      <span class="logo-line-before"><i></i></span>
+      <h1 class="site-title">亓欣波</h1>
+      <span class="logo-line-after"><i></i></span>
+    </a>
+      <p class="site-subtitle" itemprop="description">Hi, I am Xin-Bo Qi (亓欣波)</p>
+  </div>
+
+  <div class="site-nav-right">
+    <div class="toggle popup-trigger">
+    </div>
+  </div>
+</div>
+
+
+
+
+<nav class="site-nav">
+  <ul id="menu" class="main-menu menu">
+        <li class="menu-item menu-item-home">
+
+    <a href="/" rel="section"><i class="home fa-fw"></i>Home</a>
+
+  </li>
+        <li class="menu-item menu-item-categories">
+
+    <a href="/categories/" rel="section"><i class="th fa-fw"></i>Categories</a>
+
+  </li>
+        <li class="menu-item menu-item-archives">
+
+    <a href="/archives/" rel="section"><i class="archive fa-fw"></i>Archives</a>
+
+  </li>
+        <li class="menu-item menu-item-tags">
+
+    <a href="/tags/" rel="section"><i class="tags fa-fw"></i>Tags</a>
+
+  </li>
+        <li class="menu-item menu-item-scholar">
+
+    <a href="/scholar/" rel="section"><i class="bar-chart fa-fw"></i>scholar</a>
+
+  </li>
+        <li class="menu-item menu-item-sources">
+
+    <a href="/sources/" rel="section"><i class="rss fa-fw"></i>sources</a>
+
+  </li>
+        <li class="menu-item menu-item-gallery">
+
+    <a href="/gallery/" rel="section"><i class="file-image-o fa-fw"></i>gallery</a>
+
+  </li>
+        <li class="menu-item menu-item-about">
+
+    <a href="/about/" rel="section"><i class="user fa-fw"></i>About</a>
+
+  </li>
+        <li class="menu-item menu-item-commonweal">
+
+    <a href="/404.html" rel="section"><i class="heartbeat fa-fw"></i>Commonweal 404</a>
+
+  </li>
+  </ul>
+</nav>
+
+
+
+
+</div>
+    </header>
+
+    
+  <div class="back-to-top">
+    <i class="fa fa-arrow-up"></i>
+    <span>0%</span>
+  </div>
+
+
+    <main class="main">
+      <div class="main-inner">
+        <div class="content-wrap">
+          
+
+          <div class="content post posts-expand">
+            
+
+    
+  
+  
+  <article itemscope itemtype="http://schema.org/Article" class="post-block" lang="en">
+    <link itemprop="mainEntityOfPage" href="http://qixinbo.github.io/2017/02/14/moose-run/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="image" content="/images/avatar.jpg">
+      <meta itemprop="name" content="Xin-Bo Qi(亓欣波)">
+      <meta itemprop="description" content="Be interesting!">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="亓欣波">
+    </span>
+      <header class="post-header">
+        <h1 class="post-title" itemprop="name headline">
+          多物理场面向对象模拟环境MOOSE运行过程分析
+        </h1>
+
+        <div class="post-meta">
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="far fa-calendar"></i>
+              </span>
+              <span class="post-meta-item-text">Posted on</span>
+
+              <time title="Created: 2017-02-14 00:00:00" itemprop="dateCreated datePublished" datetime="2017-02-14T00:00:00+08:00">2017-02-14</time>
+            </span>
+              <span class="post-meta-item">
+                <span class="post-meta-item-icon">
+                  <i class="far fa-calendar-check"></i>
+                </span>
+                <span class="post-meta-item-text">Edited on</span>
+                <time title="Modified: 2021-03-25 15:20:30" itemprop="dateModified" datetime="2021-03-25T15:20:30+08:00">2021-03-25</time>
+              </span>
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="far fa-folder"></i>
+              </span>
+              <span class="post-meta-item-text">In</span>
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+                  <a href="/categories/computational-material-science/" itemprop="url" rel="index"><span itemprop="name">computational material science</span></a>
+                </span>
+            </span>
+
+          
+  
+  <span class="post-meta-item">
+    
+      <span class="post-meta-item-icon">
+        <i class="far fa-comment"></i>
+      </span>
+      <span class="post-meta-item-text">Disqus: </span>
+    
+    <a title="disqus" href="/2017/02/14/moose-run/#disqus_thread" itemprop="discussionUrl">
+      <span class="post-comments-count disqus-comment-count" data-disqus-identifier="2017/02/14/moose-run/" itemprop="commentCount"></span>
+    </a>
+  </span>
+  
+  
+
+        </div>
+      </header>
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+        <p>本文尝试详细地走一遍MOOSE的运行路径，对其加深理解。</p>
+<h1 id="编译"><a href="#编译" class="headerlink" title="编译"></a>编译</h1><p>MOOSE是一个大型工程，从它的编译过程可以看出各个部分之间怎样联系起来。这里以MOOSE的第一个例子为研究对象，分析整个过程。其路径在：</p>
+<figure class="highlight cpp"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">moose/examples/ex01_inputfile</span><br></pre></td></tr></table></figure>
+<p>整个编译过程都写在了Makefile文件中。</p>
+<h2 id="定义环境变量"><a href="#定义环境变量" class="headerlink" title="定义环境变量"></a>定义环境变量</h2><p>首先先定义一下环境变量：</p>
+<figure class="highlight cpp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">EXAMPLE_DIR        ?= $(shell dirname `pwd`)</span><br><span class="line">MOOSE_DIR          ?= $(shell dirname $(EXAMPLE_DIR))</span><br><span class="line">FRAMEWORK_DIR      ?= $(MOOSE_DIR)/framework</span><br></pre></td></tr></table></figure>
+<p>这些变量都是使用?=操作符来赋值，所以其实可以事先在终端中人为定义，如果之前没有指定，则这些语句就生效，基本思路就是通过调用shell的dirname命令来提取后面给定路径中的目录部分。<br>本例中，这三个变量经过赋值后就变为：</p>
+<figure class="highlight cpp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">EXAMPLE_DIR = /home/qixinbo/moose/examples</span><br><span class="line">MOOSE_DIR = /home/qixinbo/moose</span><br><span class="line">FRAMEWORK_DIR = /home/qixinbo/moose/framework</span><br></pre></td></tr></table></figure>
+<p>对于独立的fork出来的程序，一般路径是默认与moose并列，那么那个makefile就能正确地找到moose的路径，如果是放在别的地方，就可以人为定义该环境变量。</p>
+<h2 id="包含MOOSE主程序的makefile"><a href="#包含MOOSE主程序的makefile" class="headerlink" title="包含MOOSE主程序的makefile"></a>包含MOOSE主程序的makefile</h2><p>MOOSE主程序包含基本框架framework和各种衍生模块modules。<br>基本框架framework肯定是要用到的，这里使用include调用framework下的makefile文件，将其放在此处。</p>
+<figure class="highlight cpp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta"># framework</span></span><br><span class="line">include $(FRAMEWORK_DIR)/build.mk</span><br><span class="line">include $(FRAMEWORK_DIR)/moose.mk</span><br></pre></td></tr></table></figure>
+<p>将framework的编译另写，是模块化编译的思想，使得Makefile文件更加容易维护和扩展。这部分Makefile执行完后会在framework路径下生成moose的静态和动态链接库，比如如果以opt模式编译，就生成：</p>
+<figure class="highlight cpp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line">/home/qixinbo/moose/framework/libmoose-opt.la</span><br><span class="line">/home/qixinbo/moose/framework/libmoose-opt.so</span><br><span class="line">/home/qixinbo/moose/framework/libmoose-opt.so<span class="number">.0</span></span><br><span class="line">/home/qixinbo/moose/framework/libmoose-opt.so<span class="number">.0</span><span class="number">.0</span><span class="number">.0</span></span><br></pre></td></tr></table></figure>
+<p>另外，本例是个简单例子，所以没有调用模块。如果是需要基于那些衍生模块进行开发，就需要将其包含进来：</p>
+<figure class="highlight cpp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta"># modules</span></span><br><span class="line">ALL_MODULES := yes</span><br><span class="line">include $(MOOSE_DIR)/modules/modules.mk</span><br></pre></td></tr></table></figure>
+<p>同时在AnimalApp的源文件中注册所有模块：</p>
+<figure class="highlight cpp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">#<span class="meta-keyword">include</span> <span class="meta-string">&quot;ModulesApp.h&quot;</span></span></span><br><span class="line"></span><br><span class="line">StarfishApp::<span class="built_in">StarfishApp</span>(InputParameters parameters) :</span><br><span class="line">    <span class="built_in">MooseApp</span>(parameters)</span><br><span class="line">&#123;</span><br><span class="line">  Moose::<span class="built_in">registerObjects</span>(_factory);</span><br><span class="line">  ModulesApp::<span class="built_in">registerObjects</span>(_factory);</span><br><span class="line">  StarfishApp::<span class="built_in">registerObjects</span>(_factory);</span><br><span class="line"></span><br><span class="line">  Moose::<span class="built_in">associateSyntax</span>(_syntax, _action_factory);</span><br><span class="line">  ModulesApp::<span class="built_in">associateSyntax</span>(_syntax, _action_factory);</span><br><span class="line">  StarfishApp::<span class="built_in">associateSyntax</span>(_syntax, _action_factory);</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p>目前从Stork中fork出的程序都是上面的设置，即默认将所有的模块包含。<br>如果只想包含特定模块，可以这样做，在Makefile中设置：</p>
+<figure class="highlight cpp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line">PHASE_FIELD       := yes</span><br><span class="line">SOLID_MECHANICS   := yes</span><br><span class="line">TENSOR_MECHANICS  := yes</span><br><span class="line">HEAT_CONDUCTION   := yes</span><br><span class="line">MISC              := yes</span><br><span class="line">include           $(MOOSE_DIR)/modules/modules.mk</span><br></pre></td></tr></table></figure>
+<p>然后在本程序的源文件中添加：</p>
+<figure class="highlight cpp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">//#include &quot;ModulesApp.h&quot; 这里要注释掉这个</span></span><br><span class="line"></span><br><span class="line"><span class="comment">//Specific Modules</span></span><br><span class="line"><span class="meta">#<span class="meta-keyword">include</span> <span class="meta-string">&quot;TensorMechanicsApp.h&quot;</span></span></span><br><span class="line"><span class="meta">#<span class="meta-keyword">include</span> <span class="meta-string">&quot;PhaseFieldApp.h&quot;</span></span></span><br><span class="line"><span class="meta">#<span class="meta-keyword">include</span> <span class="meta-string">&quot;MiscApp.h&quot;</span></span></span><br><span class="line"></span><br><span class="line">AnimalApp::<span class="built_in">AnimalApp</span>(<span class="keyword">const</span> InputParameters &amp; parameters) :</span><br><span class="line">    <span class="built_in">MooseApp</span>(parameters)</span><br><span class="line">&#123;</span><br><span class="line">  <span class="built_in">srand</span>(<span class="built_in">processor_id</span>());</span><br><span class="line"></span><br><span class="line">  Moose::<span class="built_in">registerObjects</span>(_factory);</span><br><span class="line">  Moose::<span class="built_in">associateSyntax</span>(_syntax, _action_factory);</span><br><span class="line"></span><br><span class="line">  <span class="comment">// ModulesApp::registerObjects(_factory);</span></span><br><span class="line">  <span class="comment">// ModulesApp::associateSyntax(_syntax, _action_factory);</span></span><br><span class="line"></span><br><span class="line">  TensorMechanicsApp::<span class="built_in">registerObjects</span>(_factory);</span><br><span class="line">  TensorMechanicsApp::<span class="built_in">associateSyntax</span>(_syntax, _action_factory);</span><br><span class="line"></span><br><span class="line">  PhaseFieldApp::<span class="built_in">registerObjects</span>(_factory);</span><br><span class="line">  PhaseFieldApp::<span class="built_in">associateSyntax</span>(_syntax, _action_factory);</span><br><span class="line"></span><br><span class="line">  MiscApp::<span class="built_in">registerObjects</span>(_factory);</span><br><span class="line">  MiscApp::<span class="built_in">associateSyntax</span>(_syntax, _action_factory);</span><br><span class="line"></span><br><span class="line">  AnimalApp::<span class="built_in">registerObjects</span>(_factory);</span><br><span class="line">  AnimalApp::<span class="built_in">associateSyntax</span>(_syntax, _action_factory);</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>MOOSE主程序部分如果编译过一次以后，假如没有更改，就不会再次编译了，能够有效节省时间。</p>
+<h2 id="编译本程序"><a href="#编译本程序" class="headerlink" title="编译本程序"></a>编译本程序</h2><figure class="highlight cpp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta"># dep apps</span></span><br><span class="line">APPLICATION_DIR    := $(shell pwd)</span><br><span class="line">APPLICATION_NAME   := ex01</span><br><span class="line">BUILD_EXEC         := yes</span><br><span class="line">DEP_APPS           := $(shell $(FRAMEWORK_DIR)/scripts/find_dep_apps.py $(APPLICATION_NAME))</span><br><span class="line">include            $(FRAMEWORK_DIR)/app.mk</span><br></pre></td></tr></table></figure>
+<p>这里使用framework下的app.mk这个makefile来编译本程序，涉及该程序的路径、名字等参数会传入该文件中。值得一提的是，如何对某个变量的值不清楚，可以通过自己写一个target来显示出来，比如：</p>
+<figure class="highlight cpp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">showName:</span><br><span class="line">   @echo $(APPLICATION_DIR)</span><br></pre></td></tr></table></figure>
+<p>然后make showName来执行。<br>本程序所依赖的源文件和头文件都会在以下路径：</p>
+<figure class="highlight cpp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">$(APPLICATION_DIR)/include</span><br><span class="line">$(APPLICATION_DIR)/src</span><br></pre></td></tr></table></figure>
+<p>中寻找，目前猜测是遍历两个目录下的所有目录，然后寻找这些文件。<br>本例因为很简单，所以在这两个目录下仅包含base目录，对于稍大型的项目，牵扯到自己开发的模块时，还可添加其他目录，如：</p>
+<figure class="highlight cpp"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">auxkernels base bcs ics kernel materials timesteppers</span><br></pre></td></tr></table></figure>
+<p>等。这些目录中的头文件用来声明类，源文件用来实现类。</p>
+<h1 id="入口main函数"><a href="#入口main函数" class="headerlink" title="入口main函数"></a>入口main函数</h1><p>所有程序的入口都是main函数，所以从这里入手能比较清晰地把握整个程序的脉络。</p>
+<h2 id="头文件"><a href="#头文件" class="headerlink" title="头文件"></a>头文件</h2><figure class="highlight cpp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">#<span class="meta-keyword">include</span> <span class="meta-string">&quot;ExampleApp.h&quot;</span></span></span><br><span class="line"><span class="comment">//Moose Includes</span></span><br><span class="line"><span class="meta">#<span class="meta-keyword">include</span> <span class="meta-string">&quot;MooseInit.h&quot;</span></span></span><br><span class="line"><span class="meta">#<span class="meta-keyword">include</span> <span class="meta-string">&quot;Moose.h&quot;</span></span></span><br><span class="line"><span class="meta">#<span class="meta-keyword">include</span> <span class="meta-string">&quot;MooseApp.h&quot;</span></span></span><br><span class="line"><span class="meta">#<span class="meta-keyword">include</span> <span class="meta-string">&quot;AppFactory.h&quot;</span></span></span><br></pre></td></tr></table></figure>
+<p>首先包含该具体程序的头文件，然后再包含MOOSE的基本头文件。这里仅包含ExampleApp这一个头文件即可，之前include目录下的其他头文件是通过src目录下的ExampleApp的源文件来包含，比如Hyrax应用的HyraxApp的源文件：</p>
+<figure class="highlight cpp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">//Kernels</span></span><br><span class="line"><span class="meta">#<span class="meta-keyword">include</span> <span class="meta-string">&quot;ACBulkCoupled.h&quot;</span></span></span><br><span class="line"></span><br><span class="line"><span class="comment">//Auxiliary Kernels</span></span><br><span class="line"><span class="meta">#<span class="meta-keyword">include</span> <span class="meta-string">&quot;AuxSupersaturation.h&quot;</span></span></span><br><span class="line"></span><br><span class="line"><span class="comment">//Dirac Kernels</span></span><br><span class="line"></span><br><span class="line"><span class="comment">//Boundary Conditions</span></span><br><span class="line"><span class="meta">#<span class="meta-keyword">include</span> <span class="meta-string">&quot;StressBC.h&quot;</span></span></span><br><span class="line"></span><br><span class="line"><span class="comment">//Materials</span></span><br><span class="line"><span class="meta">#<span class="meta-keyword">include</span> <span class="meta-string">&quot;PFMobilityLandau.h&quot;</span></span></span><br><span class="line"></span><br><span class="line"><span class="comment">//Initial Conditions</span></span><br><span class="line"><span class="meta">#<span class="meta-keyword">include</span> <span class="meta-string">&quot;PolySpecifiedSmoothCircleIC.h&quot;</span></span></span><br><span class="line"></span><br><span class="line"><span class="comment">//Dampers</span></span><br><span class="line"></span><br><span class="line"><span class="comment">//Executioners</span></span><br><span class="line"><span class="meta">#<span class="meta-keyword">include</span> <span class="meta-string">&quot;MeshSolutionModify.h&quot;</span></span></span><br><span class="line"></span><br><span class="line"><span class="comment">//Post Processors</span></span><br><span class="line"><span class="meta">#<span class="meta-keyword">include</span> <span class="meta-string">&quot;NucleationPostprocessor.h&quot;</span></span></span><br><span class="line"></span><br><span class="line"><span class="comment">//TimeSteppers</span></span><br><span class="line"><span class="meta">#<span class="meta-keyword">include</span> <span class="meta-string">&quot;InitialSolutionAdaptiveDT.h&quot;</span></span></span><br><span class="line"></span><br><span class="line"><span class="comment">//Actions</span></span><br><span class="line"></span><br><span class="line"><span class="comment">//UserObjects</span></span><br><span class="line"><span class="meta">#<span class="meta-keyword">include</span> <span class="meta-string">&quot;NucleationLocationUserObject.h&quot;</span></span></span><br><span class="line"></span><br><span class="line"><span class="comment">//Markers</span></span><br><span class="line"><span class="meta">#<span class="meta-keyword">include</span> <span class="meta-string">&quot;NucleationMarker.h&quot;</span></span></span><br></pre></td></tr></table></figure>
+<p>所以，整个关系链是：main仅需要ExampleApp这个头文件，且链接ExampleApp这个源文件产生的目标文件，EampleApp又需要自定义的其他头文件，比如ExampleDiffusion等，且链接这些头文件对应的源文件产生的目标文件。所以，在自己开发程序时，不需要修改main文件，仅需要修改私有程序的base源文件以包含正确的头文件即可。</p>
+<h2 id="创建性能日志"><a href="#创建性能日志" class="headerlink" title="创建性能日志"></a>创建性能日志</h2><figure class="highlight cpp"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"><span class="function">PerfLog <span class="title">Moose::perf_log</span><span class="params">(<span class="string">&quot;Example&quot;</span>)</span></span>;</span><br></pre></td></tr></table></figure>
+<p>PerfLog是libMesh的一个类，用来创建性能日志。</p>
+<h1 id="初始化"><a href="#初始化" class="headerlink" title="初始化"></a>初始化</h1><figure class="highlight cpp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">// Initialize MPI, solvers and MOOSE</span></span><br><span class="line"><span class="function">MooseInit <span class="title">init</span><span class="params">(argc, argv)</span></span>;</span><br></pre></td></tr></table></figure>
+<p>调用MooseInit类来进行初始化，实际上也调用了其父类LibMeshInit，从而对libMesh进行初始化。</p>
+<h1 id="注册App"><a href="#注册App" class="headerlink" title="注册App"></a>注册App</h1><figure class="highlight cpp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">// Register this application&#x27;s MooseApp and any it depends on</span></span><br><span class="line">ExampleApp::<span class="built_in">registerApps</span>();</span><br></pre></td></tr></table></figure>
+<p>每个基于MOOSE的应用都是继承自MooseApp这个类，该类提供创建各种对象的工厂factories以及存放它们的仓库warehouses。创建了私有程序后，必须实现几个重要的静态函数：</p>
+<figure class="highlight cpp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line"><span class="built_in">registerApps</span>()</span><br><span class="line"><span class="built_in">registerObjects</span>()</span><br><span class="line"><span class="built_in">associateSyntax</span>() (optional)</span><br></pre></td></tr></table></figure>
+<h2 id="注册App-1"><a href="#注册App-1" class="headerlink" title="注册App"></a>注册App</h2><p>第一个是注册App，这个用简单的通用的一句话即可：</p>
+<figure class="highlight cpp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">void</span></span><br><span class="line">ExampleApp::<span class="built_in">registerApps</span>()</span><br><span class="line">&#123;</span><br><span class="line">  <span class="built_in">registerApp</span>(ExampleApp);</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p>其中registerApp不是一个函数或类，所以在doxygen中查不到，它是AppFactory中的一个宏定义：</p>
+<figure class="highlight cpp"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">#<span class="meta-keyword">define</span> registerApp(name) AppFactory::instance().reg<span class="meta-string">&lt;name&gt;</span>(#name)</span></span><br></pre></td></tr></table></figure>
+<h2 id="注册Objects"><a href="#注册Objects" class="headerlink" title="注册Objects"></a>注册Objects</h2><p>第二个是注册Objects。本例没有用到自定义的Objects，所以该函数是空白的。但如果自定义了某个object，比如在example2中新增了一个Kernel，那么就需要注册该object：</p>
+<figure class="highlight cpp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">void</span></span><br><span class="line">ExampleApp::<span class="built_in">registerObjects</span>(Factory &amp; factory)</span><br><span class="line">&#123;</span><br><span class="line">  <span class="comment">// Register any custom objects you have built on the MOOSE Framework</span></span><br><span class="line">  <span class="built_in">registerKernel</span>(ExampleConvection);  <span class="comment">// &lt;- registration</span></span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p>除了注册Kernel这种object，还有其他类型的object，比如Hyrax应用中用到的：</p>
+<figure class="highlight cpp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">//Kernels</span></span><br><span class="line"><span class="built_in">registerKernel</span>(CHBulkCoupled);</span><br><span class="line"></span><br><span class="line"><span class="comment">//Auxiliary Kernels</span></span><br><span class="line"><span class="built_in">registerAux</span>(AuxSupersaturation);</span><br><span class="line"></span><br><span class="line"><span class="comment">//Boundary Conditions</span></span><br><span class="line"><span class="built_in">registerBoundaryCondition</span>(StressBC);</span><br><span class="line"></span><br><span class="line"><span class="comment">//Materials</span></span><br><span class="line"><span class="built_in">registerMaterial</span>(PFMobilityLandau);</span><br><span class="line"></span><br><span class="line"><span class="comment">//Initial Conditions</span></span><br><span class="line"><span class="built_in">registerInitialCondition</span>(PolySpecifiedSmoothCircleIC);</span><br><span class="line"></span><br><span class="line"><span class="comment">//Dampers</span></span><br><span class="line"></span><br><span class="line"><span class="comment">//Executioners</span></span><br><span class="line"><span class="built_in">registerExecutioner</span>(MeshSolutionModify);</span><br><span class="line"></span><br><span class="line"><span class="comment">//Postprocessors</span></span><br><span class="line"><span class="built_in">registerPostprocessor</span>(NucleationPostprocessor);</span><br><span class="line"></span><br><span class="line"><span class="comment">//TimeSteppers</span></span><br><span class="line"><span class="built_in">registerTimeStepper</span>(InitialSolutionAdaptiveDT);</span><br><span class="line"></span><br><span class="line"><span class="comment">// UserObjects</span></span><br><span class="line"><span class="built_in">registerUserObject</span>(NucleationLocationUserObject);</span><br><span class="line"></span><br><span class="line"><span class="comment">// Markers</span></span><br><span class="line"><span class="built_in">registerMarker</span>(NucleationMarker);</span><br></pre></td></tr></table></figure>
+<h2 id="多个App耦合"><a href="#多个App耦合" class="headerlink" title="多个App耦合"></a>多个App耦合</h2><p>MOOSE中有多个衍生模块，比如相场、力学等，可以耦合这些模块，在其基础上进行开发。<br>在上面的编译过程中已经说明了怎样将其他的模块加入。默认是将全部模块加入。</p>
+<h1 id="创建app"><a href="#创建app" class="headerlink" title="创建app"></a>创建app</h1><figure class="highlight cpp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">// This creates dynamic memory that we&#x27;re responsible for deleting</span></span><br><span class="line">MooseApp * app = AppFactory::<span class="built_in">createApp</span>(<span class="string">&quot;ExampleApp&quot;</span>, argc, argv);</span><br></pre></td></tr></table></figure>
+<p>这一步是创建一个动态存储的MooseApp。</p>
+<h1 id="运行"><a href="#运行" class="headerlink" title="运行"></a>运行</h1><figure class="highlight cpp"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">app-&gt;<span class="built_in">run</span>();</span><br></pre></td></tr></table></figure>
+<p>这个run函数是程序运行的总调度，其除了撰写性能日志，主要执行的动作有三个：</p>
+<figure class="highlight cpp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line"><span class="built_in">setupOptions</span>();</span><br><span class="line"><span class="built_in">runInputFile</span>();</span><br><span class="line"><span class="built_in">executeExecutioner</span>();</span><br></pre></td></tr></table></figure>
+<h2 id="选项配置及读入输入文件"><a href="#选项配置及读入输入文件" class="headerlink" title="选项配置及读入输入文件"></a>选项配置及读入输入文件</h2><p>setupOptions读取执行程序时在命令行中输入的选项参数以及输入文件中的各个对象的信息。<br>首先是命令行中的选项参数：</p>
+<figure class="highlight cpp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br></pre></td><td class="code"><pre><span class="line">Usage: ./ex01-opt [&lt;options&gt;]</span><br><span class="line"></span><br><span class="line">Options:</span><br><span class="line">  --allow-deprecated                                Can be used in conjunction with --error to turn off deprecated errors</span><br><span class="line">  --check-<span class="function">input                                     Check the input <span class="title">file</span> <span class="params">(i.e. <span class="keyword">requires</span> -i &lt;filename&gt;)</span> <span class="keyword">and</span> quit.</span></span><br><span class="line">  --distributed-mesh                                The libMesh Mesh underlying MooseMesh should always be a DistributedMesh</span><br><span class="line">  --dump [search_string]                            Shows a dump of available input file syntax.</span><br><span class="line">  --error                                           Turn all warnings into errors</span><br><span class="line">  --error-deprecated                                Turn deprecated code messages into Errors</span><br><span class="line">  -o --error-<span class="keyword">override</span>                               Error when encountering overridden <span class="keyword">or</span> parameters supplied multiple times</span><br><span class="line">  -e --error-unused                                 Error when encountering unused input file options</span><br><span class="line">...</span><br></pre></td></tr></table></figure>
+<p>这里面用到的最重要的一个函数就是getParam，它先调用InputParameters类的getParamHelper函数，然后归根结底是调用了libMesh的parameters类的get函数。<br>本例中我们执行的命令是：</p>
+<figure class="highlight cpp"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">./ex01-opt -i ex01.i</span><br></pre></td></tr></table></figure>
+<p>根据该命令选项，读取后某些变量的值变为：</p>
+<figure class="highlight cpp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><span class="line">_distributed_mesh_on_command_line = <span class="literal">false</span>;</span><br><span class="line">_half_transient = <span class="literal">false</span>;</span><br><span class="line">Moose::_warnings_are_errors = <span class="literal">false</span>;</span><br><span class="line">Moose::_deprecated_is_error = <span class="literal">false</span>;</span><br><span class="line">Moose::_color_console = <span class="literal">true</span>;</span><br><span class="line"></span><br><span class="line">_input_filename = <span class="string">&quot;ex01.i&quot;</span></span><br></pre></td></tr></table></figure>
+<p>这样就将输入文件成功读取了。MOOSE的输入文件的语法遵循<a target="_blank" rel="noopener" href="http://getpot.sourceforge.net/">GetPot</a>格式。<br>成功取得输入文件的名字后，再使用解析器来读入输入文件中的各个对象：</p>
+<figure class="highlight cpp"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">_parser.<span class="built_in">parse</span>(_input_filename);</span><br></pre></td></tr></table></figure>
+<p>解析过程中，会根据语法将各个块的信息读入，比如：</p>
+<figure class="highlight cpp"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">section_names = &#123;<span class="string">&quot;Mesh/&quot;</span>, <span class="string">&quot;Variables/&quot;</span>, <span class="string">&quot;Variables/diffused/&quot;</span>, <span class="string">&quot;Kernels/&quot;</span>, <span class="string">&quot;Kernels/diff/&quot;</span>, <span class="string">&quot;BCs/&quot;</span>, <span class="string">&quot;BCs/bottom/&quot;</span>, <span class="string">&quot;BCs/top/&quot;</span>, <span class="string">&quot;Materials/&quot;</span>, <span class="string">&quot;Executioner/&quot;</span>, <span class="string">&quot;Outputs/&quot;</span>&#125;</span><br></pre></td></tr></table></figure>
+<p>然后对所有的块进行遍历，查找每一个块下对应的属性，比如对于Mesh块，其包含的属性有：</p>
+<figure class="highlight cpp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">block_id block_name boundary_id boundary_name construct_side_list_from_node_list</span><br><span class="line">ghosted_boundaries ghosted_boundaries_inflation</span><br></pre></td></tr></table></figure>
+<p>等等。<br>然后通过：</p>
+<figure class="highlight cpp"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">_action_warehouse.<span class="built_in">build</span>();</span><br></pre></td></tr></table></figure>
+<p>来构建一系列动作，这些动作(通过build函数里的getSortedTask来获得)包括：</p>
+<figure class="highlight cpp"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"><span class="string">&quot;setup_time_stepper&quot;</span>, <span class="string">&quot;setup_predictor&quot;</span>, <span class="string">&quot;setup_postprocessor_data&quot;</span>, <span class="string">&quot;init_displaced_problem&quot;</span>, <span class="string">&quot;add_aux_variable&quot;</span>, <span class="string">&quot;add_elemental_field_variable&quot;</span>, <span class="string">&quot;add_variable&quot;</span>, <span class="string">&quot;setup_variable_complete&quot;</span>, <span class="string">&quot;setup_quadrature&quot;</span>, <span class="string">&quot;add_function&quot;</span>, <span class="string">&quot;add_periodic_bc&quot;</span>, <span class="string">&quot;add_user_object&quot;</span>, <span class="string">&quot;setup_function_complete&quot;</span>, <span class="string">&quot;setup_adaptivity&quot;</span>, <span class="string">&quot;set_adaptivity_options&quot;</span>, <span class="string">&quot;add_ic&quot;</span>, <span class="string">&quot;add_constraint&quot;</span>, <span class="string">&quot;add_field_split&quot;</span>, <span class="string">&quot;add_preconditioning&quot;</span>, <span class="string">&quot;ready_to_init&quot;</span>, <span class="string">&quot;setup_dampers&quot;</span>, <span class="string">&quot;setup_residual_debug&quot;</span>, <span class="string">&quot;add_bounds_vectors&quot;</span>, <span class="string">&quot;add_multi_app&quot;</span>, <span class="string">&quot;add_transfer&quot;</span>, <span class="string">&quot;copy_nodal_aux_vars&quot;</span>, <span class="string">&quot;copy_nodal_vars&quot;</span>, <span class="string">&quot;add_material&quot;</span>, <span class="string">&quot;setup_material_output&quot;</span>, <span class="string">&quot;init_problem&quot;</span>, <span class="string">&quot;setup_debug&quot;</span>, <span class="string">&quot;add_output&quot;</span>, <span class="string">&quot;add_postprocessor&quot;</span>, <span class="string">&quot;add_vector_postprocessor&quot;</span>, <span class="string">&quot;add_aux_kernel&quot;</span>, <span class="string">&quot;add_aux_scalar_kernel&quot;</span>, <span class="string">&quot;add_bc&quot;</span>, <span class="string">&quot;add_damper&quot;</span>, <span class="string">&quot;add_dg_kernel&quot;</span>, <span class="string">&quot;add_dirac_kernel&quot;</span>, <span class="string">&quot;add_indicator&quot;</span>, <span class="string">&quot;add_interface_kernel&quot;</span>, <span class="string">&quot;add_kernel&quot;</span>, <span class="string">&quot;add_marker&quot;</span>, <span class="string">&quot;add_nodal_kernel&quot;</span>, <span class="string">&quot;add_scalar_kernel&quot;</span>, <span class="string">&quot;add_control&quot;</span>, <span class="string">&quot;check_output&quot;</span>, <span class="string">&quot;check_integrity&quot;</span>&#125;</span><br></pre></td></tr></table></figure>
+<h2 id="执行输入文件"><a href="#执行输入文件" class="headerlink" title="执行输入文件"></a>执行输入文件</h2><p>读入输入文件后，runInputFile来执行里面的动作，即上一步build得到的动作列表，对其进行循环遍历，然后运行下面的函数：</p>
+<figure class="highlight cpp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">for</span> (<span class="keyword">const</span> <span class="keyword">auto</span> &amp; task : _ordered_names)</span><br><span class="line">  <span class="built_in">executeActionsWithAction</span>(task);</span><br></pre></td></tr></table></figure>
+<p>它还会检查输入文件中是否有未辨别出的变量。输入文件中的所有变量通过以下函数获得：</p>
+<figure class="highlight cpp"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">all_vars = _parser.<span class="built_in">getPotHandle</span>()-&gt;<span class="built_in">get_variable_names</span>();</span><br></pre></td></tr></table></figure>
+<p>得到的结果是：</p>
+<figure class="highlight cpp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">all_vars = </span><br><span class="line">&#123;<span class="string">&quot;Mesh/type&quot;</span>, <span class="string">&quot;Mesh/file&quot;</span>, <span class="string">&quot;Variables/diffused/order&quot;</span>, <span class="string">&quot;Variables/diffused/family&quot;</span>, <span class="string">&quot;Kernels/diff/type&quot;</span>, <span class="string">&quot;Kernels/diff/variable&quot;</span>, <span class="string">&quot;BCs/bottom/type&quot;</span>, <span class="string">&quot;BCs/bottom/variable&quot;</span>, <span class="string">&quot;BCs/bottom/boundary&quot;</span>, <span class="string">&quot;BCs/bottom/value&quot;</span>, <span class="string">&quot;BCs/top/type&quot;</span>, <span class="string">&quot;BCs/top/variable&quot;</span>, <span class="string">&quot;BCs/top/boundary&quot;</span>, <span class="string">&quot;BCs/top/value&quot;</span>, <span class="string">&quot;Executioner/type&quot;</span>, <span class="string">&quot;Executioner/solve_type&quot;</span>, <span class="string">&quot;Outputs/execute_on&quot;</span>, <span class="string">&quot;Outputs/exodus&quot;</span>&#125;</span><br></pre></td></tr></table></figure>
+<h2 id="执行Executioner"><a href="#执行Executioner" class="headerlink" title="执行Executioner"></a>执行Executioner</h2><p>executeExecutioner就是执行所创建的Executioner对象。<br>先是初始化：</p>
+<figure class="highlight cpp"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">_executioner-&gt;<span class="built_in">init</span>();</span><br></pre></td></tr></table></figure>
+<p>其实在执行该初始化函数之前，还隐性地执行了该类的构造函数，显然在此之前先执行该构造函数的成员初始化器列表：</p>
+<figure class="highlight cpp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br></pre></td><td class="code"><pre><span class="line">Executioner::<span class="built_in">Executioner</span>(<span class="keyword">const</span> InputParameters &amp; parameters) :</span><br><span class="line"> <span class="built_in">MooseObject</span>(parameters),</span><br><span class="line"> <span class="built_in">UserObjectInterface</span>(<span class="keyword">this</span>),</span><br><span class="line"> <span class="built_in">PostprocessorInterface</span>(<span class="keyword">this</span>),</span><br><span class="line"> <span class="built_in">Restartable</span>(parameters, <span class="string">&quot;Executioners&quot;</span>),</span><br><span class="line"> _fe_problem(*parameters.getCheckedPointerParam&lt;FEProblemBase *&gt;(<span class="string">&quot;_fe_problem_base&quot;</span>, <span class="string">&quot;This might happen if you don&#x27;t have a mesh&quot;</span>)),</span><br><span class="line"> _initial_residual_norm(std::numeric_limits&lt;Real&gt;::<span class="built_in">max</span>()),</span><br><span class="line"> _old_initial_residual_norm(std::numeric_limits&lt;Real&gt;::<span class="built_in">max</span>()),</span><br><span class="line"> _restart_file_base(getParam&lt;FileNameNoExtension&gt;(<span class="string">&quot;restart_file_base&quot;</span>)),</span><br><span class="line"> _splitting(getParam&lt;std::vector&lt;std::string&gt; &gt;(<span class="string">&quot;splitting&quot;</span>))</span><br><span class="line">&#123;&#125;</span><br></pre></td></tr></table></figure>
+<p>在执行这些构造函数过程中，有一步是调用Console的outputSystemInformation函数：</p>
+<figure class="highlight cpp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">if</span> (_system_info_flags.<span class="built_in">contains</span>(<span class="string">&quot;framework&quot;</span>))</span><br><span class="line">_console &lt;&lt; ConsoleUtils::<span class="built_in">outputFrameworkInformation</span>(_app);</span><br><span class="line"></span><br><span class="line"><span class="keyword">if</span> (_system_info_flags.<span class="built_in">contains</span>(<span class="string">&quot;mesh&quot;</span>))</span><br><span class="line">_console &lt;&lt; ConsoleUtils::<span class="built_in">outputMeshInformation</span>(*_problem_ptr);</span><br><span class="line"></span><br><span class="line"><span class="keyword">if</span> (_system_info_flags.<span class="built_in">contains</span>(<span class="string">&quot;nonlinear&quot;</span>))</span><br><span class="line">&#123;</span><br><span class="line">std::string output = ConsoleUtils::<span class="built_in">outputNonlinearSystemInformation</span>(*_problem_ptr);</span><br><span class="line"><span class="keyword">if</span> (!output.<span class="built_in">empty</span>())</span><br><span class="line">_console &lt;&lt; <span class="string">&quot;Nonlinear System:\n&quot;</span> &lt;&lt; output;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p>还会构建整个有限元问题的系统，比如将问题中的变量读入到libMesh中，设定所使用的单元类型、插值次数等：</p>
+<figure class="highlight cpp"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">FEProblemBase::<span class="built_in">hasVariable</span> (<span class="keyword">this</span>=<span class="number">0x1028cc0</span>, var_name=<span class="string">&quot;diffused&quot;</span>)</span><br></pre></td></tr></table></figure>
+<p>这样就会产生如下的信息：</p>
+<figure class="highlight cpp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br></pre></td><td class="code"><pre><span class="line">Framework Information:</span><br><span class="line">MOOSE version:           git commit <span class="number">61910</span>cd on <span class="number">2016</span><span class="number">-12</span><span class="number">-22</span></span><br><span class="line">PETSc Version:           <span class="number">3.7</span><span class="number">.4</span></span><br><span class="line">Current Time:            Mon Feb <span class="number">13</span> <span class="number">21</span>:<span class="number">06</span>:<span class="number">54</span> <span class="number">2017</span></span><br><span class="line">Executable Timestamp:    Sat Feb <span class="number">11</span> <span class="number">04</span>:<span class="number">08</span>:<span class="number">24</span> <span class="number">2017</span></span><br><span class="line"></span><br><span class="line">Parallelism:</span><br><span class="line">  Num Processors:          <span class="number">1</span></span><br><span class="line">  Num Threads:             <span class="number">1</span></span><br><span class="line"></span><br><span class="line">Mesh: </span><br><span class="line">  Parallel Type:           replicated</span><br><span class="line">  Mesh Dimension:          <span class="number">3</span></span><br><span class="line">  Spatial Dimension:       <span class="number">3</span></span><br><span class="line">  Nodes:                   </span><br><span class="line">    Total:                 <span class="number">6399</span></span><br><span class="line">    Local:                 <span class="number">6399</span></span><br><span class="line">  Elems:                   </span><br><span class="line">    Total:                 <span class="number">30224</span></span><br><span class="line">    Local:                 <span class="number">30224</span></span><br><span class="line">  Num Subdomains:          <span class="number">1</span></span><br><span class="line">  Num Partitions:          <span class="number">1</span></span><br><span class="line"></span><br><span class="line">Nonlinear System:</span><br><span class="line">  Num DOFs:                <span class="number">6399</span></span><br><span class="line">  Num Local DOFs:          <span class="number">6399</span></span><br><span class="line">  Variables:               <span class="string">&quot;diffused&quot;</span> </span><br><span class="line">  Finite Element Types:    <span class="string">&quot;LAGRANGE&quot;</span> </span><br><span class="line">  Approximation Orders:    <span class="string">&quot;FIRST&quot;</span> </span><br><span class="line"></span><br><span class="line">Execution Information:</span><br><span class="line">  Executioner:             Steady</span><br><span class="line">  Solver Mode:             Preconditioned JFNK</span><br></pre></td></tr></table></figure>
+<p>这里最重要的一个类就是FEProblemBase类，它包含整个有限元问题的数学信息。<br>Executioner本身的构造函数中主要就是获得求解器的信息，比如线性迭代和非线性迭代的精度、迭代步数等：</p>
+<figure class="highlight cpp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">// solver params</span></span><br><span class="line">EquationSystems &amp; es = _fe_problem.<span class="built_in">es</span>();</span><br><span class="line">es.parameters.set&lt;Real&gt; (<span class="string">&quot;linear solver tolerance&quot;</span>)</span><br><span class="line">= getParam&lt;Real&gt;(<span class="string">&quot;l_tol&quot;</span>);</span><br><span class="line"></span><br><span class="line">es.parameters.set&lt;Real&gt; (<span class="string">&quot;linear solver absolute step tolerance&quot;</span>)</span><br><span class="line">= getParam&lt;Real&gt;(<span class="string">&quot;l_abs_step_tol&quot;</span>);</span><br><span class="line"></span><br><span class="line">es.parameters.set&lt;<span class="keyword">unsigned</span> <span class="keyword">int</span>&gt; (<span class="string">&quot;linear solver maximum iterations&quot;</span>)</span><br><span class="line">= getParam&lt;<span class="keyword">unsigned</span> <span class="keyword">int</span>&gt;(<span class="string">&quot;l_max_its&quot;</span>);</span><br><span class="line"></span><br><span class="line">es.parameters.set&lt;<span class="keyword">unsigned</span> <span class="keyword">int</span>&gt; (<span class="string">&quot;nonlinear solver maximum iterations&quot;</span>)</span><br><span class="line">= getParam&lt;<span class="keyword">unsigned</span> <span class="keyword">int</span>&gt;(<span class="string">&quot;nl_max_its&quot;</span>);</span><br><span class="line"></span><br><span class="line">es.parameters.set&lt;<span class="keyword">unsigned</span> <span class="keyword">int</span>&gt; (<span class="string">&quot;nonlinear solver maximum function evaluations&quot;</span>)</span><br><span class="line"> = getParam&lt;<span class="keyword">unsigned</span> <span class="keyword">int</span>&gt;(<span class="string">&quot;nl_max_funcs&quot;</span>);</span><br></pre></td></tr></table></figure>
+
+<p>然后就是开始执行，这时Executioner真正开始工作：</p>
+<figure class="highlight cpp"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">_executioner-&gt;<span class="built_in">execute</span>();</span><br></pre></td></tr></table></figure>
+<p>该execute函数是个纯虚函数，需要根据具体的问题来工作，比如对于稳态问题，调用Steady类，对于瞬态问题，则是调用Transient类来求解。<br>Steady问题的求解过程是：</p>
+<figure class="highlight cpp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br><span class="line">52</span><br><span class="line">53</span><br><span class="line">54</span><br><span class="line">55</span><br><span class="line">56</span><br><span class="line">57</span><br></pre></td><td class="code"><pre><span class="line">&#123;</span><br><span class="line"> <span class="keyword">if</span> (_app.<span class="built_in">isRecovering</span>())</span><br><span class="line"> <span class="keyword">return</span>;</span><br><span class="line"></span><br><span class="line"> <span class="built_in">preExecute</span>();</span><br><span class="line"></span><br><span class="line"> _problem.<span class="built_in">advanceState</span>();</span><br><span class="line"></span><br><span class="line"> <span class="comment">// first step in any steady state solve is always 1 (preserving backwards compatibility)</span></span><br><span class="line"> _time_step = <span class="number">1</span>;</span><br><span class="line"> _time = _time_step; <span class="comment">// need to keep _time in sync with _time_step to get correct output</span></span><br><span class="line"></span><br><span class="line"><span class="meta">#<span class="meta-keyword">ifdef</span> LIBMESH_ENABLE_AMR</span></span><br><span class="line"></span><br><span class="line"> <span class="comment">// Define the refinement loop</span></span><br><span class="line"> <span class="keyword">unsigned</span> <span class="keyword">int</span> steps = _problem.<span class="built_in">adaptivity</span>().<span class="built_in">getSteps</span>();</span><br><span class="line"> <span class="keyword">for</span> (<span class="keyword">unsigned</span> <span class="keyword">int</span> r_step=<span class="number">0</span>; r_step&lt;=steps; r_step++)</span><br><span class="line"> &#123;</span><br><span class="line"><span class="meta">#<span class="meta-keyword">endif</span> <span class="comment">//LIBMESH_ENABLE_AMR</span></span></span><br><span class="line"> <span class="built_in">preSolve</span>();</span><br><span class="line"> _problem.<span class="built_in">timestepSetup</span>();</span><br><span class="line"> _problem.<span class="built_in">execute</span>(EXEC_TIMESTEP_BEGIN);</span><br><span class="line"> _problem.<span class="built_in">outputStep</span>(EXEC_TIMESTEP_BEGIN);</span><br><span class="line"></span><br><span class="line"> <span class="comment">// Update warehouse active objects</span></span><br><span class="line"> _problem.<span class="built_in">updateActiveObjects</span>();</span><br><span class="line"></span><br><span class="line"> _problem.<span class="built_in">solve</span>();</span><br><span class="line"> <span class="built_in">postSolve</span>();</span><br><span class="line"></span><br><span class="line"> <span class="keyword">if</span> (!<span class="built_in">lastSolveConverged</span>())</span><br><span class="line"> &#123;</span><br><span class="line"> _console &lt;&lt; <span class="string">&quot;Aborting as solve did not converge\n&quot;</span>;</span><br><span class="line">  <span class="keyword">break</span>;</span><br><span class="line">  &#125;</span><br><span class="line"> </span><br><span class="line">  _problem.<span class="built_in">onTimestepEnd</span>();</span><br><span class="line">  _problem.<span class="built_in">execute</span>(EXEC_TIMESTEP_END);</span><br><span class="line"> </span><br><span class="line">  _problem.<span class="built_in">computeIndicators</span>();</span><br><span class="line">  _problem.<span class="built_in">computeMarkers</span>();</span><br><span class="line"> </span><br><span class="line">  _problem.<span class="built_in">outputStep</span>(EXEC_TIMESTEP_END);</span><br><span class="line"> </span><br><span class="line"> <span class="meta">#<span class="meta-keyword">ifdef</span> LIBMESH_ENABLE_AMR</span></span><br><span class="line">  <span class="keyword">if</span> (r_step != steps)</span><br><span class="line">  &#123;</span><br><span class="line">  _problem.<span class="built_in">adaptMesh</span>();</span><br><span class="line">  &#125;</span><br><span class="line"> </span><br><span class="line">  _time_step++;</span><br><span class="line">  _time = _time_step; <span class="comment">// need to keep _time in sync with _time_step to get correct output</span></span><br><span class="line">  &#125;</span><br><span class="line"> <span class="meta">#<span class="meta-keyword">endif</span></span></span><br><span class="line"> </span><br><span class="line">  <span class="built_in">postExecute</span>();</span><br><span class="line"> &#125;</span><br></pre></td></tr></table></figure>
+<p>这里面每一步又有很大的信息量，值得细思。</p>
+<h1 id="删除"><a href="#删除" class="headerlink" title="删除"></a>删除</h1><figure class="highlight cpp"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">delete</span> app;</span><br></pre></td></tr></table></figure>
+<p>问题求解结束，释放内存，Done！</p>
+
+    </div>
+
+    
+    
+    
+        <div class="reward-container">
+  <div></div>
+  <button onclick="var qr = document.getElementById('qr'); qr.style.display = (qr.style.display === 'none') ? 'block' : 'none';">
+    Donate
+  </button>
+  <div id="qr" style="display: none;">
+      
+      <div style="display: inline-block;">
+        <img src="/images/wechat_reward.png" alt="Xin-Bo Qi(亓欣波) WeChat Pay">
+        <p>WeChat Pay</p>
+      </div>
+
+  </div>
+</div>
+
+
+      <footer class="post-footer">
+          <div class="post-tags">
+              <a href="/tags/MOOSE/" rel="tag"># MOOSE</a>
+          </div>
+
+        
+
+
+        
+    <div class="post-nav">
+      <div class="post-nav-item">
+    <a href="/2017/01/15/moose-tutorials/" rel="prev" title="多物理场面向对象模拟环境MOOSE学习手册">
+      <i class="fa fa-chevron-left"></i> 多物理场面向对象模拟环境MOOSE学习手册
+    </a></div>
+      <div class="post-nav-item">
+    <a href="/2017/06/18/libmesh-introduction-learn/" rel="next" title="libMesh的5个Introduction教学例子学习">
+      libMesh的5个Introduction教学例子学习 <i class="fa fa-chevron-right"></i>
+    </a></div>
+    </div>
+      </footer>
+    
+  </article>
+  
+  
+  
+
+
+
+          </div>
+          
+    
+  <div class="comments">
+    <div id="disqus_thread">
+      <noscript>Please enable JavaScript to view the comments powered by Disqus.</noscript>
+    </div>
+  </div>
+  
+
+<script>
+  window.addEventListener('tabs:register', () => {
+    let { activeClass } = CONFIG.comments;
+    if (CONFIG.comments.storage) {
+      activeClass = localStorage.getItem('comments_active') || activeClass;
+    }
+    if (activeClass) {
+      let activeTab = document.querySelector(`a[href="#comment-${activeClass}"]`);
+      if (activeTab) {
+        activeTab.click();
+      }
+    }
+  });
+  if (CONFIG.comments.storage) {
+    window.addEventListener('tabs:click', event => {
+      if (!event.target.matches('.tabs-comment .tab-content .tab-pane')) return;
+      let commentClass = event.target.classList[1];
+      localStorage.setItem('comments_active', commentClass);
+    });
+  }
+</script>
+
+        </div>
+          
+  
+  <div class="toggle sidebar-toggle">
+    <span class="toggle-line toggle-line-first"></span>
+    <span class="toggle-line toggle-line-middle"></span>
+    <span class="toggle-line toggle-line-last"></span>
+  </div>
+
+  <aside class="sidebar">
+    <div class="sidebar-inner">
+
+      <ul class="sidebar-nav motion-element">
+        <li class="sidebar-nav-toc">
+          Table of Contents
+        </li>
+        <li class="sidebar-nav-overview">
+          Overview
+        </li>
+      </ul>
+
+      <!--noindex-->
+      <div class="post-toc-wrap sidebar-panel">
+          <div class="post-toc motion-element"><ol class="nav"><li class="nav-item nav-level-1"><a class="nav-link" href="#%E7%BC%96%E8%AF%91"><span class="nav-number">1.</span> <span class="nav-text">编译</span></a><ol class="nav-child"><li class="nav-item nav-level-2"><a class="nav-link" href="#%E5%AE%9A%E4%B9%89%E7%8E%AF%E5%A2%83%E5%8F%98%E9%87%8F"><span class="nav-number">1.1.</span> <span class="nav-text">定义环境变量</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E5%8C%85%E5%90%ABMOOSE%E4%B8%BB%E7%A8%8B%E5%BA%8F%E7%9A%84makefile"><span class="nav-number">1.2.</span> <span class="nav-text">包含MOOSE主程序的makefile</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E7%BC%96%E8%AF%91%E6%9C%AC%E7%A8%8B%E5%BA%8F"><span class="nav-number">1.3.</span> <span class="nav-text">编译本程序</span></a></li></ol></li><li class="nav-item nav-level-1"><a class="nav-link" href="#%E5%85%A5%E5%8F%A3main%E5%87%BD%E6%95%B0"><span class="nav-number">2.</span> <span class="nav-text">入口main函数</span></a><ol class="nav-child"><li class="nav-item nav-level-2"><a class="nav-link" href="#%E5%A4%B4%E6%96%87%E4%BB%B6"><span class="nav-number">2.1.</span> <span class="nav-text">头文件</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E5%88%9B%E5%BB%BA%E6%80%A7%E8%83%BD%E6%97%A5%E5%BF%97"><span class="nav-number">2.2.</span> <span class="nav-text">创建性能日志</span></a></li></ol></li><li class="nav-item nav-level-1"><a class="nav-link" href="#%E5%88%9D%E5%A7%8B%E5%8C%96"><span class="nav-number">3.</span> <span class="nav-text">初始化</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#%E6%B3%A8%E5%86%8CApp"><span class="nav-number">4.</span> <span class="nav-text">注册App</span></a><ol class="nav-child"><li class="nav-item nav-level-2"><a class="nav-link" href="#%E6%B3%A8%E5%86%8CApp-1"><span class="nav-number">4.1.</span> <span class="nav-text">注册App</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E6%B3%A8%E5%86%8CObjects"><span class="nav-number">4.2.</span> <span class="nav-text">注册Objects</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E5%A4%9A%E4%B8%AAApp%E8%80%A6%E5%90%88"><span class="nav-number">4.3.</span> <span class="nav-text">多个App耦合</span></a></li></ol></li><li class="nav-item nav-level-1"><a class="nav-link" href="#%E5%88%9B%E5%BB%BAapp"><span class="nav-number">5.</span> <span class="nav-text">创建app</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#%E8%BF%90%E8%A1%8C"><span class="nav-number">6.</span> <span class="nav-text">运行</span></a><ol class="nav-child"><li class="nav-item nav-level-2"><a class="nav-link" href="#%E9%80%89%E9%A1%B9%E9%85%8D%E7%BD%AE%E5%8F%8A%E8%AF%BB%E5%85%A5%E8%BE%93%E5%85%A5%E6%96%87%E4%BB%B6"><span class="nav-number">6.1.</span> <span class="nav-text">选项配置及读入输入文件</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E6%89%A7%E8%A1%8C%E8%BE%93%E5%85%A5%E6%96%87%E4%BB%B6"><span class="nav-number">6.2.</span> <span class="nav-text">执行输入文件</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E6%89%A7%E8%A1%8CExecutioner"><span class="nav-number">6.3.</span> <span class="nav-text">执行Executioner</span></a></li></ol></li><li class="nav-item nav-level-1"><a class="nav-link" href="#%E5%88%A0%E9%99%A4"><span class="nav-number">7.</span> <span class="nav-text">删除</span></a></li></ol></div>
+      </div>
+      <!--/noindex-->
+
+      <div class="site-overview-wrap sidebar-panel">
+        <div class="site-author motion-element" itemprop="author" itemscope itemtype="http://schema.org/Person">
+    <img class="site-author-image" itemprop="image" alt="Xin-Bo Qi(亓欣波)"
+      src="/images/avatar.jpg">
+  <p class="site-author-name" itemprop="name">Xin-Bo Qi(亓欣波)</p>
+  <div class="site-description" itemprop="description">Be interesting!</div>
+</div>
+<div class="site-state-wrap motion-element">
+  <nav class="site-state">
+      <div class="site-state-item site-state-posts">
+          <a href="/archives/">
+        
+          <span class="site-state-item-count">120</span>
+          <span class="site-state-item-name">posts</span>
+        </a>
+      </div>
+      <div class="site-state-item site-state-categories">
+            <a href="/categories/">
+          
+        <span class="site-state-item-count">5</span>
+        <span class="site-state-item-name">categories</span></a>
+      </div>
+      <div class="site-state-item site-state-tags">
+            <a href="/tags/">
+          
+        <span class="site-state-item-count">41</span>
+        <span class="site-state-item-name">tags</span></a>
+      </div>
+  </nav>
+</div>
+  <div class="links-of-author motion-element">
+      <span class="links-of-author-item">
+        <a href="https://github.com/qixinbo" title="GitHub → https:&#x2F;&#x2F;github.com&#x2F;qixinbo" rel="noopener" target="_blank"><i class="github fa-fw"></i>GitHub</a>
+      </span>
+      <span class="links-of-author-item">
+        <a href="mailto:qixinbo@gmail.com" title="E-Mail → mailto:qixinbo@gmail.com" rel="noopener" target="_blank"><i class="envelope fa-fw"></i>E-Mail</a>
+      </span>
+  </div>
+
+
+  <div class="links-of-blogroll motion-element">
+    <div class="links-of-blogroll-title"><i class="fa fa-link fa-fw"></i>
+      Links
+    </div>
+    <ul class="links-of-blogroll-list">
+        <li class="links-of-blogroll-item">
+          <a href="https://www.tsinghua.edu.cn/" title="https:&#x2F;&#x2F;www.tsinghua.edu.cn" rel="noopener" target="_blank">THU</a>
+        </li>
+        <li class="links-of-blogroll-item">
+          <a href="http://www.imr.cas.cn/" title="http:&#x2F;&#x2F;www.imr.cas.cn" rel="noopener" target="_blank">IMR</a>
+        </li>
+        <li class="links-of-blogroll-item">
+          <a href="http://www.sdu.edu.cn/" title="http:&#x2F;&#x2F;www.sdu.edu.cn" rel="noopener" target="_blank">SDU</a>
+        </li>
+        <li class="links-of-blogroll-item">
+          <a href="http://liam0205.me/" title="http:&#x2F;&#x2F;liam0205.me&#x2F;" rel="noopener" target="_blank">黄晨成</a>
+        </li>
+    </ul>
+  </div>
+
+      </div>
+
+    </div>
+  </aside>
+  <div id="sidebar-dimmer"></div>
+
+
+      </div>
+    </main>
+
+    <footer class="footer">
+      <div class="footer-inner">
+        
+
+        
+
+<div class="copyright">
+  
+  &copy; 
+  <span itemprop="copyrightYear">2021</span>
+  <span class="with-love">
+    <i class="fa fa-heart"></i>
+  </span>
+  <span class="author" itemprop="copyrightHolder">Xin-Bo Qi(亓欣波)</span>
+</div>
+  <div class="powered-by">Powered by <a href="https://hexo.io/" class="theme-link" rel="noopener" target="_blank">Hexo</a> & <a href="https://theme-next.org/" class="theme-link" rel="noopener" target="_blank">NexT.Gemini</a>
+  </div>
+
+        
+
+
+
+
+
+
+
+
+      </div>
+    </footer>
+  </div>
+
+  
+  <script src="/lib/anime.min.js"></script>
+  <script src="/lib/velocity/velocity.min.js"></script>
+  <script src="/lib/velocity/velocity.ui.min.js"></script>
+
+<script src="/js/utils.js"></script>
+
+<script src="/js/motion.js"></script>
+
+
+<script src="/js/schemes/pisces.js"></script>
+
+
+<script src="/js/next-boot.js"></script>
+
+
+
+
+  
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+  
+
+  
+
+  
+
+<script>
+  function loadCount() {
+    var d = document, s = d.createElement('script');
+    s.src = 'https://qixinbo.disqus.com/count.js';
+    s.id = 'dsq-count-scr';
+    (d.head || d.body).appendChild(s);
+  }
+  // defer loading until the whole page loading is completed
+  window.addEventListener('load', loadCount, false);
+</script>
+<script>
+  var disqus_config = function() {
+    this.page.url = "http://qixinbo.github.io/2017/02/14/moose-run/";
+    this.page.identifier = "2017/02/14/moose-run/";
+    this.page.title = "多物理场面向对象模拟环境MOOSE运行过程分析";
+    };
+  NexT.utils.loadComments(document.querySelector('#disqus_thread'), () => {
+    if (window.DISQUS) {
+      DISQUS.reset({
+        reload: true,
+        config: disqus_config
+      });
+    } else {
+      var d = document, s = d.createElement('script');
+      s.src = 'https://qixinbo.disqus.com/embed.js';
+      s.setAttribute('data-timestamp', '' + +new Date());
+      (d.head || d.body).appendChild(s);
+    }
+  });
+</script>
+
+</body>
+</html>

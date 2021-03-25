@@ -1,0 +1,596 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=2">
+<meta name="theme-color" content="#222">
+<meta name="generator" content="Hexo 5.4.0">
+  <link rel="apple-touch-icon" sizes="180x180" href="/images/apple-touch-icon-next.png">
+  <link rel="icon" type="image/png" sizes="32x32" href="/favicon.ico">
+  <link rel="icon" type="image/png" sizes="16x16" href="/favicon.ico">
+  <link rel="mask-icon" href="/images/logo.svg" color="#222">
+
+<link rel="stylesheet" href="/css/main.css">
+
+
+<link rel="stylesheet" href="/lib/font-awesome/css/all.min.css">
+
+<script id="hexo-configurations">
+    var NexT = window.NexT || {};
+    var CONFIG = {"hostname":"qixinbo.github.io","root":"/","scheme":"Gemini","version":"7.8.0","exturl":false,"sidebar":{"position":"left","display":"post","padding":18,"offset":12,"onmobile":false},"copycode":{"enable":false,"show_result":false,"style":null},"back2top":{"enable":true,"sidebar":false,"scrollpercent":false},"bookmark":{"enable":false,"color":"#222","save":"auto"},"fancybox":false,"mediumzoom":false,"lazyload":false,"pangu":false,"comments":{"style":"tabs","active":null,"storage":true,"lazyload":false,"nav":null},"algolia":{"hits":{"per_page":10},"labels":{"input_placeholder":"Search for Posts","hits_empty":"We didn't find any results for the search: ${query}","hits_stats":"${hits} results found in ${time} ms"}},"localsearch":{"enable":false,"trigger":"auto","top_n_per_article":1,"unescape":false,"preload":false},"motion":{"enable":true,"async":false,"transition":{"post_block":"fadeIn","post_header":"slideDownIn","post_body":"slideDownIn","coll_header":"slideLeftIn","sidebar":"slideUpIn"}}};
+  </script>
+
+  <meta name="description" content="%%%%%%%%2021.2.14更新:增加了sciapp和sciwx的介绍%%%%%%%% 新版ImagePy有如下特点：（1）将原版ImagePy非常特色的可视化组件完全解耦，比如画布、表格、对话框等组件，将其重构为sciwx库，这样第三方开发人员就可以更加方便地使用这些组件而构建自己的特定应用；（2）创建了一套适用于图像处理的接口标准sciapp，其中定义了图像类Image、表格类Table">
+<meta property="og:type" content="article">
+<meta property="og:title" content="ImagePy解析：17 -- 重构版ImagePy解析">
+<meta property="og:url" content="http://qixinbo.github.io/2020/02/26/ImagePy_17/index.html">
+<meta property="og:site_name" content="亓欣波">
+<meta property="og:description" content="%%%%%%%%2021.2.14更新:增加了sciapp和sciwx的介绍%%%%%%%% 新版ImagePy有如下特点：（1）将原版ImagePy非常特色的可视化组件完全解耦，比如画布、表格、对话框等组件，将其重构为sciwx库，这样第三方开发人员就可以更加方便地使用这些组件而构建自己的特定应用；（2）创建了一套适用于图像处理的接口标准sciapp，其中定义了图像类Image、表格类Table">
+<meta property="og:locale" content="en_US">
+<meta property="article:published_time" content="2020-02-25T16:00:00.000Z">
+<meta property="article:modified_time" content="2021-03-25T07:20:30.369Z">
+<meta property="article:author" content="Xin-Bo Qi(亓欣波)">
+<meta property="article:tag" content="ImagePy">
+<meta name="twitter:card" content="summary">
+
+<link rel="canonical" href="http://qixinbo.github.io/2020/02/26/ImagePy_17/">
+
+
+<script id="page-configurations">
+  // https://hexo.io/docs/variables.html
+  CONFIG.page = {
+    sidebar: "",
+    isHome : false,
+    isPost : true,
+    lang   : 'en'
+  };
+</script>
+
+  <title>ImagePy解析：17 -- 重构版ImagePy解析 | 亓欣波</title>
+  
+
+
+
+
+
+
+  <noscript>
+  <style>
+  .use-motion .brand,
+  .use-motion .menu-item,
+  .sidebar-inner,
+  .use-motion .post-block,
+  .use-motion .pagination,
+  .use-motion .comments,
+  .use-motion .post-header,
+  .use-motion .post-body,
+  .use-motion .collection-header { opacity: initial; }
+
+  .use-motion .site-title,
+  .use-motion .site-subtitle {
+    opacity: initial;
+    top: initial;
+  }
+
+  .use-motion .logo-line-before i { left: initial; }
+  .use-motion .logo-line-after i { right: initial; }
+  </style>
+</noscript>
+
+</head>
+
+<body itemscope itemtype="http://schema.org/WebPage">
+  <div class="container use-motion">
+    <div class="headband"></div>
+
+    <header class="header" itemscope itemtype="http://schema.org/WPHeader">
+      <div class="header-inner"><div class="site-brand-container">
+  <div class="site-nav-toggle">
+    <div class="toggle" aria-label="Toggle navigation bar">
+      <span class="toggle-line toggle-line-first"></span>
+      <span class="toggle-line toggle-line-middle"></span>
+      <span class="toggle-line toggle-line-last"></span>
+    </div>
+  </div>
+
+  <div class="site-meta">
+
+    <a href="/" class="brand" rel="start">
+      <span class="logo-line-before"><i></i></span>
+      <h1 class="site-title">亓欣波</h1>
+      <span class="logo-line-after"><i></i></span>
+    </a>
+      <p class="site-subtitle" itemprop="description">Hi, I am Xin-Bo Qi (亓欣波)</p>
+  </div>
+
+  <div class="site-nav-right">
+    <div class="toggle popup-trigger">
+    </div>
+  </div>
+</div>
+
+
+
+
+<nav class="site-nav">
+  <ul id="menu" class="main-menu menu">
+        <li class="menu-item menu-item-home">
+
+    <a href="/" rel="section"><i class="home fa-fw"></i>Home</a>
+
+  </li>
+        <li class="menu-item menu-item-categories">
+
+    <a href="/categories/" rel="section"><i class="th fa-fw"></i>Categories</a>
+
+  </li>
+        <li class="menu-item menu-item-archives">
+
+    <a href="/archives/" rel="section"><i class="archive fa-fw"></i>Archives</a>
+
+  </li>
+        <li class="menu-item menu-item-tags">
+
+    <a href="/tags/" rel="section"><i class="tags fa-fw"></i>Tags</a>
+
+  </li>
+        <li class="menu-item menu-item-scholar">
+
+    <a href="/scholar/" rel="section"><i class="bar-chart fa-fw"></i>scholar</a>
+
+  </li>
+        <li class="menu-item menu-item-sources">
+
+    <a href="/sources/" rel="section"><i class="rss fa-fw"></i>sources</a>
+
+  </li>
+        <li class="menu-item menu-item-gallery">
+
+    <a href="/gallery/" rel="section"><i class="file-image-o fa-fw"></i>gallery</a>
+
+  </li>
+        <li class="menu-item menu-item-about">
+
+    <a href="/about/" rel="section"><i class="user fa-fw"></i>About</a>
+
+  </li>
+        <li class="menu-item menu-item-commonweal">
+
+    <a href="/404.html" rel="section"><i class="heartbeat fa-fw"></i>Commonweal 404</a>
+
+  </li>
+  </ul>
+</nav>
+
+
+
+
+</div>
+    </header>
+
+    
+  <div class="back-to-top">
+    <i class="fa fa-arrow-up"></i>
+    <span>0%</span>
+  </div>
+
+
+    <main class="main">
+      <div class="main-inner">
+        <div class="content-wrap">
+          
+
+          <div class="content post posts-expand">
+            
+
+    
+  
+  
+  <article itemscope itemtype="http://schema.org/Article" class="post-block" lang="en">
+    <link itemprop="mainEntityOfPage" href="http://qixinbo.github.io/2020/02/26/ImagePy_17/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="image" content="/images/avatar.jpg">
+      <meta itemprop="name" content="Xin-Bo Qi(亓欣波)">
+      <meta itemprop="description" content="Be interesting!">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="亓欣波">
+    </span>
+      <header class="post-header">
+        <h1 class="post-title" itemprop="name headline">
+          ImagePy解析：17 -- 重构版ImagePy解析
+        </h1>
+
+        <div class="post-meta">
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="far fa-calendar"></i>
+              </span>
+              <span class="post-meta-item-text">Posted on</span>
+
+              <time title="Created: 2020-02-26 00:00:00" itemprop="dateCreated datePublished" datetime="2020-02-26T00:00:00+08:00">2020-02-26</time>
+            </span>
+              <span class="post-meta-item">
+                <span class="post-meta-item-icon">
+                  <i class="far fa-calendar-check"></i>
+                </span>
+                <span class="post-meta-item-text">Edited on</span>
+                <time title="Modified: 2021-03-25 15:20:30" itemprop="dateModified" datetime="2021-03-25T15:20:30+08:00">2021-03-25</time>
+              </span>
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="far fa-folder"></i>
+              </span>
+              <span class="post-meta-item-text">In</span>
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+                  <a href="/categories/computational-material-science/" itemprop="url" rel="index"><span itemprop="name">computational material science</span></a>
+                </span>
+            </span>
+
+          
+  
+  <span class="post-meta-item">
+    
+      <span class="post-meta-item-icon">
+        <i class="far fa-comment"></i>
+      </span>
+      <span class="post-meta-item-text">Disqus: </span>
+    
+    <a title="disqus" href="/2020/02/26/ImagePy_17/#disqus_thread" itemprop="discussionUrl">
+      <span class="post-comments-count disqus-comment-count" data-disqus-identifier="2020/02/26/ImagePy_17/" itemprop="commentCount"></span>
+    </a>
+  </span>
+  
+  
+
+        </div>
+      </header>
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+        <p>%%%%%%%%<br>2021.2.14更新:增加了sciapp和sciwx的介绍<br>%%%%%%%%</p>
+<p>新版ImagePy有如下特点：<br>（1）将原版ImagePy非常特色的可视化组件完全解耦，比如画布、表格、对话框等组件，将其重构为sciwx库，这样第三方开发人员就可以更加方便地使用这些组件而构建自己的特定应用；<br>（2）创建了一套适用于图像处理的接口标准sciapp，其中定义了图像类Image、表格类Table、几何矢量类Shape，并实现了对这些类的常用操作，即sciapp作为后端支持；<br>（2）新版ImagePy在sciwx库和sciapp库的基础上进行再集成开发，即底层符合sciapp标准、前端使用sciwx显示，然后提供一整套完善的管理系统和丰富的插件库，从而实现复杂的图像处理功能。</p>
+<p>因此，sciwx等价于napari等库，着重于可视化；sciapp等价于ImageJ等库，着重于通用数据接口，ImagePy则是基于两者的插件库。新版ImagePy架构思路清晰，集成更加自然契合，因此，ImagePy/sciapp/sciwx无论是对底层开发人员还是图像处理小白都有着无可比拟的优势：小到开发一个图像处理小工具，大到作为一个大型软件“开箱即用”，都可以轻松应对。</p>
+<p>多说一句题外话，多谢龙哥的精辟的总结：对于图像处理问题，图像+矢量+图论三条腿走路。</p>
+<h1 id="总览"><a href="#总览" class="headerlink" title="总览"></a>总览</h1><p>特别地，对sciapp和sciwx包进行一个更为详细的介绍。<br>如上所述，sciapp负责后端数据操作，sciwx负责前端组件。</p>
+<h2 id="sciapp"><a href="#sciapp" class="headerlink" title="sciapp"></a>sciapp</h2><p>sciapp包的介绍主要引用了<a target="_blank" rel="noopener" href="https://github.com/Image-Py/imagepy/blob/master/sciapp/doc/cn_readme.md">官方的介绍</a>。<br>sciapp包主要有三个重要的模块：Object模块、App模块和Action模块。</p>
+<h3 id="Object模块"><a href="#Object模块" class="headerlink" title="Object模块"></a>Object模块</h3><p>Object模块定义了科学计算中常用的基础数据结构封装类，当然，如果仅仅为了计算，绝大多数时候，Numpy，Pandas等数据类型已经可以胜任，这里的封装，主要是面向交互与展示的，例如Image对象是图像数据，里面带了一个lut成员，用于在展示时映射成伪彩色。<br>（1）Image：多维图像，基于Numpy<br>（2）Table：表格，基于DataFrame<br>（3）Shape: 点线面，任意多边形，可与GeoJson，Shapely互转<br>（4）Surface：三维表面</p>
+<h3 id="App模块"><a href="#App模块" class="headerlink" title="App模块"></a>App模块</h3><p>App模块是一个科学容器，里面包含若干管理器managers，用于管理App所持有的上面各类对象object，这里的管理功能包括增加、删除、查询等，即对象object的生命周期都在App管理器中。以图像对象Image为例，App管理器有如下功能：<br>（1）show_img(self, img, title=None): 展示一个Image对象，并添加到app.img_manager管理器中；<br>（2）get_img(self, title=None): 根据title获取Image，如果缺省则返回管理器中的第一个Image；<br>（3）img_names(self): 返回当前app持有的Image对象名称列表；<br>（4）active_img(self, title=None): 将指定名称的Image对象置顶，以便于get_img可以优先获得；<br>（5）close_img(self, title=None): 关闭指定图像，并从app.img_manager管理器中移除。</p>
+<p>除了这些特定于某种对象的功能，还有一些与用户交互的功能，比如：<br>（1）alert(self, info, title=’sciapp’): 弹出一个提示框，需要用户确认；<br>（2）yes_no(self, info, title=’sciapp’): 要求用户输入True/False；<br>（3）show_txt(self, cont, title=’sciapp’): 对用户进行文字提示；<br>（4）show_md(self, cont, title=’sciapp’): 以MarkDown语法书写，向用户弹出格式化文档；<br>（5）show_para(self, title, para, view, on_handle=None, on_ok=None, on_cancel=None, on_help=None, preview=False, modal=True): 展示交互对话框，para是参数字典，view指定了交互方式。</p>
+<p>但是，需要特别注意的是，这里的App中的这些交互功能，都只是在命令行中print信息，具体使用时需要在子类中用UI框架（比如sciwx）重载这些方法。</p>
+<h3 id="Action模块"><a href="#Action模块" class="headerlink" title="Action模块"></a>Action模块</h3><p>Action模块是对App所管理的对象的操作，比如对图像做滤波等。因此，该模块也是后面自定义开发时打交道最多的模块。<br>该模块与App的交互只需通过它的start函数即可，即将App类的实例app传入即可：</p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br></pre></td><td class="code"><pre><span class="line"><span class="class"><span class="keyword">class</span> <span class="title">SciAction</span>:</span></span><br><span class="line">    <span class="string">&#x27;&#x27;&#x27;base action, just has a start method, alert a hello&#x27;&#x27;&#x27;</span></span><br><span class="line">    name = <span class="string">&#x27;SciAction&#x27;</span></span><br><span class="line"></span><br><span class="line">    <span class="function"><span class="keyword">def</span> <span class="title">start</span>(<span class="params">self, app, para=<span class="literal">None</span></span>):</span></span><br><span class="line">        self.app = app</span><br><span class="line">        app.alert(<span class="string">&#x27;Hello, I am SciAction!\n&#x27;</span>)</span><br><span class="line"></span><br><span class="line">app = App()</span><br><span class="line">SciAction().start(app)</span><br></pre></td></tr></table></figure>
+<p>SciAction是所有Action的基类，它定义了最基本的功能，同时，sciapp提供了更高级的模板，供开发者的自定义action用于继承，比如：<br>（1）ImgAction：用于处理图像，自动获取当前图像，需要重载para、view进行交互，重载run进行图像处理；<br>（2）Tool：工具，用于在某种控件上的鼠标交互，同时其派生出了图像工具ImageTool、表格工具TableTool、矢量编辑工具ShapeTool（如点线面绘制）。</p>
+<p>另外，Advanced目录下有一些高级模板（如支持图像多通道、批量操作、多线程支持等），供扩展插件时使用；Plugins目录下也有一些带有具体功能的、开箱即用的Action。</p>
+<h2 id="sciwx"><a href="#sciwx" class="headerlink" title="sciwx"></a>sciwx</h2><p>sciwx提供了一系列基于wxPython的前端可视化组件，其中最重要的就是可视化2D图像的画布功能。</p>
+<h3 id="Canvas画布"><a href="#Canvas画布" class="headerlink" title="Canvas画布"></a>Canvas画布</h3><p>Canvas画布是定制化的wxPython的Panel，其详细解析可见<a target="_blank" rel="noopener" href="https://qixinbo.info/2019/10/29/imagepy_12/">该文</a>。</p>
+<h3 id="ICanvas画布、MCanvas组件、CanvasNoteBook组件、CanvasFrame应用和CanvasNoteFrame应用"><a href="#ICanvas画布、MCanvas组件、CanvasNoteBook组件、CanvasFrame应用和CanvasNoteFrame应用" class="headerlink" title="ICanvas画布、MCanvas组件、CanvasNoteBook组件、CanvasFrame应用和CanvasNoteFrame应用"></a>ICanvas画布、MCanvas组件、CanvasNoteBook组件、CanvasFrame应用和CanvasNoteFrame应用</h3><p>ICanvas是在Canvas基础上对于位图的展示提供进一步的接口支持，比如默认绑定ImageTool这种Action，提供set_img设置图像、set_rg设置数值范围、set_lut设置快速查找表、set_cn设置通道、set_tool设置工具等接口。<br>MCanvas是对ICanvas的进一步包装，比如在顶部添加显示图像信息的信息条、在底部增加可以切换某一通道、某一slice的滑动条。<br>CanvasNoteBook组件是对MCanvas的多标签页管理，即每一个标签页都可以添加一个MCanvas。<br>以上几个组件实际都是深度定制的前端组件，而接下来的CanvasFrame和CanvasNoteFrame是同时拥有前端和后端的功能，它们的父类同时是wx.Frame和上面的sciapp的App类，应该可以说这两个是可以独立运行的开箱即用的应用。<br>CanvasFrame是对MCanvas的封装，可以使用上面MCanvas的设置接口，同时还可以增加菜单栏、工具栏以及显示对话框等。<br>CanvasNoteFrame是对CanvasNoteBook的封装，即增加了标签页管理。</p>
+<h3 id="VCanvas画布、SCanvas组件、VectorNoteBook组件、VectorFrame应用和VectorNoteFrame应用"><a href="#VCanvas画布、SCanvas组件、VectorNoteBook组件、VectorFrame应用和VectorNoteFrame应用" class="headerlink" title="VCanvas画布、SCanvas组件、VectorNoteBook组件、VectorFrame应用和VectorNoteFrame应用"></a>VCanvas画布、SCanvas组件、VectorNoteBook组件、VectorFrame应用和VectorNoteFrame应用</h3><p>VCanvas是在Canvas基础上对于矢量形状的展示提供进一步的接口支持，比如默认绑定ShapeTool这种Action，提供set_shp设置形状、set_tool设置工具等接口。<br>Scanvas是对VCanvas的进一步包装，比如在顶部添加显示形状信息的信息条。<br>VectorNoteBook组件时对VCanvas的多标签页管理。<br>同上，VectorFrame和VectorNoteFrame也都是兼具后端和前端功能的应用。</p>
+<h2 id="前端和后端耦合"><a href="#前端和后端耦合" class="headerlink" title="前端和后端耦合"></a>前端和后端耦合</h2><p>如上所述，sciapp负责后端，sciwx负责前端，两者联动的机理如下：<br>（1）通过sciapp的dataio模块来控制输入输出，将图像等对象添加进App管理器；<br>（2）将App管理器传入其他action模块的start()入口函数，即可实现对图像等对象的操作；<br>（3）sciwx前端组件通过set_img()等接口接收App管理器，并将之可视化。<br>其中，第二步可以通过代码执行，比如：</p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">Gaussian().start(app)</span><br></pre></td></tr></table></figure>
+<p>但也可以通过前端交互，比如通过菜单命令和工具栏的鼠标操作。那么菜单栏和工具栏又是怎样识别这些命令的呢？<br>对于菜单栏：</p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br></pre></td><td class="code"><pre><span class="line"><span class="class"><span class="keyword">class</span> <span class="title">MenuBar</span>(<span class="params">wx.MenuBar</span>):</span></span><br><span class="line">    <span class="function"><span class="keyword">def</span> <span class="title">__init__</span>(<span class="params">self, app</span>):</span></span><br><span class="line">        wx.MenuBar.__init__(self)</span><br><span class="line">        self.app = app</span><br><span class="line">        app.SetMenuBar(self)</span><br><span class="line">....</span><br><span class="line">....</span><br><span class="line">            f = <span class="keyword">lambda</span> e, p=vs: p().start(self.app)</span><br><span class="line">            self.Bind(wx.EVT_MENU, f, item)</span><br></pre></td></tr></table></figure>
+<p>注意两个地方：<br>一个是MenuBar的初始化函数，需要传入app实例；第二是在添加菜单项时，其功能通过lambda函数调用了命令的start()函数。<br>对于工具栏：</p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><span class="line"><span class="class"><span class="keyword">class</span> <span class="title">ToolBar</span>(<span class="params">wx.Panel</span>):</span></span><br><span class="line">    <span class="function"><span class="keyword">def</span> <span class="title">__init__</span>(<span class="params">self, parent, vertical=<span class="literal">False</span></span>):</span></span><br><span class="line">        self.app = parent</span><br><span class="line"></span><br><span class="line">        btn.Bind( wx.EVT_LEFT_DOWN, <span class="keyword">lambda</span> e, obj=obj: self.on_tool(e, obj))</span><br><span class="line"></span><br><span class="line">    <span class="function"><span class="keyword">def</span> <span class="title">on_tool</span>(<span class="params">self, evt, tol</span>):</span></span><br><span class="line">        tol.start(self.app)</span><br></pre></td></tr></table></figure>
+<p>仍然是两个地方：ToolBar的初始化函数也传入parent了，它实际也是app实例；第二也是鼠标按下操作绑定了工具命令的start()函数。</p>
+<p>这个作为后端服务的app实例可以额外创建，但是通常做法是将前端和后端联合起来，创建一个组合体，即：</p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line"><span class="class"><span class="keyword">class</span> <span class="title">ImageApp</span>(<span class="params">wx.Frame, App</span>):</span></span><br><span class="line">    <span class="function"><span class="keyword">def</span> <span class="title">__init__</span>(<span class="params"> self, parent </span>):</span></span><br><span class="line">        wx.Frame.__init__ ( self, parent, <span class="built_in">id</span> = wx.ID_ANY, title = <span class="string">&#x27;ImageApp&#x27;</span>,</span><br><span class="line">                            size = wx.Size(<span class="number">800</span>,<span class="number">600</span>), pos = wx.DefaultPosition,</span><br><span class="line">                            style = wx.RESIZE_BORDER|wx.DEFAULT_FRAME_STYLE|wx.TAB_TRAVERSAL )</span><br><span class="line">        App.__init__(self)</span><br></pre></td></tr></table></figure>
+<p>因此，添加菜单栏和工具栏时，传入的都是self，即自身，因为其自身就有App管理器的能力。</p>
+<p>下面是对ImagePy所基于的sciwx库各个组件的demo进行逐步解析（最好是直接运行一下，以获得直观感受）。</p>
+<h1 id="画布"><a href="#画布" class="headerlink" title="画布"></a>画布</h1><figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">from</span> skimage.data <span class="keyword">import</span> camera</span><br><span class="line"><span class="keyword">from</span> sciwx.canvas <span class="keyword">import</span> Canvas</span><br><span class="line"><span class="keyword">import</span> wx</span><br><span class="line"></span><br><span class="line">app = wx.App()</span><br><span class="line">frame = wx.Frame(<span class="literal">None</span>, title=<span class="string">&#x27;gray test&#x27;</span>)</span><br><span class="line">canvas = Canvas(frame, autofit=<span class="literal">True</span>)</span><br><span class="line">canvas.set_img(camera())</span><br><span class="line">frame.Show()</span><br><span class="line">app.MainLoop()</span><br></pre></td></tr></table></figure>
+<p>ImagePy/sciwx展示一张图像所使用的是Canvas类，它是对wxPython的面板Panel类的深度定制，可以实现对图像的区域缩放、拖动、标注等。之前写过一篇对该类的详细解释，见<a target="_blank" rel="noopener" href="http://qixinbo.info/2019/10/29/ImagePy_12/">这里</a>。</p>
+<h1 id="通道、图像序列展示"><a href="#通道、图像序列展示" class="headerlink" title="通道、图像序列展示"></a>通道、图像序列展示</h1><figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">from</span> skimage.data <span class="keyword">import</span> astronaut</span><br><span class="line"><span class="keyword">from</span> sciwx.canvas <span class="keyword">import</span> MCanvas</span><br><span class="line"><span class="keyword">import</span> wx</span><br><span class="line"></span><br><span class="line">app = wx.App()</span><br><span class="line">frame = wx.Frame(<span class="literal">None</span>, title=<span class="string">&#x27;gray test&#x27;</span>)</span><br><span class="line">canvas = MCanvas(frame, autofit=<span class="literal">True</span>)</span><br><span class="line">canvas.set_imgs([astronaut(), <span class="number">255</span>-astronaut()])</span><br><span class="line">canvas.set_cn(<span class="number">0</span>)</span><br><span class="line">frame.Show()</span><br><span class="line">app.MainLoop()</span><br></pre></td></tr></table></figure>
+<p>上面的Canvas类仅能展示一张图像，这里的MCanvas类则是用于展示图像序列和多通道：<br>（1）图像序列：将多个图像组合成列表list，然后传入set_imgs()方法中；<br>（2）通道：对于多通道图像，可以传入单个通道，如0或1或2，这时是单通道灰度显示，也可以组合成(0, 1, 2)，即RGB彩色显示，甚至可以任意按不同顺序组合通道，比如(1, 0, 2)，即将原来的通道1变成现在的通道0，再彩色显示。对于灰度图，则只有通道0。</p>
+<h1 id="内部图像类Image"><a href="#内部图像类Image" class="headerlink" title="内部图像类Image"></a>内部图像类Image</h1><figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">from</span> skimage.data <span class="keyword">import</span> camera</span><br><span class="line"><span class="keyword">from</span> sciwx.canvas <span class="keyword">import</span> Canvas, Image</span><br><span class="line"><span class="keyword">import</span> wx</span><br><span class="line"></span><br><span class="line">app = wx.App()</span><br><span class="line">obj = Image()</span><br><span class="line">obj.img = camera()</span><br><span class="line">obj.cn = <span class="number">0</span></span><br><span class="line">frame = wx.Frame(<span class="literal">None</span>, title=<span class="string">&#x27;gray test&#x27;</span>)</span><br><span class="line">canvas = Canvas(frame, autofit=<span class="literal">True</span>)</span><br><span class="line">canvas.set_img(obj)</span><br><span class="line">frame.Show()   </span><br><span class="line">app.MainLoop()</span><br></pre></td></tr></table></figure>
+<p>这个例子是测试ImagePy的内部图像类Image，该类是源图像的一个包装，同时提供多种属性供调用，比如图像名称title、源图像img、通道数channels、整个图像序列中包含图像个数slices、图像尺寸shape、色彩范围range、快照snapshot等。</p>
+<p>这里是先构造一个Image对象，然后将camera这张图像传给该对象的img属性，然后再传给Canvas。<br>之前例子中Canvas是直接接收camera，这两种方式都可以，因为Canvas类中对类型做了判断和处理。</p>
+<h1 id="自定义鼠标事件"><a href="#自定义鼠标事件" class="headerlink" title="自定义鼠标事件"></a>自定义鼠标事件</h1><figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">from</span> skimage.data <span class="keyword">import</span> camera</span><br><span class="line"><span class="keyword">from</span> sciwx.canvas <span class="keyword">import</span> Canvas</span><br><span class="line"><span class="keyword">import</span> wx</span><br><span class="line"></span><br><span class="line"><span class="class"><span class="keyword">class</span> <span class="title">TestTool</span>:</span></span><br><span class="line">    <span class="function"><span class="keyword">def</span> <span class="title">mouse_down</span>(<span class="params">self, image, x, y, btn, **key</span>):</span></span><br><span class="line">        <span class="built_in">print</span>(<span class="string">&#x27;x:%d y:%d btn:%d ctrl:%s alt:%s shift:%s&#x27;</span>%</span><br><span class="line">              (x, y, btn, key[<span class="string">&#x27;ctrl&#x27;</span>], key[<span class="string">&#x27;alt&#x27;</span>], key[<span class="string">&#x27;shift&#x27;</span>]))</span><br><span class="line"></span><br><span class="line">    <span class="function"><span class="keyword">def</span> <span class="title">mouse_up</span>(<span class="params">self, image, x, y, btn, **key</span>):</span></span><br><span class="line">        <span class="keyword">pass</span></span><br><span class="line"></span><br><span class="line">    <span class="function"><span class="keyword">def</span> <span class="title">mouse_move</span>(<span class="params">self, image, x, y, btn, **key</span>):</span></span><br><span class="line">        <span class="keyword">pass</span></span><br><span class="line"></span><br><span class="line">    <span class="function"><span class="keyword">def</span> <span class="title">mouse_wheel</span>(<span class="params">self, image, x, y, d, **key</span>):</span></span><br><span class="line">        image.img[:] = image.img + d</span><br><span class="line">        key[<span class="string">&#x27;canvas&#x27;</span>].update()</span><br><span class="line"></span><br><span class="line">app = wx.App()</span><br><span class="line">frame = wx.Frame(<span class="literal">None</span>)</span><br><span class="line">canvas = Canvas(frame, autofit=<span class="literal">True</span>)</span><br><span class="line">canvas.set_img(camera())</span><br><span class="line">canvas.set_tool(TestTool())</span><br><span class="line">frame.Show()</span><br><span class="line">app.MainLoop()</span><br></pre></td></tr></table></figure>
+<p>这一步实际是将画布中的默认绑定的DefaultTool改成了自定义的TestTool，然后再将动作反馈给画布。<br>从中也可以看出自定义工具中可以调用的接口：<br>（1）image：即画布承载的Image对象，具体的源图像则是image.img<br>（2）x和y：当前鼠标所在的图像像素坐标，水平方向是x方向，垂直方向是y方向，这两个坐标是与图像的Numpy数据存储一一对应的：因为Numpy的元素获取是先row后column，所以这里的y对应row，x对应column。另外因为这两个坐标有可能因为缩放、移动而产生负值，此时如果要做画笔这类的应用的话，就需要clip一下，保证画笔始终在图像中；不过另一方面，这样的设置也使得可以draw出超出图像的更大的ROI。还有下面一种坐标，是代表鼠标在面板中的像素坐标。btn是鼠标按键，1为左键按下，2为中键按下，3为右键按下，key是字典，里面有多个字段，key[‘alt’]代表是否按下alt键，key[‘ctrl’]代表是否按下ctrl键，key[‘shift’]代表是否按下shift键，key[‘px’]返回鼠标当前的画布x坐标，key[‘py’]返回画布y坐标，key[‘canvas’]返回该画布自身。</p>
+<h1 id="工具栏"><a href="#工具栏" class="headerlink" title="工具栏"></a>工具栏</h1><figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">import</span> wx</span><br><span class="line"><span class="keyword">from</span> sciwx.widgets <span class="keyword">import</span> ToolBar</span><br><span class="line"><span class="keyword">from</span> sciwx.action <span class="keyword">import</span> Tool</span><br><span class="line"></span><br><span class="line"><span class="class"><span class="keyword">class</span> <span class="title">TestTool</span>(<span class="params">Tool</span>):</span></span><br><span class="line">    <span class="function"><span class="keyword">def</span> <span class="title">start</span>(<span class="params">self, app</span>):</span></span><br><span class="line">        <span class="built_in">print</span>(<span class="string">&quot;i am a tool&quot;</span>)</span><br><span class="line"></span><br><span class="line">app = wx.App()</span><br><span class="line">frame = wx.Frame(<span class="literal">None</span>)</span><br><span class="line">tool = ToolBar(frame)</span><br><span class="line">tool.add_tool(<span class="string">&#x27;A&#x27;</span>, TestTool)</span><br><span class="line">tool.add_tools(<span class="string">&#x27;B&#x27;</span>, [(<span class="string">&#x27;A&#x27;</span>, TestTool), (<span class="string">&#x27;C&#x27;</span>, <span class="literal">None</span>)])</span><br><span class="line">tool.Layout()</span><br><span class="line">frame.Fit()</span><br><span class="line">frame.Show()</span><br><span class="line">app.MainLoop()</span><br></pre></td></tr></table></figure>
+<p>上面的自定义鼠标事件是在后台将默认的鼠标事件进行了重载，无法显示成一个工具。且如果多个工具，每个工具点击后的鼠标事件都不同，是需要将这些事件分开来写的。<br>这个例子是用来显示工具栏，里面的TestTool纯粹是为了该例子的完整运行，没有任何的实际意义，正规的自定义工具是要重载各种鼠标动作。<br>实际上的工具栏的鼠标动作是与具体的Canvas相绑定的，所以在没有添加canvas的情况下是无法执行具体工具的。<br>可以看出：<br>（1）sciwx现在不仅支持使用icon作为工具图标，也支持使用单个英文字母作为图标，更加方便易用；<br>（2）sciwx支持一次性添加多个工具。<br>后面的例子会展示将画布与工具进行绑定。</p>
+<h1 id="集成面板"><a href="#集成面板" class="headerlink" title="集成面板"></a>集成面板</h1><p>CanvasFrame是将画布与菜单栏、工具栏集成显示（实际无法与菜单栏集成，因为菜单栏需要传入app实例，下方具体解释，且后面有具体的集成菜单栏的方法），CanvasNoteFrame进一步地提供标签页功能。<br>不过这一步仅是测试这两个类能否正确使用，还没有加上特定的菜单栏和工具栏，下面的例子中将具体展示。<br>同时注意，这一步调用时不再需要像之前的例子那样事先生成一个wxPython的Frame，因为这两个类本身就是Frame，所以省了这一步，相当于定制化了wxPython的frame。</p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">from</span> skimage.data <span class="keyword">import</span> astronaut, camera</span><br><span class="line"><span class="keyword">from</span> sciwx.canvas <span class="keyword">import</span> CanvasFrame, CanvasNoteFrame</span><br><span class="line"><span class="keyword">import</span> wx</span><br><span class="line"></span><br><span class="line"><span class="function"><span class="keyword">def</span> <span class="title">canvas_frame_test</span>():</span></span><br><span class="line">    cf = CanvasFrame(<span class="literal">None</span>, autofit=<span class="literal">True</span>)</span><br><span class="line">    cf.set_imgs([camera(), <span class="number">255</span>-camera()])</span><br><span class="line">    cf.Show()</span><br><span class="line"></span><br><span class="line"><span class="function"><span class="keyword">def</span> <span class="title">canvas_note_test</span>():</span></span><br><span class="line">    cnf = CanvasNoteFrame(<span class="literal">None</span>)</span><br><span class="line">    cv1 = cnf.add_canvas()</span><br><span class="line">    cv1.set_img(camera())</span><br><span class="line">    cv2 = cnf.add_canvas()</span><br><span class="line">    cv2.set_img(astronaut())</span><br><span class="line">    cv2.set_cn((<span class="number">2</span>,<span class="number">1</span>,<span class="number">0</span>))</span><br><span class="line">    cnf.Show()</span><br><span class="line"></span><br><span class="line"><span class="keyword">if</span> __name__ == <span class="string">&#x27;__main__&#x27;</span>:</span><br><span class="line">    app = wx.App()</span><br><span class="line">    canvas_frame_test()</span><br><span class="line">    canvas_note_test()</span><br><span class="line">    app.MainLoop()</span><br></pre></td></tr></table></figure>
+<p>CanvasFrame和CanvasNoteFrame归根结底都是调用了Canvas类，且将Canvas一系列的设定方法传递给了它们。</p>
+<h1 id="画布集成工具栏"><a href="#画布集成工具栏" class="headerlink" title="画布集成工具栏"></a>画布集成工具栏</h1><figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">from</span> skimage.draw <span class="keyword">import</span> line</span><br><span class="line"><span class="keyword">from</span> sciwx.canvas <span class="keyword">import</span> CanvasFrame</span><br><span class="line"><span class="keyword">from</span> sciwx.action <span class="keyword">import</span> Tool, DefaultTool</span><br><span class="line"></span><br><span class="line"><span class="class"><span class="keyword">class</span> <span class="title">Pencil</span>(<span class="params">Tool</span>):</span></span><br><span class="line">    title = <span class="string">&#x27;Pencil&#x27;</span></span><br><span class="line"></span><br><span class="line">    <span class="function"><span class="keyword">def</span> <span class="title">__init__</span>(<span class="params">self</span>):</span></span><br><span class="line">        self.status = <span class="literal">False</span></span><br><span class="line">        self.oldp = (<span class="number">0</span>,<span class="number">0</span>)</span><br><span class="line"></span><br><span class="line"></span><br><span class="line">    <span class="function"><span class="keyword">def</span> <span class="title">mouse_down</span>(<span class="params">self, ips, x, y, btn, **key</span>):</span></span><br><span class="line">        self.status = <span class="literal">True</span></span><br><span class="line">        self.oldp = (y, x)</span><br><span class="line"></span><br><span class="line">    <span class="function"><span class="keyword">def</span> <span class="title">mouse_up</span>(<span class="params">self, ips, x, y, btn, **key</span>):</span></span><br><span class="line">        self.status = <span class="literal">False</span></span><br><span class="line"></span><br><span class="line">    <span class="function"><span class="keyword">def</span> <span class="title">mouse_move</span>(<span class="params">self, ips, x, y, btn, **key</span>):</span></span><br><span class="line">        <span class="keyword">if</span> <span class="keyword">not</span> self.status:<span class="keyword">return</span></span><br><span class="line">        se = self.oldp + (y,x)</span><br><span class="line">        rs,cs = line(*[<span class="built_in">int</span>(i) <span class="keyword">for</span> i <span class="keyword">in</span> se])</span><br><span class="line">        rs.clip(<span class="number">0</span>, ips.shape[<span class="number">1</span>], out=rs)</span><br><span class="line">        cs.clip(<span class="number">0</span>, ips.shape[<span class="number">0</span>], out=cs)</span><br><span class="line">        ips.img[rs,cs] = (<span class="number">255</span>, <span class="number">0</span>, <span class="number">0</span>)</span><br><span class="line">        self.oldp = (y, x)</span><br><span class="line">        key[<span class="string">&#x27;canvas&#x27;</span>].update()</span><br><span class="line"></span><br><span class="line">    <span class="function"><span class="keyword">def</span> <span class="title">mouse_wheel</span>(<span class="params">self, ips, x, y, d, **key</span>):</span><span class="keyword">pass</span></span><br><span class="line"></span><br><span class="line"><span class="keyword">if</span> __name__==<span class="string">&#x27;__main__&#x27;</span>:</span><br><span class="line">    <span class="keyword">from</span> skimage.data <span class="keyword">import</span> camera, astronaut</span><br><span class="line">    <span class="keyword">from</span> skimage.io <span class="keyword">import</span> imread</span><br><span class="line"></span><br><span class="line">    app = wx.App()</span><br><span class="line">    cf = CanvasFrame(<span class="literal">None</span>, autofit=<span class="literal">False</span>)</span><br><span class="line">    cf.set_imgs([astronaut(), <span class="number">255</span>-astronaut()])</span><br><span class="line">    cf.set_cn((<span class="number">0</span>,<span class="number">1</span>,<span class="number">2</span>))</span><br><span class="line">    bar = cf.add_toolbar()</span><br><span class="line">    bar.add_tool(<span class="string">&#x27;M&#x27;</span>, DefaultTool)</span><br><span class="line">    bar.add_tool(<span class="string">&#x27;P&#x27;</span>, Pencil)</span><br><span class="line">    cf.Show()</span><br><span class="line">    app.MainLoop()</span><br></pre></td></tr></table></figure>
+<p>这个例子就是将画布与默认工具和画笔工具集成起来。<br>由于这里是两个工具，那么这个画布是怎样知道该响应哪个工具了吗？原理如下：<br>（1）ToolBar类中将具体工具绑定了鼠标单击事件，当某一工具被点击后，就会触发它继承自父类Tool的start()方法，将该工具自身传给Tool.default；<br>（2）Canvas画布类会时刻监听鼠标事件，其中会调用Tool.default，于是，两者就关联了起来。此处Tool.default是种类似“多态”的用法，即直接调用父类，无需知道其具体的子类类型，具体调用则是看运行时类型决定。</p>
+<h1 id="菜单栏"><a href="#菜单栏" class="headerlink" title="菜单栏"></a>菜单栏</h1><figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">import</span> wx</span><br><span class="line"><span class="keyword">from</span> sciwx.widgets <span class="keyword">import</span> MenuBar</span><br><span class="line"></span><br><span class="line"><span class="class"><span class="keyword">class</span> <span class="title">P</span>:</span></span><br><span class="line">    <span class="function"><span class="keyword">def</span> <span class="title">__init__</span>(<span class="params">self, name</span>):</span></span><br><span class="line">        self.name = name</span><br><span class="line"></span><br><span class="line">    <span class="function"><span class="keyword">def</span> <span class="title">start</span>(<span class="params">self, app</span>):</span></span><br><span class="line">        <span class="built_in">print</span>(self.name)</span><br><span class="line"></span><br><span class="line">    <span class="function"><span class="keyword">def</span> <span class="title">__call__</span>(<span class="params">self</span>):</span></span><br><span class="line">        <span class="keyword">return</span> self</span><br><span class="line"></span><br><span class="line">data = (<span class="string">&#x27;menu&#x27;</span>, [</span><br><span class="line">        (<span class="string">&#x27;File&#x27;</span>, [(<span class="string">&#x27;Open&#x27;</span>, P(<span class="string">&#x27;O&#x27;</span>)),</span><br><span class="line">                  <span class="string">&#x27;-&#x27;</span>,</span><br><span class="line">                  (<span class="string">&#x27;Close&#x27;</span>, P(<span class="string">&#x27;C&#x27;</span>))]),</span><br><span class="line">        (<span class="string">&#x27;Edit&#x27;</span>, [(<span class="string">&#x27;Copy&#x27;</span>, P(<span class="string">&#x27;C&#x27;</span>)),</span><br><span class="line">                  (<span class="string">&#x27;A&#x27;</span>, [(<span class="string">&#x27;B&#x27;</span>, P(<span class="string">&#x27;B&#x27;</span>)),</span><br><span class="line">                         (<span class="string">&#x27;C&#x27;</span>, P(<span class="string">&#x27;C&#x27;</span>))]),</span><br><span class="line">                  (<span class="string">&#x27;Paste&#x27;</span>, P(<span class="string">&#x27;P&#x27;</span>))])])</span><br><span class="line"></span><br><span class="line">app = wx.App()</span><br><span class="line">frame = wx.Frame(<span class="literal">None</span>)</span><br><span class="line">menubar = MenuBar(frame)</span><br><span class="line">menubar.load(data)</span><br><span class="line">frame.SetMenuBar(menubar)</span><br><span class="line">frame.Show()</span><br><span class="line">app.MainLoop()</span><br></pre></td></tr></table></figure>
+<p>该例有两个特点：<br>（1）菜单项是以元组的形式传入MenuBar中，且能多级解析，这就提供了非常大的灵活性，后面ImagePy的丰富的插件系统也能顺利地加载进来；<br>（2）类P实际就是一个最小的可运行的插件，其重要的一个成员函数就是start()方法，注意到其需要传入一个app参数（这里因为没有用到图像，所以app没有实际用处）。</p>
+<p>从菜单栏开始，相比于以前的ImagePy的管理机制，新解耦的sciwx拥有了一个新的管理方式，即App类，如下：</p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br></pre></td><td class="code"><pre><span class="line"><span class="class"><span class="keyword">class</span> <span class="title">App</span>:</span></span><br><span class="line">    <span class="function"><span class="keyword">def</span> <span class="title">__init__</span>(<span class="params">self</span>):</span></span><br><span class="line">        self.img_manager = Manager()</span><br><span class="line">        self.wimg_manager = Manager()</span><br><span class="line">        self.tab_manager = Manager()</span><br><span class="line">        self.wtab_manager = Manager()</span><br><span class="line"> </span><br><span class="line">    <span class="function"><span class="keyword">def</span> <span class="title">show_img</span>(<span class="params">self, img</span>):</span> <span class="keyword">pass</span></span><br><span class="line">    <span class="function"><span class="keyword">def</span> <span class="title">show_table</span>(<span class="params">self, img</span>):</span> <span class="keyword">pass</span></span><br><span class="line">    <span class="function"><span class="keyword">def</span> <span class="title">show_md</span>(<span class="params">self, img, title=<span class="string">&#x27;&#x27;</span></span>):</span> <span class="keyword">pass</span></span><br><span class="line">    <span class="function"><span class="keyword">def</span> <span class="title">show_txt</span>(<span class="params">self, img, title=<span class="string">&#x27;&#x27;</span></span>):</span> <span class="keyword">pass</span></span><br><span class="line">    <span class="function"><span class="keyword">def</span> <span class="title">plot</span>(<span class="params">self</span>):</span> <span class="keyword">pass</span></span><br><span class="line">    <span class="function"><span class="keyword">def</span> <span class="title">plot3d</span>(<span class="params">self</span>):</span> <span class="keyword">pass</span></span><br><span class="line"></span><br><span class="line">    <span class="function"><span class="keyword">def</span> <span class="title">add_img</span>(<span class="params">self, img</span>):</span></span><br><span class="line">        <span class="built_in">print</span>(<span class="string">&#x27;add&#x27;</span>, img.name)</span><br><span class="line">        self.img_manager.add(img)</span><br><span class="line"></span><br><span class="line">    <span class="function"><span class="keyword">def</span> <span class="title">remove_img</span>(<span class="params">self, img</span>):</span></span><br><span class="line">        <span class="built_in">print</span>(<span class="string">&#x27;remove&#x27;</span>, img.name)</span><br><span class="line">        self.img_manager.remove(img)</span><br><span class="line">…</span><br><span class="line">…</span><br></pre></td></tr></table></figure>
+<p>图像、表格属于基础元素，其管理和展示，归为app自身的功能（以前是通过管理器），创建app实例就可以维护基础元素的信息。这样可以有如下优点：<br>（1）实现了UI定制，元素的操作与具体的Desktop端、Web端或Headless样式进行解耦。比如sciwx自带一个sciapp模块，它就是一个具体的wxPython的前端实现，同理，也可以自己创建一个web的前端或headless的接口调用；对于headless形式的接口，可以ssh远程登录调用它处理图像，也可以将使用GUI前端形成的处理流程转成headless形式的流程，然后放到服务器上进行运行，这就适用于需要长时间处理图像的大型任务；<br>（2）创建某个插件时，可以将app对象传入进去，相当于拿着app对象，就可以获取当前打开的各种元素，以显示各种信息。换句话说，插件所需要干的三件事：获取数据、处理数据和展示数据，处理数据时插件自身的功能，而第一个和第三个都是通过与app交互来实现的。与之前相比，不再需要全局的处理函数IPy。</p>
+<p>下面就是实际对app的应用实例。</p>
+<h1 id="集成菜单栏"><a href="#集成菜单栏" class="headerlink" title="集成菜单栏"></a>集成菜单栏</h1><figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">from</span> scipy.ndimage <span class="keyword">import</span> gaussian_filter</span><br><span class="line"><span class="keyword">from</span> sciwx.canvas <span class="keyword">import</span> CanvasFrame</span><br><span class="line"><span class="keyword">from</span> sciwx.action <span class="keyword">import</span> ImgAction</span><br><span class="line"><span class="keyword">from</span> sciwx.app.manager <span class="keyword">import</span> App</span><br><span class="line"><span class="keyword">from</span> sciwx.widgets <span class="keyword">import</span> MenuBar</span><br><span class="line"> </span><br><span class="line"><span class="class"><span class="keyword">class</span> <span class="title">Gaussian</span>(<span class="params">ImgAction</span>):</span></span><br><span class="line">    title = <span class="string">&#x27;Gaussian&#x27;</span></span><br><span class="line">    note = [<span class="string">&#x27;auto_snap&#x27;</span>, <span class="string">&#x27;preview&#x27;</span>]</span><br><span class="line">    para = &#123;<span class="string">&#x27;sigma&#x27;</span>:<span class="number">2</span>&#125;</span><br><span class="line">    view = [(<span class="built_in">float</span>, <span class="string">&#x27;sigma&#x27;</span>, (<span class="number">0</span>, <span class="number">30</span>), <span class="number">1</span>, <span class="string">&#x27;sigma&#x27;</span>, <span class="string">&#x27;pix&#x27;</span>)]</span><br><span class="line"></span><br><span class="line">    <span class="function"><span class="keyword">def</span> <span class="title">run</span>(<span class="params">self, ips, img, snap, para</span>):</span></span><br><span class="line">        gaussian_filter(snap, para[<span class="string">&#x27;sigma&#x27;</span>], output=img)</span><br><span class="line"></span><br><span class="line"><span class="class"><span class="keyword">class</span> <span class="title">Undo</span>(<span class="params">ImgAction</span>):</span></span><br><span class="line">    title = <span class="string">&#x27;Undo&#x27;</span></span><br><span class="line">    <span class="function"><span class="keyword">def</span> <span class="title">run</span>(<span class="params">self, ips, img, snap, para</span>):</span></span><br><span class="line">        <span class="built_in">print</span>(ips.img.mean(), ips.snap.mean())</span><br><span class="line">        ips.swap()</span><br><span class="line"></span><br><span class="line"><span class="class"><span class="keyword">class</span> <span class="title">TestFrame</span>(<span class="params">CanvasFrame, App</span>):</span></span><br><span class="line">    <span class="function"><span class="keyword">def</span> <span class="title">__init__</span> (<span class="params">self, parent</span>):</span></span><br><span class="line">        CanvasFrame.__init__(self, parent)</span><br><span class="line">        App.__init__(self)</span><br><span class="line"></span><br><span class="line">        self.Bind(wx.EVT_ACTIVATE, self.init_image)</span><br><span class="line"></span><br><span class="line">    <span class="function"><span class="keyword">def</span> <span class="title">init_image</span>(<span class="params">self, event</span>):</span></span><br><span class="line">        self.add_img(self.canvas.image)</span><br><span class="line"></span><br><span class="line">    <span class="function"><span class="keyword">def</span> <span class="title">add_menubar</span>(<span class="params">self</span>):</span></span><br><span class="line">        menubar = MenuBar(self)</span><br><span class="line">        self.SetMenuBar(menubar)</span><br><span class="line">        <span class="keyword">return</span> menubar</span><br><span class="line"></span><br><span class="line"><span class="keyword">if</span> __name__==<span class="string">&#x27;__main__&#x27;</span>:</span><br><span class="line">    <span class="keyword">from</span> skimage.data <span class="keyword">import</span> camera, astronaut</span><br><span class="line">    <span class="keyword">from</span> skimage.io <span class="keyword">import</span> imread</span><br><span class="line"></span><br><span class="line">    app = wx.App()</span><br><span class="line">    cf = TestFrame(<span class="literal">None</span>)</span><br><span class="line">    cf.set_img(camera())</span><br><span class="line">    cf.set_cn(<span class="number">0</span>)</span><br><span class="line">    bar = cf.add_menubar()</span><br><span class="line">    bar.load((<span class="string">&#x27;menu&#x27;</span>,[(<span class="string">&#x27;Filter&#x27;</span>,[(<span class="string">&#x27;Gaussian&#x27;</span>, Gaussian),</span><br><span class="line">                                 (<span class="string">&#x27;Unto&#x27;</span>, Undo)]),</span><br><span class="line">                      ]))</span><br><span class="line">    cf.Show()</span><br><span class="line">    app.MainLoop()</span><br></pre></td></tr></table></figure>
+<p>一个最小可用的例子如上。<br>需要说明的是：<br>（1）CanvasFrame定位是带窗口的画布，但因为它默认添加了菜单栏，而菜单栏是插件的组合，所以需要传入app，但当前的CanvasFrame没有提供app接口，所以这里新定义了一个类TestFrame，它继承自原始的CanvasFrame和App，然后将原生的CanvasFrame中的add_menu()方法直接复制并粘贴到新的TestFrame下。<br>（2）此处的TestFrame是与sciapp等价的，只是TestFrame是最小可用的一个前端实现，而sciapp是大型框架ImagePy的实现。</p>
+<h1 id="集成工具栏和菜单栏"><a href="#集成工具栏和菜单栏" class="headerlink" title="集成工具栏和菜单栏"></a>集成工具栏和菜单栏</h1><figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br><span class="line">52</span><br><span class="line">53</span><br><span class="line">54</span><br><span class="line">55</span><br><span class="line">56</span><br><span class="line">57</span><br><span class="line">58</span><br><span class="line">59</span><br><span class="line">60</span><br><span class="line">61</span><br><span class="line">62</span><br><span class="line">63</span><br><span class="line">64</span><br><span class="line">65</span><br><span class="line">66</span><br><span class="line">67</span><br><span class="line">68</span><br><span class="line">69</span><br><span class="line">70</span><br><span class="line">71</span><br><span class="line">72</span><br><span class="line">73</span><br><span class="line">74</span><br><span class="line">75</span><br><span class="line">76</span><br><span class="line">77</span><br><span class="line">78</span><br><span class="line">79</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">from</span> scipy.ndimage <span class="keyword">import</span> gaussian_filter</span><br><span class="line"><span class="keyword">from</span> skimage.draw <span class="keyword">import</span> line</span><br><span class="line"><span class="keyword">from</span> sciwx.canvas <span class="keyword">import</span> CanvasFrame</span><br><span class="line"><span class="keyword">from</span> sciwx.action <span class="keyword">import</span> ImgAction, Tool, DefaultTool</span><br><span class="line"><span class="keyword">from</span> sciwx.app <span class="keyword">import</span> App</span><br><span class="line"><span class="keyword">from</span> sciwx.widgets <span class="keyword">import</span> MenuBar</span><br><span class="line"></span><br><span class="line"><span class="class"><span class="keyword">class</span> <span class="title">Gaussian</span>(<span class="params">ImgAction</span>):</span></span><br><span class="line">    title = <span class="string">&#x27;Gaussian&#x27;</span></span><br><span class="line">    note = [<span class="string">&#x27;auto_snap&#x27;</span>, <span class="string">&#x27;preview&#x27;</span>]</span><br><span class="line">    para = &#123;<span class="string">&#x27;sigma&#x27;</span>:<span class="number">2</span>&#125;</span><br><span class="line">    view = [(<span class="built_in">float</span>, <span class="string">&#x27;sigma&#x27;</span>, (<span class="number">0</span>, <span class="number">30</span>), <span class="number">1</span>, <span class="string">&#x27;sigma&#x27;</span>, <span class="string">&#x27;pix&#x27;</span>)]</span><br><span class="line"></span><br><span class="line">    <span class="function"><span class="keyword">def</span> <span class="title">run</span>(<span class="params">self, ips, img, snap, para</span>):</span></span><br><span class="line">        gaussian_filter(snap, para[<span class="string">&#x27;sigma&#x27;</span>], output=img)</span><br><span class="line"></span><br><span class="line"><span class="class"><span class="keyword">class</span> <span class="title">Undo</span>(<span class="params">ImgAction</span>):</span></span><br><span class="line">    title = <span class="string">&#x27;Undo&#x27;</span></span><br><span class="line">    <span class="function"><span class="keyword">def</span> <span class="title">run</span>(<span class="params">self, ips, img, snap, para</span>):</span> ips.swap()</span><br><span class="line"></span><br><span class="line"><span class="class"><span class="keyword">class</span> <span class="title">Pencil</span>(<span class="params">Tool</span>):</span></span><br><span class="line">    title = <span class="string">&#x27;Pencil&#x27;</span></span><br><span class="line">    <span class="function"><span class="keyword">def</span> <span class="title">__init__</span>(<span class="params">self</span>):</span></span><br><span class="line">        self.status = <span class="literal">False</span></span><br><span class="line">        self.oldp = (<span class="number">0</span>,<span class="number">0</span>)</span><br><span class="line"></span><br><span class="line">    <span class="function"><span class="keyword">def</span> <span class="title">mouse_down</span>(<span class="params">self, ips, x, y, btn, **key</span>):</span></span><br><span class="line">        self.status = <span class="literal">True</span></span><br><span class="line">        self.oldp = (y, x)</span><br><span class="line">        ips.snapshot()</span><br><span class="line"></span><br><span class="line">    <span class="function"><span class="keyword">def</span> <span class="title">mouse_up</span>(<span class="params">self, ips, x, y, btn, **key</span>):</span></span><br><span class="line">        self.status = <span class="literal">False</span></span><br><span class="line">   </span><br><span class="line">    <span class="function"><span class="keyword">def</span> <span class="title">mouse_move</span>(<span class="params">self, ips, x, y, btn, **key</span>):</span></span><br><span class="line">        <span class="keyword">if</span> <span class="keyword">not</span> self.status:<span class="keyword">return</span></span><br><span class="line">        se = self.oldp + (y,x)</span><br><span class="line">        rs,cs = line(*[<span class="built_in">int</span>(i) <span class="keyword">for</span> i <span class="keyword">in</span> se])</span><br><span class="line">        rs.clip(<span class="number">0</span>, ips.shape[<span class="number">1</span>], out=rs)</span><br><span class="line">        cs.clip(<span class="number">0</span>, ips.shape[<span class="number">0</span>], out=cs)</span><br><span class="line">        ips.img[rs,cs] = <span class="number">255</span></span><br><span class="line">        self.oldp = (y, x)</span><br><span class="line">        key[<span class="string">&#x27;canvas&#x27;</span>].update()</span><br><span class="line"></span><br><span class="line">    <span class="function"><span class="keyword">def</span> <span class="title">mouse_wheel</span>(<span class="params">self, ips, x, y, d, **key</span>):</span><span class="keyword">pass</span></span><br><span class="line"></span><br><span class="line"><span class="class"><span class="keyword">class</span> <span class="title">TestFrame</span>(<span class="params">CanvasFrame, App</span>):</span></span><br><span class="line">    <span class="function"><span class="keyword">def</span> <span class="title">__init__</span> (<span class="params">self, parent</span>):</span></span><br><span class="line">        CanvasFrame.__init__(self, parent)</span><br><span class="line">        App.__init__(self)</span><br><span class="line"> </span><br><span class="line">        self.Bind(wx.EVT_ACTIVATE, self.init_image)</span><br><span class="line"></span><br><span class="line">    <span class="function"><span class="keyword">def</span> <span class="title">init_image</span>(<span class="params">self, event</span>):</span></span><br><span class="line">        self.add_img(self.canvas.image)</span><br><span class="line"></span><br><span class="line">    <span class="function"><span class="keyword">def</span> <span class="title">add_menubar</span>(<span class="params">self</span>):</span></span><br><span class="line">        menubar = MenuBar(self)</span><br><span class="line">        self.SetMenuBar(menubar)</span><br><span class="line">        <span class="keyword">return</span> menubar</span><br><span class="line"></span><br><span class="line"><span class="keyword">if</span> __name__==<span class="string">&#x27;__main__&#x27;</span>:</span><br><span class="line">    <span class="keyword">from</span> skimage.data <span class="keyword">import</span> camera, astronaut</span><br><span class="line">    <span class="keyword">from</span> skimage.io <span class="keyword">import</span> imread</span><br><span class="line"></span><br><span class="line">    app = wx.App()</span><br><span class="line">    cf = TestFrame(<span class="literal">None</span>)</span><br><span class="line">    cf.set_img(camera())</span><br><span class="line">    cf.set_cn(<span class="number">0</span>)</span><br><span class="line"></span><br><span class="line">    bar = cf.add_menubar()</span><br><span class="line">    bar.load((<span class="string">&#x27;menu&#x27;</span>,[(<span class="string">&#x27;Filter&#x27;</span>,[(<span class="string">&#x27;Gaussian&#x27;</span>, Gaussian),</span><br><span class="line">                                 (<span class="string">&#x27;Unto&#x27;</span>, Undo)]),]))</span><br><span class="line"></span><br><span class="line">    bar = cf.add_toolbar()</span><br><span class="line">    bar.add_tool(<span class="string">&#x27;M&#x27;</span>, DefaultTool)</span><br><span class="line">    bar.add_tool(<span class="string">&#x27;P&#x27;</span>, Pencil)</span><br><span class="line">    cf.Show()</span><br><span class="line">    app.MainLoop()</span><br></pre></td></tr></table></figure>
+<p>这个例子又在上面例子的基础上加了工具栏。</p>
+<h1 id="全组件集合版"><a href="#全组件集合版" class="headerlink" title="全组件集合版"></a>全组件集合版</h1><figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">from</span> sciwx.app <span class="keyword">import</span> SciApp</span><br><span class="line"><span class="keyword">from</span> sciwx.action <span class="keyword">import</span> ImgAction, Tool, DefaultTool</span><br><span class="line"><span class="keyword">from</span> sciwx.plugins.curve <span class="keyword">import</span> Curve</span><br><span class="line"><span class="keyword">from</span> sciwx.plugins.channels <span class="keyword">import</span> Channels</span><br><span class="line"><span class="keyword">from</span> sciwx.plugins.histogram <span class="keyword">import</span> Histogram</span><br><span class="line"><span class="keyword">from</span> sciwx.plugins.viewport <span class="keyword">import</span> ViewPort</span><br><span class="line"><span class="keyword">from</span> sciwx.plugins.filters <span class="keyword">import</span> Gaussian, Undo</span><br><span class="line"><span class="keyword">from</span> sciwx.plugins.pencil <span class="keyword">import</span> Pencil</span><br><span class="line"><span class="keyword">from</span> sciwx.plugins.io <span class="keyword">import</span> Open, Save</span><br><span class="line"></span><br><span class="line"><span class="keyword">if</span> __name__ == <span class="string">&#x27;__main__&#x27;</span>:</span><br><span class="line">    <span class="keyword">from</span> skimage.data <span class="keyword">import</span> camera</span><br><span class="line">   </span><br><span class="line">    app = wx.App(<span class="literal">False</span>)</span><br><span class="line">    frame = SciApp(<span class="literal">None</span>)</span><br><span class="line">   </span><br><span class="line">    frame.load_menu((<span class="string">&#x27;menu&#x27;</span>,[(<span class="string">&#x27;File&#x27;</span>,[(<span class="string">&#x27;Open&#x27;</span>, Open),</span><br><span class="line">                                      (<span class="string">&#x27;Save&#x27;</span>, Save)]),</span><br><span class="line">                             (<span class="string">&#x27;Filters&#x27;</span>, [(<span class="string">&#x27;Gaussian&#x27;</span>, Gaussian),</span><br><span class="line">                                          (<span class="string">&#x27;Undo&#x27;</span>, Undo)])]))</span><br><span class="line"></span><br><span class="line">    frame.load_tool((<span class="string">&#x27;tools&#x27;</span>,[(<span class="string">&#x27;standard&#x27;</span>, [(<span class="string">&#x27;P&#x27;</span>, Pencil),</span><br><span class="line">                                            (<span class="string">&#x27;D&#x27;</span>, DefaultTool)]),</span><br><span class="line">                              (<span class="string">&#x27;draw&#x27;</span>, [(<span class="string">&#x27;X&#x27;</span>, Pencil),</span><br><span class="line">                                        (<span class="string">&#x27;X&#x27;</span>, Pencil)])]), <span class="string">&#x27;draw&#x27;</span>)</span><br><span class="line"></span><br><span class="line">    frame.load_widget((<span class="string">&#x27;widgets&#x27;</span>, [(<span class="string">&#x27;Histogram&#x27;</span>, [(<span class="string">&#x27;Histogram&#x27;</span>, Histogram),</span><br><span class="line">                                                  (<span class="string">&#x27;Curve&#x27;</span>, Curve),</span><br><span class="line">                                                  (<span class="string">&#x27;Channels&#x27;</span>, Channels)]),</span><br><span class="line">                                   (<span class="string">&#x27;Navigator&#x27;</span>, [(<span class="string">&#x27;Viewport&#x27;</span>, ViewPort)])]))</span><br><span class="line"></span><br><span class="line">    frame.show_img(camera())</span><br><span class="line">    frame.show_img(camera())</span><br><span class="line">    frame.Show()</span><br><span class="line">    app.MainLoop()</span><br></pre></td></tr></table></figure>
+<p>该例子可以说是基于sciwx的重构版ImagePy的雏形了，面板、菜单栏、工具栏、直方图、鹰眼灯组件悉数登场，可以说非常完善了。</p>
+
+    </div>
+
+    
+    
+    
+        <div class="reward-container">
+  <div></div>
+  <button onclick="var qr = document.getElementById('qr'); qr.style.display = (qr.style.display === 'none') ? 'block' : 'none';">
+    Donate
+  </button>
+  <div id="qr" style="display: none;">
+      
+      <div style="display: inline-block;">
+        <img src="/images/wechat_reward.png" alt="Xin-Bo Qi(亓欣波) WeChat Pay">
+        <p>WeChat Pay</p>
+      </div>
+
+  </div>
+</div>
+
+
+      <footer class="post-footer">
+          <div class="post-tags">
+              <a href="/tags/ImagePy/" rel="tag"># ImagePy</a>
+          </div>
+
+        
+
+
+        
+    <div class="post-nav">
+      <div class="post-nav-item">
+    <a href="/2020/02/16/kaggle-steel-2/" rel="prev" title="Kaggle钢铁赛：基于PyTorch/UNet算法的钢材表面缺陷检测——（2）算法分析">
+      <i class="fa fa-chevron-left"></i> Kaggle钢铁赛：基于PyTorch/UNet算法的钢材表面缺陷检测——（2）算法分析
+    </a></div>
+      <div class="post-nav-item">
+    <a href="/2020/02/29/kaggle-nuclei/" rel="next" title="Kaggle细胞赛：基于PyTorch/UNet算法的细胞核识别">
+      Kaggle细胞赛：基于PyTorch/UNet算法的细胞核识别 <i class="fa fa-chevron-right"></i>
+    </a></div>
+    </div>
+      </footer>
+    
+  </article>
+  
+  
+  
+
+
+
+          </div>
+          
+    
+  <div class="comments">
+    <div id="disqus_thread">
+      <noscript>Please enable JavaScript to view the comments powered by Disqus.</noscript>
+    </div>
+  </div>
+  
+
+<script>
+  window.addEventListener('tabs:register', () => {
+    let { activeClass } = CONFIG.comments;
+    if (CONFIG.comments.storage) {
+      activeClass = localStorage.getItem('comments_active') || activeClass;
+    }
+    if (activeClass) {
+      let activeTab = document.querySelector(`a[href="#comment-${activeClass}"]`);
+      if (activeTab) {
+        activeTab.click();
+      }
+    }
+  });
+  if (CONFIG.comments.storage) {
+    window.addEventListener('tabs:click', event => {
+      if (!event.target.matches('.tabs-comment .tab-content .tab-pane')) return;
+      let commentClass = event.target.classList[1];
+      localStorage.setItem('comments_active', commentClass);
+    });
+  }
+</script>
+
+        </div>
+          
+  
+  <div class="toggle sidebar-toggle">
+    <span class="toggle-line toggle-line-first"></span>
+    <span class="toggle-line toggle-line-middle"></span>
+    <span class="toggle-line toggle-line-last"></span>
+  </div>
+
+  <aside class="sidebar">
+    <div class="sidebar-inner">
+
+      <ul class="sidebar-nav motion-element">
+        <li class="sidebar-nav-toc">
+          Table of Contents
+        </li>
+        <li class="sidebar-nav-overview">
+          Overview
+        </li>
+      </ul>
+
+      <!--noindex-->
+      <div class="post-toc-wrap sidebar-panel">
+          <div class="post-toc motion-element"><ol class="nav"><li class="nav-item nav-level-1"><a class="nav-link" href="#%E6%80%BB%E8%A7%88"><span class="nav-number">1.</span> <span class="nav-text">总览</span></a><ol class="nav-child"><li class="nav-item nav-level-2"><a class="nav-link" href="#sciapp"><span class="nav-number">1.1.</span> <span class="nav-text">sciapp</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#Object%E6%A8%A1%E5%9D%97"><span class="nav-number">1.1.1.</span> <span class="nav-text">Object模块</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#App%E6%A8%A1%E5%9D%97"><span class="nav-number">1.1.2.</span> <span class="nav-text">App模块</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#Action%E6%A8%A1%E5%9D%97"><span class="nav-number">1.1.3.</span> <span class="nav-text">Action模块</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#sciwx"><span class="nav-number">1.2.</span> <span class="nav-text">sciwx</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#Canvas%E7%94%BB%E5%B8%83"><span class="nav-number">1.2.1.</span> <span class="nav-text">Canvas画布</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#ICanvas%E7%94%BB%E5%B8%83%E3%80%81MCanvas%E7%BB%84%E4%BB%B6%E3%80%81CanvasNoteBook%E7%BB%84%E4%BB%B6%E3%80%81CanvasFrame%E5%BA%94%E7%94%A8%E5%92%8CCanvasNoteFrame%E5%BA%94%E7%94%A8"><span class="nav-number">1.2.2.</span> <span class="nav-text">ICanvas画布、MCanvas组件、CanvasNoteBook组件、CanvasFrame应用和CanvasNoteFrame应用</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#VCanvas%E7%94%BB%E5%B8%83%E3%80%81SCanvas%E7%BB%84%E4%BB%B6%E3%80%81VectorNoteBook%E7%BB%84%E4%BB%B6%E3%80%81VectorFrame%E5%BA%94%E7%94%A8%E5%92%8CVectorNoteFrame%E5%BA%94%E7%94%A8"><span class="nav-number">1.2.3.</span> <span class="nav-text">VCanvas画布、SCanvas组件、VectorNoteBook组件、VectorFrame应用和VectorNoteFrame应用</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E5%89%8D%E7%AB%AF%E5%92%8C%E5%90%8E%E7%AB%AF%E8%80%A6%E5%90%88"><span class="nav-number">1.3.</span> <span class="nav-text">前端和后端耦合</span></a></li></ol></li><li class="nav-item nav-level-1"><a class="nav-link" href="#%E7%94%BB%E5%B8%83"><span class="nav-number">2.</span> <span class="nav-text">画布</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#%E9%80%9A%E9%81%93%E3%80%81%E5%9B%BE%E5%83%8F%E5%BA%8F%E5%88%97%E5%B1%95%E7%A4%BA"><span class="nav-number">3.</span> <span class="nav-text">通道、图像序列展示</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#%E5%86%85%E9%83%A8%E5%9B%BE%E5%83%8F%E7%B1%BBImage"><span class="nav-number">4.</span> <span class="nav-text">内部图像类Image</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#%E8%87%AA%E5%AE%9A%E4%B9%89%E9%BC%A0%E6%A0%87%E4%BA%8B%E4%BB%B6"><span class="nav-number">5.</span> <span class="nav-text">自定义鼠标事件</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#%E5%B7%A5%E5%85%B7%E6%A0%8F"><span class="nav-number">6.</span> <span class="nav-text">工具栏</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#%E9%9B%86%E6%88%90%E9%9D%A2%E6%9D%BF"><span class="nav-number">7.</span> <span class="nav-text">集成面板</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#%E7%94%BB%E5%B8%83%E9%9B%86%E6%88%90%E5%B7%A5%E5%85%B7%E6%A0%8F"><span class="nav-number">8.</span> <span class="nav-text">画布集成工具栏</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#%E8%8F%9C%E5%8D%95%E6%A0%8F"><span class="nav-number">9.</span> <span class="nav-text">菜单栏</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#%E9%9B%86%E6%88%90%E8%8F%9C%E5%8D%95%E6%A0%8F"><span class="nav-number">10.</span> <span class="nav-text">集成菜单栏</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#%E9%9B%86%E6%88%90%E5%B7%A5%E5%85%B7%E6%A0%8F%E5%92%8C%E8%8F%9C%E5%8D%95%E6%A0%8F"><span class="nav-number">11.</span> <span class="nav-text">集成工具栏和菜单栏</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#%E5%85%A8%E7%BB%84%E4%BB%B6%E9%9B%86%E5%90%88%E7%89%88"><span class="nav-number">12.</span> <span class="nav-text">全组件集合版</span></a></li></ol></div>
+      </div>
+      <!--/noindex-->
+
+      <div class="site-overview-wrap sidebar-panel">
+        <div class="site-author motion-element" itemprop="author" itemscope itemtype="http://schema.org/Person">
+    <img class="site-author-image" itemprop="image" alt="Xin-Bo Qi(亓欣波)"
+      src="/images/avatar.jpg">
+  <p class="site-author-name" itemprop="name">Xin-Bo Qi(亓欣波)</p>
+  <div class="site-description" itemprop="description">Be interesting!</div>
+</div>
+<div class="site-state-wrap motion-element">
+  <nav class="site-state">
+      <div class="site-state-item site-state-posts">
+          <a href="/archives/">
+        
+          <span class="site-state-item-count">120</span>
+          <span class="site-state-item-name">posts</span>
+        </a>
+      </div>
+      <div class="site-state-item site-state-categories">
+            <a href="/categories/">
+          
+        <span class="site-state-item-count">5</span>
+        <span class="site-state-item-name">categories</span></a>
+      </div>
+      <div class="site-state-item site-state-tags">
+            <a href="/tags/">
+          
+        <span class="site-state-item-count">41</span>
+        <span class="site-state-item-name">tags</span></a>
+      </div>
+  </nav>
+</div>
+  <div class="links-of-author motion-element">
+      <span class="links-of-author-item">
+        <a href="https://github.com/qixinbo" title="GitHub → https:&#x2F;&#x2F;github.com&#x2F;qixinbo" rel="noopener" target="_blank"><i class="github fa-fw"></i>GitHub</a>
+      </span>
+      <span class="links-of-author-item">
+        <a href="mailto:qixinbo@gmail.com" title="E-Mail → mailto:qixinbo@gmail.com" rel="noopener" target="_blank"><i class="envelope fa-fw"></i>E-Mail</a>
+      </span>
+  </div>
+
+
+  <div class="links-of-blogroll motion-element">
+    <div class="links-of-blogroll-title"><i class="fa fa-link fa-fw"></i>
+      Links
+    </div>
+    <ul class="links-of-blogroll-list">
+        <li class="links-of-blogroll-item">
+          <a href="https://www.tsinghua.edu.cn/" title="https:&#x2F;&#x2F;www.tsinghua.edu.cn" rel="noopener" target="_blank">THU</a>
+        </li>
+        <li class="links-of-blogroll-item">
+          <a href="http://www.imr.cas.cn/" title="http:&#x2F;&#x2F;www.imr.cas.cn" rel="noopener" target="_blank">IMR</a>
+        </li>
+        <li class="links-of-blogroll-item">
+          <a href="http://www.sdu.edu.cn/" title="http:&#x2F;&#x2F;www.sdu.edu.cn" rel="noopener" target="_blank">SDU</a>
+        </li>
+        <li class="links-of-blogroll-item">
+          <a href="http://liam0205.me/" title="http:&#x2F;&#x2F;liam0205.me&#x2F;" rel="noopener" target="_blank">黄晨成</a>
+        </li>
+    </ul>
+  </div>
+
+      </div>
+
+    </div>
+  </aside>
+  <div id="sidebar-dimmer"></div>
+
+
+      </div>
+    </main>
+
+    <footer class="footer">
+      <div class="footer-inner">
+        
+
+        
+
+<div class="copyright">
+  
+  &copy; 
+  <span itemprop="copyrightYear">2021</span>
+  <span class="with-love">
+    <i class="fa fa-heart"></i>
+  </span>
+  <span class="author" itemprop="copyrightHolder">Xin-Bo Qi(亓欣波)</span>
+</div>
+  <div class="powered-by">Powered by <a href="https://hexo.io/" class="theme-link" rel="noopener" target="_blank">Hexo</a> & <a href="https://theme-next.org/" class="theme-link" rel="noopener" target="_blank">NexT.Gemini</a>
+  </div>
+
+        
+
+
+
+
+
+
+
+
+      </div>
+    </footer>
+  </div>
+
+  
+  <script src="/lib/anime.min.js"></script>
+  <script src="/lib/velocity/velocity.min.js"></script>
+  <script src="/lib/velocity/velocity.ui.min.js"></script>
+
+<script src="/js/utils.js"></script>
+
+<script src="/js/motion.js"></script>
+
+
+<script src="/js/schemes/pisces.js"></script>
+
+
+<script src="/js/next-boot.js"></script>
+
+
+
+
+  
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+  
+
+  
+
+  
+
+<script>
+  function loadCount() {
+    var d = document, s = d.createElement('script');
+    s.src = 'https://qixinbo.disqus.com/count.js';
+    s.id = 'dsq-count-scr';
+    (d.head || d.body).appendChild(s);
+  }
+  // defer loading until the whole page loading is completed
+  window.addEventListener('load', loadCount, false);
+</script>
+<script>
+  var disqus_config = function() {
+    this.page.url = "http://qixinbo.github.io/2020/02/26/ImagePy_17/";
+    this.page.identifier = "2020/02/26/ImagePy_17/";
+    this.page.title = "ImagePy解析：17 -- 重构版ImagePy解析";
+    };
+  NexT.utils.loadComments(document.querySelector('#disqus_thread'), () => {
+    if (window.DISQUS) {
+      DISQUS.reset({
+        reload: true,
+        config: disqus_config
+      });
+    } else {
+      var d = document, s = d.createElement('script');
+      s.src = 'https://qixinbo.disqus.com/embed.js';
+      s.setAttribute('data-timestamp', '' + +new Date());
+      (d.head || d.body).appendChild(s);
+    }
+  });
+</script>
+
+</body>
+</html>
