@@ -1,0 +1,619 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=2">
+<meta name="theme-color" content="#222">
+<meta name="generator" content="Hexo 5.4.0">
+  <link rel="apple-touch-icon" sizes="180x180" href="/images/apple-touch-icon-next.png">
+  <link rel="icon" type="image/png" sizes="32x32" href="/favicon.ico">
+  <link rel="icon" type="image/png" sizes="16x16" href="/favicon.ico">
+  <link rel="mask-icon" href="/images/logo.svg" color="#222">
+
+<link rel="stylesheet" href="/css/main.css">
+
+
+<link rel="stylesheet" href="/lib/font-awesome/css/all.min.css">
+
+<script id="hexo-configurations">
+    var NexT = window.NexT || {};
+    var CONFIG = {"hostname":"qixinbo.github.io","root":"/","scheme":"Gemini","version":"7.8.0","exturl":false,"sidebar":{"position":"left","display":"post","padding":18,"offset":12,"onmobile":false},"copycode":{"enable":false,"show_result":false,"style":null},"back2top":{"enable":true,"sidebar":false,"scrollpercent":false},"bookmark":{"enable":false,"color":"#222","save":"auto"},"fancybox":false,"mediumzoom":false,"lazyload":false,"pangu":false,"comments":{"style":"tabs","active":null,"storage":true,"lazyload":false,"nav":null},"algolia":{"hits":{"per_page":10},"labels":{"input_placeholder":"Search for Posts","hits_empty":"We didn't find any results for the search: ${query}","hits_stats":"${hits} results found in ${time} ms"}},"localsearch":{"enable":false,"trigger":"auto","top_n_per_article":1,"unescape":false,"preload":false},"motion":{"enable":true,"async":false,"transition":{"post_block":"fadeIn","post_header":"slideDownIn","post_body":"slideDownIn","coll_header":"slideLeftIn","sidebar":"slideUpIn"}}};
+  </script>
+
+  <meta name="description" content="简介 本文介绍ImagePy中的智能画笔工具，它能够很方便地对图像进行像素级标注，尤其是在复杂图像上进行多种类别的标注时，用好这个智能画笔，能使效率飞升。 先来一连串的功能介绍镇楼： （1）鼠标左键 左键：具有联想功能的局部标注 Ctrl+左键单击：吸取颜色 Ctrl+左键：普通画笔 Shift+左键：落笔选定保护色，在矩形框内闭合且非保护色区域被填充 Alt+左键：落笔选定保护色，在矩形框内对该">
+<meta property="og:type" content="article">
+<meta property="og:title" content="ImagePy解析： 25 -- 智能画笔">
+<meta property="og:url" content="http://qixinbo.github.io/2021/03/26/ImagePy_25/index.html">
+<meta property="og:site_name" content="亓欣波">
+<meta property="og:description" content="简介 本文介绍ImagePy中的智能画笔工具，它能够很方便地对图像进行像素级标注，尤其是在复杂图像上进行多种类别的标注时，用好这个智能画笔，能使效率飞升。 先来一连串的功能介绍镇楼： （1）鼠标左键 左键：具有联想功能的局部标注 Ctrl+左键单击：吸取颜色 Ctrl+左键：普通画笔 Shift+左键：落笔选定保护色，在矩形框内闭合且非保护色区域被填充 Alt+左键：落笔选定保护色，在矩形框内对该">
+<meta property="og:locale" content="en_US">
+<meta property="og:image" content="https://user-images.githubusercontent.com/6218739/111566949-1e3e8980-87d9-11eb-94d0-04e023349d42.png">
+<meta property="og:image" content="https://user-images.githubusercontent.com/6218739/111739860-b5314180-88be-11eb-89d0-dfc741c7de40.png">
+<meta property="article:published_time" content="2021-03-25T16:00:00.000Z">
+<meta property="article:modified_time" content="2021-03-26T03:27:27.823Z">
+<meta property="article:author" content="Xin-Bo Qi(亓欣波)">
+<meta property="article:tag" content="ImagePy">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:image" content="https://user-images.githubusercontent.com/6218739/111566949-1e3e8980-87d9-11eb-94d0-04e023349d42.png">
+
+<link rel="canonical" href="http://qixinbo.github.io/2021/03/26/ImagePy_25/">
+
+
+<script id="page-configurations">
+  // https://hexo.io/docs/variables.html
+  CONFIG.page = {
+    sidebar: "",
+    isHome : false,
+    isPost : true,
+    lang   : 'en'
+  };
+</script>
+
+  <title>ImagePy解析： 25 -- 智能画笔 | 亓欣波</title>
+  
+
+
+
+
+
+
+  <noscript>
+  <style>
+  .use-motion .brand,
+  .use-motion .menu-item,
+  .sidebar-inner,
+  .use-motion .post-block,
+  .use-motion .pagination,
+  .use-motion .comments,
+  .use-motion .post-header,
+  .use-motion .post-body,
+  .use-motion .collection-header { opacity: initial; }
+
+  .use-motion .site-title,
+  .use-motion .site-subtitle {
+    opacity: initial;
+    top: initial;
+  }
+
+  .use-motion .logo-line-before i { left: initial; }
+  .use-motion .logo-line-after i { right: initial; }
+  </style>
+</noscript>
+
+<link rel="alternate" href="/atom.xml" title="亓欣波" type="application/atom+xml">
+</head>
+
+<body itemscope itemtype="http://schema.org/WebPage">
+  <div class="container use-motion">
+    <div class="headband"></div>
+
+    <header class="header" itemscope itemtype="http://schema.org/WPHeader">
+      <div class="header-inner"><div class="site-brand-container">
+  <div class="site-nav-toggle">
+    <div class="toggle" aria-label="Toggle navigation bar">
+      <span class="toggle-line toggle-line-first"></span>
+      <span class="toggle-line toggle-line-middle"></span>
+      <span class="toggle-line toggle-line-last"></span>
+    </div>
+  </div>
+
+  <div class="site-meta">
+
+    <a href="/" class="brand" rel="start">
+      <span class="logo-line-before"><i></i></span>
+      <h1 class="site-title">亓欣波</h1>
+      <span class="logo-line-after"><i></i></span>
+    </a>
+      <p class="site-subtitle" itemprop="description">Hi, I am Xin-Bo Qi (亓欣波)</p>
+  </div>
+
+  <div class="site-nav-right">
+    <div class="toggle popup-trigger">
+    </div>
+  </div>
+</div>
+
+
+
+
+<nav class="site-nav">
+  <ul id="menu" class="main-menu menu">
+        <li class="menu-item menu-item-home">
+
+    <a href="/" rel="section"><i class="fa fa-home fa-fw"></i>Home</a>
+
+  </li>
+        <li class="menu-item menu-item-categories">
+
+    <a href="/categories/" rel="section"><i class="fa fa-th fa-fw"></i>Categories</a>
+
+  </li>
+        <li class="menu-item menu-item-archives">
+
+    <a href="/archives/" rel="section"><i class="fa fa-archive fa-fw"></i>Archives</a>
+
+  </li>
+        <li class="menu-item menu-item-tags">
+
+    <a href="/tags/" rel="section"><i class="fa fa-tags fa-fw"></i>Tags</a>
+
+  </li>
+        <li class="menu-item menu-item-scholar">
+
+    <a href="/scholar/" rel="section"><i class="fa fa-chart-bar fa-fw"></i>scholar</a>
+
+  </li>
+        <li class="menu-item menu-item-sources">
+
+    <a href="/sources/" rel="section"><i class="fa fa-rss fa-fw"></i>sources</a>
+
+  </li>
+        <li class="menu-item menu-item-gallery">
+
+    <a href="/gallery/" rel="section"><i class="fa fa-file-image fa-fw"></i>gallery</a>
+
+  </li>
+        <li class="menu-item menu-item-about">
+
+    <a href="/about/" rel="section"><i class="fa fa-user fa-fw"></i>About</a>
+
+  </li>
+        <li class="menu-item menu-item-commonweal">
+
+    <a href="/404.html" rel="section"><i class="fa fa-heartbeat fa-fw"></i>Commonweal 404</a>
+
+  </li>
+  </ul>
+</nav>
+
+
+
+
+</div>
+    </header>
+
+    
+  <div class="back-to-top">
+    <i class="fa fa-arrow-up"></i>
+    <span>0%</span>
+  </div>
+
+
+    <main class="main">
+      <div class="main-inner">
+        <div class="content-wrap">
+          
+
+          <div class="content post posts-expand">
+            
+
+    
+  
+  
+  <article itemscope itemtype="http://schema.org/Article" class="post-block" lang="en">
+    <link itemprop="mainEntityOfPage" href="http://qixinbo.github.io/2021/03/26/ImagePy_25/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="image" content="/images/avatar.jpg">
+      <meta itemprop="name" content="Xin-Bo Qi(亓欣波)">
+      <meta itemprop="description" content="Be interesting!">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="亓欣波">
+    </span>
+      <header class="post-header">
+        <h1 class="post-title" itemprop="name headline">
+          ImagePy解析： 25 -- 智能画笔
+        </h1>
+
+        <div class="post-meta">
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="far fa-calendar"></i>
+              </span>
+              <span class="post-meta-item-text">Posted on</span>
+              
+
+              <time title="Created: 2021-03-26 00:00:00 / Modified: 11:27:27" itemprop="dateCreated datePublished" datetime="2021-03-26T00:00:00+08:00">2021-03-26</time>
+            </span>
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="far fa-folder"></i>
+              </span>
+              <span class="post-meta-item-text">In</span>
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+                  <a href="/categories/computational-material-science/" itemprop="url" rel="index"><span itemprop="name">computational material science</span></a>
+                </span>
+            </span>
+
+          
+  
+  <span class="post-meta-item">
+    
+      <span class="post-meta-item-icon">
+        <i class="far fa-comment"></i>
+      </span>
+      <span class="post-meta-item-text">Disqus: </span>
+    
+    <a title="disqus" href="/2021/03/26/ImagePy_25/#disqus_thread" itemprop="discussionUrl">
+      <span class="post-comments-count disqus-comment-count" data-disqus-identifier="2021/03/26/ImagePy_25/" itemprop="commentCount"></span>
+    </a>
+  </span>
+  
+  
+
+        </div>
+      </header>
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+        <h1 id="简介"><a href="#简介" class="headerlink" title="简介"></a>简介</h1><p>本文介绍ImagePy中的智能画笔工具，它能够很方便地对图像进行像素级标注，尤其是在复杂图像上进行多种类别的标注时，用好这个智能画笔，能使效率飞升。<br>先来一连串的功能介绍镇楼：<br>（1）鼠标左键<br>左键：具有联想功能的局部标注<br>Ctrl+左键单击：吸取颜色<br>Ctrl+左键：普通画笔<br>Shift+左键：落笔选定保护色，在矩形框内闭合且非保护色区域被填充<br>Alt+左键：落笔选定保护色，在矩形框内对该色进行描边<br>Ctrl+Alt+左键：落笔选定保护色，对任意的非保护色的区域进行标注</p>
+<p>（2）鼠标右键<br>右键：全局填充<br>Shift+右键：落笔所在的保护色的内部闭合区域被填充<br>Ctrl+右键：落笔所在的保护色的外边缘被描边<br>Alt+右键：落笔所在的保护色的内边缘被描边<br>Ctrl+Alt+右键：落笔选定保护色，外部非保护色区域被填充</p>
+<p>（3）鼠标中键/滚轮<br>中键/滚轮：缩放，按住则拖动画布<br>Shift+滚轮：调节联想功能的粘性系数<br>Ctrl+滚轮：调节画笔的宽度<br>Ctrl+Alt+滚轮：调节矩形框大小</p>
+<p>那么主角就是下面这个工具了：<br><img src="https://user-images.githubusercontent.com/6218739/111566949-1e3e8980-87d9-11eb-94d0-04e023349d42.png" alt="aipen"><br>对应源码在<a target="_blank" rel="noopener" href="https://github.com/Image-Py/imagepy/blob/master/imagepy/tools/Draw/aibrush_tol.py">这里</a>。</p>
+<h1 id="控制参数"><a href="#控制参数" class="headerlink" title="控制参数"></a>控制参数</h1><p>智能画笔工具有如此强大的功能，自然有相应的参数可以供调节：<br><img src="https://user-images.githubusercontent.com/6218739/111739860-b5314180-88be-11eb-89d0-dfc741c7de40.png" alt="para-view"><br>（1）win：矩形框窗口尺寸，控制局部标注区域的大小<br>（2）color：矩形框窗口颜色<br>（3）stickiness：粘性系数<br>（4）radius：画笔宽度<br>（5）tolerance：填充的容忍度<br>（6）connect：邻域</p>
+<h1 id="功能解析"><a href="#功能解析" class="headerlink" title="功能解析"></a>功能解析</h1><h2 id="鼠标左键"><a href="#鼠标左键" class="headerlink" title="鼠标左键"></a>鼠标左键</h2><h3 id="吸取颜色"><a href="#吸取颜色" class="headerlink" title="吸取颜色"></a>吸取颜色</h3><p>Ctrl+左键单击来吸取颜色的代码如下：<br>（代码逻辑就是左键按下时记录下鼠标位置，鼠标弹起时判断是否是左键+Ctrl，同时鼠标未移动，符合条件后就将当前图像中的颜色数值传递给颜色管理器中的前景色）：</p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="keyword">def</span> <span class="title">mouse_down</span>(<span class="params">self, ips, x, y, btn, **key</span>):</span></span><br><span class="line">    self.oldp = self.pickp = (y, x)</span><br><span class="line"></span><br><span class="line"><span class="function"><span class="keyword">def</span> <span class="title">mouse_up</span>(<span class="params">self, ips, x, y, btn, **key</span>):</span></span><br><span class="line">    <span class="keyword">if</span> btn==<span class="number">1</span> <span class="keyword">and</span> (y,x)==self.pickp <span class="keyword">and</span> key[<span class="string">&#x27;ctrl&#x27;</span>]:</span><br><span class="line">        x = <span class="built_in">int</span>(<span class="built_in">round</span>(<span class="built_in">min</span>(<span class="built_in">max</span>(x,<span class="number">0</span>), ips.img.shape[<span class="number">1</span>])))</span><br><span class="line">        y = <span class="built_in">int</span>(<span class="built_in">round</span>(<span class="built_in">min</span>(<span class="built_in">max</span>(y,<span class="number">0</span>), ips.img.shape[<span class="number">0</span>])))</span><br><span class="line">        self.app.manager(<span class="string">&#x27;color&#x27;</span>).add(<span class="string">&#x27;front&#x27;</span>, ips.img[y, x])</span><br></pre></td></tr></table></figure>
+
+<h3 id="获取局部区域"><a href="#获取局部区域" class="headerlink" title="获取局部区域"></a>获取局部区域</h3><p>鼠标左键相关的动作是与局部标注相关联的，因此在介绍鼠标左键功能实现时非常重要的一点就是先介绍这个局部区域是怎样获得的。<br>奥秘就在如下代码中：</p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="keyword">def</span> <span class="title">mouse_move</span>(<span class="params">self, ips, x, y, btn, **key</span>):</span></span><br><span class="line">    <span class="comment"># 获取当前鼠标位置</span></span><br><span class="line">    x = <span class="built_in">int</span>(<span class="built_in">round</span>(<span class="built_in">min</span>(<span class="built_in">max</span>(x,<span class="number">0</span>), img.shape[<span class="number">1</span>])))</span><br><span class="line">    y = <span class="built_in">int</span>(<span class="built_in">round</span>(<span class="built_in">min</span>(<span class="built_in">max</span>(y,<span class="number">0</span>), img.shape[<span class="number">0</span>])))</span><br><span class="line"></span><br><span class="line">  <span class="comment"># 获取当前位置与上一个位置之间的连续坐标，注意这里的加号是作用在tuple上，即连接两个元组，而不是数值相加</span></span><br><span class="line">    rs, cs = line(*[<span class="built_in">int</span>(<span class="built_in">round</span>(i)) <span class="keyword">for</span> i <span class="keyword">in</span> self.oldp + (y, x)])</span><br><span class="line">    <span class="comment"># 确保这些坐标都在图像内部</span></span><br><span class="line">    np.clip(rs, <span class="number">0</span>, img.shape[<span class="number">0</span>]-<span class="number">1</span>, out=rs)</span><br><span class="line">    np.clip(cs, <span class="number">0</span>, img.shape[<span class="number">1</span>]-<span class="number">1</span>, out=cs)</span><br><span class="line"></span><br><span class="line">    <span class="keyword">for</span> r,c <span class="keyword">in</span> <span class="built_in">zip</span>(rs, cs):</span><br><span class="line">        start = time()</span><br><span class="line">        w = self.para[<span class="string">&#x27;win&#x27;</span>]</span><br><span class="line">        <span class="comment"># 以上述坐标为中心，获取其上下左右间距为w的矩形窗口，同时还保证这个窗口也在图像内部</span></span><br><span class="line">     <span class="comment"># 这样一来，如果在图像中抠出该窗口，那么窗口中心就是w</span></span><br><span class="line">        sr = (<span class="built_in">max</span>(<span class="number">0</span>,r-w), <span class="built_in">min</span>(img.shape[<span class="number">0</span>], r+w))</span><br><span class="line">        sc = (<span class="built_in">max</span>(<span class="number">0</span>,c-w), <span class="built_in">min</span>(img.shape[<span class="number">1</span>], c+w))</span><br><span class="line">        <span class="comment"># 如果上述坐标本身数值就小于窗口大小，那么窗口中心就得是实际的这个坐标</span></span><br><span class="line">        r, c = <span class="built_in">min</span>(r, w), <span class="built_in">min</span>(c, w)</span><br><span class="line">        <span class="comment"># 从原图中抠出该窗口</span></span><br><span class="line">        backclip = imgclip = img[<span class="built_in">slice</span>(*sr), <span class="built_in">slice</span>(*sc)]</span><br><span class="line">        <span class="keyword">if</span> <span class="keyword">not</span> ips.back <span class="keyword">is</span> <span class="literal">None</span>: </span><br><span class="line">           <span class="comment"># 从背景图中同步抠出该窗口</span></span><br><span class="line">            backclip = ips.back.img[<span class="built_in">slice</span>(*sr), <span class="built_in">slice</span>(*sc)]</span><br></pre></td></tr></table></figure>
+
+<h3 id="局部区域和画笔展示"><a href="#局部区域和画笔展示" class="headerlink" title="局部区域和画笔展示"></a>局部区域和画笔展示</h3><p>在执行鼠标左键操作时，会涉及局部区域和画笔在界面上的展示。<br>局部区域是用矩形框显示，画笔是用一个小的圆形显示，以及会有一个文本显示矩形框尺寸和粘度大小。源码为：</p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br></pre></td><td class="code"><pre><span class="line"> <span class="function"><span class="keyword">def</span> <span class="title">mouse_move</span>(<span class="params">self, ips, x, y, btn, **key</span>):</span></span><br><span class="line">     <span class="keyword">if</span> self.status == <span class="literal">None</span> <span class="keyword">and</span> ips.mark != <span class="literal">None</span>:</span><br><span class="line">         ips.mark = <span class="literal">None</span></span><br><span class="line">         ips.update()</span><br><span class="line">     <span class="keyword">if</span> <span class="keyword">not</span> self.status <span class="keyword">in</span> [<span class="string">&#x27;local_pen&#x27;</span>,<span class="string">&#x27;local_brush&#x27;</span>,</span><br><span class="line">         <span class="string">&#x27;local_sketch&#x27;</span>,<span class="string">&#x27;local_in&#x27;</span>,<span class="string">&#x27;local_out&#x27;</span>,<span class="string">&#x27;move&#x27;</span>]:  <span class="keyword">return</span></span><br><span class="line">     img, color = ips.img, self.app.manager(<span class="string">&#x27;color&#x27;</span>).get(<span class="string">&#x27;front&#x27;</span>)</span><br><span class="line">     x = <span class="built_in">int</span>(<span class="built_in">round</span>(<span class="built_in">min</span>(<span class="built_in">max</span>(x,<span class="number">0</span>), img.shape[<span class="number">1</span>])))</span><br><span class="line">     y = <span class="built_in">int</span>(<span class="built_in">round</span>(<span class="built_in">min</span>(<span class="built_in">max</span>(y,<span class="number">0</span>), img.shape[<span class="number">0</span>])))</span><br><span class="line"></span><br><span class="line">   <span class="comment"># 绘制的形状传给ips的mark属性，在ips.update时就会将其绘制出来</span></span><br><span class="line">     ips.mark = self.make_mark(x, y)</span><br><span class="line">     self.oldp = (y, x)</span><br><span class="line">     ips.update()</span><br><span class="line"></span><br><span class="line"><span class="comment"># 具体绘制的函数</span></span><br><span class="line"> <span class="function"><span class="keyword">def</span> <span class="title">make_mark</span>(<span class="params">self, x, y</span>):</span></span><br><span class="line">     wins = self.para[<span class="string">&#x27;win&#x27;</span>]</span><br><span class="line">     rect = &#123;<span class="string">&#x27;type&#x27;</span>:<span class="string">&#x27;rectangle&#x27;</span>, <span class="string">&#x27;body&#x27;</span>:(x-wins, y-wins, wins*<span class="number">2</span>, wins*<span class="number">2</span>), <span class="string">&#x27;color&#x27;</span>:self.para[<span class="string">&#x27;color&#x27;</span>]&#125;</span><br><span class="line">     <span class="comment"># 只需将矩形框、文本、圆形的属性用非常简单的语句描述出来即可</span></span><br><span class="line">     mark = &#123;<span class="string">&#x27;type&#x27;</span>:<span class="string">&#x27;layer&#x27;</span>, <span class="string">&#x27;body&#x27;</span>:[rect]&#125;</span><br><span class="line">     r = <span class="number">2</span> <span class="keyword">if</span> self.status==<span class="string">&#x27;local_brush&#x27;</span> <span class="keyword">else</span> self.para[<span class="string">&#x27;r&#x27;</span>]/<span class="number">2</span></span><br><span class="line">     mark[<span class="string">&#x27;body&#x27;</span>].append(&#123;<span class="string">&#x27;type&#x27;</span>:<span class="string">&#x27;circle&#x27;</span>, <span class="string">&#x27;body&#x27;</span>:(x, y, r), <span class="string">&#x27;color&#x27;</span>:self.para[<span class="string">&#x27;color&#x27;</span>]&#125;)</span><br><span class="line">     mark[<span class="string">&#x27;body&#x27;</span>].append(&#123;<span class="string">&#x27;type&#x27;</span>:<span class="string">&#x27;text&#x27;</span>, <span class="string">&#x27;body&#x27;</span>:(x-wins, y-wins, </span><br><span class="line">         <span class="string">&#x27;S:%s W:%s&#x27;</span>%(self.para[<span class="string">&#x27;ms&#x27;</span>], self.para[<span class="string">&#x27;win&#x27;</span>])), <span class="string">&#x27;pt&#x27;</span>:<span class="literal">False</span>, <span class="string">&#x27;color&#x27;</span>:self.para[<span class="string">&#x27;color&#x27;</span>]&#125;)</span><br><span class="line">     <span class="keyword">return</span> mark2shp(mark)</span><br></pre></td></tr></table></figure>
+
+<h3 id="普通画笔功能"><a href="#普通画笔功能" class="headerlink" title="普通画笔功能"></a>普通画笔功能</h3><p>Ctrl键和鼠标左键实现普通画笔功能：</p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br></pre></td><td class="code"><pre><span class="line">    <span class="function"><span class="keyword">def</span> <span class="title">mouse_down</span>(<span class="params">self, ips, x, y, btn, **key</span>):</span></span><br><span class="line">        <span class="keyword">elif</span> btn==<span class="number">1</span> <span class="keyword">and</span> key[<span class="string">&#x27;ctrl&#x27;</span>]:</span><br><span class="line">            self.status = <span class="string">&#x27;local_pen&#x27;</span></span><br><span class="line"></span><br><span class="line">    <span class="function"><span class="keyword">def</span> <span class="title">mouse_move</span>(<span class="params">self, ips, x, y, btn, **key</span>):</span></span><br><span class="line">        <span class="keyword">for</span> r,c <span class="keyword">in</span> <span class="built_in">zip</span>(rs, cs):</span><br><span class="line">            backclip = imgclip = img[<span class="built_in">slice</span>(*sr), <span class="built_in">slice</span>(*sc)]</span><br><span class="line">            <span class="keyword">if</span> <span class="keyword">not</span> ips.back <span class="keyword">is</span> <span class="literal">None</span>: </span><br><span class="line">                backclip = ips.back.img[<span class="built_in">slice</span>(*sr), <span class="built_in">slice</span>(*sc)]</span><br><span class="line"></span><br><span class="line">            <span class="keyword">if</span> self.status == <span class="string">&#x27;local_pen&#x27;</span>:</span><br><span class="line">                local_pen(imgclip, r, c, self.para[<span class="string">&#x27;r&#x27;</span>], color)</span><br><span class="line"></span><br><span class="line"><span class="function"><span class="keyword">def</span> <span class="title">local_pen</span>(<span class="params">img, r, c, R, color</span>):</span></span><br><span class="line">    img = img.reshape((img.shape+(<span class="number">1</span>,))[:<span class="number">3</span>])</span><br><span class="line">    <span class="comment"># 以r和c为中心，R/2为半径进行画圆，获取该圆内的坐标</span></span><br><span class="line">    rs, cs = circle(r, c, R/<span class="number">2</span>+<span class="number">1e-6</span>, shape=img.shape)</span><br><span class="line">    img[rs, cs] = color</span><br></pre></td></tr></table></figure>
+
+<h3 id="有联想功能的画笔"><a href="#有联想功能的画笔" class="headerlink" title="有联想功能的画笔"></a>有联想功能的画笔</h3><p>左键点击后拖动就会对区域进行有联想功能的填充，使用的算法是Felzenszwalb算法，原理是使用像素之间的颜色距离来衡量两者的相似性，具体原理可以参照<a target="_blank" rel="noopener" href="https://blog.csdn.net/ttransposition/article/details/38024557">该博客</a>。</p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br></pre></td><td class="code"><pre><span class="line">    <span class="function"><span class="keyword">def</span> <span class="title">mouse_down</span>(<span class="params">self, ips, x, y, btn, **key</span>):</span></span><br><span class="line">        <span class="keyword">elif</span> btn==<span class="number">1</span>:</span><br><span class="line">            self.status = <span class="string">&#x27;local_brush&#x27;</span></span><br><span class="line"></span><br><span class="line">    <span class="function"><span class="keyword">def</span> <span class="title">mouse_move</span>(<span class="params">self, ips, x, y, btn, **key</span>):</span></span><br><span class="line">        <span class="keyword">for</span> r,c <span class="keyword">in</span> <span class="built_in">zip</span>(rs, cs):</span><br><span class="line">            backclip = imgclip = img[<span class="built_in">slice</span>(*sr), <span class="built_in">slice</span>(*sc)]</span><br><span class="line">            <span class="keyword">if</span> <span class="keyword">not</span> ips.back <span class="keyword">is</span> <span class="literal">None</span>: </span><br><span class="line">                backclip = ips.back.img[<span class="built_in">slice</span>(*sr), <span class="built_in">slice</span>(*sc)]</span><br><span class="line"></span><br><span class="line">            <span class="keyword">if</span> self.status == <span class="string">&#x27;local_brush&#x27;</span>:</span><br><span class="line">                <span class="keyword">if</span> (imgclip[r,c] - color).<span class="built_in">sum</span>()==<span class="number">0</span>: <span class="keyword">continue</span></span><br><span class="line">                local_brush(imgclip, backclip, r, c, color, <span class="number">0</span>, self.para[<span class="string">&#x27;ms&#x27;</span>])</span><br><span class="line"></span><br><span class="line"><span class="function"><span class="keyword">def</span> <span class="title">local_brush</span>(<span class="params">img, back, r, c, color, sigma, msize</span>):</span></span><br><span class="line">    <span class="comment"># 使用felzenszwalb算法对该局部区域进行分割</span></span><br><span class="line">    lab = felzenszwalb(back, <span class="number">1</span>, sigma, msize)</span><br><span class="line">    <span class="comment"># 对分割后的区域进行泛洪填充，将区域分为True和False，True的地方即标注颜色</span></span><br><span class="line">    msk = flood(lab, (r, c), connectivity=<span class="number">2</span>)</span><br><span class="line">    img[msk] = color</span><br></pre></td></tr></table></figure>
+<h3 id="落笔选定保护色，在矩形框内闭合且非保护色区域被填充"><a href="#落笔选定保护色，在矩形框内闭合且非保护色区域被填充" class="headerlink" title="落笔选定保护色，在矩形框内闭合且非保护色区域被填充"></a>落笔选定保护色，在矩形框内闭合且非保护色区域被填充</h3><p>Shift+左键用来实现上述功能。<br>这里要注意有三个关键点：保护色、矩形框内闭合区域、非保护色区域。</p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br></pre></td><td class="code"><pre><span class="line">    <span class="function"><span class="keyword">def</span> <span class="title">mouse_down</span>(<span class="params">self, ips, x, y, btn, **key</span>):</span></span><br><span class="line">        <span class="comment"># 设定保护色</span></span><br><span class="line">        self.pickcolor = ips.img[y, x]</span><br><span class="line">        <span class="keyword">elif</span> btn==<span class="number">1</span> <span class="keyword">and</span> key[<span class="string">&#x27;shift&#x27;</span>]:</span><br><span class="line">            self.status = <span class="string">&#x27;local_in&#x27;</span></span><br><span class="line"></span><br><span class="line">    <span class="function"><span class="keyword">def</span> <span class="title">mouse_move</span>(<span class="params">self, ips, x, y, btn, **key</span>):</span></span><br><span class="line">        img, color = ips.img, self.app.manager(<span class="string">&#x27;color&#x27;</span>).get(<span class="string">&#x27;front&#x27;</span>)</span><br><span class="line">        color = (np.mean(color), color)[img.ndim==<span class="number">3</span>]</span><br><span class="line">        <span class="keyword">for</span> r,c <span class="keyword">in</span> <span class="built_in">zip</span>(rs, cs):</span><br><span class="line">            backclip = imgclip = img[<span class="built_in">slice</span>(*sr), <span class="built_in">slice</span>(*sc)]</span><br><span class="line">            <span class="keyword">if</span> <span class="keyword">not</span> ips.back <span class="keyword">is</span> <span class="literal">None</span>: </span><br><span class="line">                backclip = ips.back.img[<span class="built_in">slice</span>(*sr), <span class="built_in">slice</span>(*sc)]</span><br><span class="line"></span><br><span class="line">            <span class="keyword">if</span> self.status == <span class="string">&#x27;local_in&#x27;</span>:</span><br><span class="line">                local_in_fill(imgclip, r, c, self.para[<span class="string">&#x27;r&#x27;</span>], self.pickcolor, color)</span><br><span class="line"></span><br><span class="line"><span class="function"><span class="keyword">def</span> <span class="title">local_in_fill</span>(<span class="params">img, r, c, R, color, bcolor</span>):</span></span><br><span class="line">    img = img.reshape((img.shape+(<span class="number">1</span>,))[:<span class="number">3</span>])</span><br><span class="line">    <span class="comment"># 判断当前颜色是否是保护色，返回True和False矩阵</span></span><br><span class="line">    msk = (img == color).<span class="built_in">min</span>(axis=<span class="number">2</span>)</span><br><span class="line">    <span class="comment"># 将上面判断保护色后的结果进行“填充孔洞”，如果不是保护色区域的孔洞，则不会填充</span></span><br><span class="line">    filled = binary_fill_holes(msk)</span><br><span class="line">    <span class="comment"># 将填充孔洞后的结果与原掩膜进行“异或”操作，两者相异的地方结果为1</span></span><br><span class="line">   <span class="comment"># 这样就把孔洞内非保护色的区域给提取了出来，</span></span><br><span class="line">   <span class="comment"># 因此，即使非保护色，如果不属于保护色内的孔洞，也不会被提取出来</span></span><br><span class="line">    filled ^= msk</span><br><span class="line">    <span class="comment"># 获得当前画笔描绘的区域</span></span><br><span class="line">    rs, cs = circle(r, c, R/<span class="number">2</span>+<span class="number">1e-6</span>, shape=img.shape)</span><br><span class="line">    <span class="comment"># 将原掩膜全部置为0</span></span><br><span class="line">    msk[:] = <span class="number">0</span></span><br><span class="line">   <span class="comment"># 将当前画笔描绘的区域置为1</span></span><br><span class="line">    msk[rs, cs] = <span class="number">1</span></span><br><span class="line">    <span class="comment"># 将孔洞内非保护色区域与现在的掩膜进行“与”操作，两者都为1，结果才为1</span></span><br><span class="line">    msk &amp;= filled</span><br><span class="line">    <span class="comment"># 将最终的掩膜处的图像置为当前的前景色</span></span><br><span class="line">    img[msk] = bcolor</span><br></pre></td></tr></table></figure>
+
+<h3 id="落笔选定保护色，在矩形框内对该色进行描边"><a href="#落笔选定保护色，在矩形框内对该色进行描边" class="headerlink" title="落笔选定保护色，在矩形框内对该色进行描边"></a>落笔选定保护色，在矩形框内对该色进行描边</h3><p>Alt+左键用来实现上述功能。</p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br></pre></td><td class="code"><pre><span class="line">    <span class="function"><span class="keyword">def</span> <span class="title">mouse_down</span>(<span class="params">self, ips, x, y, btn, **key</span>):</span></span><br><span class="line">        <span class="comment"># 设定保护色</span></span><br><span class="line">        self.pickcolor = ips.img[y, x]</span><br><span class="line">        <span class="keyword">elif</span> btn==<span class="number">1</span> <span class="keyword">and</span> key[<span class="string">&#x27;alt&#x27;</span>]:</span><br><span class="line">            self.status = <span class="string">&#x27;local_sketch&#x27;</span></span><br><span class="line"></span><br><span class="line">    <span class="function"><span class="keyword">def</span> <span class="title">mouse_move</span>(<span class="params">self, ips, x, y, btn, **key</span>):</span></span><br><span class="line">        img, color = ips.img, self.app.manager(<span class="string">&#x27;color&#x27;</span>).get(<span class="string">&#x27;front&#x27;</span>)</span><br><span class="line">        color = (np.mean(color), color)[img.ndim==<span class="number">3</span>]</span><br><span class="line">        <span class="keyword">for</span> r,c <span class="keyword">in</span> <span class="built_in">zip</span>(rs, cs):</span><br><span class="line">            backclip = imgclip = img[<span class="built_in">slice</span>(*sr), <span class="built_in">slice</span>(*sc)]</span><br><span class="line">            <span class="keyword">if</span> <span class="keyword">not</span> ips.back <span class="keyword">is</span> <span class="literal">None</span>: </span><br><span class="line">                backclip = ips.back.img[<span class="built_in">slice</span>(*sr), <span class="built_in">slice</span>(*sc)]</span><br><span class="line"></span><br><span class="line">            <span class="keyword">if</span> self.status == <span class="string">&#x27;local_sketch&#x27;</span>:</span><br><span class="line">                local_sketch(imgclip, r, c, self.para[<span class="string">&#x27;r&#x27;</span>], self.pickcolor, color)</span><br><span class="line"></span><br><span class="line"><span class="function"><span class="keyword">def</span> <span class="title">local_sketch</span>(<span class="params">img, r, c, R, color, bcolor</span>):</span></span><br><span class="line">    img = img.reshape((img.shape+(<span class="number">1</span>,))[:<span class="number">3</span>])</span><br><span class="line">    <span class="comment"># 判断当前颜色是否是保护色，返回True和False矩阵</span></span><br><span class="line">    msk = (img == color).<span class="built_in">min</span>(axis=<span class="number">2</span>)</span><br><span class="line">    <span class="comment"># 对该掩膜进行膨胀操作</span></span><br><span class="line">    dilation = binary_dilation(msk, np.ones((<span class="number">3</span>,<span class="number">3</span>)))</span><br><span class="line">    <span class="comment"># 对膨胀后的掩膜与原掩膜进行“异或”操作，这样就提取出了保护色的边界</span></span><br><span class="line">    dilation ^= msk</span><br><span class="line">    rs, cs = circle(r, c, R/<span class="number">2</span>+<span class="number">1e-6</span>, shape=img.shape)</span><br><span class="line">    msk[:] = <span class="number">0</span></span><br><span class="line">    msk[rs, cs] = <span class="number">1</span></span><br><span class="line">    <span class="comment"># 取出既是边界，同时又是画笔所描绘的地方</span></span><br><span class="line">    msk &amp;= dilation</span><br><span class="line">    <span class="comment"># 将这个地方赋以前景色</span></span><br><span class="line">    img[msk] = bcolor</span><br></pre></td></tr></table></figure>
+
+<h3 id="落笔选定保护色，对任意的非保护色的区域进行标注"><a href="#落笔选定保护色，对任意的非保护色的区域进行标注" class="headerlink" title="落笔选定保护色，对任意的非保护色的区域进行标注"></a>落笔选定保护色，对任意的非保护色的区域进行标注</h3><p>Ctrl+Alt+左键实现如上功能：</p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br></pre></td><td class="code"><pre><span class="line">    <span class="function"><span class="keyword">def</span> <span class="title">mouse_down</span>(<span class="params">self, ips, x, y, btn, **key</span>):</span></span><br><span class="line">        <span class="comment"># 设定保护色</span></span><br><span class="line">        self.pickcolor = ips.img[y, x]</span><br><span class="line">        <span class="keyword">if</span> btn==<span class="number">1</span> <span class="keyword">and</span> key[<span class="string">&#x27;ctrl&#x27;</span>] <span class="keyword">and</span> key[<span class="string">&#x27;alt&#x27;</span>]:</span><br><span class="line">            self.status = <span class="string">&#x27;local_out&#x27;</span></span><br><span class="line"></span><br><span class="line">    <span class="function"><span class="keyword">def</span> <span class="title">mouse_move</span>(<span class="params">self, ips, x, y, btn, **key</span>):</span></span><br><span class="line">        img, color = ips.img, self.app.manager(<span class="string">&#x27;color&#x27;</span>).get(<span class="string">&#x27;front&#x27;</span>)</span><br><span class="line">        color = (np.mean(color), color)[img.ndim==<span class="number">3</span>]</span><br><span class="line">        <span class="keyword">for</span> r,c <span class="keyword">in</span> <span class="built_in">zip</span>(rs, cs):</span><br><span class="line">            backclip = imgclip = img[<span class="built_in">slice</span>(*sr), <span class="built_in">slice</span>(*sc)]</span><br><span class="line">            <span class="keyword">if</span> <span class="keyword">not</span> ips.back <span class="keyword">is</span> <span class="literal">None</span>: </span><br><span class="line">                backclip = ips.back.img[<span class="built_in">slice</span>(*sr), <span class="built_in">slice</span>(*sc)]</span><br><span class="line"></span><br><span class="line">            <span class="keyword">if</span> self.status==<span class="string">&#x27;local_out&#x27;</span>:</span><br><span class="line">                local_out_fill(imgclip, r, c, self.para[<span class="string">&#x27;r&#x27;</span>], self.pickcolor, color)</span><br><span class="line"></span><br><span class="line"><span class="function"><span class="keyword">def</span> <span class="title">local_out_fill</span>(<span class="params">img, r, c, R, color, bcolor</span>):</span></span><br><span class="line">    img = img.reshape((img.shape+(<span class="number">1</span>,))[:<span class="number">3</span>])</span><br><span class="line">    <span class="comment"># 判断当前颜色是否不是保护色（注意这里选择“非保护色”），返回True和False矩阵</span></span><br><span class="line">    msk = (img != color).<span class="built_in">max</span>(axis=<span class="number">2</span>)</span><br><span class="line">    rs, cs = circle(r, c, R/<span class="number">2</span>+<span class="number">1e-6</span>, shape=img.shape)</span><br><span class="line">    buf = np.zeros_like(msk)</span><br><span class="line">    buf[rs, cs] = <span class="number">1</span></span><br><span class="line">    <span class="comment"># 挑选出既是非保护色，然后又是鼠标描绘的地方</span></span><br><span class="line">    msk &amp;= buf</span><br><span class="line">    img[msk] = bcolor</span><br></pre></td></tr></table></figure>
+
+<h2 id="鼠标右键"><a href="#鼠标右键" class="headerlink" title="鼠标右键"></a>鼠标右键</h2><p>鼠标右键的操作都是与全局标注相关的。</p>
+<h3 id="全局填充"><a href="#全局填充" class="headerlink" title="全局填充"></a>全局填充</h3><p>右键单击就实现了全局填充的功能。</p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br></pre></td><td class="code"><pre><span class="line">    <span class="function"><span class="keyword">def</span> <span class="title">mouse_down</span>(<span class="params">self, ips, x, y, btn, **key</span>):</span></span><br><span class="line">        <span class="keyword">elif</span> btn==<span class="number">3</span>:</span><br><span class="line">            <span class="keyword">if</span> (ips.img[y, x] - color).<span class="built_in">sum</span>()==<span class="number">0</span>: <span class="keyword">return</span></span><br><span class="line">            conn = &#123;<span class="string">&#x27;4-connect&#x27;</span>:<span class="number">1</span>, <span class="string">&#x27;8-connect&#x27;</span>:<span class="number">2</span>&#125;</span><br><span class="line">            conn = conn[self.para[<span class="string">&#x27;con&#x27;</span>]]</span><br><span class="line">            tor = self.para[<span class="string">&#x27;tor&#x27;</span>]</span><br><span class="line">            fill_normal(ips.img, y, x, color, conn, tor)</span><br><span class="line">            ips.update()</span><br><span class="line"></span><br><span class="line"><span class="function"><span class="keyword">def</span> <span class="title">fill_normal</span>(<span class="params">img, r, c, color, con, tor</span>):</span></span><br><span class="line">    img = img.reshape((img.shape+(<span class="number">1</span>,))[:<span class="number">3</span>])</span><br><span class="line">    msk = np.ones(img.shape[:<span class="number">2</span>], dtype=np.<span class="built_in">bool</span>)</span><br><span class="line">    <span class="comment"># 将多通道的图像拆分成每一个通道来泛洪填充</span></span><br><span class="line">    <span class="keyword">for</span> i <span class="keyword">in</span> <span class="built_in">range</span>(img.shape[<span class="number">2</span>]):</span><br><span class="line">        <span class="comment"># 以鼠标点击的像素为中心，以tolerance为容差，以及设定邻域范围，然后在单一通道上进行填充</span></span><br><span class="line">      <span class="comment"># 虽然是每一通道分别处理，但是所有通道都是与msk进行“与”操作</span></span><br><span class="line">      <span class="comment"># 所以msk最终是满足所有通道的填充结果</span></span><br><span class="line">        msk &amp;= flood(img[:,:,i], (r, c), connectivity=con, tolerance=tor)</span><br><span class="line">    img[msk] = color</span><br></pre></td></tr></table></figure>
+
+<h3 id="落笔所在保护色的内部闭合区域被填充"><a href="#落笔所在保护色的内部闭合区域被填充" class="headerlink" title="落笔所在保护色的内部闭合区域被填充"></a>落笔所在保护色的内部闭合区域被填充</h3><p>Shift+右键完成上述功能：</p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br></pre></td><td class="code"><pre><span class="line">    <span class="function"><span class="keyword">def</span> <span class="title">mouse_down</span>(<span class="params">self, ips, x, y, btn, **key</span>):</span></span><br><span class="line">        <span class="keyword">elif</span> btn==<span class="number">3</span> <span class="keyword">and</span> key[<span class="string">&#x27;shift&#x27;</span>]:</span><br><span class="line">            self.status = <span class="string">&#x27;global_in_fill&#x27;</span></span><br><span class="line">            global_in_fill(ips.img, y, x, color)</span><br><span class="line">            ips.update()</span><br><span class="line"></span><br><span class="line"><span class="function"><span class="keyword">def</span> <span class="title">global_in_fill</span>(<span class="params">img, r, c, color</span>):</span></span><br><span class="line">    img = img.reshape((img.shape+(<span class="number">1</span>,))[:<span class="number">3</span>])</span><br><span class="line">    msk = np.ones(img.shape[:<span class="number">2</span>], dtype=np.<span class="built_in">bool</span>)</span><br><span class="line">    <span class="comment"># 以鼠标所在的颜色为种子点，进行泛洪填充</span></span><br><span class="line">   <span class="comment"># 但与上面的填充不同的是，这里不设定tolerance，即严格地与该保护色相等地地方才填充</span></span><br><span class="line">    <span class="keyword">for</span> i <span class="keyword">in</span> <span class="built_in">range</span>(img.shape[<span class="number">2</span>]):</span><br><span class="line">        msk &amp;= flood(img[:,:,i], (r, c), connectivity=<span class="number">2</span>)</span><br><span class="line">    <span class="comment"># 填充的地方如果有孔洞，那么就填充起来</span></span><br><span class="line">    filled = binary_fill_holes(msk)</span><br><span class="line">    <span class="comment"># 填充孔洞后的图像与原先泛洪后的图像进行“异或”操作，就得到了孔洞区域</span></span><br><span class="line">    filled ^= msk</span><br><span class="line">    <span class="comment"># 将孔洞区域赋值为前景色</span></span><br><span class="line">    img[filled] = color</span><br></pre></td></tr></table></figure>
+
+<h3 id="落笔所在的保护色的外边缘被描边"><a href="#落笔所在的保护色的外边缘被描边" class="headerlink" title="落笔所在的保护色的外边缘被描边"></a>落笔所在的保护色的外边缘被描边</h3><p>Ctrl+右键完成上述功能。</p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br></pre></td><td class="code"><pre><span class="line">    <span class="function"><span class="keyword">def</span> <span class="title">mouse_down</span>(<span class="params">self, ips, x, y, btn, **key</span>):</span></span><br><span class="line">        <span class="keyword">elif</span> btn==<span class="number">3</span> <span class="keyword">and</span> key[<span class="string">&#x27;ctrl&#x27;</span>]:</span><br><span class="line">            self.status = <span class="string">&#x27;global_out_line&#x27;</span></span><br><span class="line">            global_out_line(ips.img, y, x, color)</span><br><span class="line">            ips.update()</span><br><span class="line"></span><br><span class="line"><span class="function"><span class="keyword">def</span> <span class="title">global_out_line</span>(<span class="params">img, r, c, color</span>):</span></span><br><span class="line">    img = img.reshape((img.shape+(<span class="number">1</span>,))[:<span class="number">3</span>])</span><br><span class="line">    msk = np.ones(img.shape[:<span class="number">2</span>], dtype=np.<span class="built_in">bool</span>)</span><br><span class="line">    <span class="comment"># 同样的严格按照鼠标所在的颜色进行泛洪填充</span></span><br><span class="line">    <span class="keyword">for</span> i <span class="keyword">in</span> <span class="built_in">range</span>(img.shape[<span class="number">2</span>]):</span><br><span class="line">        msk &amp;= flood(img[:,:,i], (r, c), connectivity=<span class="number">2</span>)</span><br><span class="line">    <span class="comment"># 对内部孔洞进行填充</span></span><br><span class="line">    msk = binary_fill_holes(msk)</span><br><span class="line">    <span class="comment"># 膨胀一下</span></span><br><span class="line">    dilation = binary_dilation(msk, np.ones((<span class="number">3</span>,<span class="number">3</span>)))</span><br><span class="line">    <span class="comment"># 膨胀的图像与未膨胀的图像进行异或，得到外边缘</span></span><br><span class="line">    dilation ^= msk</span><br><span class="line">    img[dilation] = color</span><br></pre></td></tr></table></figure>
+
+<h3 id="落笔所在保护色的内边缘被描边"><a href="#落笔所在保护色的内边缘被描边" class="headerlink" title="落笔所在保护色的内边缘被描边"></a>落笔所在保护色的内边缘被描边</h3><p>Alt+右键完成上述功能。</p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br></pre></td><td class="code"><pre><span class="line">    <span class="function"><span class="keyword">def</span> <span class="title">mouse_down</span>(<span class="params">self, ips, x, y, btn, **key</span>):</span></span><br><span class="line">        <span class="keyword">elif</span> btn==<span class="number">3</span> <span class="keyword">and</span> key[<span class="string">&#x27;alt&#x27;</span>]:</span><br><span class="line">            self.status = <span class="string">&#x27;global_in_line&#x27;</span></span><br><span class="line">            global_in_line(ips.img, y, x, color)</span><br><span class="line">            ips.update()</span><br><span class="line"></span><br><span class="line"><span class="function"><span class="keyword">def</span> <span class="title">global_in_line</span>(<span class="params">img, r, c, color</span>):</span></span><br><span class="line">    img = img.reshape((img.shape+(<span class="number">1</span>,))[:<span class="number">3</span>])</span><br><span class="line">    msk = np.ones(img.shape[:<span class="number">2</span>], dtype=np.<span class="built_in">bool</span>)</span><br><span class="line">    <span class="comment"># 同样的严格按照鼠标所在的颜色进行泛洪填充</span></span><br><span class="line">    <span class="keyword">for</span> i <span class="keyword">in</span> <span class="built_in">range</span>(img.shape[<span class="number">2</span>]):</span><br><span class="line">        msk &amp;= flood(img[:,:,i], (r, c), connectivity=<span class="number">2</span>)</span><br><span class="line">    <span class="comment"># 对内部孔洞进行填充</span></span><br><span class="line">    inarea = binary_fill_holes(msk)</span><br><span class="line">    <span class="comment"># 填充孔洞后的图像与未填充孔洞的图像进行异或，得到孔洞区域</span></span><br><span class="line">    inarea ^= msk</span><br><span class="line">    <span class="comment"># 对孔洞区域腐蚀一下，然后与原孔洞进行异或，从而得到这个孔洞的外边缘，也就是保护色填充区域的内边缘。</span></span><br><span class="line">    inarea ^= binary_erosion(inarea, np.ones((<span class="number">3</span>,<span class="number">3</span>)))</span><br><span class="line">    img[inarea] = color</span><br></pre></td></tr></table></figure>
+
+<h3 id="落笔选定保护色，外部非保护色区域被填充"><a href="#落笔选定保护色，外部非保护色区域被填充" class="headerlink" title="落笔选定保护色，外部非保护色区域被填充"></a>落笔选定保护色，外部非保护色区域被填充</h3><p>Ctrl+Alt+右键完成该功能。</p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br></pre></td><td class="code"><pre><span class="line">    <span class="function"><span class="keyword">def</span> <span class="title">mouse_down</span>(<span class="params">self, ips, x, y, btn, **key</span>):</span></span><br><span class="line">        <span class="keyword">elif</span> btn==<span class="number">3</span> <span class="keyword">and</span> key[<span class="string">&#x27;ctrl&#x27;</span>] <span class="keyword">and</span> key[<span class="string">&#x27;alt&#x27;</span>]:</span><br><span class="line">            self.status = <span class="string">&#x27;global_out_fill&#x27;</span></span><br><span class="line">            global_out_fill(ips.img, y, x, color)</span><br><span class="line">            ips.update()</span><br><span class="line"></span><br><span class="line"><span class="function"><span class="keyword">def</span> <span class="title">global_out_fill</span>(<span class="params">img, r, c, color</span>):</span></span><br><span class="line">    img = img.reshape((img.shape+(<span class="number">1</span>,))[:<span class="number">3</span>])</span><br><span class="line">    <span class="comment"># 同样的严格按照鼠标所在的颜色进行泛洪填充，注意如果与保护色不连续的地方，也是不会被填充的，因为水流不过去</span></span><br><span class="line">    ori = np.ones(img.shape[:<span class="number">2</span>], dtype=np.<span class="built_in">bool</span>)</span><br><span class="line">    <span class="keyword">for</span> i <span class="keyword">in</span> <span class="built_in">range</span>(img.shape[<span class="number">2</span>]):</span><br><span class="line">        ori &amp;= flood(img[:,:,i], (r, c), connectivity=<span class="number">2</span>)</span><br><span class="line">    <span class="comment"># 对内部孔洞进行填充</span></span><br><span class="line">    filled = binary_fill_holes(ori)</span><br><span class="line">    <span class="comment"># 膨胀一下</span></span><br><span class="line">    dilation = binary_dilation(ori)</span><br><span class="line">    <span class="comment"># 获得泛洪填充区域的外边缘</span></span><br><span class="line">    dilation ^= filled</span><br><span class="line">    <span class="comment"># 获得这些外边缘像素的坐标序列</span></span><br><span class="line">    rs, cs = np.where(dilation)</span><br><span class="line">    <span class="keyword">if</span> <span class="built_in">len</span>(rs)==<span class="number">0</span>: <span class="keyword">return</span></span><br><span class="line">    <span class="comment"># 挑选图像中与鼠标所在的保护色相等的地方，返回1和0的掩膜矩阵</span></span><br><span class="line">    msk = ((img == img[r,c]).<span class="built_in">min</span>(axis=<span class="number">2</span>)).astype(np.uint8)</span><br><span class="line">    <span class="comment"># 对该掩膜进行泛洪填充，种子点就是外边缘像素中的一个（注意这里只是用了这个外边缘像素的位置，填充时参考的数值是掩膜中的0）</span></span><br><span class="line">   <span class="comment"># 这里用的是flood_fill，原理与flood相同，只是flood返回的是掩膜，而flood_fill则是对原矩阵进行直接数值填充</span></span><br><span class="line">   <span class="comment"># 这里填充的新值设为2</span></span><br><span class="line">   <span class="comment"># 这里还有一个隐藏功能，就是保护色的内部孔洞区域仍然是0，所以这些内部孔洞在后面也不会被填充为前景色。</span></span><br><span class="line">    flood_fill(msk, (rs[<span class="number">0</span>], cs[<span class="number">0</span>]), <span class="number">2</span>, connectivity=<span class="number">2</span>, inplace=<span class="literal">True</span>)</span><br><span class="line">    <span class="comment"># 将值为2的地方设为前景色</span></span><br><span class="line">    img[msk==<span class="number">2</span>] = color</span><br></pre></td></tr></table></figure>
+
+
+<h2 id="鼠标中键"><a href="#鼠标中键" class="headerlink" title="鼠标中键"></a>鼠标中键</h2><p>鼠标中键的功能非常容易理解，比如滚动滚轮进行缩放、按住滚轮来拖动画布等都是常规的画布操作。<br>而与Shift、Ctrl和Alt等的组合用法，其实就是对上面参数（win、stickiness和radius）的调节。<br>鼠标中键相关操作的源码对应实现分别为：</p>
+<h3 id="拖动画布"><a href="#拖动画布" class="headerlink" title="拖动画布"></a>拖动画布</h3><figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="keyword">def</span> <span class="title">mouse_down</span>(<span class="params">self, ips, x, y, btn, **key</span>):</span></span><br><span class="line">    <span class="keyword">if</span> btn==<span class="number">2</span>: </span><br><span class="line">        self.oldp = key[<span class="string">&#x27;canvas&#x27;</span>].to_panel_coor(x,y)</span><br><span class="line">        self.status = <span class="string">&#x27;move&#x27;</span></span><br><span class="line">        <span class="keyword">return</span></span><br><span class="line"></span><br><span class="line"><span class="function"><span class="keyword">def</span> <span class="title">mouse_move</span>(<span class="params">self, ips, x, y, btn, **key</span>):</span></span><br><span class="line">    x = <span class="built_in">int</span>(<span class="built_in">round</span>(<span class="built_in">min</span>(<span class="built_in">max</span>(x,<span class="number">0</span>), img.shape[<span class="number">1</span>])))</span><br><span class="line">    y = <span class="built_in">int</span>(<span class="built_in">round</span>(<span class="built_in">min</span>(<span class="built_in">max</span>(y,<span class="number">0</span>), img.shape[<span class="number">0</span>])))</span><br><span class="line">    </span><br><span class="line">    <span class="keyword">if</span> self.status == <span class="string">&#x27;move&#x27;</span>:</span><br><span class="line">        x,y = key[<span class="string">&#x27;canvas&#x27;</span>].to_panel_coor(x,y)</span><br><span class="line">        key[<span class="string">&#x27;canvas&#x27;</span>].move(x-self.oldp[<span class="number">0</span>], y-self.oldp[<span class="number">1</span>])</span><br><span class="line">        self.oldp = x, y</span><br><span class="line">        ips.update()</span><br><span class="line">        <span class="keyword">return</span></span><br></pre></td></tr></table></figure>
+<h3 id="通过滚轮调节参数"><a href="#通过滚轮调节参数" class="headerlink" title="通过滚轮调节参数"></a>通过滚轮调节参数</h3><figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="keyword">def</span> <span class="title">mouse_wheel</span>(<span class="params">self, ips, x, y, d, **key</span>):</span></span><br><span class="line">    <span class="keyword">if</span> key[<span class="string">&#x27;shift&#x27;</span>]:</span><br><span class="line">        <span class="keyword">if</span> d&gt;<span class="number">0</span>: self.para[<span class="string">&#x27;ms&#x27;</span>] = <span class="built_in">min</span>(<span class="number">50</span>, self.para[<span class="string">&#x27;ms&#x27;</span>]+<span class="number">1</span>)</span><br><span class="line">        <span class="keyword">if</span> d&lt;<span class="number">0</span>: self.para[<span class="string">&#x27;ms&#x27;</span>] = <span class="built_in">max</span>(<span class="number">10</span>, self.para[<span class="string">&#x27;ms&#x27;</span>]-<span class="number">1</span>)</span><br><span class="line">        ips.mark = self.make_mark(x, y)</span><br><span class="line">    <span class="keyword">elif</span> key[<span class="string">&#x27;ctrl&#x27;</span>] <span class="keyword">and</span> key[<span class="string">&#x27;alt&#x27;</span>]:</span><br><span class="line">        <span class="keyword">if</span> d&gt;<span class="number">0</span>: self.para[<span class="string">&#x27;win&#x27;</span>] = <span class="built_in">min</span>(<span class="number">64</span>, self.para[<span class="string">&#x27;win&#x27;</span>]+<span class="number">1</span>)</span><br><span class="line">        <span class="keyword">if</span> d&lt;<span class="number">0</span>: self.para[<span class="string">&#x27;win&#x27;</span>] = <span class="built_in">max</span>(<span class="number">28</span>, self.para[<span class="string">&#x27;win&#x27;</span>]-<span class="number">1</span>)</span><br><span class="line">        ips.mark = self.make_mark(x, y)</span><br><span class="line">    <span class="keyword">elif</span> key[<span class="string">&#x27;ctrl&#x27;</span>]:</span><br><span class="line">        <span class="keyword">if</span> d&gt;<span class="number">0</span>: self.para[<span class="string">&#x27;r&#x27;</span>] = <span class="built_in">min</span>(<span class="number">30</span>, self.para[<span class="string">&#x27;r&#x27;</span>]+<span class="number">1</span>)</span><br><span class="line">        <span class="keyword">if</span> d&lt;<span class="number">0</span>: self.para[<span class="string">&#x27;r&#x27;</span>] = <span class="built_in">max</span>(<span class="number">2</span>, self.para[<span class="string">&#x27;r&#x27;</span>]-<span class="number">1</span>)</span><br><span class="line">        ips.mark = self.make_mark(x, y)</span><br></pre></td></tr></table></figure>
+<h3 id="缩放画布"><a href="#缩放画布" class="headerlink" title="缩放画布"></a>缩放画布</h3><figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">elif</span> self.status == <span class="literal">None</span>:</span><br><span class="line">    <span class="keyword">if</span> d&gt;<span class="number">0</span>:key[<span class="string">&#x27;canvas&#x27;</span>].zoomout(x, y, <span class="string">&#x27;data&#x27;</span>)</span><br><span class="line">    <span class="keyword">if</span> d&lt;<span class="number">0</span>:key[<span class="string">&#x27;canvas&#x27;</span>].zoomin(x, y, <span class="string">&#x27;data&#x27;</span>)</span><br><span class="line">ips.update()</span><br></pre></td></tr></table></figure>
+
+
+    </div>
+
+    
+    
+    
+        <div class="reward-container">
+  <div></div>
+  <button onclick="var qr = document.getElementById('qr'); qr.style.display = (qr.style.display === 'none') ? 'block' : 'none';">
+    Donate
+  </button>
+  <div id="qr" style="display: none;">
+      
+      <div style="display: inline-block;">
+        <img src="/images/wechat_reward.png" alt="Xin-Bo Qi(亓欣波) WeChat Pay">
+        <p>WeChat Pay</p>
+      </div>
+
+  </div>
+</div>
+
+        
+
+  <div class="followme">
+    <p>Welcome to my other publishing channels</p>
+
+    <div class="social-list">
+
+        <div class="social-item">
+          <a target="_blank" class="social-link" href="https://twitter.com/qixinbo">
+            <span class="icon">
+              <i class="fab fa-twitter"></i>
+            </span>
+
+            <span class="label">Twitter</span>
+          </a>
+        </div>
+
+        <div class="social-item">
+          <a target="_blank" class="social-link" href="/atom.xml">
+            <span class="icon">
+              <i class="fa fa-rss"></i>
+            </span>
+
+            <span class="label">RSS</span>
+          </a>
+        </div>
+    </div>
+  </div>
+
+
+      <footer class="post-footer">
+          <div class="post-tags">
+              <a href="/tags/ImagePy/" rel="tag"># ImagePy</a>
+          </div>
+
+        
+
+
+        
+    <div class="post-nav">
+      <div class="post-nav-item">
+    <a href="/2021/03/25/hexo-migration/" rel="prev" title="hexo博客在不同电脑间迁移记录">
+      <i class="fa fa-chevron-left"></i> hexo博客在不同电脑间迁移记录
+    </a></div>
+      <div class="post-nav-item"></div>
+    </div>
+      </footer>
+    
+  </article>
+  
+  
+  
+
+
+
+          </div>
+          
+    
+  <div class="comments">
+    <div id="disqus_thread">
+      <noscript>Please enable JavaScript to view the comments powered by Disqus.</noscript>
+    </div>
+  </div>
+  
+
+<script>
+  window.addEventListener('tabs:register', () => {
+    let { activeClass } = CONFIG.comments;
+    if (CONFIG.comments.storage) {
+      activeClass = localStorage.getItem('comments_active') || activeClass;
+    }
+    if (activeClass) {
+      let activeTab = document.querySelector(`a[href="#comment-${activeClass}"]`);
+      if (activeTab) {
+        activeTab.click();
+      }
+    }
+  });
+  if (CONFIG.comments.storage) {
+    window.addEventListener('tabs:click', event => {
+      if (!event.target.matches('.tabs-comment .tab-content .tab-pane')) return;
+      let commentClass = event.target.classList[1];
+      localStorage.setItem('comments_active', commentClass);
+    });
+  }
+</script>
+
+        </div>
+          
+  
+  <div class="toggle sidebar-toggle">
+    <span class="toggle-line toggle-line-first"></span>
+    <span class="toggle-line toggle-line-middle"></span>
+    <span class="toggle-line toggle-line-last"></span>
+  </div>
+
+  <aside class="sidebar">
+    <div class="sidebar-inner">
+
+      <ul class="sidebar-nav motion-element">
+        <li class="sidebar-nav-toc">
+          Table of Contents
+        </li>
+        <li class="sidebar-nav-overview">
+          Overview
+        </li>
+      </ul>
+
+      <!--noindex-->
+      <div class="post-toc-wrap sidebar-panel">
+          <div class="post-toc motion-element"><ol class="nav"><li class="nav-item nav-level-1"><a class="nav-link" href="#%E7%AE%80%E4%BB%8B"><span class="nav-number">1.</span> <span class="nav-text">简介</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#%E6%8E%A7%E5%88%B6%E5%8F%82%E6%95%B0"><span class="nav-number">2.</span> <span class="nav-text">控制参数</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#%E5%8A%9F%E8%83%BD%E8%A7%A3%E6%9E%90"><span class="nav-number">3.</span> <span class="nav-text">功能解析</span></a><ol class="nav-child"><li class="nav-item nav-level-2"><a class="nav-link" href="#%E9%BC%A0%E6%A0%87%E5%B7%A6%E9%94%AE"><span class="nav-number">3.1.</span> <span class="nav-text">鼠标左键</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#%E5%90%B8%E5%8F%96%E9%A2%9C%E8%89%B2"><span class="nav-number">3.1.1.</span> <span class="nav-text">吸取颜色</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E8%8E%B7%E5%8F%96%E5%B1%80%E9%83%A8%E5%8C%BA%E5%9F%9F"><span class="nav-number">3.1.2.</span> <span class="nav-text">获取局部区域</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E5%B1%80%E9%83%A8%E5%8C%BA%E5%9F%9F%E5%92%8C%E7%94%BB%E7%AC%94%E5%B1%95%E7%A4%BA"><span class="nav-number">3.1.3.</span> <span class="nav-text">局部区域和画笔展示</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E6%99%AE%E9%80%9A%E7%94%BB%E7%AC%94%E5%8A%9F%E8%83%BD"><span class="nav-number">3.1.4.</span> <span class="nav-text">普通画笔功能</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E6%9C%89%E8%81%94%E6%83%B3%E5%8A%9F%E8%83%BD%E7%9A%84%E7%94%BB%E7%AC%94"><span class="nav-number">3.1.5.</span> <span class="nav-text">有联想功能的画笔</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E8%90%BD%E7%AC%94%E9%80%89%E5%AE%9A%E4%BF%9D%E6%8A%A4%E8%89%B2%EF%BC%8C%E5%9C%A8%E7%9F%A9%E5%BD%A2%E6%A1%86%E5%86%85%E9%97%AD%E5%90%88%E4%B8%94%E9%9D%9E%E4%BF%9D%E6%8A%A4%E8%89%B2%E5%8C%BA%E5%9F%9F%E8%A2%AB%E5%A1%AB%E5%85%85"><span class="nav-number">3.1.6.</span> <span class="nav-text">落笔选定保护色，在矩形框内闭合且非保护色区域被填充</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E8%90%BD%E7%AC%94%E9%80%89%E5%AE%9A%E4%BF%9D%E6%8A%A4%E8%89%B2%EF%BC%8C%E5%9C%A8%E7%9F%A9%E5%BD%A2%E6%A1%86%E5%86%85%E5%AF%B9%E8%AF%A5%E8%89%B2%E8%BF%9B%E8%A1%8C%E6%8F%8F%E8%BE%B9"><span class="nav-number">3.1.7.</span> <span class="nav-text">落笔选定保护色，在矩形框内对该色进行描边</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E8%90%BD%E7%AC%94%E9%80%89%E5%AE%9A%E4%BF%9D%E6%8A%A4%E8%89%B2%EF%BC%8C%E5%AF%B9%E4%BB%BB%E6%84%8F%E7%9A%84%E9%9D%9E%E4%BF%9D%E6%8A%A4%E8%89%B2%E7%9A%84%E5%8C%BA%E5%9F%9F%E8%BF%9B%E8%A1%8C%E6%A0%87%E6%B3%A8"><span class="nav-number">3.1.8.</span> <span class="nav-text">落笔选定保护色，对任意的非保护色的区域进行标注</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E9%BC%A0%E6%A0%87%E5%8F%B3%E9%94%AE"><span class="nav-number">3.2.</span> <span class="nav-text">鼠标右键</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#%E5%85%A8%E5%B1%80%E5%A1%AB%E5%85%85"><span class="nav-number">3.2.1.</span> <span class="nav-text">全局填充</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E8%90%BD%E7%AC%94%E6%89%80%E5%9C%A8%E4%BF%9D%E6%8A%A4%E8%89%B2%E7%9A%84%E5%86%85%E9%83%A8%E9%97%AD%E5%90%88%E5%8C%BA%E5%9F%9F%E8%A2%AB%E5%A1%AB%E5%85%85"><span class="nav-number">3.2.2.</span> <span class="nav-text">落笔所在保护色的内部闭合区域被填充</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E8%90%BD%E7%AC%94%E6%89%80%E5%9C%A8%E7%9A%84%E4%BF%9D%E6%8A%A4%E8%89%B2%E7%9A%84%E5%A4%96%E8%BE%B9%E7%BC%98%E8%A2%AB%E6%8F%8F%E8%BE%B9"><span class="nav-number">3.2.3.</span> <span class="nav-text">落笔所在的保护色的外边缘被描边</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E8%90%BD%E7%AC%94%E6%89%80%E5%9C%A8%E4%BF%9D%E6%8A%A4%E8%89%B2%E7%9A%84%E5%86%85%E8%BE%B9%E7%BC%98%E8%A2%AB%E6%8F%8F%E8%BE%B9"><span class="nav-number">3.2.4.</span> <span class="nav-text">落笔所在保护色的内边缘被描边</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E8%90%BD%E7%AC%94%E9%80%89%E5%AE%9A%E4%BF%9D%E6%8A%A4%E8%89%B2%EF%BC%8C%E5%A4%96%E9%83%A8%E9%9D%9E%E4%BF%9D%E6%8A%A4%E8%89%B2%E5%8C%BA%E5%9F%9F%E8%A2%AB%E5%A1%AB%E5%85%85"><span class="nav-number">3.2.5.</span> <span class="nav-text">落笔选定保护色，外部非保护色区域被填充</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E9%BC%A0%E6%A0%87%E4%B8%AD%E9%94%AE"><span class="nav-number">3.3.</span> <span class="nav-text">鼠标中键</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#%E6%8B%96%E5%8A%A8%E7%94%BB%E5%B8%83"><span class="nav-number">3.3.1.</span> <span class="nav-text">拖动画布</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E9%80%9A%E8%BF%87%E6%BB%9A%E8%BD%AE%E8%B0%83%E8%8A%82%E5%8F%82%E6%95%B0"><span class="nav-number">3.3.2.</span> <span class="nav-text">通过滚轮调节参数</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E7%BC%A9%E6%94%BE%E7%94%BB%E5%B8%83"><span class="nav-number">3.3.3.</span> <span class="nav-text">缩放画布</span></a></li></ol></li></ol></li></ol></div>
+      </div>
+      <!--/noindex-->
+
+      <div class="site-overview-wrap sidebar-panel">
+        <div class="site-author motion-element" itemprop="author" itemscope itemtype="http://schema.org/Person">
+    <img class="site-author-image" itemprop="image" alt="Xin-Bo Qi(亓欣波)"
+      src="/images/avatar.jpg">
+  <p class="site-author-name" itemprop="name">Xin-Bo Qi(亓欣波)</p>
+  <div class="site-description" itemprop="description">Be interesting!</div>
+</div>
+<div class="site-state-wrap motion-element">
+  <nav class="site-state">
+      <div class="site-state-item site-state-posts">
+          <a href="/archives/">
+        
+          <span class="site-state-item-count">122</span>
+          <span class="site-state-item-name">posts</span>
+        </a>
+      </div>
+      <div class="site-state-item site-state-categories">
+            <a href="/categories/">
+          
+        <span class="site-state-item-count">5</span>
+        <span class="site-state-item-name">categories</span></a>
+      </div>
+      <div class="site-state-item site-state-tags">
+            <a href="/tags/">
+          
+        <span class="site-state-item-count">42</span>
+        <span class="site-state-item-name">tags</span></a>
+      </div>
+  </nav>
+</div>
+  <div class="links-of-author motion-element">
+      <span class="links-of-author-item">
+        <a href="https://github.com/qixinbo" title="GitHub → https:&#x2F;&#x2F;github.com&#x2F;qixinbo" rel="noopener" target="_blank"><i class="github fa-fw"></i>GitHub</a>
+      </span>
+      <span class="links-of-author-item">
+        <a href="mailto:qixinbo@gmail.com" title="E-Mail → mailto:qixinbo@gmail.com" rel="noopener" target="_blank"><i class="envelope fa-fw"></i>E-Mail</a>
+      </span>
+      <span class="links-of-author-item">
+        <a href="https://twitter.com/qixinbo" title="Twitter → https:&#x2F;&#x2F;twitter.com&#x2F;qixinbo" rel="noopener" target="_blank"><i class="fab fa-twitter fa-fw"></i>Twitter</a>
+      </span>
+      <span class="links-of-author-item">
+        <a href="/atom.xml" title="RSS → &#x2F;atom.xml"><i class="fas fa-rss fa-fw"></i>RSS</a>
+      </span>
+  </div>
+
+
+  <div class="links-of-blogroll motion-element">
+    <div class="links-of-blogroll-title"><i class="fa fa-link fa-fw"></i>
+      Links
+    </div>
+    <ul class="links-of-blogroll-list">
+        <li class="links-of-blogroll-item">
+          <a href="https://www.tsinghua.edu.cn/" title="https:&#x2F;&#x2F;www.tsinghua.edu.cn" rel="noopener" target="_blank">THU</a>
+        </li>
+        <li class="links-of-blogroll-item">
+          <a href="http://www.imr.cas.cn/" title="http:&#x2F;&#x2F;www.imr.cas.cn" rel="noopener" target="_blank">IMR</a>
+        </li>
+        <li class="links-of-blogroll-item">
+          <a href="http://www.sdu.edu.cn/" title="http:&#x2F;&#x2F;www.sdu.edu.cn" rel="noopener" target="_blank">SDU</a>
+        </li>
+        <li class="links-of-blogroll-item">
+          <a href="http://liam0205.me/" title="http:&#x2F;&#x2F;liam0205.me&#x2F;" rel="noopener" target="_blank">黄晨成</a>
+        </li>
+    </ul>
+  </div>
+
+      </div>
+
+    </div>
+  </aside>
+  <div id="sidebar-dimmer"></div>
+
+
+      </div>
+    </main>
+
+    <footer class="footer">
+      <div class="footer-inner">
+        
+
+        
+
+<div class="copyright">
+  
+  &copy; 
+  <span itemprop="copyrightYear">2021</span>
+  <span class="with-love">
+    <i class="fa fa-heart"></i>
+  </span>
+  <span class="author" itemprop="copyrightHolder">Xin-Bo Qi(亓欣波)</span>
+</div>
+  <div class="powered-by">Powered by <a href="https://hexo.io/" class="theme-link" rel="noopener" target="_blank">Hexo</a> & <a href="https://theme-next.org/" class="theme-link" rel="noopener" target="_blank">NexT.Gemini</a>
+  </div>
+
+        
+
+
+
+
+
+
+
+
+      </div>
+    </footer>
+  </div>
+
+  
+  <script src="/lib/anime.min.js"></script>
+  <script src="/lib/velocity/velocity.min.js"></script>
+  <script src="/lib/velocity/velocity.ui.min.js"></script>
+
+<script src="/js/utils.js"></script>
+
+<script src="/js/motion.js"></script>
+
+
+<script src="/js/schemes/pisces.js"></script>
+
+
+<script src="/js/next-boot.js"></script>
+
+
+
+
+  
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+  
+
+  
+
+  
+
+<script>
+  function loadCount() {
+    var d = document, s = d.createElement('script');
+    s.src = 'https://qixinbo.disqus.com/count.js';
+    s.id = 'dsq-count-scr';
+    (d.head || d.body).appendChild(s);
+  }
+  // defer loading until the whole page loading is completed
+  window.addEventListener('load', loadCount, false);
+</script>
+<script>
+  var disqus_config = function() {
+    this.page.url = "http://qixinbo.github.io/2021/03/26/ImagePy_25/";
+    this.page.identifier = "2021/03/26/ImagePy_25/";
+    this.page.title = "ImagePy解析： 25 -- 智能画笔";
+    };
+  NexT.utils.loadComments(document.querySelector('#disqus_thread'), () => {
+    if (window.DISQUS) {
+      DISQUS.reset({
+        reload: true,
+        config: disqus_config
+      });
+    } else {
+      var d = document, s = d.createElement('script');
+      s.src = 'https://qixinbo.disqus.com/embed.js';
+      s.setAttribute('data-timestamp', '' + +new Date());
+      (d.head || d.body).appendChild(s);
+    }
+  });
+</script>
+
+</body>
+</html>
