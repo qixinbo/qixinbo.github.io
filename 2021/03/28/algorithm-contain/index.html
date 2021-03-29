@@ -1,0 +1,585 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=2">
+<meta name="theme-color" content="#222">
+<meta name="generator" content="Hexo 5.4.0">
+  <link rel="apple-touch-icon" sizes="180x180" href="/images/apple-touch-icon-next.png">
+  <link rel="icon" type="image/png" sizes="32x32" href="/favicon.ico">
+  <link rel="icon" type="image/png" sizes="16x16" href="/favicon.ico">
+  <link rel="mask-icon" href="/images/logo.svg" color="#222">
+
+<link rel="stylesheet" href="/css/main.css">
+
+
+<link rel="stylesheet" href="/lib/font-awesome/css/all.min.css">
+
+<script id="hexo-configurations">
+    var NexT = window.NexT || {};
+    var CONFIG = {"hostname":"qixinbo.github.io","root":"/","scheme":"Gemini","version":"7.8.0","exturl":false,"sidebar":{"position":"left","display":"post","padding":18,"offset":12,"onmobile":false},"copycode":{"enable":false,"show_result":false,"style":null},"back2top":{"enable":true,"sidebar":false,"scrollpercent":false},"bookmark":{"enable":false,"color":"#222","save":"auto"},"fancybox":false,"mediumzoom":false,"lazyload":false,"pangu":false,"comments":{"style":"tabs","active":null,"storage":true,"lazyload":false,"nav":null},"algolia":{"hits":{"per_page":10},"labels":{"input_placeholder":"Search for Posts","hits_empty":"We didn't find any results for the search: ${query}","hits_stats":"${hits} results found in ${time} ms"}},"localsearch":{"enable":false,"trigger":"auto","top_n_per_article":1,"unescape":false,"preload":false},"motion":{"enable":true,"async":false,"transition":{"post_block":"fadeIn","post_header":"slideDownIn","post_body":"slideDownIn","coll_header":"slideLeftIn","sidebar":"slideUpIn"}}};
+  </script>
+
+  <meta name="description" content="问题描述 给定一个多边形区域，怎样判断某个点是否在该区域内？ 如下图所示的蓝色多边形框，判断某点是否在该框内。   定义域 先写出该蓝色框的坐标序列：  1 2 3 4   import numpy as np import matplotlib.pyplot as plt  poly &#x3D; np.array([(0,0),(1,0),(0.7,0.7),(1,1),(0,1),(0.5,0.5),">
+<meta property="og:type" content="article">
+<meta property="og:title" content="算法赏析——判断某点是否在某区域内">
+<meta property="og:url" content="http://qixinbo.github.io/2021/03/28/algorithm-contain/index.html">
+<meta property="og:site_name" content="亓欣波">
+<meta property="og:description" content="问题描述 给定一个多边形区域，怎样判断某个点是否在该区域内？ 如下图所示的蓝色多边形框，判断某点是否在该框内。   定义域 先写出该蓝色框的坐标序列：  1 2 3 4   import numpy as np import matplotlib.pyplot as plt  poly &#x3D; np.array([(0,0),(1,0),(0.7,0.7),(1,1),(0,1),(0.5,0.5),">
+<meta property="og:locale" content="en_US">
+<meta property="og:image" content="https://user-images.githubusercontent.com/6218739/112778360-f66fe100-9076-11eb-9ec4-5e197aebdebd.png">
+<meta property="og:image" content="https://user-images.githubusercontent.com/6218739/112794912-4d3ae200-909a-11eb-8fa4-cda6b524613e.png">
+<meta property="og:image" content="https://user-images.githubusercontent.com/6218739/112796213-42814c80-909c-11eb-98bd-a62fd9a24ba1.png">
+<meta property="og:image" content="https://user-images.githubusercontent.com/6218739/112799536-11574b00-90a1-11eb-812e-21cdbdf4f45e.png">
+<meta property="article:published_time" content="2021-03-27T16:00:00.000Z">
+<meta property="article:modified_time" content="2021-03-29T08:44:14.706Z">
+<meta property="article:author" content="Xin-Bo Qi(亓欣波)">
+<meta property="article:tag" content="algorithm">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:image" content="https://user-images.githubusercontent.com/6218739/112778360-f66fe100-9076-11eb-9ec4-5e197aebdebd.png">
+
+<link rel="canonical" href="http://qixinbo.github.io/2021/03/28/algorithm-contain/">
+
+
+<script id="page-configurations">
+  // https://hexo.io/docs/variables.html
+  CONFIG.page = {
+    sidebar: "",
+    isHome : false,
+    isPost : true,
+    lang   : 'en'
+  };
+</script>
+
+  <title>算法赏析——判断某点是否在某区域内 | 亓欣波</title>
+  
+
+
+
+
+
+
+  <noscript>
+  <style>
+  .use-motion .brand,
+  .use-motion .menu-item,
+  .sidebar-inner,
+  .use-motion .post-block,
+  .use-motion .pagination,
+  .use-motion .comments,
+  .use-motion .post-header,
+  .use-motion .post-body,
+  .use-motion .collection-header { opacity: initial; }
+
+  .use-motion .site-title,
+  .use-motion .site-subtitle {
+    opacity: initial;
+    top: initial;
+  }
+
+  .use-motion .logo-line-before i { left: initial; }
+  .use-motion .logo-line-after i { right: initial; }
+  </style>
+</noscript>
+
+<link rel="alternate" href="/atom.xml" title="亓欣波" type="application/atom+xml">
+</head>
+
+<body itemscope itemtype="http://schema.org/WebPage">
+  <div class="container use-motion">
+    <div class="headband"></div>
+
+    <header class="header" itemscope itemtype="http://schema.org/WPHeader">
+      <div class="header-inner"><div class="site-brand-container">
+  <div class="site-nav-toggle">
+    <div class="toggle" aria-label="Toggle navigation bar">
+      <span class="toggle-line toggle-line-first"></span>
+      <span class="toggle-line toggle-line-middle"></span>
+      <span class="toggle-line toggle-line-last"></span>
+    </div>
+  </div>
+
+  <div class="site-meta">
+
+    <a href="/" class="brand" rel="start">
+      <span class="logo-line-before"><i></i></span>
+      <h1 class="site-title">亓欣波</h1>
+      <span class="logo-line-after"><i></i></span>
+    </a>
+      <p class="site-subtitle" itemprop="description">Hi, I am Xin-Bo Qi (亓欣波)</p>
+  </div>
+
+  <div class="site-nav-right">
+    <div class="toggle popup-trigger">
+    </div>
+  </div>
+</div>
+
+
+
+
+<nav class="site-nav">
+  <ul id="menu" class="main-menu menu">
+        <li class="menu-item menu-item-home">
+
+    <a href="/" rel="section"><i class="fa fa-home fa-fw"></i>Home</a>
+
+  </li>
+        <li class="menu-item menu-item-categories">
+
+    <a href="/categories/" rel="section"><i class="fa fa-th fa-fw"></i>Categories</a>
+
+  </li>
+        <li class="menu-item menu-item-archives">
+
+    <a href="/archives/" rel="section"><i class="fa fa-archive fa-fw"></i>Archives</a>
+
+  </li>
+        <li class="menu-item menu-item-tags">
+
+    <a href="/tags/" rel="section"><i class="fa fa-tags fa-fw"></i>Tags</a>
+
+  </li>
+        <li class="menu-item menu-item-scholar">
+
+    <a href="/scholar/" rel="section"><i class="fa fa-chart-bar fa-fw"></i>scholar</a>
+
+  </li>
+        <li class="menu-item menu-item-sources">
+
+    <a href="/sources/" rel="section"><i class="fa fa-rss fa-fw"></i>sources</a>
+
+  </li>
+        <li class="menu-item menu-item-gallery">
+
+    <a href="/gallery/" rel="section"><i class="fa fa-file-image fa-fw"></i>gallery</a>
+
+  </li>
+        <li class="menu-item menu-item-about">
+
+    <a href="/about/" rel="section"><i class="fa fa-user fa-fw"></i>About</a>
+
+  </li>
+        <li class="menu-item menu-item-commonweal">
+
+    <a href="/404.html" rel="section"><i class="fa fa-heartbeat fa-fw"></i>Commonweal 404</a>
+
+  </li>
+  </ul>
+</nav>
+
+
+
+
+</div>
+    </header>
+
+    
+  <div class="back-to-top">
+    <i class="fa fa-arrow-up"></i>
+    <span>0%</span>
+  </div>
+
+
+    <main class="main">
+      <div class="main-inner">
+        <div class="content-wrap">
+          
+
+          <div class="content post posts-expand">
+            
+
+    
+  
+  
+  <article itemscope itemtype="http://schema.org/Article" class="post-block" lang="en">
+    <link itemprop="mainEntityOfPage" href="http://qixinbo.github.io/2021/03/28/algorithm-contain/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="image" content="/images/avatar.jpg">
+      <meta itemprop="name" content="Xin-Bo Qi(亓欣波)">
+      <meta itemprop="description" content="Be interesting!">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="亓欣波">
+    </span>
+      <header class="post-header">
+        <h1 class="post-title" itemprop="name headline">
+          算法赏析——判断某点是否在某区域内
+        </h1>
+
+        <div class="post-meta">
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="far fa-calendar"></i>
+              </span>
+              <span class="post-meta-item-text">Posted on</span>
+
+              <time title="Created: 2021-03-28 00:00:00" itemprop="dateCreated datePublished" datetime="2021-03-28T00:00:00+08:00">2021-03-28</time>
+            </span>
+              <span class="post-meta-item">
+                <span class="post-meta-item-icon">
+                  <i class="far fa-calendar-check"></i>
+                </span>
+                <span class="post-meta-item-text">Edited on</span>
+                <time title="Modified: 2021-03-29 16:44:14" itemprop="dateModified" datetime="2021-03-29T16:44:14+08:00">2021-03-29</time>
+              </span>
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="far fa-folder"></i>
+              </span>
+              <span class="post-meta-item-text">In</span>
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+                  <a href="/categories/algorithm/" itemprop="url" rel="index"><span itemprop="name">algorithm</span></a>
+                </span>
+            </span>
+
+          
+  
+  <span class="post-meta-item">
+    
+      <span class="post-meta-item-icon">
+        <i class="far fa-comment"></i>
+      </span>
+      <span class="post-meta-item-text">Disqus: </span>
+    
+    <a title="disqus" href="/2021/03/28/algorithm-contain/#disqus_thread" itemprop="discussionUrl">
+      <span class="post-comments-count disqus-comment-count" data-disqus-identifier="2021/03/28/algorithm-contain/" itemprop="commentCount"></span>
+    </a>
+  </span>
+  
+  
+
+        </div>
+      </header>
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+        <h1 id="问题描述"><a href="#问题描述" class="headerlink" title="问题描述"></a>问题描述</h1><p>给定一个多边形区域，怎样判断某个点是否在该区域内？<br>如下图所示的蓝色多边形框，判断某点是否在该框内。<br><img src="https://user-images.githubusercontent.com/6218739/112778360-f66fe100-9076-11eb-9ec4-5e197aebdebd.png" alt="area"></p>
+<h1 id="定义域"><a href="#定义域" class="headerlink" title="定义域"></a>定义域</h1><p>先写出该蓝色框的坐标序列：</p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">import</span> numpy <span class="keyword">as</span> np</span><br><span class="line"><span class="keyword">import</span> matplotlib.pyplot <span class="keyword">as</span> plt</span><br><span class="line"></span><br><span class="line">poly = np.array([(<span class="number">0</span>,<span class="number">0</span>),(<span class="number">1</span>,<span class="number">0</span>),(<span class="number">0.7</span>,<span class="number">0.7</span>),(<span class="number">1</span>,<span class="number">1</span>),(<span class="number">0</span>,<span class="number">1</span>),(<span class="number">0.5</span>,<span class="number">0.5</span>),(<span class="number">0</span>,<span class="number">0</span>)])</span><br></pre></td></tr></table></figure>
+<p>注意，该坐标序列是首尾相接的。<br>然后，定义出任意数量、任意位置的随机点：</p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">pts = np.random.rand(<span class="number">80</span>).reshape((<span class="number">40</span>,<span class="number">2</span>))</span><br></pre></td></tr></table></figure>
+<p>这里给出了40个随机点。</p>
+<h1 id="解法"><a href="#解法" class="headerlink" title="解法"></a>解法</h1><p>为了简单起见，以随机点[0.3, 0.4]为例：</p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">o = np.array([(<span class="number">0.3</span>, <span class="number">0.4</span>)])</span><br></pre></td></tr></table></figure>
+<h2 id="计算点与区域边界点形成的向量"><a href="#计算点与区域边界点形成的向量" class="headerlink" title="计算点与区域边界点形成的向量"></a>计算点与区域边界点形成的向量</h2><figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">vs = poly - o</span><br></pre></td></tr></table></figure>
+<p>可以看作是以随机点为中心，区域边界点指向该中心的向量。<br>此例中，vs的值就是：</p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><span class="line">[[-<span class="number">0.3</span> -<span class="number">0.4</span>]</span><br><span class="line"> [ <span class="number">0.7</span> -<span class="number">0.4</span>]</span><br><span class="line"> [ <span class="number">0.4</span>  <span class="number">0.3</span>]</span><br><span class="line"> [ <span class="number">0.7</span>  <span class="number">0.6</span>]</span><br><span class="line"> [-<span class="number">0.3</span>  <span class="number">0.6</span>]</span><br><span class="line"> [ <span class="number">0.2</span>  <span class="number">0.1</span>]</span><br><span class="line"> [-<span class="number">0.3</span> -<span class="number">0.4</span>]]</span><br></pre></td></tr></table></figure>
+<h2 id="计算点与区域边界点的距离"><a href="#计算点与区域边界点的距离" class="headerlink" title="计算点与区域边界点的距离"></a>计算点与区域边界点的距离</h2><p>然后计算该向量的绝对长度：</p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">ls = np.linalg.norm(vs, axis=<span class="number">1</span>)</span><br></pre></td></tr></table></figure>
+<p>ls的值为：</p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">[<span class="number">0.5</span>        <span class="number">0.80622577</span>     <span class="number">0.5</span>        <span class="number">0.92195445</span>   <span class="number">0.67082039</span>    <span class="number">0.2236068</span>  <span class="number">0.5</span>]</span><br></pre></td></tr></table></figure>
+
+<h2 id="计算相邻向量的外积"><a href="#计算相邻向量的外积" class="headerlink" title="计算相邻向量的外积"></a>计算相邻向量的外积</h2><figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">cs = np.cross(vs[:-<span class="number">1</span>], vs[<span class="number">1</span>:])</span><br></pre></td></tr></table></figure>
+<p>这一步是计算以随机点为中心所形成的向量中，两个相邻向量所形成的外积。<br>可以详细看看numpy的cross函数的两个输入：</p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line">[[-<span class="number">0.3</span> -<span class="number">0.4</span>]</span><br><span class="line"> [ <span class="number">0.7</span> -<span class="number">0.4</span>]</span><br><span class="line"> [ <span class="number">0.4</span>  <span class="number">0.3</span>]</span><br><span class="line"> [ <span class="number">0.7</span>  <span class="number">0.6</span>]</span><br><span class="line"> [-<span class="number">0.3</span>  <span class="number">0.6</span>]</span><br><span class="line"> [ <span class="number">0.2</span>  <span class="number">0.1</span>]]</span><br></pre></td></tr></table></figure>
+<p>和</p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line">[[ <span class="number">0.7</span> -<span class="number">0.4</span>]</span><br><span class="line"> [ <span class="number">0.4</span>  <span class="number">0.3</span>]</span><br><span class="line"> [ <span class="number">0.7</span>  <span class="number">0.6</span>]</span><br><span class="line"> [-<span class="number">0.3</span>  <span class="number">0.6</span>]</span><br><span class="line"> [ <span class="number">0.2</span>  <span class="number">0.1</span>]</span><br><span class="line"> [-<span class="number">0.3</span> -<span class="number">0.4</span>]]</span><br></pre></td></tr></table></figure>
+<p>即第一个输入是排除了vs的最后一个向量，而第二个输入是排除了vs的第一个向量，这样两者一交错，就是在cross时计算的就是两个相邻向量的外积。<br>外积的概念可以参见<a target="_blank" rel="noopener" href="https://zh.wikipedia.org/zh-cn/%E5%8F%89%E7%A7%AF">维基百科</a><br><img src="https://user-images.githubusercontent.com/6218739/112794912-4d3ae200-909a-11eb-8fa4-cda6b524613e.png" alt="cross"><br>而numpy的具体cross函数的计算方式见<a target="_blank" rel="noopener" href="https://numpy.org/doc/stable/reference/generated/numpy.cross.html">这里</a>。<br>因为这里输入的两个向量都是二维的，因此计算出来的虽然应该仍然是个向量，但这里只返回它的z轴长度（In cases where both input vectors have dimension 2, the z-component of the cross product is returned）。<br>因此，cs的值为：</p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">[ <span class="number">0.4</span>   <span class="number">0.37</span>  <span class="number">0.03</span>  <span class="number">0.6</span>  -<span class="number">0.15</span> -<span class="number">0.05</span>]</span><br></pre></td></tr></table></figure>
+<p>这里比较重要的是数值的符号。</p>
+<h2 id="计算相邻向量的内积"><a href="#计算相邻向量的内积" class="headerlink" title="计算相邻向量的内积"></a>计算相邻向量的内积</h2><figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">dot = (vs[:-<span class="number">1</span>]*vs[<span class="number">1</span>:]).<span class="built_in">sum</span>(axis=<span class="number">1</span>)</span><br></pre></td></tr></table></figure>
+<p>这一步是计算以随机点为中心所形成的向量中，两个相邻向量所形成的内积。<br>内积的概念可以参见<a target="_blank" rel="noopener" href="https://zh.wikipedia.org/zh-cn/%E7%82%B9%E7%A7%AF">维基百科</a>。<br><img src="https://user-images.githubusercontent.com/6218739/112796213-42814c80-909c-11eb-98bd-a62fd9a24ba1.png" alt="dot"><br>里面重要的一点：从代数角度看，先对两个数字序列中的每组对应元素求积，再对所有积求和，结果即为点积。从几何角度看，点积则是两个向量的长度与它们夹角余弦的积。这两种定义在笛卡尔坐标系中等价。</p>
+<h2 id="计算相邻向量的长度乘积"><a href="#计算相邻向量的长度乘积" class="headerlink" title="计算相邻向量的长度乘积"></a>计算相邻向量的长度乘积</h2><figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">ls = ls[:-<span class="number">1</span>] * ls[<span class="number">1</span>:]</span><br></pre></td></tr></table></figure>
+<p>这句简单，就是相邻两个向量的长度的乘积。</p>
+<h2 id="计算相邻向量的角度"><a href="#计算相邻向量的角度" class="headerlink" title="计算相邻向量的角度"></a>计算相邻向量的角度</h2><figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">ang = np.arccos(dot/ls) * np.sign(cs)</span><br></pre></td></tr></table></figure>
+<p>该行有两部分组成：<br>（1）前一部分就是两个向量的点积除以这两个向量的长度乘积。由点积的定义可知，这样的除法得到了角度的余弦值。这样求反余弦后，就可以得到两个向量之间的角度。<br>（2）第二部分就是对上面的角度赋予符号，这个符号的正负是通过相邻向量的外积来得到的。</p>
+<h2 id="计算角度之和"><a href="#计算角度之和" class="headerlink" title="计算角度之和"></a>计算角度之和</h2><figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">ang.<span class="built_in">sum</span>() &gt; np.pi</span><br></pre></td></tr></table></figure>
+<p>对上述角度求和，然后判断其大小。<br>这里就是整个算法的点睛之笔，假设一个人站在了这个随机点上，然后他在原地转圈：<br>（1）如果随机点在区域内部，那么这个人转一圈，其转过的角度就是2*pi；<br>（2）如果随机点在区域外部，那么这个人没法转一个完整的圈，而是转一个角度，然后又转回来，因此最终转过的角度就是0。<br>所以就可以根据这个角度之和来判断随机点与区域的关系。</p>
+<p>将以上函数封装成一个统一的函数：</p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="keyword">def</span> <span class="title">contain</span>(<span class="params">poly, o</span>):</span></span><br><span class="line">    vs = poly - o</span><br><span class="line">    ls = np.linalg.norm(vs, axis=<span class="number">1</span>)</span><br><span class="line">    cs = np.cross(vs[:-<span class="number">1</span>], vs[<span class="number">1</span>:])</span><br><span class="line">    dot = (vs[:-<span class="number">1</span>]*vs[<span class="number">1</span>:]).<span class="built_in">sum</span>(axis=<span class="number">1</span>)</span><br><span class="line">    ls = ls[:-<span class="number">1</span>] * ls[<span class="number">1</span>:]</span><br><span class="line">    ang = np.arccos(dot/ls) * np.sign(cs)</span><br><span class="line">    <span class="keyword">return</span> ang.<span class="built_in">sum</span>() &gt; np.pi</span><br></pre></td></tr></table></figure>
+
+<h1 id="可视化"><a href="#可视化" class="headerlink" title="可视化"></a>可视化</h1><figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line">msk = np.array([contain(poly, i) <span class="keyword">for</span> i <span class="keyword">in</span> pts])</span><br><span class="line"></span><br><span class="line">plt.plot(*poly.T)</span><br><span class="line">plt.plot(*pts[msk].T, <span class="string">&#x27;go&#x27;</span>)</span><br><span class="line">plt.plot(*pts[~msk].T, <span class="string">&#x27;ro&#x27;</span>)</span><br><span class="line">plt.show()</span><br></pre></td></tr></table></figure>
+<p>结果为：<br><img src="https://user-images.githubusercontent.com/6218739/112799536-11574b00-90a1-11eb-812e-21cdbdf4f45e.png" alt="vis"></p>
+
+    </div>
+
+    
+    
+    
+        <div class="reward-container">
+  <div></div>
+  <button onclick="var qr = document.getElementById('qr'); qr.style.display = (qr.style.display === 'none') ? 'block' : 'none';">
+    Donate
+  </button>
+  <div id="qr" style="display: none;">
+      
+      <div style="display: inline-block;">
+        <img src="/images/wechat_reward.png" alt="Xin-Bo Qi(亓欣波) WeChat Pay">
+        <p>WeChat Pay</p>
+      </div>
+
+  </div>
+</div>
+
+
+      <footer class="post-footer">
+          <div class="post-tags">
+              <a href="/tags/algorithm/" rel="tag"># algorithm</a>
+          </div>
+
+        
+
+
+        
+    <div class="post-nav">
+      <div class="post-nav-item">
+    <a href="/2021/03/27/algorithm-find-peak/" rel="prev" title="算法赏析——寻找线条的转折点">
+      <i class="fa fa-chevron-left"></i> 算法赏析——寻找线条的转折点
+    </a></div>
+      <div class="post-nav-item"></div>
+    </div>
+      </footer>
+    
+  </article>
+  
+  
+  
+
+
+
+          </div>
+          
+    
+  <div class="comments">
+    <div id="disqus_thread">
+      <noscript>Please enable JavaScript to view the comments powered by Disqus.</noscript>
+    </div>
+  </div>
+  
+
+<script>
+  window.addEventListener('tabs:register', () => {
+    let { activeClass } = CONFIG.comments;
+    if (CONFIG.comments.storage) {
+      activeClass = localStorage.getItem('comments_active') || activeClass;
+    }
+    if (activeClass) {
+      let activeTab = document.querySelector(`a[href="#comment-${activeClass}"]`);
+      if (activeTab) {
+        activeTab.click();
+      }
+    }
+  });
+  if (CONFIG.comments.storage) {
+    window.addEventListener('tabs:click', event => {
+      if (!event.target.matches('.tabs-comment .tab-content .tab-pane')) return;
+      let commentClass = event.target.classList[1];
+      localStorage.setItem('comments_active', commentClass);
+    });
+  }
+</script>
+
+        </div>
+          
+  
+  <div class="toggle sidebar-toggle">
+    <span class="toggle-line toggle-line-first"></span>
+    <span class="toggle-line toggle-line-middle"></span>
+    <span class="toggle-line toggle-line-last"></span>
+  </div>
+
+  <aside class="sidebar">
+    <div class="sidebar-inner">
+
+      <ul class="sidebar-nav motion-element">
+        <li class="sidebar-nav-toc">
+          Table of Contents
+        </li>
+        <li class="sidebar-nav-overview">
+          Overview
+        </li>
+      </ul>
+
+      <!--noindex-->
+      <div class="post-toc-wrap sidebar-panel">
+          <div class="post-toc motion-element"><ol class="nav"><li class="nav-item nav-level-1"><a class="nav-link" href="#%E9%97%AE%E9%A2%98%E6%8F%8F%E8%BF%B0"><span class="nav-number">1.</span> <span class="nav-text">问题描述</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#%E5%AE%9A%E4%B9%89%E5%9F%9F"><span class="nav-number">2.</span> <span class="nav-text">定义域</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#%E8%A7%A3%E6%B3%95"><span class="nav-number">3.</span> <span class="nav-text">解法</span></a><ol class="nav-child"><li class="nav-item nav-level-2"><a class="nav-link" href="#%E8%AE%A1%E7%AE%97%E7%82%B9%E4%B8%8E%E5%8C%BA%E5%9F%9F%E8%BE%B9%E7%95%8C%E7%82%B9%E5%BD%A2%E6%88%90%E7%9A%84%E5%90%91%E9%87%8F"><span class="nav-number">3.1.</span> <span class="nav-text">计算点与区域边界点形成的向量</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E8%AE%A1%E7%AE%97%E7%82%B9%E4%B8%8E%E5%8C%BA%E5%9F%9F%E8%BE%B9%E7%95%8C%E7%82%B9%E7%9A%84%E8%B7%9D%E7%A6%BB"><span class="nav-number">3.2.</span> <span class="nav-text">计算点与区域边界点的距离</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E8%AE%A1%E7%AE%97%E7%9B%B8%E9%82%BB%E5%90%91%E9%87%8F%E7%9A%84%E5%A4%96%E7%A7%AF"><span class="nav-number">3.3.</span> <span class="nav-text">计算相邻向量的外积</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E8%AE%A1%E7%AE%97%E7%9B%B8%E9%82%BB%E5%90%91%E9%87%8F%E7%9A%84%E5%86%85%E7%A7%AF"><span class="nav-number">3.4.</span> <span class="nav-text">计算相邻向量的内积</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E8%AE%A1%E7%AE%97%E7%9B%B8%E9%82%BB%E5%90%91%E9%87%8F%E7%9A%84%E9%95%BF%E5%BA%A6%E4%B9%98%E7%A7%AF"><span class="nav-number">3.5.</span> <span class="nav-text">计算相邻向量的长度乘积</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E8%AE%A1%E7%AE%97%E7%9B%B8%E9%82%BB%E5%90%91%E9%87%8F%E7%9A%84%E8%A7%92%E5%BA%A6"><span class="nav-number">3.6.</span> <span class="nav-text">计算相邻向量的角度</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E8%AE%A1%E7%AE%97%E8%A7%92%E5%BA%A6%E4%B9%8B%E5%92%8C"><span class="nav-number">3.7.</span> <span class="nav-text">计算角度之和</span></a></li></ol></li><li class="nav-item nav-level-1"><a class="nav-link" href="#%E5%8F%AF%E8%A7%86%E5%8C%96"><span class="nav-number">4.</span> <span class="nav-text">可视化</span></a></li></ol></div>
+      </div>
+      <!--/noindex-->
+
+      <div class="site-overview-wrap sidebar-panel">
+        <div class="site-author motion-element" itemprop="author" itemscope itemtype="http://schema.org/Person">
+    <img class="site-author-image" itemprop="image" alt="Xin-Bo Qi(亓欣波)"
+      src="/images/avatar.jpg">
+  <p class="site-author-name" itemprop="name">Xin-Bo Qi(亓欣波)</p>
+  <div class="site-description" itemprop="description">Be interesting!</div>
+</div>
+<div class="site-state-wrap motion-element">
+  <nav class="site-state">
+      <div class="site-state-item site-state-posts">
+          <a href="/archives/">
+        
+          <span class="site-state-item-count">124</span>
+          <span class="site-state-item-name">posts</span>
+        </a>
+      </div>
+      <div class="site-state-item site-state-categories">
+            <a href="/categories/">
+          
+        <span class="site-state-item-count">6</span>
+        <span class="site-state-item-name">categories</span></a>
+      </div>
+      <div class="site-state-item site-state-tags">
+            <a href="/tags/">
+          
+        <span class="site-state-item-count">43</span>
+        <span class="site-state-item-name">tags</span></a>
+      </div>
+  </nav>
+</div>
+  <div class="links-of-author motion-element">
+      <span class="links-of-author-item">
+        <a href="https://github.com/qixinbo" title="GitHub → https:&#x2F;&#x2F;github.com&#x2F;qixinbo" rel="noopener" target="_blank"><i class="github fa-fw"></i>GitHub</a>
+      </span>
+      <span class="links-of-author-item">
+        <a href="mailto:qixinbo@gmail.com" title="E-Mail → mailto:qixinbo@gmail.com" rel="noopener" target="_blank"><i class="envelope fa-fw"></i>E-Mail</a>
+      </span>
+      <span class="links-of-author-item">
+        <a href="https://twitter.com/qixinbo" title="Twitter → https:&#x2F;&#x2F;twitter.com&#x2F;qixinbo" rel="noopener" target="_blank"><i class="fab fa-twitter fa-fw"></i>Twitter</a>
+      </span>
+      <span class="links-of-author-item">
+        <a href="/atom.xml" title="RSS → &#x2F;atom.xml"><i class="fas fa-rss fa-fw"></i>RSS</a>
+      </span>
+  </div>
+
+
+  <div class="links-of-blogroll motion-element">
+    <div class="links-of-blogroll-title"><i class="fa fa-link fa-fw"></i>
+      Links
+    </div>
+    <ul class="links-of-blogroll-list">
+        <li class="links-of-blogroll-item">
+          <a href="https://www.tsinghua.edu.cn/" title="https:&#x2F;&#x2F;www.tsinghua.edu.cn" rel="noopener" target="_blank">THU</a>
+        </li>
+        <li class="links-of-blogroll-item">
+          <a href="http://www.imr.cas.cn/" title="http:&#x2F;&#x2F;www.imr.cas.cn" rel="noopener" target="_blank">IMR</a>
+        </li>
+        <li class="links-of-blogroll-item">
+          <a href="http://www.sdu.edu.cn/" title="http:&#x2F;&#x2F;www.sdu.edu.cn" rel="noopener" target="_blank">SDU</a>
+        </li>
+        <li class="links-of-blogroll-item">
+          <a href="http://liam0205.me/" title="http:&#x2F;&#x2F;liam0205.me&#x2F;" rel="noopener" target="_blank">黄晨成</a>
+        </li>
+    </ul>
+  </div>
+
+      </div>
+
+    </div>
+  </aside>
+  <div id="sidebar-dimmer"></div>
+
+
+      </div>
+    </main>
+
+    <footer class="footer">
+      <div class="footer-inner">
+        
+
+        
+
+<div class="copyright">
+  
+  &copy; 
+  <span itemprop="copyrightYear">2021</span>
+  <span class="with-love">
+    <i class="fa fa-heart"></i>
+  </span>
+  <span class="author" itemprop="copyrightHolder">Xin-Bo Qi(亓欣波)</span>
+</div>
+  <div class="powered-by">Powered by <a href="https://hexo.io/" class="theme-link" rel="noopener" target="_blank">Hexo</a> & <a href="https://theme-next.org/" class="theme-link" rel="noopener" target="_blank">NexT.Gemini</a>
+  </div>
+
+        
+
+
+
+
+
+
+
+
+      </div>
+    </footer>
+  </div>
+
+  
+  <script src="/lib/anime.min.js"></script>
+  <script src="/lib/velocity/velocity.min.js"></script>
+  <script src="/lib/velocity/velocity.ui.min.js"></script>
+
+<script src="/js/utils.js"></script>
+
+<script src="/js/motion.js"></script>
+
+
+<script src="/js/schemes/pisces.js"></script>
+
+
+<script src="/js/next-boot.js"></script>
+
+
+
+
+  
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+  
+
+  
+
+  
+
+<script>
+  function loadCount() {
+    var d = document, s = d.createElement('script');
+    s.src = 'https://qixinbo.disqus.com/count.js';
+    s.id = 'dsq-count-scr';
+    (d.head || d.body).appendChild(s);
+  }
+  // defer loading until the whole page loading is completed
+  window.addEventListener('load', loadCount, false);
+</script>
+<script>
+  var disqus_config = function() {
+    this.page.url = "http://qixinbo.github.io/2021/03/28/algorithm-contain/";
+    this.page.identifier = "2021/03/28/algorithm-contain/";
+    this.page.title = "算法赏析——判断某点是否在某区域内";
+    };
+  NexT.utils.loadComments(document.querySelector('#disqus_thread'), () => {
+    if (window.DISQUS) {
+      DISQUS.reset({
+        reload: true,
+        config: disqus_config
+      });
+    } else {
+      var d = document, s = d.createElement('script');
+      s.src = 'https://qixinbo.disqus.com/embed.js';
+      s.setAttribute('data-timestamp', '' + +new Date());
+      (d.head || d.body).appendChild(s);
+    }
+  });
+</script>
+
+</body>
+</html>
