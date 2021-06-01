@@ -273,59 +273,19 @@
 <li>.py 文件所在目录</li>
 <li>pip 或 easy_install 安装的包</li>
 </ol>
-<h1 id="绝对导入和相对导入"><a href="#绝对导入和相对导入" class="headerlink" title="绝对导入和相对导入"></a>绝对导入和相对导入</h1><p>绝对导入和相对导入的关系可以类比绝对路径和相对路径。<br>绝对导入的格式为：</p>
-<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">import</span> A.B</span><br><span class="line">或</span><br><span class="line"><span class="keyword">from</span> A <span class="keyword">import</span> B</span><br></pre></td></tr></table></figure>
-<p>相对导入格式为：</p>
-<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">from</span> . <span class="keyword">import</span> B</span><br><span class="line">或</span><br><span class="line"><span class="keyword">from</span> ..A <span class="keyword">import</span> B</span><br></pre></td></tr></table></figure>
-<p>其中，点号.代表当前模块，..代表上层模块，…代表上上层模块，依次类推。</p>
-<h1 id="模块的执行方式"><a href="#模块的执行方式" class="headerlink" title="模块的执行方式"></a>模块的执行方式</h1><p>模块的执行可以有两种方式：直接执行和以模块执行，即：</p>
-<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">python example&#x2F;foo.py</span><br><span class="line">或</span><br><span class="line">python -m example.foo</span><br></pre></td></tr></table></figure>
-<p>注意，以模块执行时，一定要有包的概念，即example一定是个包，而foo是这个包下的模块，这样才能顺利执行。</p>
+<h1 id="绝对导入和相对导入"><a href="#绝对导入和相对导入" class="headerlink" title="绝对导入和相对导入"></a>绝对导入和相对导入</h1><p>绝对导入和相对导入的关系可以类比绝对路径和相对路径。<br>绝对导入的格式为：<br><figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">import</span> A.B</span><br><span class="line">或</span><br><span class="line"><span class="keyword">from</span> A <span class="keyword">import</span> B</span><br></pre></td></tr></table></figure><br>相对导入格式为：<br><figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">from</span> . <span class="keyword">import</span> B</span><br><span class="line">或</span><br><span class="line"><span class="keyword">from</span> ..A <span class="keyword">import</span> B</span><br></pre></td></tr></table></figure><br>其中，点号.代表当前模块，..代表上层模块，…代表上上层模块，依次类推。</p>
+<h1 id="模块的执行方式"><a href="#模块的执行方式" class="headerlink" title="模块的执行方式"></a>模块的执行方式</h1><p>模块的执行可以有两种方式：直接执行和以模块执行，即：<br><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">python example&#x2F;foo.py</span><br><span class="line">或</span><br><span class="line">python -m example.foo</span><br></pre></td></tr></table></figure><br>注意，以模块执行时，一定要有包的概念，即example一定是个包，而foo是这个包下的模块，这样才能顺利执行。</p>
 <h1 id="包和模块"><a href="#包和模块" class="headerlink" title="包和模块"></a>包和模块</h1><p>模块: 一个 .py 文件就是一个模块（module）<br>包: <strong>init</strong>.py 文件所在目录就是包（package）</p>
-<h1 id="各种情形测试"><a href="#各种情形测试" class="headerlink" title="各种情形测试"></a>各种情形测试</h1><h2 id="模块直接导入"><a href="#模块直接导入" class="headerlink" title="模块直接导入"></a>模块直接导入</h2><p>即模块所在的目录都不是一个包结构，各个模块都是独立的，比如以下的目录结构：</p>
-<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line">D:\LEARN\IMPORT_TEST\TEST1</span><br><span class="line">├─pack1</span><br><span class="line">│      modu1.py</span><br><span class="line">└─pack2</span><br><span class="line">       modu2.py</span><br></pre></td></tr></table></figure>
-<p>modu1.py中的内容为：</p>
-<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">import</span> sys</span><br><span class="line">sys.path.append(<span class="string">&quot;D:\\learn\\import_test\\TEST1\\pack2&quot;</span>)</span><br><span class="line"><span class="keyword">from</span> modu2 <span class="keyword">import</span> hello2</span><br><span class="line">hello2()</span><br></pre></td></tr></table></figure>
-<p>modu2.py中的内容为：</p>
-<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="keyword">def</span> <span class="title">hello2</span>():</span></span><br><span class="line">    <span class="built_in">print</span>(<span class="string">&quot;hello, I am module 2&quot;</span>)</span><br></pre></td></tr></table></figure>
-<p>注意在modu1中一定加上sys.path.append那部分内容，即根据上面的描述，一定要让modu1能找到modu2才行，否则就会出现如下错误：</p>
-<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">ModuleNotFoundError: No module named <span class="string">&#x27;modu2&#x27;</span></span><br></pre></td></tr></table></figure>
-<p>此时进入pack1目录下，以直接执行或模块执行的方式都可以顺利输出。</p>
-<h2 id="包外导入"><a href="#包外导入" class="headerlink" title="包外导入"></a>包外导入</h2><p>将上面两个模块所在的目录都变为包结构，即：</p>
-<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><span class="line">D:\LEARN\IMPORT_TEST\TEST2</span><br><span class="line">├─pack1</span><br><span class="line">│      modu1.py</span><br><span class="line">│      __init__.py</span><br><span class="line">└─pack2</span><br><span class="line">       modu2.py</span><br><span class="line">       __init__.py</span><br></pre></td></tr></table></figure>
-<p>此时也能顺利执行，同时比上面非包结构的多出来一条执行方式，即：</p>
-<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">python -m pack1.modu1</span><br></pre></td></tr></table></figure>
-<p>即以包名+模块名的方式执行。</p>
+<h1 id="各种情形测试"><a href="#各种情形测试" class="headerlink" title="各种情形测试"></a>各种情形测试</h1><h2 id="模块直接导入"><a href="#模块直接导入" class="headerlink" title="模块直接导入"></a>模块直接导入</h2><p>即模块所在的目录都不是一个包结构，各个模块都是独立的，比如以下的目录结构：<br><figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line">D:\LEARN\IMPORT_TEST\TEST1</span><br><span class="line">├─pack1</span><br><span class="line">│      modu1.py</span><br><span class="line">└─pack2</span><br><span class="line">       modu2.py</span><br></pre></td></tr></table></figure><br>modu1.py中的内容为：<br><figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">import</span> sys</span><br><span class="line">sys.path.append(<span class="string">&quot;D:\\learn\\import_test\\TEST1\\pack2&quot;</span>)</span><br><span class="line"><span class="keyword">from</span> modu2 <span class="keyword">import</span> hello2</span><br><span class="line">hello2()</span><br></pre></td></tr></table></figure><br>modu2.py中的内容为：<br><figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="keyword">def</span> <span class="title">hello2</span>():</span></span><br><span class="line">    <span class="built_in">print</span>(<span class="string">&quot;hello, I am module 2&quot;</span>)</span><br></pre></td></tr></table></figure><br>注意在modu1中一定加上sys.path.append那部分内容，即根据上面的描述，一定要让modu1能找到modu2才行，否则就会出现如下错误：<br><figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">ModuleNotFoundError: No module named <span class="string">&#x27;modu2&#x27;</span></span><br></pre></td></tr></table></figure><br>此时进入pack1目录下，以直接执行或模块执行的方式都可以顺利输出。</p>
+<h2 id="包外导入"><a href="#包外导入" class="headerlink" title="包外导入"></a>包外导入</h2><p>将上面两个模块所在的目录都变为包结构，即：<br><figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><span class="line">D:\LEARN\IMPORT_TEST\TEST2</span><br><span class="line">├─pack1</span><br><span class="line">│      modu1.py</span><br><span class="line">│      __init__.py</span><br><span class="line">└─pack2</span><br><span class="line">       modu2.py</span><br><span class="line">       __init__.py</span><br></pre></td></tr></table></figure><br>此时也能顺利执行，同时比上面非包结构的多出来一条执行方式，即：<br><figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">python -m pack1.modu1</span><br></pre></td></tr></table></figure><br>即以包名+模块名的方式执行。</p>
 <p>上面两种情形，即模块与模块、包与包都是相互独立的关系，也就没有相对导入的意义。<br>如果是在一个包内的不同模块的导入，那么最自然的就是使用相对导入。</p>
 <h2 id="包内相对导入"><a href="#包内相对导入" class="headerlink" title="包内相对导入"></a>包内相对导入</h2><figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br></pre></td><td class="code"><pre><span class="line">D:\LEARN\IMPORT_TEST\Test3</span><br><span class="line">│  __init__.py</span><br><span class="line">│</span><br><span class="line">├─pack1</span><br><span class="line">│      modu1.py</span><br><span class="line">│      __init__.py</span><br><span class="line">│</span><br><span class="line">└─pack2</span><br><span class="line">       modu2.py</span><br><span class="line">       __init__.py</span><br></pre></td></tr></table></figure>
-<p>此时modu1.py中的内容为：</p>
-<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">from</span> ..pack2.modu2 <span class="keyword">import</span> hello2</span><br><span class="line">hello2()</span><br></pre></td></tr></table></figure>
-<p>即将sys.path.append去掉，因为是在一个包内相互引用，此时这样写没有意义。<br>此时正确运行的方式是进入Test3上一层的文件夹，然后：</p>
-<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">python -m Test3.pack1.modu1</span><br></pre></td></tr></table></figure>
-<p>即明确地告诉解释器模块的层次结构。<br>而如果采用直接运行的方式，比如：</p>
-<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">python Test3\pack1\modu1.py</span><br></pre></td></tr></table></figure>
-<p>就会报如下错误：</p>
-<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">ValueError: attempted relative <span class="keyword">import</span> beyond top-level package</span><br></pre></td></tr></table></figure>
-<p>这是因为，相对导入使用模块的__name__（这里的name和下面的main都是有两个下划线的，但是网页显示不出来。。）属性来决定模块在包结构中的位置。当__name__属性不包含包信息（i.e. 没有用’.’表示的层次结构，比如’<strong>main</strong>‘），则相对导入将模块解析为顶层模块，而不管模块在文件系统中的实际位置。这里模块被直接运行，则它自己为顶层模块，不存在层次结构，所以找不到其他的相对路径。</p>
+<p>此时modu1.py中的内容为：<br><figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">from</span> ..pack2.modu2 <span class="keyword">import</span> hello2</span><br><span class="line">hello2()</span><br></pre></td></tr></table></figure><br>即将sys.path.append去掉，因为是在一个包内相互引用，此时这样写没有意义。<br>此时正确运行的方式是进入Test3上一层的文件夹，然后：<br><figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">python -m Test3.pack1.modu1</span><br></pre></td></tr></table></figure><br>即明确地告诉解释器模块的层次结构。<br>而如果采用直接运行的方式，比如：<br><figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">python Test3\pack1\modu1.py</span><br></pre></td></tr></table></figure><br>就会报如下错误：<br><figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">ValueError: attempted relative <span class="keyword">import</span> beyond top-level package</span><br></pre></td></tr></table></figure><br>这是因为，相对导入使用模块的<strong>name</strong>（这里的name和下面的main都是有两个下划线的，但是网页显示不出来。。）属性来决定模块在包结构中的位置。当<strong>name</strong>属性不包含包信息（i.e. 没有用’.’表示的层次结构，比如’<strong>main</strong>‘），则相对导入将模块解析为顶层模块，而不管模块在文件系统中的实际位置。这里模块被直接运行，则它自己为顶层模块，不存在层次结构，所以找不到其他的相对路径。</p>
 <p>因此，直接运行带有相对导入的模块是不行的，需要通过模块运行的方式，将包结构明确告诉它才行。</p>
-<p>这个原理也适用于下面这种错误，比如将modu2移动到pack1中，即与modu1在同一个目录下，然后将modu1的内容改为这样的相对引用：</p>
-<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">from</span> .modu2 <span class="keyword">import</span> hello2</span><br><span class="line">hello2()</span><br></pre></td></tr></table></figure>
-<p>此时使用模块执行的方式没有问题，如果还是想尝试直接运行，那么就会出现：</p>
-<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">ModuleNotFoundError: No module named <span class="string">&#x27;__main__.modu2&#x27;</span>; <span class="string">&#x27;__main__&#x27;</span> <span class="keyword">is</span> <span class="keyword">not</span> a package</span><br></pre></td></tr></table></figure>
-<p>原因就是此时没有包结构，__main__也不是个包。</p>
+<p>这个原理也适用于下面这种错误，比如将modu2移动到pack1中，即与modu1在同一个目录下，然后将modu1的内容改为这样的相对引用：<br><figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">from</span> .modu2 <span class="keyword">import</span> hello2</span><br><span class="line">hello2()</span><br></pre></td></tr></table></figure><br>此时使用模块执行的方式没有问题，如果还是想尝试直接运行，那么就会出现：<br><figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">ModuleNotFoundError: No module named <span class="string">&#x27;__main__.modu2&#x27;</span>; <span class="string">&#x27;__main__&#x27;</span> <span class="keyword">is</span> <span class="keyword">not</span> a package</span><br></pre></td></tr></table></figure><br>原因就是此时没有包结构，<strong>main</strong>也不是个包。</p>
 <p>那么解决方法就是或者使用模块运行的方式运行，或者将它改成下面的绝对导入的方式就可以直接运行。</p>
-<h2 id="包内绝对导入"><a href="#包内绝对导入" class="headerlink" title="包内绝对导入"></a>包内绝对导入</h2><p>那么，如果将modu1.py中的内容改为绝对导入，即：</p>
-<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">from</span> Test3.pack2.modu2 <span class="keyword">import</span> hello2</span><br><span class="line">hello2()</span><br></pre></td></tr></table></figure>
-<p>此时正确运行方式也是进入Test3上一层文件夹，然后使用模块执行的方式运行：</p>
-<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">python -m Test3.pack1.modu1</span><br></pre></td></tr></table></figure>
-
-<p>如果此时采用直接运行的方式：</p>
-<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">python Test3\pack1\modu1.py</span><br></pre></td></tr></table></figure>
-<p>那么就会报错：</p>
-<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">ModuleNotFoundError: No module named <span class="string">&#x27;Test3&#x27;</span></span><br></pre></td></tr></table></figure>
-<p>这主要是因为Test3没有被找到，即按照第一部分所说，Test3没有在import的搜索路径中。所以，只要将它加入进去即可，比如：</p>
-<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"><span class="built_in">set</span> PYTHONPATH=D:\learn\import_test\</span><br></pre></td></tr></table></figure>
-<p>此时再直接运行就没有问题了。</p>
+<h2 id="包内绝对导入"><a href="#包内绝对导入" class="headerlink" title="包内绝对导入"></a>包内绝对导入</h2><p>那么，如果将modu1.py中的内容改为绝对导入，即：<br><figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">from</span> Test3.pack2.modu2 <span class="keyword">import</span> hello2</span><br><span class="line">hello2()</span><br></pre></td></tr></table></figure><br>此时正确运行方式也是进入Test3上一层文件夹，然后使用模块执行的方式运行：<br><figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">python -m Test3.pack1.modu1</span><br></pre></td></tr></table></figure></p>
+<p>如果此时采用直接运行的方式：<br><figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">python Test3\pack1\modu1.py</span><br></pre></td></tr></table></figure><br>那么就会报错：<br><figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">ModuleNotFoundError: No module named <span class="string">&#x27;Test3&#x27;</span></span><br></pre></td></tr></table></figure><br>这主要是因为Test3没有被找到，即按照第一部分所说，Test3没有在import的搜索路径中。所以，只要将它加入进去即可，比如：<br><figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"><span class="built_in">set</span> PYTHONPATH=D:\learn\import_test\</span><br></pre></td></tr></table></figure><br>此时再直接运行就没有问题了。</p>
 
     </div>
 
@@ -579,6 +539,59 @@
   
 
   
+      
+
+<script>
+  if (typeof MathJax === 'undefined') {
+    window.MathJax = {
+      loader: {
+        source: {
+          '[tex]/amsCd': '[tex]/amscd',
+          '[tex]/AMScd': '[tex]/amscd'
+        }
+      },
+      tex: {
+        inlineMath: {'[+]': [['$', '$']]},
+        tags: 'ams'
+      },
+      options: {
+        renderActions: {
+          findScript: [10, doc => {
+            document.querySelectorAll('script[type^="math/tex"]').forEach(node => {
+              const display = !!node.type.match(/; *mode=display/);
+              const math = new doc.options.MathItem(node.textContent, doc.inputJax[0], display);
+              const text = document.createTextNode('');
+              node.parentNode.replaceChild(text, node);
+              math.start = {node: text, delim: '', n: 0};
+              math.end = {node: text, delim: '', n: 0};
+              doc.math.push(math);
+            });
+          }, '', false],
+          insertedScript: [200, () => {
+            document.querySelectorAll('mjx-container').forEach(node => {
+              let target = node.parentNode;
+              if (target.nodeName.toLowerCase() === 'li') {
+                target.parentNode.classList.add('has-jax');
+              }
+            });
+          }, '', false]
+        }
+      }
+    };
+    (function () {
+      var script = document.createElement('script');
+      script.src = '//cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js';
+      script.defer = true;
+      document.head.appendChild(script);
+    })();
+  } else {
+    MathJax.startup.document.state(0);
+    MathJax.texReset();
+    MathJax.typeset();
+  }
+</script>
+
+    
 
   
 

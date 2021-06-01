@@ -20,12 +20,12 @@
     var CONFIG = {"hostname":"qixinbo.github.io","root":"/","scheme":"Gemini","version":"7.8.0","exturl":false,"sidebar":{"position":"left","display":"post","padding":18,"offset":12,"onmobile":false},"copycode":{"enable":false,"show_result":false,"style":null},"back2top":{"enable":true,"sidebar":false,"scrollpercent":false},"bookmark":{"enable":false,"color":"#222","save":"auto"},"fancybox":false,"mediumzoom":false,"lazyload":false,"pangu":false,"comments":{"style":"tabs","active":null,"storage":true,"lazyload":false,"nav":null},"algolia":{"hits":{"per_page":10},"labels":{"input_placeholder":"Search for Posts","hits_empty":"We didn't find any results for the search: ${query}","hits_stats":"${hits} results found in ${time} ms"}},"localsearch":{"enable":false,"trigger":"auto","top_n_per_article":1,"unescape":false,"preload":false},"motion":{"enable":true,"async":false,"transition":{"post_block":"fadeIn","post_header":"slideDownIn","post_body":"slideDownIn","coll_header":"slideLeftIn","sidebar":"slideUpIn"}}};
   </script>
 
-  <meta name="description" content="2016-11-16 Update p4est与deal.II的链接注意事项：   * p4est安装时需要开启mpi，即configure时加上–enable-mpi选项。  * 链接时增添：1            -DP4EST_DIR&#x3D;&#x2F;path&#x2F;to&#x2F;installation -DDEAL_II_WITH_P4EST&#x3D;ON -DDEAL_II_WITH_MPI&#x3D;ON">
+  <meta name="description" content="2016-11-16 Update p4est与deal.II的链接注意事项：   * p4est安装时需要开启mpi，即configure时加上—enable-mpi选项。  * 链接时增添：1            -DP4EST_DIR&#x3D;&#x2F;path&#x2F;to&#x2F;installation -DDEAL_II_WITH_P4EST&#x3D;ON -DDEAL_II_WITH_MPI&#x3D;ON">
 <meta property="og:type" content="article">
 <meta property="og:title" content="deal.II链接PETSc过程记录">
 <meta property="og:url" content="http://qixinbo.github.io/2016/09/29/dealii-link-petsc/index.html">
 <meta property="og:site_name" content="数字旗手">
-<meta property="og:description" content="2016-11-16 Update p4est与deal.II的链接注意事项：   * p4est安装时需要开启mpi，即configure时加上–enable-mpi选项。  * 链接时增添：1            -DP4EST_DIR&#x3D;&#x2F;path&#x2F;to&#x2F;installation -DDEAL_II_WITH_P4EST&#x3D;ON -DDEAL_II_WITH_MPI&#x3D;ON">
+<meta property="og:description" content="2016-11-16 Update p4est与deal.II的链接注意事项：   * p4est安装时需要开启mpi，即configure时加上—enable-mpi选项。  * 链接时增添：1            -DP4EST_DIR&#x3D;&#x2F;path&#x2F;to&#x2F;installation -DDEAL_II_WITH_P4EST&#x3D;ON -DDEAL_II_WITH_MPI&#x3D;ON">
 <meta property="og:locale" content="en_US">
 <meta property="og:image" content="https://ws1.sinaimg.cn/large/0072Lfvtly1fvjjxhizrlj30zk0sgqif.jpg">
 <meta property="article:published_time" content="2016-09-28T16:00:00.000Z">
@@ -259,15 +259,14 @@
       
         <h1 id="2016-11-16-Update"><a href="#2016-11-16-Update" class="headerlink" title="2016-11-16 Update"></a>2016-11-16 Update</h1><p>p4est与deal.II的链接注意事项：</p>
 <ul>
-<li>p4est安装时需要开启mpi，即configure时加上–enable-mpi选项。</li>
-<li>链接时增添：<figure class="highlight cpp"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">-DP4EST_DIR=/path/to/installation -DDEAL_II_WITH_P4EST=ON -DDEAL_II_WITH_MPI=ON</span><br></pre></td></tr></table></figure></li>
+<li>p4est安装时需要开启mpi，即configure时加上—enable-mpi选项。</li>
+<li>链接时增添：<figure class="highlight cpp"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">-DP4EST_DIR=/path/to/installation -DDEAL_II_WITH_P4EST=ON -DDEAL_II_WITH_MPI=ON</span><br></pre></td></tr></table></figure>
+</li>
 </ul>
 <h1 id="简介"><a href="#简介" class="headerlink" title="简介"></a>简介</h1><p>在学习deal.II的Step17和18时，需要用到PETSc。<br>PETSc，全称Portable-Extensible-Toolkit-for-Scientific-Computation，是美国能源部ODE2000支持开发的20多个ACTS工具箱之一，由Argonne国家实验室开发的可移植可扩展科学计算工具箱，主要用于在分布式存储环境高效求解偏微分方程组及相关问题。PETSc所有消息传递通信均采用MPI标准实现，见<a target="_blank" rel="noopener" href="http://baike.baidu.com/view/3600627.htm">百度百科介绍</a>。<br>默认安装deal.II时没有与PETSc集成，那么就需要重新编译。</p>
 <p>注：这里链接PETSc的过程也同样适用于Trilinos、SLEPc等第三方软件。</p>
 <h1 id="提前准备"><a href="#提前准备" class="headerlink" title="提前准备"></a>提前准备</h1><p>这里链接的是deal.II的8.4.1版本和PETSc的3.5.4版本。<br>还额外需要MPI库，这里用的是Open MPI的1.6.3版本。还需要hypre，用的是2.9.0版本。<br>openmpi和hypre之前都安装过，分别安装在/usr/local/openmpi和/usr/local/hypre。这两个的具体安装过程不再详述。</p>
-<h1 id="安装过程"><a href="#安装过程" class="headerlink" title="安装过程"></a>安装过程</h1><h2 id="编译PETSc"><a href="#编译PETSc" class="headerlink" title="编译PETSc"></a>编译PETSc</h2><p>解压下载的安装包，得到petsc-3.5.4文件夹，然后进入，执行以下命令：</p>
-<figure class="highlight cpp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">export</span> PETSC_DIR=`pwd`</span><br><span class="line"><span class="keyword">export</span> PETSC_ARCH=x86_64   <span class="meta"># or any other identifying text for your machine</span></span><br><span class="line">./config/configure.py --with-shared-libararies=<span class="number">1</span> --with-x=<span class="number">0</span> --with-mpi=<span class="number">1</span> --with-mpi-dir=/usr/local/openmpi --with-hypre=<span class="number">1</span> --with-hypre-dir=/usr/local/hypre</span><br><span class="line">make all test</span><br></pre></td></tr></table></figure>
-<p>要点：</p>
+<h1 id="安装过程"><a href="#安装过程" class="headerlink" title="安装过程"></a>安装过程</h1><h2 id="编译PETSc"><a href="#编译PETSc" class="headerlink" title="编译PETSc"></a>编译PETSc</h2><p>解压下载的安装包，得到petsc-3.5.4文件夹，然后进入，执行以下命令：<br><figure class="highlight cpp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">export</span> PETSC_DIR=`pwd`</span><br><span class="line"><span class="keyword">export</span> PETSC_ARCH=x86_64   <span class="meta"># or any other identifying text for your machine</span></span><br><span class="line">./config/configure.py --with-shared-libararies=<span class="number">1</span> --with-x=<span class="number">0</span> --with-mpi=<span class="number">1</span> --with-mpi-dir=/usr/local/openmpi --with-hypre=<span class="number">1</span> --with-hypre-dir=/usr/local/hypre</span><br><span class="line">make all test</span><br></pre></td></tr></table></figure><br>要点：</p>
 <ul>
 <li>这里没有指定prefix路径，也就是在当前安装文件夹下编译。</li>
 <li>环境变量PETSC_DIR是指定PETSc的安装文件位置，环境变量PETSC_ARCH是指定配置名字，比如x86_64或gnu_intel等等，这样可以生成不同名字的目录，方便切换版本。</li>
@@ -275,17 +274,13 @@
 <li>一定要使用MPI，并且指定好它的路径，否则跟deal.II不对应也不行。这里务必注意！</li>
 <li>一定使用hypre，并且指定好路径。否则step17还是不能编译。</li>
 </ul>
-<p>编译好PETSc后，将那两个环境变量写入.bashrc中，让其能够始终有效：</p>
-<figure class="highlight cpp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">export</span> PETSC_DIR=/home/qixinbo/program/petsc<span class="number">-3.5</span><span class="number">.4</span></span><br><span class="line"><span class="keyword">export</span> PETSC_ARCH=x86_64</span><br><span class="line"><span class="keyword">export</span> LD_LIBRARY_PATH=$PETSC_DIR/$PETSC_ARCH/lib:$LD_LIBRARY_PATH</span><br></pre></td></tr></table></figure>
-<p>这样同时将PETSc的lib路径加入了全局的动态链接库路径中。</p>
-<h2 id="编译deal-II"><a href="#编译deal-II" class="headerlink" title="编译deal.II"></a>编译deal.II</h2><p>解压下载的tar包，得到dealii-8.4.1文件夹，进入，然后执行以下命令：</p>
-<figure class="highlight cpp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line">mkdir build</span><br><span class="line">cd build</span><br><span class="line">cmake -DCMAKE_INSTALL_PREFIX=/opt/dealii -DDEAL_II_WITH_PETSC=ON -DDEAL_II_WITH_MPI=ON ..</span><br><span class="line">sudo make install</span><br><span class="line">make test</span><br></pre></td></tr></table></figure>
-<p>要点：</p>
+<p>编译好PETSc后，将那两个环境变量写入.bashrc中，让其能够始终有效：<br><figure class="highlight cpp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">export</span> PETSC_DIR=/home/qixinbo/program/petsc<span class="number">-3.5</span><span class="number">.4</span></span><br><span class="line"><span class="keyword">export</span> PETSC_ARCH=x86_64</span><br><span class="line"><span class="keyword">export</span> LD_LIBRARY_PATH=$PETSC_DIR/$PETSC_ARCH/lib:$LD_LIBRARY_PATH</span><br></pre></td></tr></table></figure><br>这样同时将PETSc的lib路径加入了全局的动态链接库路径中。</p>
+<h2 id="编译deal-II"><a href="#编译deal-II" class="headerlink" title="编译deal.II"></a>编译deal.II</h2><p>解压下载的tar包，得到dealii-8.4.1文件夹，进入，然后执行以下命令：<br><figure class="highlight cpp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line">mkdir build</span><br><span class="line">cd build</span><br><span class="line">cmake -DCMAKE_INSTALL_PREFIX=/opt/dealii -DDEAL_II_WITH_PETSC=ON -DDEAL_II_WITH_MPI=ON ..</span><br><span class="line">sudo make install</span><br><span class="line">make test</span><br></pre></td></tr></table></figure><br>要点：</p>
 <ul>
 <li>用-DDEAL_II_WITH_PETSC=ON来指明链接PETSC</li>
 <li>一定要指明用MPI，与前面的PETSc相对应</li>
 </ul>
-<h1 id="Step17编译运行成功"><a href="#Step17编译运行成功" class="headerlink" title="Step17编译运行成功"></a>Step17编译运行成功</h1><p>最后附上一张Step17编译运行成功的靓照：<br><img src="https://ws1.sinaimg.cn/large/0072Lfvtly1fvjjxhizrlj30zk0sgqif.jpg"></p>
+<h1 id="Step17编译运行成功"><a href="#Step17编译运行成功" class="headerlink" title="Step17编译运行成功"></a>Step17编译运行成功</h1><p>最后附上一张Step17编译运行成功的靓照：<br><img src="https://ws1.sinaimg.cn/large/0072Lfvtly1fvjjxhizrlj30zk0sgqif.jpg" alt=""></p>
 <h1 id="参考文献"><a href="#参考文献" class="headerlink" title="参考文献"></a>参考文献</h1><p><a target="_blank" rel="noopener" href="https://www.dealii.org/developer/external-libs/petsc.html">Interfacing deal.II to PETSc</a><br><a target="_blank" rel="noopener" href="https://www.dealii.org/developer/readme.html">Installation instructions and further information on deal.II</a><br><a target="_blank" rel="noopener" href="http://www.mcs.anl.gov/petsc/documentation/installation.html">PETSc:Documentation: Installation</a><br><a target="_blank" rel="noopener" href="http://blog.sina.com.cn/s/blog_684b397d0101h9ov.html">安装 deal.II 7.1.0 心得</a></p>
 
     </div>
@@ -540,6 +535,59 @@
   
 
   
+      
+
+<script>
+  if (typeof MathJax === 'undefined') {
+    window.MathJax = {
+      loader: {
+        source: {
+          '[tex]/amsCd': '[tex]/amscd',
+          '[tex]/AMScd': '[tex]/amscd'
+        }
+      },
+      tex: {
+        inlineMath: {'[+]': [['$', '$']]},
+        tags: 'ams'
+      },
+      options: {
+        renderActions: {
+          findScript: [10, doc => {
+            document.querySelectorAll('script[type^="math/tex"]').forEach(node => {
+              const display = !!node.type.match(/; *mode=display/);
+              const math = new doc.options.MathItem(node.textContent, doc.inputJax[0], display);
+              const text = document.createTextNode('');
+              node.parentNode.replaceChild(text, node);
+              math.start = {node: text, delim: '', n: 0};
+              math.end = {node: text, delim: '', n: 0};
+              doc.math.push(math);
+            });
+          }, '', false],
+          insertedScript: [200, () => {
+            document.querySelectorAll('mjx-container').forEach(node => {
+              let target = node.parentNode;
+              if (target.nodeName.toLowerCase() === 'li') {
+                target.parentNode.classList.add('has-jax');
+              }
+            });
+          }, '', false]
+        }
+      }
+    };
+    (function () {
+      var script = document.createElement('script');
+      script.src = '//cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js';
+      script.defer = true;
+      document.head.appendChild(script);
+    })();
+  } else {
+    MathJax.startup.document.state(0);
+    MathJax.texReset();
+    MathJax.typeset();
+  }
+</script>
+
+    
 
   
 

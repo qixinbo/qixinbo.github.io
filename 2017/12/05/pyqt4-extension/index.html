@@ -258,7 +258,6 @@
         <p>本文是对<a target="_blank" rel="noopener" href="https://www.tutorialspoint.com/pyqt/">TutorialsPoint</a>上的教程的翻译。</p>
 <h1 id="QDialog"><a href="#QDialog" class="headerlink" title="QDialog"></a>QDialog</h1><p>QDialog通常提供一个窗口用来收集用户的响应。它可以设为模态（阻塞其父窗口）和非模态（可以绕过该对话窗口）。<br>PyQt API也提供了一些配置好的对话框控件，如之前提到的InputDialog、FileDialog、FontDialog。</p>
 <h2 id="举例"><a href="#举例" class="headerlink" title="举例"></a>举例</h2><figure class="highlight cpp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">import</span> sys</span><br><span class="line">from PyQt4.QtGui <span class="keyword">import</span> *</span><br><span class="line">from PyQt4.QtCore <span class="keyword">import</span> *</span><br><span class="line"></span><br><span class="line"><span class="function">def <span class="title">window</span><span class="params">()</span>:</span></span><br><span class="line"><span class="function">   app =</span> <span class="built_in">QApplication</span>(sys.argv)</span><br><span class="line">   w = <span class="built_in">QWidget</span>()</span><br><span class="line">   b = <span class="built_in">QPushButton</span>(w)</span><br><span class="line">   b.<span class="built_in">setText</span>(<span class="string">&quot;Hello World!&quot;</span>)</span><br><span class="line">   b.<span class="built_in">move</span>(<span class="number">50</span>,<span class="number">50</span>)</span><br><span class="line">   b.clicked.<span class="built_in">connect</span>(showdialog)</span><br><span class="line">   w.<span class="built_in">setWindowTitle</span>(<span class="string">&quot;PyQt Dialog demo&quot;</span>)</span><br><span class="line">   w.<span class="built_in">show</span>()</span><br><span class="line">   sys.<span class="built_in">exit</span>(app.<span class="built_in">exec_</span>())</span><br><span class="line">	</span><br><span class="line">def <span class="built_in">showdialog</span>():</span><br><span class="line">   d = <span class="built_in">QDialog</span>()</span><br><span class="line">   b1 = <span class="built_in">QPushButton</span>(<span class="string">&quot;ok&quot;</span>,d)</span><br><span class="line">   b1.<span class="built_in">move</span>(<span class="number">50</span>,<span class="number">50</span>)</span><br><span class="line">   d.<span class="built_in">setWindowTitle</span>(<span class="string">&quot;Dialog&quot;</span>)</span><br><span class="line">   d.<span class="built_in">setWindowModality</span>(Qt.ApplicationModal)  # 这里设置模态与否</span><br><span class="line">   d.<span class="built_in">exec_</span>()</span><br><span class="line">	</span><br><span class="line">if __name__ == &#x27;__main__&#x27;:</span><br><span class="line">   <span class="built_in">window</span>()</span><br></pre></td></tr></table></figure>
-
 <h1 id="QMessageBox"><a href="#QMessageBox" class="headerlink" title="QMessageBox"></a>QMessageBox</h1><p>QMessageBox是一个常用的模态对话框，用来显示一些信息类消息，可以让用户通过点击任意一个标准按钮来响应。每个标准按钮都有一个预定义的标题、角色，并且返回一个预定义的十六进制数字。</p>
 <h2 id="QMessageBox的函数"><a href="#QMessageBox的函数" class="headerlink" title="QMessageBox的函数"></a>QMessageBox的函数</h2><ol>
 <li>setIcon()：显示预定义的图标</li>
@@ -271,7 +270,6 @@
 <li>setEscapeButton()：当按下Escape键时，该按钮会发出clicked信号</li>
 </ol>
 <h2 id="举例-1"><a href="#举例-1" class="headerlink" title="举例"></a>举例</h2><figure class="highlight cpp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br></pre></td><td class="code"><pre><span class="line">mport sys</span><br><span class="line">from PyQt4.QtGui <span class="keyword">import</span> *</span><br><span class="line">from PyQt4.QtCore <span class="keyword">import</span> *</span><br><span class="line"></span><br><span class="line"><span class="function">def <span class="title">window</span><span class="params">()</span>:</span></span><br><span class="line"><span class="function">   app =</span> <span class="built_in">QApplication</span>(sys.argv)</span><br><span class="line">   w = <span class="built_in">QWidget</span>()</span><br><span class="line">   b = <span class="built_in">QPushButton</span>(w)</span><br><span class="line">   b.<span class="built_in">setText</span>(<span class="string">&quot;Show message!&quot;</span>)</span><br><span class="line"></span><br><span class="line">   b.<span class="built_in">move</span>(<span class="number">50</span>,<span class="number">50</span>)</span><br><span class="line">   b.clicked.<span class="built_in">connect</span>(showdialog)</span><br><span class="line">   w.<span class="built_in">setWindowTitle</span>(<span class="string">&quot;PyQt Dialog demo&quot;</span>)</span><br><span class="line">   w.<span class="built_in">show</span>()</span><br><span class="line">   sys.<span class="built_in">exit</span>(app.<span class="built_in">exec_</span>())</span><br><span class="line">	</span><br><span class="line">def <span class="built_in">showdialog</span>():</span><br><span class="line">   msg = <span class="built_in">QMessageBox</span>()</span><br><span class="line">   msg.<span class="built_in">setIcon</span>(QMessageBox.Information)</span><br><span class="line"></span><br><span class="line">   msg.<span class="built_in">setText</span>(<span class="string">&quot;This is a message box&quot;</span>)</span><br><span class="line">   msg.<span class="built_in">setInformativeText</span>(<span class="string">&quot;This is additional information&quot;</span>)</span><br><span class="line">   msg.<span class="built_in">setWindowTitle</span>(<span class="string">&quot;MessageBox demo&quot;</span>)</span><br><span class="line">   msg.<span class="built_in">setDetailedText</span>(<span class="string">&quot;The details are as follows:&quot;</span>)</span><br><span class="line">   msg.<span class="built_in">setStandardButtons</span>(QMessageBox.Ok | QMessageBox.Cancel)</span><br><span class="line">   msg.buttonClicked.<span class="built_in">connect</span>(msgbtn)</span><br><span class="line">	</span><br><span class="line">   retval = msg.<span class="built_in">exec_</span>()</span><br><span class="line">   print <span class="string">&quot;value of pressed message box button:&quot;</span>, retval</span><br><span class="line">	</span><br><span class="line">def <span class="built_in">msgbtn</span>(i):</span><br><span class="line">   print <span class="string">&quot;Button pressed is:&quot;</span>,i.<span class="built_in">text</span>()</span><br><span class="line">	</span><br><span class="line">if __name__ == &#x27;__main__&#x27;: </span><br><span class="line">   <span class="built_in">window</span>()</span><br></pre></td></tr></table></figure>
-
 <h1 id="多文档界面QMdiArea和QMdiSubWindow"><a href="#多文档界面QMdiArea和QMdiSubWindow" class="headerlink" title="多文档界面QMdiArea和QMdiSubWindow"></a>多文档界面QMdiArea和QMdiSubWindow</h1><p>一个通常的GUI可能具有多个窗口，之前的标签页和堆栈控件可以允许点击一次激活某个窗口，但是这两种方法有时不适用，因为它们一次只能查看一个窗口。<br>同时显示多个窗口的方法有：一是把这些窗口创建成独立的，称为SDI (Single Document Interface)，但因为每个窗口都有自己的菜单栏、工具栏等，开销比较大；另外一种方法是MDI (Multiple Document Interface)，比较节省开销，子窗口彼此相对放置在主容器中，这个主容器控件叫做QMdiArea。<br>QMdiArea通常占据QMainWindow对象的中心地位，在此区域内的子窗口都是QMdiSubWindow类的实例，可以在这些子窗口中设置任意的控件，这些子窗口可以以级联或者瓦片的形式排列。</p>
 <h2 id="QMdiArea和QMdiSubWindow的函数"><a href="#QMdiArea和QMdiSubWindow的函数" class="headerlink" title="QMdiArea和QMdiSubWindow的函数"></a>QMdiArea和QMdiSubWindow的函数</h2><ol>
 <li>addSubWindow()：添加一个控件作为子窗口</li>
@@ -285,9 +283,9 @@
 </ol>
 <h2 id="QMdiArea和QMdiSubWindow的信号"><a href="#QMdiArea和QMdiSubWindow的信号" class="headerlink" title="QMdiArea和QMdiSubWindow的信号"></a>QMdiArea和QMdiSubWindow的信号</h2><p>QMdiArea的对象发射subWindowActivated()信号，而QMdiSubWindow的对象发射windowStateChanged()信号。</p>
 <h2 id="举例-2"><a href="#举例-2" class="headerlink" title="举例"></a>举例</h2><figure class="highlight cpp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">import</span> sys</span><br><span class="line">from PyQt4.QtCore <span class="keyword">import</span> *</span><br><span class="line">from PyQt4.QtGui <span class="keyword">import</span> *</span><br><span class="line"></span><br><span class="line"><span class="function">class <span class="title">MainWindow</span><span class="params">(QMainWindow)</span>:</span></span><br><span class="line"><span class="function">   count =</span> <span class="number">0</span></span><br><span class="line">	</span><br><span class="line">   def __init__(self, parent = None):</span><br><span class="line">      <span class="built_in">super</span>(MainWindow, self).__init__(parent)</span><br><span class="line">      self.mdi = <span class="built_in">QMdiArea</span>()</span><br><span class="line">      self.<span class="built_in">setCentralWidget</span>(self.mdi)</span><br><span class="line">      bar = self.<span class="built_in">menuBar</span>()</span><br><span class="line">		</span><br><span class="line">      file = bar.<span class="built_in">addMenu</span>(<span class="string">&quot;File&quot;</span>)</span><br><span class="line">      file.<span class="built_in">addAction</span>(<span class="string">&quot;New&quot;</span>)</span><br><span class="line">      file.<span class="built_in">addAction</span>(<span class="string">&quot;cascade&quot;</span>)</span><br><span class="line">      file.<span class="built_in">addAction</span>(<span class="string">&quot;Tiled&quot;</span>)</span><br><span class="line">      file.triggered[QAction].<span class="built_in">connect</span>(self.windowaction)</span><br><span class="line">      self.<span class="built_in">setWindowTitle</span>(<span class="string">&quot;MDI demo&quot;</span>)</span><br><span class="line">		</span><br><span class="line">   def <span class="built_in">windowaction</span>(self, q):</span><br><span class="line">      print <span class="string">&quot;triggered&quot;</span></span><br><span class="line">		</span><br><span class="line">      <span class="keyword">if</span> q.<span class="built_in">text</span>() == <span class="string">&quot;New&quot;</span>:</span><br><span class="line">         MainWindow.count = MainWindow.count+<span class="number">1</span></span><br><span class="line">         sub = <span class="built_in">QMdiSubWindow</span>()</span><br><span class="line">         sub.<span class="built_in">setWidget</span>(<span class="built_in">QTextEdit</span>())</span><br><span class="line">         sub.<span class="built_in">setWindowTitle</span>(<span class="string">&quot;subwindow&quot;</span>+<span class="built_in">str</span>(MainWindow.count))</span><br><span class="line">         self.mdi.<span class="built_in">addSubWindow</span>(sub)</span><br><span class="line">         sub.<span class="built_in">show</span>()</span><br><span class="line">   		</span><br><span class="line">      <span class="keyword">if</span> q.<span class="built_in">text</span>() == <span class="string">&quot;cascade&quot;</span>:</span><br><span class="line">         self.mdi.<span class="built_in">cascadeSubWindows</span>()</span><br><span class="line">   		</span><br><span class="line">      <span class="keyword">if</span> q.<span class="built_in">text</span>() == <span class="string">&quot;Tiled&quot;</span>:</span><br><span class="line">         self.mdi.<span class="built_in">tileSubWindows</span>()</span><br><span class="line">   		</span><br><span class="line">def <span class="built_in">main</span>():</span><br><span class="line">   app = <span class="built_in">QApplication</span>(sys.argv)</span><br><span class="line">   ex = <span class="built_in">MainWindow</span>()</span><br><span class="line">   ex.<span class="built_in">show</span>()</span><br><span class="line">   sys.<span class="built_in">exit</span>(app.<span class="built_in">exec_</span>())</span><br><span class="line">	</span><br><span class="line">if __name__ == &#x27;__main__&#x27;:</span><br><span class="line">   <span class="built_in">main</span>()</span><br></pre></td></tr></table></figure>
-
 <h1 id="拖放QDrag和QMimeData"><a href="#拖放QDrag和QMimeData" class="headerlink" title="拖放QDrag和QMimeData"></a>拖放QDrag和QMimeData</h1><p>对于用户来说，能够拖放对象有时是很有用的。<br>MIME (Multipurpose Internet Mail Extensions) 是描述消息内容类型的因特网标准。 MIME 消息能包含文本、图像、音频、视频以及其他应用程序专用的数据。MIME类型的拖放而进行的文件传输是基于QDrag类。QMimeData将数据及其相应的MIME类型相关联。数据是存于剪贴板中，然后用于拖放过程。</p>
-<h2 id="QMimeData的函数"><a href="#QMimeData的函数" class="headerlink" title="QMimeData的函数"></a>QMimeData的函数</h2><table>
+<h2 id="QMimeData的函数"><a href="#QMimeData的函数" class="headerlink" title="QMimeData的函数"></a>QMimeData的函数</h2><div class="table-container">
+<table>
 <thead>
 <tr>
 <th>Tester</th>
@@ -296,7 +294,8 @@
 <th>MIME Types</th>
 </tr>
 </thead>
-<tbody><tr>
+<tbody>
+<tr>
 <td>hasText()</td>
 <td>text()</td>
 <td>setText()</td>
@@ -326,7 +325,9 @@
 <td>setColorData()</td>
 <td>application/x-color</td>
 </tr>
-</tbody></table>
+</tbody>
+</table>
+</div>
 <p>很多控件都支持拖放动作。那些允许数据被拖动的控件必须设置setDragEnabled()为true。<br>另一方面，接收数据的控件也必须响应拖放动作才能顺利存储数据：</p>
 <ol>
 <li>DragEnterEvent在拖放动作进入目标控件时，向该控件提供一个事件</li>
@@ -588,6 +589,59 @@
   
 
   
+      
+
+<script>
+  if (typeof MathJax === 'undefined') {
+    window.MathJax = {
+      loader: {
+        source: {
+          '[tex]/amsCd': '[tex]/amscd',
+          '[tex]/AMScd': '[tex]/amscd'
+        }
+      },
+      tex: {
+        inlineMath: {'[+]': [['$', '$']]},
+        tags: 'ams'
+      },
+      options: {
+        renderActions: {
+          findScript: [10, doc => {
+            document.querySelectorAll('script[type^="math/tex"]').forEach(node => {
+              const display = !!node.type.match(/; *mode=display/);
+              const math = new doc.options.MathItem(node.textContent, doc.inputJax[0], display);
+              const text = document.createTextNode('');
+              node.parentNode.replaceChild(text, node);
+              math.start = {node: text, delim: '', n: 0};
+              math.end = {node: text, delim: '', n: 0};
+              doc.math.push(math);
+            });
+          }, '', false],
+          insertedScript: [200, () => {
+            document.querySelectorAll('mjx-container').forEach(node => {
+              let target = node.parentNode;
+              if (target.nodeName.toLowerCase() === 'li') {
+                target.parentNode.classList.add('has-jax');
+              }
+            });
+          }, '', false]
+        }
+      }
+    };
+    (function () {
+      var script = document.createElement('script');
+      script.src = '//cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js';
+      script.defer = true;
+      document.head.appendChild(script);
+    })();
+  } else {
+    MathJax.startup.document.state(0);
+    MathJax.texReset();
+    MathJax.typeset();
+  }
+</script>
+
+    
 
   
 

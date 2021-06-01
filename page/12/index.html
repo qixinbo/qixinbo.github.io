@@ -463,19 +463,19 @@ gdb调试程序的时候打印变量值会出现value optimized out情况,可以
           Update
 2016-11-16更新：
 在Ubuntu10.10上安装gcc4.8.0时，出现错误：
-
 1
 
 
 ‘CHAR_BIT’ was not declared in this scope
 
 
-解决方法：
 
+解决方法：
 1
 
 
 unset LIBRARY_PATH CPATH C_INCLUDE_PATH PKG_CONFIG_PATH CPLUS_INCLUDE_PATH INCLUDE
+
 
 
 如果在/etc/profile 或者 ~/.bashrc中设置了ccache的话,也暂时去掉ccache的设置.
@@ -1122,15 +1122,18 @@ l,,,,  //list的缩写
 
       
           传统Ginzburg-Landau自由能泛函形式
-$$ F_{CH}=\int\gamma[\frac{\epsilon}{2}|\nabla\phi|^2+\frac{1}{4\epsilon}(\phi^2-1)^2]dx $$
 其中$\gamma$是传统明锐界面模型中的表面张力，$\epsilon$是界面宽度。
 
 多相体系的混合能形式
-$$
-\begin{equation}
-\begin{split}
-F&=\int_\Omega W(\phi,\nabla\phi,\psi,\nabla\psi)dx \
-&=\int_\Omega[\gamma_1(\frac{\psi-1}{2})
+其中$(\frac{\psi-1}{2})^2$这一项是为了保证两个不同相(标记为$\phi=1,\psi=-1$和$\phi=-1,\psi=-1$)之间的相互作用不直接影响第三相(标记为$\psi=1$)。
+
+多相运动体系的总能量
+通过在系统中加入流体方程，得到整个流体动力学体系的总能量，其是动能和混合能的加权之和：
+
+这里$\lambda$表示两种能量之间的竞争。
+
+应力张量
+通过虚功原理求得Ginzburg-Landau能中的应
           <!--noindex-->
             <div class="post-button">
               <a class="btn" href="/2016/02/27/multiple-phasefield/#more" rel="contents">

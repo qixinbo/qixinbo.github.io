@@ -789,7 +789,6 @@ cell>None
 
 之所以能这样打开图像，是因为在生成ImagePy主界面时，已经将该图像解析成了插件，具体过程可以参见之前解析主界面渲染的文章。
 主要原理通过查看IBook下的Image Referenced文件夹下的image_plgs文件就一目了然：
-
 1
 2
 3
@@ -800,7 +799,7 @@ cell>None
 8
 9
 10
-1
+11
           <!--noindex-->
             <div class="post-button">
               <a class="btn" href="/2020/02/10/ImagePy_16/#more" rel="contents">
@@ -907,7 +906,6 @@ The Watershed Transformation
 此处分水岭算法所使用的样例图像为：
 
 上述图像仅是为了便于展示，其实际尺寸为15乘以15像素，即像素矩阵为：
-
 1
 2
 3
@@ -926,7 +924,7 @@ The Watershed Transformation
 
 
 [[  0,   0,   0,   0,   0,   0,   0,   0,   0,   0,   0,   0,   0,   0,   0],
-[  0,
+[  0, 
           <!--noindex-->
             <div class="post-button">
               <a class="btn" href="/2019/12/20/ImagePy_15/#more" rel="contents">
@@ -1030,7 +1028,6 @@ The Watershed Transformation
 然后上面这张图像不能直接传入findmax脚本中，实际用到的是它的距离变换图（注意将这张图的显示范围调整为0-3，因为面积很小，所以距离很近，如果正常0-255显示则就是一片黑色）：
 
 这张图像的像素矩阵就是：
-
 1
 2
 3
@@ -1045,7 +1042,7 @@ The Watershed Transformation
 
 [[0 0 0 0 0 0 0 0 0 0]
  [0 0 0 0 0 0 0 0 0 0]
-
+ 
           <!--noindex-->
             <div class="post-button">
               <a class="btn" href="/2019/11/17/ImagePy_14/#more" rel="contents">
@@ -1149,12 +1146,11 @@ Macros 是一个宏执行器引擎，它负责将一串 ImagePy 命令依次执�
 
 Macros引擎
 先来看一下Macros类的全貌：
-
 1
 2
 3
 4
-
+5
           <!--noindex-->
             <div class="post-button">
               <a class="btn" href="/2019/11/04/ImagePy_13/#more" rel="contents">
@@ -1486,6 +1482,59 @@ Macros引擎
   
 
   
+      
+
+<script>
+  if (typeof MathJax === 'undefined') {
+    window.MathJax = {
+      loader: {
+        source: {
+          '[tex]/amsCd': '[tex]/amscd',
+          '[tex]/AMScd': '[tex]/amscd'
+        }
+      },
+      tex: {
+        inlineMath: {'[+]': [['$', '$']]},
+        tags: 'ams'
+      },
+      options: {
+        renderActions: {
+          findScript: [10, doc => {
+            document.querySelectorAll('script[type^="math/tex"]').forEach(node => {
+              const display = !!node.type.match(/; *mode=display/);
+              const math = new doc.options.MathItem(node.textContent, doc.inputJax[0], display);
+              const text = document.createTextNode('');
+              node.parentNode.replaceChild(text, node);
+              math.start = {node: text, delim: '', n: 0};
+              math.end = {node: text, delim: '', n: 0};
+              doc.math.push(math);
+            });
+          }, '', false],
+          insertedScript: [200, () => {
+            document.querySelectorAll('mjx-container').forEach(node => {
+              let target = node.parentNode;
+              if (target.nodeName.toLowerCase() === 'li') {
+                target.parentNode.classList.add('has-jax');
+              }
+            });
+          }, '', false]
+        }
+      }
+    };
+    (function () {
+      var script = document.createElement('script');
+      script.src = '//cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js';
+      script.defer = true;
+      document.head.appendChild(script);
+    })();
+  } else {
+    MathJax.startup.document.state(0);
+    MathJax.texReset();
+    MathJax.typeset();
+  }
+</script>
+
+    
 
   
 

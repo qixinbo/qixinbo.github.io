@@ -28,7 +28,7 @@
 <meta property="og:description" content="简介 该博客是基于hexo搭建的，部署在github pages里，用netlify加速。之前一直用自己的笔记本写博客，现在需要换用另一台电脑，因此需要在新电脑上将环境重新搭建一遍，顺便对hexo及其next主题进行升级。  安装Node.js 下载地址见这里。 然后正常安装。 安装完成后，输入node -v和npm -v，如果出现版本号，那么就安装成功了。  安装git 下载地址见这里。 然后正">
 <meta property="og:locale" content="en_US">
 <meta property="article:published_time" content="2021-03-24T16:00:00.000Z">
-<meta property="article:modified_time" content="2021-04-03T07:06:34.617Z">
+<meta property="article:modified_time" content="2021-06-01T03:32:14.721Z">
 <meta property="article:author" content="Xin-Bo Qi(亓欣波)">
 <meta property="article:tag" content="blog">
 <meta name="twitter:card" content="summary">
@@ -218,7 +218,7 @@
                   <i class="far fa-calendar-check"></i>
                 </span>
                 <span class="post-meta-item-text">Edited on</span>
-                <time title="Modified: 2021-04-03 15:06:34" itemprop="dateModified" datetime="2021-04-03T15:06:34+08:00">2021-04-03</time>
+                <time title="Modified: 2021-06-01 11:32:14" itemprop="dateModified" datetime="2021-06-01T11:32:14+08:00">2021-06-01</time>
               </span>
             <span class="post-meta-item">
               <span class="post-meta-item-icon">
@@ -257,47 +257,20 @@
       
         <h1 id="简介"><a href="#简介" class="headerlink" title="简介"></a>简介</h1><p>该博客是基于hexo搭建的，部署在github pages里，用netlify加速。之前一直用自己的笔记本写博客，现在需要换用另一台电脑，因此需要在新电脑上将环境重新搭建一遍，顺便对hexo及其next主题进行升级。</p>
 <h1 id="安装Node-js"><a href="#安装Node-js" class="headerlink" title="安装Node.js"></a>安装Node.js</h1><p>下载地址见<a target="_blank" rel="noopener" href="https://nodejs.org/en/download/">这里</a>。<br>然后正常安装。<br>安装完成后，输入node -v和npm -v，如果出现版本号，那么就安装成功了。</p>
-<h1 id="安装git"><a href="#安装git" class="headerlink" title="安装git"></a>安装git</h1><p>下载地址见<a target="_blank" rel="noopener" href="https://git-scm.com/download/win">这里</a>。<br>然后正常安装，只不过最后一步添加路径时选择Use Git from the Windows Command Prompt，这样我们就可以直接在命令提示符里打开git了。<br>安装完成后在命令提示符中输入git –version验证是否安装成功。</p>
-<h1 id="安装hexo"><a href="#安装hexo" class="headerlink" title="安装hexo"></a>安装hexo</h1><p>新建一个文件夹，如Blog，然后安装hexo：</p>
-<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">npm i hexo-cli -g</span><br></pre></td></tr></table></figure>
-<p>安装完成后输入hexo -v验证是否安装成功。<br>还要安装用于hexo的git部署插件：</p>
-<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">npm install hexo-deployer-git --save</span><br></pre></td></tr></table></figure>
+<h1 id="安装git"><a href="#安装git" class="headerlink" title="安装git"></a>安装git</h1><p>下载地址见<a target="_blank" rel="noopener" href="https://git-scm.com/download/win">这里</a>。<br>然后正常安装，只不过最后一步添加路径时选择Use Git from the Windows Command Prompt，这样我们就可以直接在命令提示符里打开git了。<br>安装完成后在命令提示符中输入git —version验证是否安装成功。</p>
+<h1 id="安装hexo"><a href="#安装hexo" class="headerlink" title="安装hexo"></a>安装hexo</h1><p>新建一个文件夹，如Blog，然后安装hexo：<br><figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">npm i hexo-cli -g</span><br></pre></td></tr></table></figure><br>安装完成后输入hexo -v验证是否安装成功。<br>还要安装用于hexo的git部署插件：<br><figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">npm install hexo-deployer-git --save</span><br></pre></td></tr></table></figure></p>
 <h1 id="初始化博客"><a href="#初始化博客" class="headerlink" title="初始化博客"></a>初始化博客</h1><figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">hexo init</span><br></pre></td></tr></table></figure>
 <h1 id="测试"><a href="#测试" class="headerlink" title="测试"></a>测试</h1><figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">hexo g</span><br><span class="line">hexo s</span><br></pre></td></tr></table></figure>
 <h1 id="安装next主题"><a href="#安装next主题" class="headerlink" title="安装next主题"></a>安装next主题</h1><figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">git clone https://github.com/theme-<span class="built_in">next</span>/hexo-theme-<span class="built_in">next</span> themes/<span class="built_in">next</span></span><br></pre></td></tr></table></figure>
-<h1 id="迁移"><a href="#迁移" class="headerlink" title="迁移"></a>迁移</h1><p>离开该目录，然后将备份在github上的博客仓库下载下来：</p>
-<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">git clone https://github.com/qixinbo/blogBackup.git</span><br></pre></td></tr></table></figure>
-<p>复制该blogBackup文件下的以下文件及文件夹到Blog文件夹下，并覆盖原始文件：</p>
-<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line">_config.yml文件</span><br><span class="line">theme/<span class="built_in">next</span>下的_config.yml文件</span><br><span class="line">source文件夹</span><br><span class="line">.git文件夹</span><br><span class="line">将<span class="built_in">next</span>/source/images下的wechat_reward复制到相应位置</span><br></pre></td></tr></table></figure>
-<p>注意，由于next主题时有大版本更新，原有的配置可能不适用于新版本，此时直接覆盖可能会出错，解决方法只有对照两个配置文件，然后手工更改配置。</p>
-<h1 id="重新备份"><a href="#重新备份" class="headerlink" title="重新备份"></a>重新备份</h1><p>在Blog文件夹下重新git备份（因为.git文件夹已经自带了配置信息，这里无需再次配置）：</p>
-<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">git add .</span><br><span class="line">git commit -m <span class="string">&quot;migration&quot;</span></span><br><span class="line">git push</span><br></pre></td></tr></table></figure>
+<h1 id="迁移"><a href="#迁移" class="headerlink" title="迁移"></a>迁移</h1><p>离开该目录，然后将备份在github上的博客仓库下载下来：<br><figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">git clone https://github.com/qixinbo/blogBackup.git</span><br></pre></td></tr></table></figure><br>复制该blogBackup文件下的以下文件及文件夹到Blog文件夹下，并覆盖原始文件：<br><figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line">_config.yml文件</span><br><span class="line">theme/<span class="built_in">next</span>下的_config.yml文件</span><br><span class="line">source文件夹</span><br><span class="line">.git文件夹</span><br><span class="line">将<span class="built_in">next</span>/source/images下的wechat_reward复制到相应位置</span><br></pre></td></tr></table></figure><br>注意，由于next主题时有大版本更新，原有的配置可能不适用于新版本，此时直接覆盖可能会出错，解决方法只有对照两个配置文件，然后手工更改配置。</p>
+<h1 id="重新备份"><a href="#重新备份" class="headerlink" title="重新备份"></a>重新备份</h1><p>在Blog文件夹下重新git备份（因为.git文件夹已经自带了配置信息，这里无需再次配置）：<br><figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">git add .</span><br><span class="line">git commit -m <span class="string">&quot;migration&quot;</span></span><br><span class="line">git push</span><br></pre></td></tr></table></figure></p>
 <h1 id="重新部署"><a href="#重新部署" class="headerlink" title="重新部署"></a>重新部署</h1><figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">hexo d -g</span><br></pre></td></tr></table></figure>
-<p>如果出现实际效果与本地不符，可以尝试清理缓存：</p>
-<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">hexo clean</span><br></pre></td></tr></table></figure>
-
-<h1 id="其他可能问题"><a href="#其他可能问题" class="headerlink" title="其他可能问题"></a>其他可能问题</h1><h2 id="添加rss"><a href="#添加rss" class="headerlink" title="添加rss"></a>添加rss</h2><p>首先安装必要插件：</p>
-<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">npm install hexo-generator-feed --save</span><br></pre></td></tr></table></figure>
-<p>然后在next主题配置文件中添加：</p>
-<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">#订阅RSS</span></span><br><span class="line">feed:</span><br><span class="line">  <span class="built_in">type</span>: atom</span><br><span class="line">  path: atom.xml</span><br><span class="line">  limit: false</span><br></pre></td></tr></table></figure>
-<p>并且增加RSS字段：</p>
-<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">follow_me:</span><br><span class="line">  RSS: /atom.xml || fa fa-rss</span><br></pre></td></tr></table></figure>
-
-<h2 id="首页自动生成摘要"><a href="#首页自动生成摘要" class="headerlink" title="首页自动生成摘要"></a>首页自动生成摘要</h2><p>首先安装必要插件：</p>
-<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">npm install --save hexo-auto-excerpt</span><br></pre></td></tr></table></figure>
-<p>然后在next的主题配置文件中添加：</p>
-<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">auto_excerpt:</span><br><span class="line">  enable: true</span><br><span class="line">  length: <span class="number">150</span></span><br></pre></td></tr></table></figure>
-
-<h2 id="修改dns服务器"><a href="#修改dns服务器" class="headerlink" title="修改dns服务器"></a>修改dns服务器</h2><p>将hexo博客部署在netlify上，可以充分利用netlify的cdn加速。这里需要将dns解析服务器由原来的dnspod改为netlify。<br>首先需要在netlify上对域名开启netlify的dns服务，这一步在网页上可以很方便的操作。<br>然后在godaddy（这是域名服务商）上设置nameservers：<br>原来是dnspod家的：</p>
-<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">F1G1NS1.DNSPOD.NET</span><br><span class="line">F1G1NS2.DNSPOD.NET</span><br></pre></td></tr></table></figure>
-<p>现在改为netlify家的：</p>
-<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line">dns1.p04.nsone.net</span><br><span class="line">dns2.p04.nsone.net</span><br><span class="line">dns3.p04.nsone.net</span><br><span class="line">dns4.p04.nsone.net</span><br></pre></td></tr></table></figure>
-<p>改完后无论是境内还是境外，速度飞起~~</p>
-<h2 id="连接不上github"><a href="#连接不上github" class="headerlink" title="连接不上github"></a>连接不上github</h2><p>在执行</p>
-<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">hexo d -g</span><br></pre></td></tr></table></figure>
-<p>出现了一次连接不上github的问题，但在该终端下直接：</p>
-<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">git push</span><br></pre></td></tr></table></figure>
-<p>却是可以的，这可能跟wifi有关。。也可能跟代理有关。<br>反正是换了一个wifi，关闭代理，就神奇地好了。。<br><a target="_blank" rel="noopener" href="https://java4all.cn/2020/01/24/github%E7%9A%84%E4%B8%80%E4%B8%AA%E5%9D%91/">这篇博客</a>也遇到了这个问题。</p>
+<p>如果出现实际效果与本地不符，可以尝试清理缓存：<br><figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">hexo clean</span><br></pre></td></tr></table></figure></p>
+<h1 id="其他可能问题"><a href="#其他可能问题" class="headerlink" title="其他可能问题"></a>其他可能问题</h1><h2 id="添加rss"><a href="#添加rss" class="headerlink" title="添加rss"></a>添加rss</h2><p>首先安装必要插件：<br><figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">npm install hexo-generator-feed --save</span><br></pre></td></tr></table></figure><br>然后在next主题配置文件中添加：<br><figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">#订阅RSS</span></span><br><span class="line">feed:</span><br><span class="line">  <span class="built_in">type</span>: atom</span><br><span class="line">  path: atom.xml</span><br><span class="line">  limit: false</span><br></pre></td></tr></table></figure><br>并且增加RSS字段：<br><figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">follow_me:</span><br><span class="line">  RSS: /atom.xml || fa fa-rss</span><br></pre></td></tr></table></figure></p>
+<h2 id="首页自动生成摘要"><a href="#首页自动生成摘要" class="headerlink" title="首页自动生成摘要"></a>首页自动生成摘要</h2><p>首先安装必要插件：<br><figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">npm install --save hexo-auto-excerpt</span><br></pre></td></tr></table></figure><br>然后在next的主题配置文件中添加：<br><figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">auto_excerpt:</span><br><span class="line">  enable: true</span><br><span class="line">  length: <span class="number">150</span></span><br></pre></td></tr></table></figure></p>
+<h2 id="LaTeX公式渲染"><a href="#LaTeX公式渲染" class="headerlink" title="LaTeX公式渲染"></a>LaTeX公式渲染</h2><p>首先卸载原有的渲染器，然后安装下面的其中一个（实测pandoc不行，而应该安装kramed）：<br><figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">npm uninstall hexo-renderer-marked</span><br><span class="line">npm install hexo-renderer-pandoc <span class="comment"># 或者 hexo-renderer-kramed</span></span><br></pre></td></tr></table></figure><br>然后在next主题的配置文件中，进行配置：<br><figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment"># Math Formulas Render Support</span></span><br><span class="line">math:</span><br><span class="line">  <span class="comment"># Default (true) will load mathjax / katex script on demand.</span></span><br><span class="line">  <span class="comment"># That is it only render those page which has `mathjax: true` in Front-matter.</span></span><br><span class="line">  <span class="comment"># If you set it to false, it will load mathjax / katex srcipt EVERY PAGE.</span></span><br><span class="line">  per_page: false <span class="comment"># 这个per_page非常重要，如果为True，那么就只渲染带`mathjax: true`的页面，设为False则渲染所有页面，所以可能速度会慢。</span></span><br><span class="line"></span><br><span class="line">  <span class="comment"># hexo-renderer-pandoc (or hexo-renderer-kramed) required for full MathJax support.</span></span><br><span class="line">  mathjax:</span><br><span class="line">    enable: true</span><br><span class="line">    cdn: //cdn.mathjax.org/mathjax/latest/MathJax.js?config=TeX-AMS-MML_HTMLorMML</span><br><span class="line">    <span class="comment"># See: https://mhchem.github.io/MathJax-mhchem/</span></span><br><span class="line">    mhchem: false</span><br><span class="line"></span><br><span class="line">  <span class="comment"># hexo-renderer-markdown-it-plus (or hexo-renderer-markdown-it with markdown-it-katex plugin) required for full Katex support.</span></span><br><span class="line">  katex:</span><br><span class="line">    enable: false</span><br><span class="line">    cdn: //cdn.jsdelivr.net/npm/katex@<span class="number">0</span>/dist/katex.<span class="built_in">min</span>.css</span><br><span class="line">    <span class="comment"># See: https://github.com/KaTeX/KaTeX/tree/master/contrib/copy-tex</span></span><br><span class="line">    copy_tex: false</span><br></pre></td></tr></table></figure></p>
+<h2 id="修改dns服务器"><a href="#修改dns服务器" class="headerlink" title="修改dns服务器"></a>修改dns服务器</h2><p>将hexo博客部署在netlify上，可以充分利用netlify的cdn加速。这里需要将dns解析服务器由原来的dnspod改为netlify。<br>首先需要在netlify上对域名开启netlify的dns服务，这一步在网页上可以很方便的操作。<br>然后在godaddy（这是域名服务商）上设置nameservers：<br>原来是dnspod家的：<br><figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">F1G1NS1.DNSPOD.NET</span><br><span class="line">F1G1NS2.DNSPOD.NET</span><br></pre></td></tr></table></figure><br>现在改为netlify家的：<br><figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line">dns1.p04.nsone.net</span><br><span class="line">dns2.p04.nsone.net</span><br><span class="line">dns3.p04.nsone.net</span><br><span class="line">dns4.p04.nsone.net</span><br></pre></td></tr></table></figure><br>改完后无论是境内还是境外，速度飞起~~</p>
+<h2 id="连接不上github"><a href="#连接不上github" class="headerlink" title="连接不上github"></a>连接不上github</h2><p>在执行<br><figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">hexo d -g</span><br></pre></td></tr></table></figure><br>出现了一次连接不上github的问题，但在该终端下直接：<br><figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">git push</span><br></pre></td></tr></table></figure><br>却是可以的，这可能跟wifi有关。。也可能跟代理有关。<br>反正是换了一个wifi，关闭代理，就神奇地好了。。<br><a target="_blank" rel="noopener" href="https://java4all.cn/2020/01/24/github%E7%9A%84%E4%B8%80%E4%B8%AA%E5%9D%91/">这篇博客</a>也遇到了这个问题。</p>
 <h1 id="参考文献"><a href="#参考文献" class="headerlink" title="参考文献"></a>参考文献</h1><p><a target="_blank" rel="noopener" href="https://zhuanlan.zhihu.com/p/35668237">超详细Hexo+Github博客搭建小白教程</a><br><a target="_blank" rel="noopener" href="https://zhuanlan.zhihu.com/p/26625249">GitHub+Hexo 搭建个人网站详细教程</a><br><a target="_blank" rel="noopener" href="https://hasaik.com/posts/19c94341.html">为Hexo添加RSS订阅</a><br><a target="_blank" rel="noopener" href="https://suyin-blog.club/2020/2M3YWE7/">给 Hexo 中的 Next 主题添加 RSS 功能</a><br><a target="_blank" rel="noopener" href="https://ninesix.cc/post/hexo-yilia-auto-excerpt.html">hexo博文摘要生成方案</a></p>
 
     </div>
@@ -404,7 +377,7 @@
 
       <!--noindex-->
       <div class="post-toc-wrap sidebar-panel">
-          <div class="post-toc motion-element"><ol class="nav"><li class="nav-item nav-level-1"><a class="nav-link" href="#%E7%AE%80%E4%BB%8B"><span class="nav-number">1.</span> <span class="nav-text">简介</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#%E5%AE%89%E8%A3%85Node-js"><span class="nav-number">2.</span> <span class="nav-text">安装Node.js</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#%E5%AE%89%E8%A3%85git"><span class="nav-number">3.</span> <span class="nav-text">安装git</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#%E5%AE%89%E8%A3%85hexo"><span class="nav-number">4.</span> <span class="nav-text">安装hexo</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#%E5%88%9D%E5%A7%8B%E5%8C%96%E5%8D%9A%E5%AE%A2"><span class="nav-number">5.</span> <span class="nav-text">初始化博客</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#%E6%B5%8B%E8%AF%95"><span class="nav-number">6.</span> <span class="nav-text">测试</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#%E5%AE%89%E8%A3%85next%E4%B8%BB%E9%A2%98"><span class="nav-number">7.</span> <span class="nav-text">安装next主题</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#%E8%BF%81%E7%A7%BB"><span class="nav-number">8.</span> <span class="nav-text">迁移</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#%E9%87%8D%E6%96%B0%E5%A4%87%E4%BB%BD"><span class="nav-number">9.</span> <span class="nav-text">重新备份</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#%E9%87%8D%E6%96%B0%E9%83%A8%E7%BD%B2"><span class="nav-number">10.</span> <span class="nav-text">重新部署</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#%E5%85%B6%E4%BB%96%E5%8F%AF%E8%83%BD%E9%97%AE%E9%A2%98"><span class="nav-number">11.</span> <span class="nav-text">其他可能问题</span></a><ol class="nav-child"><li class="nav-item nav-level-2"><a class="nav-link" href="#%E6%B7%BB%E5%8A%A0rss"><span class="nav-number">11.1.</span> <span class="nav-text">添加rss</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E9%A6%96%E9%A1%B5%E8%87%AA%E5%8A%A8%E7%94%9F%E6%88%90%E6%91%98%E8%A6%81"><span class="nav-number">11.2.</span> <span class="nav-text">首页自动生成摘要</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E4%BF%AE%E6%94%B9dns%E6%9C%8D%E5%8A%A1%E5%99%A8"><span class="nav-number">11.3.</span> <span class="nav-text">修改dns服务器</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E8%BF%9E%E6%8E%A5%E4%B8%8D%E4%B8%8Agithub"><span class="nav-number">11.4.</span> <span class="nav-text">连接不上github</span></a></li></ol></li><li class="nav-item nav-level-1"><a class="nav-link" href="#%E5%8F%82%E8%80%83%E6%96%87%E7%8C%AE"><span class="nav-number">12.</span> <span class="nav-text">参考文献</span></a></li></ol></div>
+          <div class="post-toc motion-element"><ol class="nav"><li class="nav-item nav-level-1"><a class="nav-link" href="#%E7%AE%80%E4%BB%8B"><span class="nav-number">1.</span> <span class="nav-text">简介</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#%E5%AE%89%E8%A3%85Node-js"><span class="nav-number">2.</span> <span class="nav-text">安装Node.js</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#%E5%AE%89%E8%A3%85git"><span class="nav-number">3.</span> <span class="nav-text">安装git</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#%E5%AE%89%E8%A3%85hexo"><span class="nav-number">4.</span> <span class="nav-text">安装hexo</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#%E5%88%9D%E5%A7%8B%E5%8C%96%E5%8D%9A%E5%AE%A2"><span class="nav-number">5.</span> <span class="nav-text">初始化博客</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#%E6%B5%8B%E8%AF%95"><span class="nav-number">6.</span> <span class="nav-text">测试</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#%E5%AE%89%E8%A3%85next%E4%B8%BB%E9%A2%98"><span class="nav-number">7.</span> <span class="nav-text">安装next主题</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#%E8%BF%81%E7%A7%BB"><span class="nav-number">8.</span> <span class="nav-text">迁移</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#%E9%87%8D%E6%96%B0%E5%A4%87%E4%BB%BD"><span class="nav-number">9.</span> <span class="nav-text">重新备份</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#%E9%87%8D%E6%96%B0%E9%83%A8%E7%BD%B2"><span class="nav-number">10.</span> <span class="nav-text">重新部署</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#%E5%85%B6%E4%BB%96%E5%8F%AF%E8%83%BD%E9%97%AE%E9%A2%98"><span class="nav-number">11.</span> <span class="nav-text">其他可能问题</span></a><ol class="nav-child"><li class="nav-item nav-level-2"><a class="nav-link" href="#%E6%B7%BB%E5%8A%A0rss"><span class="nav-number">11.1.</span> <span class="nav-text">添加rss</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E9%A6%96%E9%A1%B5%E8%87%AA%E5%8A%A8%E7%94%9F%E6%88%90%E6%91%98%E8%A6%81"><span class="nav-number">11.2.</span> <span class="nav-text">首页自动生成摘要</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#LaTeX%E5%85%AC%E5%BC%8F%E6%B8%B2%E6%9F%93"><span class="nav-number">11.3.</span> <span class="nav-text">LaTeX公式渲染</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E4%BF%AE%E6%94%B9dns%E6%9C%8D%E5%8A%A1%E5%99%A8"><span class="nav-number">11.4.</span> <span class="nav-text">修改dns服务器</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E8%BF%9E%E6%8E%A5%E4%B8%8D%E4%B8%8Agithub"><span class="nav-number">11.5.</span> <span class="nav-text">连接不上github</span></a></li></ol></li><li class="nav-item nav-level-1"><a class="nav-link" href="#%E5%8F%82%E8%80%83%E6%96%87%E7%8C%AE"><span class="nav-number">12.</span> <span class="nav-text">参考文献</span></a></li></ol></div>
       </div>
       <!--/noindex-->
 
@@ -552,6 +525,59 @@
   
 
   
+      
+
+<script>
+  if (typeof MathJax === 'undefined') {
+    window.MathJax = {
+      loader: {
+        source: {
+          '[tex]/amsCd': '[tex]/amscd',
+          '[tex]/AMScd': '[tex]/amscd'
+        }
+      },
+      tex: {
+        inlineMath: {'[+]': [['$', '$']]},
+        tags: 'ams'
+      },
+      options: {
+        renderActions: {
+          findScript: [10, doc => {
+            document.querySelectorAll('script[type^="math/tex"]').forEach(node => {
+              const display = !!node.type.match(/; *mode=display/);
+              const math = new doc.options.MathItem(node.textContent, doc.inputJax[0], display);
+              const text = document.createTextNode('');
+              node.parentNode.replaceChild(text, node);
+              math.start = {node: text, delim: '', n: 0};
+              math.end = {node: text, delim: '', n: 0};
+              doc.math.push(math);
+            });
+          }, '', false],
+          insertedScript: [200, () => {
+            document.querySelectorAll('mjx-container').forEach(node => {
+              let target = node.parentNode;
+              if (target.nodeName.toLowerCase() === 'li') {
+                target.parentNode.classList.add('has-jax');
+              }
+            });
+          }, '', false]
+        }
+      }
+    };
+    (function () {
+      var script = document.createElement('script');
+      script.src = '//cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js';
+      script.defer = true;
+      document.head.appendChild(script);
+    })();
+  } else {
+    MathJax.startup.document.state(0);
+    MathJax.texReset();
+    MathJax.typeset();
+  }
+</script>
+
+    
 
   
 

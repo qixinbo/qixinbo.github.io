@@ -184,114 +184,6 @@
   
   
   <article itemscope itemtype="http://schema.org/Article" class="post-block" lang="en">
-    <link itemprop="mainEntityOfPage" href="http://qixinbo.github.io/2016/09/16/dealii-learn-step11/">
-
-    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
-      <meta itemprop="image" content="/images/avatar.jpg">
-      <meta itemprop="name" content="Xin-Bo Qi(亓欣波)">
-      <meta itemprop="description" content="Digitize everything to realize Digitalization!">
-    </span>
-
-    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
-      <meta itemprop="name" content="数字旗手">
-    </span>
-      <header class="post-header">
-        <h2 class="post-title" itemprop="name headline">
-          
-            <a href="/2016/09/16/dealii-learn-step11/" class="post-title-link" itemprop="url">求解偏微分方程开源有限元软件deal.II学习--Step 11</a>
-        </h2>
-
-        <div class="post-meta">
-            <span class="post-meta-item">
-              <span class="post-meta-item-icon">
-                <i class="far fa-calendar"></i>
-              </span>
-              <span class="post-meta-item-text">Posted on</span>
-
-              <time title="Created: 2016-09-16 00:00:00" itemprop="dateCreated datePublished" datetime="2016-09-16T00:00:00+08:00">2016-09-16</time>
-            </span>
-              <span class="post-meta-item">
-                <span class="post-meta-item-icon">
-                  <i class="far fa-calendar-check"></i>
-                </span>
-                <span class="post-meta-item-text">Edited on</span>
-                <time title="Modified: 2021-03-26 14:50:33" itemprop="dateModified" datetime="2021-03-26T14:50:33+08:00">2021-03-26</time>
-              </span>
-            <span class="post-meta-item">
-              <span class="post-meta-item-icon">
-                <i class="far fa-folder"></i>
-              </span>
-              <span class="post-meta-item-text">In</span>
-                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
-                  <a href="/categories/simulation/" itemprop="url" rel="index"><span itemprop="name">simulation</span></a>
-                </span>
-            </span>
-
-          
-  
-  <span class="post-meta-item">
-    
-      <span class="post-meta-item-icon">
-        <i class="far fa-comment"></i>
-      </span>
-      <span class="post-meta-item-text">Disqus: </span>
-    
-    <a title="disqus" href="/2016/09/16/dealii-learn-step11/#disqus_thread" itemprop="discussionUrl">
-      <span class="post-comments-count disqus-comment-count" data-disqus-identifier="2016/09/16/dealii-learn-step11/" itemprop="commentCount"></span>
-    </a>
-  </span>
-  
-  
-
-        </div>
-      </header>
-
-    
-    
-    
-    <div class="post-body" itemprop="articleBody">
-
-      
-          引子
-这个例子的亮点：介绍了最简单的Laplace方程的组装矩阵和右端项的一键生成函数。
-这个例子来求解仅考虑Neumann边界条件的Laplace问题：
-$$
-\begin{equation}
-\begin{split}
--\Delta u &=f \qquad \mathrm{in}\ \Omega, \\
-\partial_n u &=g \qquad \mathrm{on}\ \partial\Omega.
-\end{split}
-\end{equation}
-$$
-如果有解的话，解必须满足协调条件：
-$$
-\int_\Omega f dx + \int_{\partial\Omega
-          <!--noindex-->
-            <div class="post-button">
-              <a class="btn" href="/2016/09/16/dealii-learn-step11/#more" rel="contents">
-                Read more &raquo;
-              </a>
-            </div>
-          <!--/noindex-->
-        
-      
-    </div>
-
-    
-    
-    
-      <footer class="post-footer">
-        <div class="post-eof"></div>
-      </footer>
-  </article>
-  
-  
-  
-
-      
-  
-  
-  <article itemscope itemtype="http://schema.org/Article" class="post-block" lang="en">
     <link itemprop="mainEntityOfPage" href="http://qixinbo.github.io/2016/09/16/dealii-learn-step10/">
 
     <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
@@ -366,6 +258,110 @@ $$
           <!--noindex-->
             <div class="post-button">
               <a class="btn" href="/2016/09/16/dealii-learn-step10/#more" rel="contents">
+                Read more &raquo;
+              </a>
+            </div>
+          <!--/noindex-->
+        
+      
+    </div>
+
+    
+    
+    
+      <footer class="post-footer">
+        <div class="post-eof"></div>
+      </footer>
+  </article>
+  
+  
+  
+
+      
+  
+  
+  <article itemscope itemtype="http://schema.org/Article" class="post-block" lang="en">
+    <link itemprop="mainEntityOfPage" href="http://qixinbo.github.io/2016/09/16/dealii-learn-step11/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="image" content="/images/avatar.jpg">
+      <meta itemprop="name" content="Xin-Bo Qi(亓欣波)">
+      <meta itemprop="description" content="Digitize everything to realize Digitalization!">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="数字旗手">
+    </span>
+      <header class="post-header">
+        <h2 class="post-title" itemprop="name headline">
+          
+            <a href="/2016/09/16/dealii-learn-step11/" class="post-title-link" itemprop="url">求解偏微分方程开源有限元软件deal.II学习--Step 11</a>
+        </h2>
+
+        <div class="post-meta">
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="far fa-calendar"></i>
+              </span>
+              <span class="post-meta-item-text">Posted on</span>
+
+              <time title="Created: 2016-09-16 00:00:00" itemprop="dateCreated datePublished" datetime="2016-09-16T00:00:00+08:00">2016-09-16</time>
+            </span>
+              <span class="post-meta-item">
+                <span class="post-meta-item-icon">
+                  <i class="far fa-calendar-check"></i>
+                </span>
+                <span class="post-meta-item-text">Edited on</span>
+                <time title="Modified: 2021-03-26 14:50:33" itemprop="dateModified" datetime="2021-03-26T14:50:33+08:00">2021-03-26</time>
+              </span>
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="far fa-folder"></i>
+              </span>
+              <span class="post-meta-item-text">In</span>
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+                  <a href="/categories/simulation/" itemprop="url" rel="index"><span itemprop="name">simulation</span></a>
+                </span>
+            </span>
+
+          
+  
+  <span class="post-meta-item">
+    
+      <span class="post-meta-item-icon">
+        <i class="far fa-comment"></i>
+      </span>
+      <span class="post-meta-item-text">Disqus: </span>
+    
+    <a title="disqus" href="/2016/09/16/dealii-learn-step11/#disqus_thread" itemprop="discussionUrl">
+      <span class="post-comments-count disqus-comment-count" data-disqus-identifier="2016/09/16/dealii-learn-step11/" itemprop="commentCount"></span>
+    </a>
+  </span>
+  
+  
+
+        </div>
+      </header>
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+          引子
+这个例子的亮点：介绍了最简单的Laplace方程的组装矩阵和右端项的一键生成函数。
+这个例子来求解仅考虑Neumann边界条件的Laplace问题：
+
+如果有解的话，解必须满足协调条件：
+
+这里考虑计算域是以原点为圆心，半径为1的圆，$f=-2,g=1$是满足协调条件的。
+虽然协调条件允许有解，但解仍然是不定的：在方程中仅仅解的导数固定，解可以是任意常数。所以需要施加另外一个条件来固定这个常数。可以有以下可能的方法：
+
+ * 固定离散后的某个节点值为0或其他固定值。这意味着一个额外的条件$u_h(x_0)=0$。尽管这是通常的做法，但不是一个好方法，因为我们知道Laplace方程的解是在
+          <!--noindex-->
+            <div class="post-button">
+              <a class="btn" href="/2016/09/16/dealii-learn-step11/#more" rel="contents">
                 Read more &raquo;
               </a>
             </div>
@@ -467,12 +463,10 @@ $$
 方程离散
 对流方程中$\beta$是一个描述对流方向和速度的矢量场，可能与空间位置相关，$f$是源项，$u$是解。这个方程求解的物理过程可以是浓度u在给定流场下的传输，没有扩散过程，但有源。
 明显地，在入流侧，上述方程需要在边界上获得补充：
-$$
-u = g \qquad\qquad \mathrm{on}\ \partial\Omega_-,
-$$
+
 其中，$\Omega_-$代表边界的入流部分，其定义为：
-$$
-\partial\Ome
+
+其中，${\mathbf n}({\mathbf x})$是点$x$上的外法线。这种定义方式是非常直观的：因为如果外法线是朝外的，那么在入
           <!--noindex-->
             <div class="post-button">
               <a class="btn" href="/2016/09/15/dealii-learn-step9/#more" rel="contents">
@@ -570,12 +564,11 @@ $$
           引子
 真实生活中，大多数的偏微分方程都是一组方程，相应地，解也通常是矢量场。跟之前单方程的求解以及解是标量场相比，这种问题只是在组装矩阵和右端项时有些复杂，其他都一样。
 本例中求解的是弹性问题：
-$$
--\partial_j (c_{ijkl} \partial_k u_l) = f_i, \qquad i=1 \ldots d
-$$
+
 其中，$c_{ijkl}$是刚度系数，通常与空间坐标相关。
 弹性方程是Laplace方程的一种扩散形式，其解$u_l$是矢量场，表示一个刚体在力的作用下的位移。力$f_i$也是矢量场。
-$c_{ijkl}$是一个四阶张量，共有$3^4=81$个分量，但其实只有2
+$c_{ijkl}$是一个四阶张量，共有$3^4=81$个分量，但其实只有21个分量是独立的，这是因为：
+首先因为$\sigma_{ij}$和$\epsilon_{ij}$都是对称张量，导致$c_{ijkl}=c_{
           <!--noindex-->
             <div class="post-button">
               <a class="btn" href="/2016/09/06/dealii-learn-step8/#more" rel="contents">
@@ -680,8 +673,8 @@ $c_{ijkl}$是一个四阶张量，共有$3^4=81$个分量，但其实只有2
 
 验证程序正确性
 也许从来不会有任何一个有限元程序一开始就是正确的，所以找到方法来验证计算的解是否正确就很有必要。通常选择已知精确解析解，并且比较精确解析解和计算离散解两者之间差别来求证。如果随着误差次数提高，两者之间差别逐渐趋于0，就说明程序的正确性。deal.II中就提供了这样一个函数：VectorTools::integrate_difference()，它提供了很多种范数的计算：
-$$
-\begin{
+
+这些公式也适用于矢
           <!--noindex-->
             <div class="post-button">
               <a class="btn" href="/2016/09/02/dealii-learn-step7/#more" rel="contents">
@@ -913,11 +906,23 @@ $$
  * 变系数Possion方程，使用预条件迭代求解器
 
 这里要求解的方程是：
-$$
-\begin{equation}
-\begin{split}
--\nabla\cdot a(x)\nabla u(x) &=1 \qquad in \Omega, \
-u &=0 \qquad on \
+
+如果$a(x)$是常系数，那么就成了Possion方程，如果它是空间相关的变系数，方程就复杂一些了。
+还是得先写出方程的弱形式：
+
+程序解析
+以下是头文件们：
+1
+2
+3
+4
+5
+6
+7
+8
+9
+10
+11
           <!--noindex-->
             <div class="post-button">
               <a class="btn" href="/2016/08/28/dealii-learn-step5/#more" rel="contents">
@@ -1142,19 +1147,18 @@ deal.II有一个特性，叫作”维度无关的编程“。前面的例子中�
       
           引子
 这是使用有限元法进行具体计算的第一个算例，求解的是一个简化的Possion方程，其在边界上为0，而右端项不为0，即：
-$$
-\begin{equation}
-\begin{split}
--\Delta u &=f \qquad in \qquad \Omega; \
-u &=0 \qquad on \qquad \partial \Omega
-\end{split}
-\end{equation}
-$$
+
 求解域是单位正方形$\Omega=[0,1]^2$，其上的网格划分在step1和step2中已经涉及。
 这里也仅仅计算特例$f(x)=1$，更一般的情形详见step4。
 
 推导
-首先需要得
+首先需要得到上述方程的弱形式，即在方程两侧左乘一个测试函数$\phi$并在计算域上积分(注意是左乘，而不是右乘)：
+
+然后利用高斯散度公式进行分部积分，可得：
+
+同时，因为测试函数必须满足相同的边界条件，即在边界上$\phi=0$，所以上式变为：
+
+这里应用了通常的简写形式：$(a,b)=\in
           <!--noindex-->
             <div class="post-button">
               <a class="btn" href="/2016/08/25/dealii-learn-step3/#more" rel="contents">
@@ -1259,7 +1263,8 @@ $$
 
 三角形123内部有一任意点P，P与顶点1、2、3组成3个子三角形，每个子三角形的面积与总面积之比记为$L_i$，即P点的面积坐标为$(L_1,L_2,L_3)$。
 因为三个坐标相加为1，所以仅有两个独立的自然坐标，所以可以简记为：
-$$(\xi,\eta,1
+
+注意到：面积坐标还有如下
           <!--noindex-->
             <div class="post-button">
               <a class="btn" href="/2016/08/19/mathematica-fem-ch4/#more" rel="contents">
@@ -1485,6 +1490,59 @@ $$(\xi,\eta,1
   
 
   
+      
+
+<script>
+  if (typeof MathJax === 'undefined') {
+    window.MathJax = {
+      loader: {
+        source: {
+          '[tex]/amsCd': '[tex]/amscd',
+          '[tex]/AMScd': '[tex]/amscd'
+        }
+      },
+      tex: {
+        inlineMath: {'[+]': [['$', '$']]},
+        tags: 'ams'
+      },
+      options: {
+        renderActions: {
+          findScript: [10, doc => {
+            document.querySelectorAll('script[type^="math/tex"]').forEach(node => {
+              const display = !!node.type.match(/; *mode=display/);
+              const math = new doc.options.MathItem(node.textContent, doc.inputJax[0], display);
+              const text = document.createTextNode('');
+              node.parentNode.replaceChild(text, node);
+              math.start = {node: text, delim: '', n: 0};
+              math.end = {node: text, delim: '', n: 0};
+              doc.math.push(math);
+            });
+          }, '', false],
+          insertedScript: [200, () => {
+            document.querySelectorAll('mjx-container').forEach(node => {
+              let target = node.parentNode;
+              if (target.nodeName.toLowerCase() === 'li') {
+                target.parentNode.classList.add('has-jax');
+              }
+            });
+          }, '', false]
+        }
+      }
+    };
+    (function () {
+      var script = document.createElement('script');
+      script.src = '//cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js';
+      script.defer = true;
+      document.head.appendChild(script);
+    })();
+  } else {
+    MathJax.startup.document.state(0);
+    MathJax.texReset();
+    MathJax.typeset();
+  }
+</script>
+
+    
 
   
 

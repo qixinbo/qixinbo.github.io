@@ -256,7 +256,6 @@
 该函数的作用是将矢量图形转换为点集，这里的点作为锚点，可以供后续编辑。
 比如对于矩形这一矢量，在shp中定义了它的起始点和长宽，通过该函数，可以将该矩形转为9个点的点集，即将该矩形分成田字格。
 （具体到语法上，使用了numpy的mgrid函数，其中的步长设为了复数的形式，具体可以参考这里）
-
 1
 2
 3
@@ -268,6 +267,7 @@
 9
 10
 11
+
           <!--noindex-->
             <div class="post-button">
               <a class="btn" href="/2021/03/31/ImagePy_26/#more" rel="contents">
@@ -369,7 +369,6 @@
 
 定义域
 先写出该蓝色框的坐标序列：
-
 1
 2
 3
@@ -382,13 +381,14 @@ import matplotlib.pyplot as plt
 poly = np.array([(0,0),(1,0),(0.7,0.7),(1,1),(0,1),(0.5,0.5),(0,0)])
 
 
+
 注意，该坐标序列是首尾相接的。
 然后，定义出任意数量、任意位置的随机点：
-
 1
 
 
 pts = np.random.rand(80).reshape((40,2))
+
 
 
 这里给出了
@@ -673,7 +673,7 @@ Ctrl+右键：落笔所在的
                   <i class="far fa-calendar-check"></i>
                 </span>
                 <span class="post-meta-item-text">Edited on</span>
-                <time title="Modified: 2021-04-03 15:06:34" itemprop="dateModified" datetime="2021-04-03T15:06:34+08:00">2021-04-03</time>
+                <time title="Modified: 2021-06-01 11:32:14" itemprop="dateModified" datetime="2021-06-01T11:32:14+08:00">2021-06-01</time>
               </span>
             <span class="post-meta-item">
               <span class="post-meta-item-icon">
@@ -1130,7 +1130,6 @@ Kaggle上正在进行一项名为“HuBMAP: Hacking the Kidney”的竞赛，链
 输入图像
 输入图像必须是一个二值的骨架图。
 比如，这里的示例图像矩阵为：
-
 1
 2
 3
@@ -1146,7 +1145,7 @@ Kaggle上正在进行一项名为“HuBMAP: Hacking the Kidney”的竞赛，链
 img = np.array([
     [0,0,0,1,0,0,0,0,0],
     [0,0,0,1,0,0,0,1,0],
-    [0,0,0,1,
+    [0,0,0,1,0
           <!--noindex-->
             <div class="post-button">
               <a class="btn" href="/2020/11/20/ImagePy_24/#more" rel="contents">
@@ -1479,6 +1478,59 @@ Google Colab在线运行
   
 
   
+      
+
+<script>
+  if (typeof MathJax === 'undefined') {
+    window.MathJax = {
+      loader: {
+        source: {
+          '[tex]/amsCd': '[tex]/amscd',
+          '[tex]/AMScd': '[tex]/amscd'
+        }
+      },
+      tex: {
+        inlineMath: {'[+]': [['$', '$']]},
+        tags: 'ams'
+      },
+      options: {
+        renderActions: {
+          findScript: [10, doc => {
+            document.querySelectorAll('script[type^="math/tex"]').forEach(node => {
+              const display = !!node.type.match(/; *mode=display/);
+              const math = new doc.options.MathItem(node.textContent, doc.inputJax[0], display);
+              const text = document.createTextNode('');
+              node.parentNode.replaceChild(text, node);
+              math.start = {node: text, delim: '', n: 0};
+              math.end = {node: text, delim: '', n: 0};
+              doc.math.push(math);
+            });
+          }, '', false],
+          insertedScript: [200, () => {
+            document.querySelectorAll('mjx-container').forEach(node => {
+              let target = node.parentNode;
+              if (target.nodeName.toLowerCase() === 'li') {
+                target.parentNode.classList.add('has-jax');
+              }
+            });
+          }, '', false]
+        }
+      }
+    };
+    (function () {
+      var script = document.createElement('script');
+      script.src = '//cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js';
+      script.defer = true;
+      document.head.appendChild(script);
+    })();
+  } else {
+    MathJax.startup.document.state(0);
+    MathJax.texReset();
+    MathJax.typeset();
+  }
+</script>
+
+    
 
   
 

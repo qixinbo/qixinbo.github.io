@@ -264,21 +264,11 @@
       
         <p>阅读文献时常常会遇到只给图像却没有原始数据的情形，此时如果想要提取数据，就得借助相应软件，目测用的最多的就是<a target="_blank" rel="noopener" href="http://www.getdata-graph-digitizer.com/">GetData</a>，这个是个商业软件，还有个好用的基于web的开源软件<a target="_blank" rel="noopener" href="http://arohatgi.info/WebPlotDigitizer/app/">WebPlotDigitizer</a>。这里我们基于Mathematica写一套能用于提取图片中数据点的代码。<br>参考文献(基本思路参考SE上的这个问题，但具体取点和去点方式不同)：<br><a target="_blank" rel="noopener" href="http://mathematica.stackexchange.com/questions/1524/recovering-data-points-from-an-image">Recovering data points from an image</a></p>
 <p>Attention：这里的版本强烈依赖于Mathematica的版本，此处使用的是10.4版本，目测应该使用10以上版本，因为低版本中不会出现工具提示条。</p>
-<h1 id="实际坐标系与图像坐标系的对应"><a href="#实际坐标系与图像坐标系的对应" class="headerlink" title="实际坐标系与图像坐标系的对应"></a>实际坐标系与图像坐标系的对应</h1><p>首先使用工具提示条中的“坐标工具”提取已知点的图像坐标，然后选择“复制坐标”并保存(注意保存的数据中的点的先后顺序)。<br>如图：<br><img src="https://ws1.sinaimg.cn/large/0072Lfvtly1fvjj3b3vslj30ku0m1jt6.jpg"><br>利用这些图像中的坐标与实际坐标建立对应关系：</p>
-<figure class="highlight cpp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">trans = FindGeometricTransform[&#123;&#123;<span class="number">0</span>, <span class="number">1.2</span>&#125;, &#123;<span class="number">0</span>, <span class="number">1.1</span>&#125;, &#123;<span class="number">4</span>, <span class="number">0.82</span>&#125;, &#123;<span class="number">2</span>, <span class="number">0.82</span>&#125;&#125;,</span><br><span class="line">      &#123;&#123;<span class="number">20.630372492836678</span>`, <span class="number">146.88825214899714</span>`&#125;, &#123;<span class="number">20.630372492836678</span>`, <span class="number">111.8166189111748</span>`&#125;, </span><br><span class="line">       &#123;<span class="number">153.1805157593123</span>`, <span class="number">14.33810888252151</span>`&#125;, &#123;<span class="number">86.1318051575931</span>`, <span class="number">14.33810888252151</span>`&#125;&#125;,TransformationClass-&gt;<span class="string">&quot;Affine&quot;</span>][[<span class="number">2</span>]];</span><br></pre></td></tr></table></figure>
-<p>注意是实际坐标在前，图像坐标在后。此次提取后注意找一个未知点验证一下，防止选择的变换方式出错。</p>
-<h1 id="提取曲线颜色"><a href="#提取曲线颜色" class="headerlink" title="提取曲线颜色"></a>提取曲线颜色</h1><p>要正确识别出图像中要提取的曲线，必须先让程序知道该曲线的颜色，即RGB值。这里依然使用工具提示条的“坐标工具”，提取曲线上一点后，选择“复制颜色值”。这里仅提取了一个点的RGB值，很难覆盖整条曲线，所以再设置一个忍量，使得与此RGB值相近的点都可以被识别：</p>
-<figure class="highlight cpp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><span class="line">objRGB = &#123;&#123;<span class="number">103</span>, <span class="number">125</span>, <span class="number">174</span>&#125;&#125;;</span><br><span class="line">tolRGB = <span class="number">40</span>;</span><br><span class="line">rangeRGB = Flatten[&#123;objRGB - tolRGB, objRGB + tolRGB&#125;, <span class="number">1</span>]/<span class="number">255.0</span>;</span><br><span class="line">img1 = ImageApply[</span><br><span class="line">  If[#[[<span class="number">1</span>]] &gt; rangeRGB[[<span class="number">1</span>, <span class="number">1</span>]] &amp;&amp; #[[<span class="number">1</span>]] &lt; </span><br><span class="line">      rangeRGB[[<span class="number">2</span>, <span class="number">1</span>]] &amp;&amp; #[[<span class="number">2</span>]] &gt; rangeRGB[[<span class="number">1</span>, <span class="number">2</span>]] &amp;&amp; #[[<span class="number">2</span>]] &lt; </span><br><span class="line">      rangeRGB[[<span class="number">2</span>, <span class="number">2</span>]] &amp;&amp; #[[<span class="number">3</span>]] &gt; rangeRGB[[<span class="number">1</span>, <span class="number">3</span>]] &amp;&amp; #[[<span class="number">3</span>]] &lt; </span><br><span class="line">      rangeRGB[[<span class="number">2</span>, <span class="number">3</span>]], &#123;<span class="number">0.0</span>, <span class="number">0.0</span>, <span class="number">0.0</span>&#125;, &#123;<span class="number">1.0</span>, <span class="number">1.0</span>, <span class="number">1.0</span>&#125;] &amp;, img]</span><br></pre></td></tr></table></figure>
-<p>此忍量的值可视情形调节。以上策略就是当某点的RGB值在忍量之内时，就变为(0.0,0.0,0.0)，即黑色，否则则为白色(1.0,1.0,1.0)。<br>效果如图：<br><img src="https://ws1.sinaimg.cn/large/0072Lfvtly1fvjj3sqt1rj30a0060t8h.jpg"></p>
-<h1 id="选区和去噪点"><a href="#选区和去噪点" class="headerlink" title="选区和去噪点"></a>选区和去噪点</h1><p>从上图可以看出，识别出的曲线中含有一些噪点，如果不处理掉就会影响结果。此时需要对图片进行精修，使其干净无污染。具体方法是采用工具提示条的“掩模工具”(话说10版本的MMA工具提示条真是逆天的存在)，将要选择的区域勾勒出来，然后选择“逆掩模为一个图”，之所以是“逆掩模”，是因为要将这部分选出来而不是去除，也不选择“逆掩模为一个图像”，经测试选择“图”而不是“图像”，分辨率要更高。<br>逆掩模如图：<br><img src="https://ws1.sinaimg.cn/large/0072Lfvtly1fvjj47z069j309w05y3yc.jpg"><br>将此逆掩模的图放入下面代码中的Masking参数中即可：</p>
-<figure class="highlight cpp"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">curve = ImageApply[&#123;<span class="number">1.0</span>, <span class="number">1.0</span>, <span class="number">1.0</span>&#125; &amp;, img1, Masking -&gt; 此处是那个选区]</span><br></pre></td></tr></table></figure>
-<p>结果为：<br><img src="https://ws1.sinaimg.cn/large/0072Lfvtly1fvjj4m1nkcj30a0060mwx.jpg"><br>可以看出噪点已经被去除。</p>
-<h1 id="提取数据点的位置"><a href="#提取数据点的位置" class="headerlink" title="提取数据点的位置"></a>提取数据点的位置</h1><p>这一步就是提取上面曲线中的黑点的位置，代码为：</p>
-<figure class="highlight cpp"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">curvLoc = Reverse /@ Position[ImageData[curve, DataReversed -&gt; True], &#123;<span class="number">0.</span>, <span class="number">0.</span>, <span class="number">0.</span>&#125;];</span><br></pre></td></tr></table></figure>
-<p>注意这里需要注意Position取得的位置是(1,1)在左上角，而图像坐标则是(1,1)在左下角，所以需要进行一系列变换，具体的变换规则如示意图：<br><img src="https://ws1.sinaimg.cn/large/0072Lfvtly1fvjj4zmetsj30qo0zk3zn.jpg"></p>
-<h1 id="作图并与解析解作对比"><a href="#作图并与解析解作对比" class="headerlink" title="作图并与解析解作对比"></a>作图并与解析解作对比</h1><p>实际要提取的曲线是有具体的表达式的，此处将提取出的数据与解析表达式对比：</p>
-<figure class="highlight cpp"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">Show[ListPlot[trans@curvLoc],Plot[x^((x<span class="number">-2</span>)^<span class="number">2</span> E^-x)+E^-x, &#123;x, <span class="number">0</span>, <span class="number">10</span>&#125;, PlotStyle-&gt;Red]]</span><br></pre></td></tr></table></figure>
-<p>结果为：<br><img src="https://ws1.sinaimg.cn/large/0072Lfvtly1fvjj5k5eefj30a006caa3.jpg"><br>可以看出效果还不错。</p>
+<h1 id="实际坐标系与图像坐标系的对应"><a href="#实际坐标系与图像坐标系的对应" class="headerlink" title="实际坐标系与图像坐标系的对应"></a>实际坐标系与图像坐标系的对应</h1><p>首先使用工具提示条中的“坐标工具”提取已知点的图像坐标，然后选择“复制坐标”并保存(注意保存的数据中的点的先后顺序)。<br>如图：<br><img src="https://ws1.sinaimg.cn/large/0072Lfvtly1fvjj3b3vslj30ku0m1jt6.jpg" alt=""><br>利用这些图像中的坐标与实际坐标建立对应关系：<br><figure class="highlight cpp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">trans = FindGeometricTransform[&#123;&#123;<span class="number">0</span>, <span class="number">1.2</span>&#125;, &#123;<span class="number">0</span>, <span class="number">1.1</span>&#125;, &#123;<span class="number">4</span>, <span class="number">0.82</span>&#125;, &#123;<span class="number">2</span>, <span class="number">0.82</span>&#125;&#125;,</span><br><span class="line">      &#123;&#123;<span class="number">20.630372492836678</span>`, <span class="number">146.88825214899714</span>`&#125;, &#123;<span class="number">20.630372492836678</span>`, <span class="number">111.8166189111748</span>`&#125;, </span><br><span class="line">       &#123;<span class="number">153.1805157593123</span>`, <span class="number">14.33810888252151</span>`&#125;, &#123;<span class="number">86.1318051575931</span>`, <span class="number">14.33810888252151</span>`&#125;&#125;,TransformationClass-&gt;<span class="string">&quot;Affine&quot;</span>][[<span class="number">2</span>]];</span><br></pre></td></tr></table></figure><br>注意是实际坐标在前，图像坐标在后。此次提取后注意找一个未知点验证一下，防止选择的变换方式出错。</p>
+<h1 id="提取曲线颜色"><a href="#提取曲线颜色" class="headerlink" title="提取曲线颜色"></a>提取曲线颜色</h1><p>要正确识别出图像中要提取的曲线，必须先让程序知道该曲线的颜色，即RGB值。这里依然使用工具提示条的“坐标工具”，提取曲线上一点后，选择“复制颜色值”。这里仅提取了一个点的RGB值，很难覆盖整条曲线，所以再设置一个忍量，使得与此RGB值相近的点都可以被识别：<br><figure class="highlight cpp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><span class="line">objRGB = &#123;&#123;<span class="number">103</span>, <span class="number">125</span>, <span class="number">174</span>&#125;&#125;;</span><br><span class="line">tolRGB = <span class="number">40</span>;</span><br><span class="line">rangeRGB = Flatten[&#123;objRGB - tolRGB, objRGB + tolRGB&#125;, <span class="number">1</span>]/<span class="number">255.0</span>;</span><br><span class="line">img1 = ImageApply[</span><br><span class="line">  If[#[[<span class="number">1</span>]] &gt; rangeRGB[[<span class="number">1</span>, <span class="number">1</span>]] &amp;&amp; #[[<span class="number">1</span>]] &lt; </span><br><span class="line">      rangeRGB[[<span class="number">2</span>, <span class="number">1</span>]] &amp;&amp; #[[<span class="number">2</span>]] &gt; rangeRGB[[<span class="number">1</span>, <span class="number">2</span>]] &amp;&amp; #[[<span class="number">2</span>]] &lt; </span><br><span class="line">      rangeRGB[[<span class="number">2</span>, <span class="number">2</span>]] &amp;&amp; #[[<span class="number">3</span>]] &gt; rangeRGB[[<span class="number">1</span>, <span class="number">3</span>]] &amp;&amp; #[[<span class="number">3</span>]] &lt; </span><br><span class="line">      rangeRGB[[<span class="number">2</span>, <span class="number">3</span>]], &#123;<span class="number">0.0</span>, <span class="number">0.0</span>, <span class="number">0.0</span>&#125;, &#123;<span class="number">1.0</span>, <span class="number">1.0</span>, <span class="number">1.0</span>&#125;] &amp;, img]</span><br></pre></td></tr></table></figure><br>此忍量的值可视情形调节。以上策略就是当某点的RGB值在忍量之内时，就变为(0.0,0.0,0.0)，即黑色，否则则为白色(1.0,1.0,1.0)。<br>效果如图：<br><img src="https://ws1.sinaimg.cn/large/0072Lfvtly1fvjj3sqt1rj30a0060t8h.jpg" alt=""></p>
+<h1 id="选区和去噪点"><a href="#选区和去噪点" class="headerlink" title="选区和去噪点"></a>选区和去噪点</h1><p>从上图可以看出，识别出的曲线中含有一些噪点，如果不处理掉就会影响结果。此时需要对图片进行精修，使其干净无污染。具体方法是采用工具提示条的“掩模工具”(话说10版本的MMA工具提示条真是逆天的存在)，将要选择的区域勾勒出来，然后选择“逆掩模为一个图”，之所以是“逆掩模”，是因为要将这部分选出来而不是去除，也不选择“逆掩模为一个图像”，经测试选择“图”而不是“图像”，分辨率要更高。<br>逆掩模如图：<br><img src="https://ws1.sinaimg.cn/large/0072Lfvtly1fvjj47z069j309w05y3yc.jpg" alt=""><br>将此逆掩模的图放入下面代码中的Masking参数中即可：<br><figure class="highlight cpp"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">curve = ImageApply[&#123;<span class="number">1.0</span>, <span class="number">1.0</span>, <span class="number">1.0</span>&#125; &amp;, img1, Masking -&gt; 此处是那个选区]</span><br></pre></td></tr></table></figure><br>结果为：<br><img src="https://ws1.sinaimg.cn/large/0072Lfvtly1fvjj4m1nkcj30a0060mwx.jpg" alt=""><br>可以看出噪点已经被去除。</p>
+<h1 id="提取数据点的位置"><a href="#提取数据点的位置" class="headerlink" title="提取数据点的位置"></a>提取数据点的位置</h1><p>这一步就是提取上面曲线中的黑点的位置，代码为：<br><figure class="highlight cpp"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">curvLoc = Reverse /@ Position[ImageData[curve, DataReversed -&gt; True], &#123;<span class="number">0.</span>, <span class="number">0.</span>, <span class="number">0.</span>&#125;];</span><br></pre></td></tr></table></figure><br>注意这里需要注意Position取得的位置是(1,1)在左上角，而图像坐标则是(1,1)在左下角，所以需要进行一系列变换，具体的变换规则如示意图：<br><img src="https://ws1.sinaimg.cn/large/0072Lfvtly1fvjj4zmetsj30qo0zk3zn.jpg" alt=""></p>
+<h1 id="作图并与解析解作对比"><a href="#作图并与解析解作对比" class="headerlink" title="作图并与解析解作对比"></a>作图并与解析解作对比</h1><p>实际要提取的曲线是有具体的表达式的，此处将提取出的数据与解析表达式对比：<br><figure class="highlight cpp"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">Show[ListPlot[trans@curvLoc],Plot[x^((x<span class="number">-2</span>)^<span class="number">2</span> E^-x)+E^-x, &#123;x, <span class="number">0</span>, <span class="number">10</span>&#125;, PlotStyle-&gt;Red]]</span><br></pre></td></tr></table></figure><br>结果为：<br><img src="https://ws1.sinaimg.cn/large/0072Lfvtly1fvjj5k5eefj30a006caa3.jpg" alt=""><br>可以看出效果还不错。</p>
 <p>目前还是以代码的形式操作，以后没准能有图形界面？<br>以上。</p>
 
     </div>
@@ -533,6 +523,59 @@
   
 
   
+      
+
+<script>
+  if (typeof MathJax === 'undefined') {
+    window.MathJax = {
+      loader: {
+        source: {
+          '[tex]/amsCd': '[tex]/amscd',
+          '[tex]/AMScd': '[tex]/amscd'
+        }
+      },
+      tex: {
+        inlineMath: {'[+]': [['$', '$']]},
+        tags: 'ams'
+      },
+      options: {
+        renderActions: {
+          findScript: [10, doc => {
+            document.querySelectorAll('script[type^="math/tex"]').forEach(node => {
+              const display = !!node.type.match(/; *mode=display/);
+              const math = new doc.options.MathItem(node.textContent, doc.inputJax[0], display);
+              const text = document.createTextNode('');
+              node.parentNode.replaceChild(text, node);
+              math.start = {node: text, delim: '', n: 0};
+              math.end = {node: text, delim: '', n: 0};
+              doc.math.push(math);
+            });
+          }, '', false],
+          insertedScript: [200, () => {
+            document.querySelectorAll('mjx-container').forEach(node => {
+              let target = node.parentNode;
+              if (target.nodeName.toLowerCase() === 'li') {
+                target.parentNode.classList.add('has-jax');
+              }
+            });
+          }, '', false]
+        }
+      }
+    };
+    (function () {
+      var script = document.createElement('script');
+      script.src = '//cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js';
+      script.defer = true;
+      document.head.appendChild(script);
+    })();
+  } else {
+    MathJax.startup.document.state(0);
+    MathJax.texReset();
+    MathJax.typeset();
+  }
+</script>
+
+    
 
   
 

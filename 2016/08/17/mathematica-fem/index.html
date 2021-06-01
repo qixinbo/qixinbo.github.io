@@ -20,12 +20,12 @@
     var CONFIG = {"hostname":"qixinbo.github.io","root":"/","scheme":"Gemini","version":"7.8.0","exturl":false,"sidebar":{"position":"left","display":"post","padding":18,"offset":12,"onmobile":false},"copycode":{"enable":false,"show_result":false,"style":null},"back2top":{"enable":true,"sidebar":false,"scrollpercent":false},"bookmark":{"enable":false,"color":"#222","save":"auto"},"fancybox":false,"mediumzoom":false,"lazyload":false,"pangu":false,"comments":{"style":"tabs","active":null,"storage":true,"lazyload":false,"nav":null},"algolia":{"hits":{"per_page":10},"labels":{"input_placeholder":"Search for Posts","hits_empty":"We didn't find any results for the search: ${query}","hits_stats":"${hits} results found in ${time} ms"}},"localsearch":{"enable":false,"trigger":"auto","top_n_per_article":1,"unescape":false,"preload":false},"motion":{"enable":true,"async":false,"transition":{"post_block":"fadeIn","post_header":"slideDownIn","post_body":"slideDownIn","coll_header":"slideLeftIn","sidebar":"slideUpIn"}}};
   </script>
 
-  <meta name="description" content="本文是对Mathematica有限元分析与工程应用一书的学习笔记。  这里的杆单元是总体坐标与局部坐标一致的一维有限元，因此不需要坐标变换，更易分析。  线性杆单元的形函数 线性杆单元的位移函数是坐标x的一次函数，可用以下代码求解：  1 2 3 4   Clear[u1, u2]; u &#x3D; a1 + a2 x; solut &#x3D; Solve[{u1 &#x3D;&#x3D; (u &#x2F;. x -&gt; 0), u2 &#x3D;&#x3D;">
+  <meta name="description" content="本文是对Mathematica有限元分析与工程应用一书的学习笔记。  这里的杆单元是总体坐标与局部坐标一致的一维有限元，因此不需要坐标变换，更易分析。  线性杆单元的形函数 线性杆单元的位移函数是坐标x的一次函数，可用以下代码求解： 1 2 3 4   Clear[u1, u2]; u &#x3D; a1 + a2 x; solut &#x3D; Solve[{u1 &#x3D;&#x3D; (u &#x2F;. x -&gt; 0), u2 &#x3D;&#x3D; (">
 <meta property="og:type" content="article">
 <meta property="og:title" content="利用Mathematica进行有限元编程(一)：杆单元分析">
 <meta property="og:url" content="http://qixinbo.github.io/2016/08/17/mathematica-fem/index.html">
 <meta property="og:site_name" content="数字旗手">
-<meta property="og:description" content="本文是对Mathematica有限元分析与工程应用一书的学习笔记。  这里的杆单元是总体坐标与局部坐标一致的一维有限元，因此不需要坐标变换，更易分析。  线性杆单元的形函数 线性杆单元的位移函数是坐标x的一次函数，可用以下代码求解：  1 2 3 4   Clear[u1, u2]; u &#x3D; a1 + a2 x; solut &#x3D; Solve[{u1 &#x3D;&#x3D; (u &#x2F;. x -&gt; 0), u2 &#x3D;&#x3D;">
+<meta property="og:description" content="本文是对Mathematica有限元分析与工程应用一书的学习笔记。  这里的杆单元是总体坐标与局部坐标一致的一维有限元，因此不需要坐标变换，更易分析。  线性杆单元的形函数 线性杆单元的位移函数是坐标x的一次函数，可用以下代码求解： 1 2 3 4   Clear[u1, u2]; u &#x3D; a1 + a2 x; solut &#x3D; Solve[{u1 &#x3D;&#x3D; (u &#x2F;. x -&gt; 0), u2 &#x3D;&#x3D; (">
 <meta property="og:locale" content="en_US">
 <meta property="og:image" content="https://ws1.sinaimg.cn/large/0072Lfvtly1fvjj7einyuj30a405wt8q.jpg">
 <meta property="og:image" content="https://ws1.sinaimg.cn/large/0072Lfvtly1fvjj7okixoj308y034t8m.jpg">
@@ -260,37 +260,52 @@
       
         <p>本文是对<a target="_blank" rel="noopener" href="https://www.amazon.cn/Mathematica%E6%9C%89%E9%99%90%E5%85%83%E5%88%86%E6%9E%90%E4%B8%8E%E5%B7%A5%E7%A8%8B%E5%BA%94%E7%94%A8-%E9%B2%8D%E5%9B%9B%E5%85%83/dp/B00328IIOC">Mathematica有限元分析与工程应用</a>一书的学习笔记。</p>
 <p>这里的杆单元是总体坐标与局部坐标一致的一维有限元，因此不需要坐标变换，更易分析。</p>
-<h1 id="线性杆单元的形函数"><a href="#线性杆单元的形函数" class="headerlink" title="线性杆单元的形函数"></a>线性杆单元的形函数</h1><p>线性杆单元的位移函数是坐标x的一次函数，可用以下代码求解：</p>
-<figure class="highlight cpp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line">Clear[u1, u2];</span><br><span class="line">u = a1 + a2 x;</span><br><span class="line">solut = Solve[&#123;u1 == (u /. x -&gt; <span class="number">0</span>), u2 == (u /. x -&gt; <span class="number">1</span>)&#125;, &#123;a1, a2&#125;];</span><br><span class="line">u = u /. solut[[<span class="number">1</span>]]</span><br></pre></td></tr></table></figure>
-<p>其中u1和u2是杆端点x=0和x=1处的位移，结果为：</p>
-<figure class="highlight cpp"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">u1 + (-u1 + u2) x</span><br></pre></td></tr></table></figure>
-<p>形函数则可以通过取系数函数Coefficient获得：</p>
-<figure class="highlight cpp"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">NShape = &#123;Coefficient[u, u1], Coefficient[u, u2]&#125;</span><br></pre></td></tr></table></figure>
-<p>结果为：</p>
-<figure class="highlight cpp"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">&#123;<span class="number">1</span> - x, x&#125;</span><br></pre></td></tr></table></figure>
-<h1 id="二次杆单元的形函数"><a href="#二次杆单元的形函数" class="headerlink" title="二次杆单元的形函数"></a>二次杆单元的形函数</h1><p>二次杆单元的位移函数是坐标x的二次函数，求解代码为：</p>
-<figure class="highlight cpp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line">Clear[u1, u2, u3, a1, a2, a3];</span><br><span class="line">u = a1 + a2 x + a3 x^<span class="number">2</span>;</span><br><span class="line">solut = Solve[&#123;u1 == (u /. x -&gt; <span class="number">0</span>), u2 == (u /. x -&gt; <span class="number">1</span>/<span class="number">2</span>), </span><br><span class="line">        u3 == &#123;u /. x -&gt; <span class="number">1</span>&#125;&#125;, &#123;a1, a2, a3&#125;];</span><br><span class="line">u = u /. solut[[<span class="number">1</span>]]</span><br></pre></td></tr></table></figure>
-<p>结果为：</p>
-<figure class="highlight cpp"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">u1 + (<span class="number">-3</span> u1 + <span class="number">4</span> u2 - u3) x + <span class="number">2</span> (u1 - <span class="number">2</span> u2 + u3) x^<span class="number">2</span></span><br></pre></td></tr></table></figure>
-<p>其中u1、u2和u3分别是杆端点x=0、杆中点x=0.5、杆端点x=1处的位移。<br>那么形函数就是：</p>
-<figure class="highlight cpp"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">NShape = Coefficient[u, &#123;u1, u2, u3&#125;]</span><br></pre></td></tr></table></figure>
-<p>结果为：</p>
-<figure class="highlight cpp"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">&#123;<span class="number">1</span> - <span class="number">3</span> x + <span class="number">2</span> x^<span class="number">2</span>, <span class="number">4</span> x - <span class="number">4</span> x^<span class="number">2</span>, -x + <span class="number">2</span> x^<span class="number">2</span>&#125;</span><br></pre></td></tr></table></figure>
-<h1 id="单元刚度矩阵"><a href="#单元刚度矩阵" class="headerlink" title="单元刚度矩阵"></a>单元刚度矩阵</h1><p>一次杆单元的刚度矩阵可以类比弹簧元的刚度矩阵。<br>设弹簧的刚度系数为k，节点i，j的位移分别为$u_i$和$u_j$，受到的力分别为$F_i$，$F_j$。易知：<br>$$<br>\begin{equation}<br>\begin{split}<br>F_i &amp;= ku_i-ku_j \<br>F_j &amp;= ku_j-ku_i<br>\end{split}<br>\end{equation}<br>$$<br>写成矩阵形式为：<br>$$<br>\begin{bmatrix}<br>k &amp; -k \<br>-k &amp; k<br>\end{bmatrix}<br>\begin{bmatrix}<br>u_i \<br>u_j<br>\end{bmatrix}<br>=<br>\begin{bmatrix}<br>F_i \<br>F_j<br>\end{bmatrix}<br>$$<br>所以单元刚度矩阵为：<br>$$<br>k_{ij}=<br>\begin{bmatrix}<br>k &amp; -k \<br>-k &amp; k<br>\end{bmatrix}<br>$$<br>同理，一次杆单元的刚度矩阵为：<br>$$<br>k_{ij}=\frac{EA}{L}<br>\begin{bmatrix}<br>1 &amp; -1 \<br>-1 &amp; 1<br>\end{bmatrix}<br>$$<br>二次杆单元的刚度矩阵可通过能量法求解。应用能量法的示意图：<br><img src="https://ws1.sinaimg.cn/large/0072Lfvtly1fvjj7einyuj30a405wt8q.jpg"><br>应变能为：<br>$$<br>U=\int_\Omega \frac{1}{2}\sigma\epsilon dV=\int_0^L\frac{1}{2}EA\epsilon^2dx<br>=\int_0^L\frac{1}{2}EAa^T\frac{dN^T}{dx}\frac{dN}{dx}adx=\frac{1}{2}a^TKa<br>$$<br>其中：<br>$$<br>\sigma=E\epsilon; \epsilon=\frac{du}{dx}=\frac{dN}{dx}a, a=[u_1,u_2,u_3]^T<br>$$<br>所以单元刚度矩阵为：<br>$$<br>K=EA\int_{0}^L[\frac{dN}{dx}]^T[\frac{dN}{dx}]dx<br>$$<br>代入上面的形函数，那么求解代码为：</p>
-<figure class="highlight cpp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">dNx = L D[NShape, x];</span><br><span class="line">K = EA Integrate[Transpose[&#123;dNx&#125;].&#123;dNx&#125;, &#123;x, <span class="number">0</span>, <span class="number">1</span>&#125;]/L;</span><br><span class="line">K <span class="comment">// MatrixForm</span></span><br></pre></td></tr></table></figure>
-<p>注意：代码中的L这个系数是因为使用了之前位于0到1上的形函数，如果直接采用0到L，则形函数的具体形式会发生改变。<br>输出结果为：<br><img src="https://ws1.sinaimg.cn/large/0072Lfvtly1fvjj7okixoj308y034t8m.jpg"></p>
-<h1 id="模块分析"><a href="#模块分析" class="headerlink" title="模块分析"></a>模块分析</h1><h2 id="模块1-建立单元刚度矩阵"><a href="#模块1-建立单元刚度矩阵" class="headerlink" title="模块1:建立单元刚度矩阵"></a>模块1:建立单元刚度矩阵</h2><p>以下分别建立了弹簧元、线性杆单元、二次杆单元的单元刚度矩阵：</p>
-<figure class="highlight cpp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line">GenerateSpringKm[k_] := </span><br><span class="line"> Module[&#123;y&#125;, y = k*&#123;&#123;<span class="number">1</span>, <span class="number">-1</span>&#125;, &#123;<span class="number">-1</span>, <span class="number">1</span>&#125;&#125;; y]</span><br><span class="line">GenerateLinearRodKm[k_] := </span><br><span class="line"> Module[&#123;y&#125;, y = EE*AA/L*&#123;&#123;<span class="number">1</span>, <span class="number">-1</span>&#125;, &#123;<span class="number">-1</span>, <span class="number">1</span>&#125;&#125;; y]</span><br><span class="line">GenerateQuadraticRodKm[k_] := </span><br><span class="line"> Module[&#123;y&#125;, y = EE*AA/L*&#123;&#123;<span class="number">7</span>, <span class="number">1</span>, <span class="number">-8</span>&#125;, &#123;<span class="number">1</span>, <span class="number">7</span>, <span class="number">-8</span>&#125;, &#123;<span class="number">-8</span>, <span class="number">-8</span>, <span class="number">16</span>&#125;&#125;; y]</span><br></pre></td></tr></table></figure>
-<h2 id="模块2-组装整体刚度矩阵"><a href="#模块2-组装整体刚度矩阵" class="headerlink" title="模块2:组装整体刚度矩阵"></a>模块2:组装整体刚度矩阵</h2><p>以弹簧元为例，单独的一个弹簧元有两个节点，其单元刚度矩阵是2行2列的矩阵。对于含有n个节点的弹簧元系统，则是n行n列的整体刚度矩阵。组装过程为：假设某个弹簧元的节点的整体编号为i和j，其单刚中的四个元素要分别找到其对应的整体编号位置，然后叠加上去，即11对应ii，12对应ij，21对应ji，22对应jj。代码为：</p>
-<figure class="highlight cpp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><span class="line">GlobalK = <span class="number">0</span> IdentityMatrix[<span class="number">3</span>];</span><br><span class="line">AssembleSpringKm[p1_, p2_, m_] := Module[&#123;j, k&#125;, f = &#123;p1, p2&#125;;</span><br><span class="line">  For[j = <span class="number">1</span>, j &lt;= <span class="number">2</span>, j++,</span><br><span class="line">     For[k = <span class="number">1</span>, k &lt;= <span class="number">2</span>, k++,</span><br><span class="line">         GlobalK[[f[[j]], f[[k]]]] += m[[j, k]];</span><br><span class="line">    ]];</span><br><span class="line">      GlobalK]</span><br></pre></td></tr></table></figure>
-<p>代码中p1和p2是节点的整体编号(输入时要注意节点号的顺序)，m是该单元的单刚，GlobalK是整刚。<br>二次杆单元的整体刚度矩阵则为：</p>
-<figure class="highlight cpp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><span class="line">AssembleQuadraticRod[p1_, p2_, p3_, m_] := </span><br><span class="line"> Module[&#123;i, j, k&#125;, f = &#123;p1, p2&#125;;</span><br><span class="line">  For[i = <span class="number">1</span>, i &lt;= <span class="number">3</span>, i++,</span><br><span class="line">     For[j = <span class="number">1</span>, j &lt;= <span class="number">3</span>, j++,</span><br><span class="line">         For[k = <span class="number">1</span>, k &lt;= <span class="number">3</span>, k++,</span><br><span class="line">              GlobalK[[f[[j]], f[[k]]]] += m[[j, k]];</span><br><span class="line">     ]]];</span><br><span class="line">       GlobalK]</span><br></pre></td></tr></table></figure>
-<p>建立好整体刚度矩阵后，代入边界条件，即可求出位移量，比如：</p>
-<figure class="highlight cpp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><span class="line">U = &#123;u1x, u2x, u3x&#125;;</span><br><span class="line">u1x = u3x = <span class="number">0</span>;</span><br><span class="line">F2x = <span class="number">17.5</span>;</span><br><span class="line">Load = &#123;F1x, F2x, F3x&#125;;</span><br><span class="line">tmp = Sort[Join[U, Load]];</span><br><span class="line">unknown = Drop[tmp, <span class="number">3</span>];</span><br><span class="line">solut = Solve[GlobalK.U == Load, unknown]</span><br></pre></td></tr></table></figure>
-<p>这里使用的边界条件是编号1和3上的位移为0,2上的力为17.5，然后利用Solve求解。</p>
-<h2 id="模块3-得到单元应力"><a href="#模块3-得到单元应力" class="headerlink" title="模块3:得到单元应力"></a>模块3:得到单元应力</h2><p>已知单元的位移向量u(在整体坐标系下的值)，求单元上的力：</p>
-<figure class="highlight cpp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br></pre></td><td class="code"><pre><span class="line">SpringElementForce[k_, u_, i_] := Module[&#123;force&#125;,</span><br><span class="line">      force = k.u;</span><br><span class="line">  Print[<span class="string">&quot;The spring force of the ele&quot;</span>, i, <span class="string">&quot; is &quot;</span>, force, <span class="string">&quot;kN&quot;</span>];</span><br><span class="line">    ];</span><br><span class="line">RodElementForce[k_, u_, AA_, i_] := Module[&#123;force&#125;,</span><br><span class="line">      force = k.u;</span><br><span class="line">  sigma = force/AA;</span><br><span class="line">    Print[<span class="string">&quot;The force of the ele&quot;</span>, i, <span class="string">&quot; is &quot;</span>, force, <span class="string">&quot;kN, &quot;</span>, </span><br><span class="line">       <span class="string">&quot;the stress is &quot;</span>, sigma, <span class="string">&quot; Pa.&quot;</span>];</span><br><span class="line">  ]</span><br></pre></td></tr></table></figure>
-<p>i是单元编号，u是位移向量，k是单刚。</p>
+<h1 id="线性杆单元的形函数"><a href="#线性杆单元的形函数" class="headerlink" title="线性杆单元的形函数"></a>线性杆单元的形函数</h1><p>线性杆单元的位移函数是坐标x的一次函数，可用以下代码求解：<br><figure class="highlight cpp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line">Clear[u1, u2];</span><br><span class="line">u = a1 + a2 x;</span><br><span class="line">solut = Solve[&#123;u1 == (u /. x -&gt; <span class="number">0</span>), u2 == (u /. x -&gt; <span class="number">1</span>)&#125;, &#123;a1, a2&#125;];</span><br><span class="line">u = u /. solut[[<span class="number">1</span>]]</span><br></pre></td></tr></table></figure><br>其中u1和u2是杆端点x=0和x=1处的位移，结果为：<br><figure class="highlight cpp"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">u1 + (-u1 + u2) x</span><br></pre></td></tr></table></figure><br>形函数则可以通过取系数函数Coefficient获得：<br><figure class="highlight cpp"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">NShape = &#123;Coefficient[u, u1], Coefficient[u, u2]&#125;</span><br></pre></td></tr></table></figure><br>结果为：<br><figure class="highlight cpp"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">&#123;<span class="number">1</span> - x, x&#125;</span><br></pre></td></tr></table></figure></p>
+<h1 id="二次杆单元的形函数"><a href="#二次杆单元的形函数" class="headerlink" title="二次杆单元的形函数"></a>二次杆单元的形函数</h1><p>二次杆单元的位移函数是坐标x的二次函数，求解代码为：<br><figure class="highlight cpp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line">Clear[u1, u2, u3, a1, a2, a3];</span><br><span class="line">u = a1 + a2 x + a3 x^<span class="number">2</span>;</span><br><span class="line">solut = Solve[&#123;u1 == (u /. x -&gt; <span class="number">0</span>), u2 == (u /. x -&gt; <span class="number">1</span>/<span class="number">2</span>), </span><br><span class="line">        u3 == &#123;u /. x -&gt; <span class="number">1</span>&#125;&#125;, &#123;a1, a2, a3&#125;];</span><br><span class="line">u = u /. solut[[<span class="number">1</span>]]</span><br></pre></td></tr></table></figure><br>结果为：<br><figure class="highlight cpp"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">u1 + (<span class="number">-3</span> u1 + <span class="number">4</span> u2 - u3) x + <span class="number">2</span> (u1 - <span class="number">2</span> u2 + u3) x^<span class="number">2</span></span><br></pre></td></tr></table></figure><br>其中u1、u2和u3分别是杆端点x=0、杆中点x=0.5、杆端点x=1处的位移。<br>那么形函数就是：<br><figure class="highlight cpp"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">NShape = Coefficient[u, &#123;u1, u2, u3&#125;]</span><br></pre></td></tr></table></figure><br>结果为：<br><figure class="highlight cpp"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">&#123;<span class="number">1</span> - <span class="number">3</span> x + <span class="number">2</span> x^<span class="number">2</span>, <span class="number">4</span> x - <span class="number">4</span> x^<span class="number">2</span>, -x + <span class="number">2</span> x^<span class="number">2</span>&#125;</span><br></pre></td></tr></table></figure></p>
+<h1 id="单元刚度矩阵"><a href="#单元刚度矩阵" class="headerlink" title="单元刚度矩阵"></a>单元刚度矩阵</h1><p>一次杆单元的刚度矩阵可以类比弹簧元的刚度矩阵。<br>设弹簧的刚度系数为k，节点i，j的位移分别为$u_i$和$u_j$，受到的力分别为$F_i$，$F_j$。易知：</p>
+<script type="math/tex; mode=display">
+\begin{equation}
+\begin{split}
+F\_i &= ku\_i-ku\_j \\\
+F\_j &= ku\_j-ku\_i
+\end{split}
+\end{equation}</script><p>写成矩阵形式为：</p>
+<script type="math/tex; mode=display">
+\begin{bmatrix}
+k & -k \\\
+-k & k
+\end{bmatrix}
+\begin{bmatrix}
+u\_i \\\
+u\_j
+\end{bmatrix}
+=
+\begin{bmatrix}
+F\_i \\\
+F\_j
+\end{bmatrix}</script><p>所以单元刚度矩阵为：</p>
+<script type="math/tex; mode=display">
+k\_{ij}=
+\begin{bmatrix}
+k & -k \\\
+-k & k
+\end{bmatrix}</script><p>同理，一次杆单元的刚度矩阵为：</p>
+<script type="math/tex; mode=display">
+k\_{ij}=\frac{EA}{L}
+\begin{bmatrix}
+1 & -1 \\\
+-1 & 1
+\end{bmatrix}</script><p>二次杆单元的刚度矩阵可通过能量法求解。应用能量法的示意图：<br><img src="https://ws1.sinaimg.cn/large/0072Lfvtly1fvjj7einyuj30a405wt8q.jpg" alt=""><br>应变能为：</p>
+<script type="math/tex; mode=display">
+U=\int\_\Omega \frac{1}{2}\sigma\epsilon dV=\int\_0^L\frac{1}{2}EA\epsilon^2dx
+=\int\_0^L\frac{1}{2}EAa^T\frac{dN^T}{dx}\frac{dN}{dx}adx=\frac{1}{2}a^TKa</script><p>其中：</p>
+<script type="math/tex; mode=display">
+\sigma=E\epsilon; \epsilon=\frac{du}{dx}=\frac{dN}{dx}a, a=[u\_1,u\_2,u\_3]^T</script><p>所以单元刚度矩阵为：</p>
+<script type="math/tex; mode=display">
+K=EA\int\_{0}^L[\frac{dN}{dx}]^T[\frac{dN}{dx}]dx</script><p>代入上面的形函数，那么求解代码为：<br><figure class="highlight cpp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">dNx = L D[NShape, x];</span><br><span class="line">K = EA Integrate[Transpose[&#123;dNx&#125;].&#123;dNx&#125;, &#123;x, <span class="number">0</span>, <span class="number">1</span>&#125;]/L;</span><br><span class="line">K <span class="comment">// MatrixForm</span></span><br></pre></td></tr></table></figure><br>注意：代码中的L这个系数是因为使用了之前位于0到1上的形函数，如果直接采用0到L，则形函数的具体形式会发生改变。<br>输出结果为：<br><img src="https://ws1.sinaimg.cn/large/0072Lfvtly1fvjj7okixoj308y034t8m.jpg" alt=""></p>
+<h1 id="模块分析"><a href="#模块分析" class="headerlink" title="模块分析"></a>模块分析</h1><h2 id="模块1-建立单元刚度矩阵"><a href="#模块1-建立单元刚度矩阵" class="headerlink" title="模块1:建立单元刚度矩阵"></a>模块1:建立单元刚度矩阵</h2><p>以下分别建立了弹簧元、线性杆单元、二次杆单元的单元刚度矩阵：<br><figure class="highlight cpp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line">GenerateSpringKm[k_] := </span><br><span class="line"> Module[&#123;y&#125;, y = k*&#123;&#123;<span class="number">1</span>, <span class="number">-1</span>&#125;, &#123;<span class="number">-1</span>, <span class="number">1</span>&#125;&#125;; y]</span><br><span class="line">GenerateLinearRodKm[k_] := </span><br><span class="line"> Module[&#123;y&#125;, y = EE*AA/L*&#123;&#123;<span class="number">1</span>, <span class="number">-1</span>&#125;, &#123;<span class="number">-1</span>, <span class="number">1</span>&#125;&#125;; y]</span><br><span class="line">GenerateQuadraticRodKm[k_] := </span><br><span class="line"> Module[&#123;y&#125;, y = EE*AA/L*&#123;&#123;<span class="number">7</span>, <span class="number">1</span>, <span class="number">-8</span>&#125;, &#123;<span class="number">1</span>, <span class="number">7</span>, <span class="number">-8</span>&#125;, &#123;<span class="number">-8</span>, <span class="number">-8</span>, <span class="number">16</span>&#125;&#125;; y]</span><br></pre></td></tr></table></figure></p>
+<h2 id="模块2-组装整体刚度矩阵"><a href="#模块2-组装整体刚度矩阵" class="headerlink" title="模块2:组装整体刚度矩阵"></a>模块2:组装整体刚度矩阵</h2><p>以弹簧元为例，单独的一个弹簧元有两个节点，其单元刚度矩阵是2行2列的矩阵。对于含有n个节点的弹簧元系统，则是n行n列的整体刚度矩阵。组装过程为：假设某个弹簧元的节点的整体编号为i和j，其单刚中的四个元素要分别找到其对应的整体编号位置，然后叠加上去，即11对应ii，12对应ij，21对应ji，22对应jj。代码为：<br><figure class="highlight cpp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><span class="line">GlobalK = <span class="number">0</span> IdentityMatrix[<span class="number">3</span>];</span><br><span class="line">AssembleSpringKm[p1_, p2_, m_] := Module[&#123;j, k&#125;, f = &#123;p1, p2&#125;;</span><br><span class="line">  For[j = <span class="number">1</span>, j &lt;= <span class="number">2</span>, j++,</span><br><span class="line">     For[k = <span class="number">1</span>, k &lt;= <span class="number">2</span>, k++,</span><br><span class="line">         GlobalK[[f[[j]], f[[k]]]] += m[[j, k]];</span><br><span class="line">    ]];</span><br><span class="line">      GlobalK]</span><br></pre></td></tr></table></figure><br>代码中p1和p2是节点的整体编号(输入时要注意节点号的顺序)，m是该单元的单刚，GlobalK是整刚。<br>二次杆单元的整体刚度矩阵则为：<br><figure class="highlight cpp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><span class="line">AssembleQuadraticRod[p1_, p2_, p3_, m_] := </span><br><span class="line"> Module[&#123;i, j, k&#125;, f = &#123;p1, p2&#125;;</span><br><span class="line">  For[i = <span class="number">1</span>, i &lt;= <span class="number">3</span>, i++,</span><br><span class="line">     For[j = <span class="number">1</span>, j &lt;= <span class="number">3</span>, j++,</span><br><span class="line">         For[k = <span class="number">1</span>, k &lt;= <span class="number">3</span>, k++,</span><br><span class="line">              GlobalK[[f[[j]], f[[k]]]] += m[[j, k]];</span><br><span class="line">     ]]];</span><br><span class="line">       GlobalK]</span><br></pre></td></tr></table></figure><br>建立好整体刚度矩阵后，代入边界条件，即可求出位移量，比如：<br><figure class="highlight cpp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><span class="line">U = &#123;u1x, u2x, u3x&#125;;</span><br><span class="line">u1x = u3x = <span class="number">0</span>;</span><br><span class="line">F2x = <span class="number">17.5</span>;</span><br><span class="line">Load = &#123;F1x, F2x, F3x&#125;;</span><br><span class="line">tmp = Sort[Join[U, Load]];</span><br><span class="line">unknown = Drop[tmp, <span class="number">3</span>];</span><br><span class="line">solut = Solve[GlobalK.U == Load, unknown]</span><br></pre></td></tr></table></figure><br>这里使用的边界条件是编号1和3上的位移为0,2上的力为17.5，然后利用Solve求解。</p>
+<h2 id="模块3-得到单元应力"><a href="#模块3-得到单元应力" class="headerlink" title="模块3:得到单元应力"></a>模块3:得到单元应力</h2><p>已知单元的位移向量u(在整体坐标系下的值)，求单元上的力：<br><figure class="highlight cpp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br></pre></td><td class="code"><pre><span class="line">SpringElementForce[k_, u_, i_] := Module[&#123;force&#125;,</span><br><span class="line">      force = k.u;</span><br><span class="line">  Print[<span class="string">&quot;The spring force of the ele&quot;</span>, i, <span class="string">&quot; is &quot;</span>, force, <span class="string">&quot;kN&quot;</span>];</span><br><span class="line">    ];</span><br><span class="line">RodElementForce[k_, u_, AA_, i_] := Module[&#123;force&#125;,</span><br><span class="line">      force = k.u;</span><br><span class="line">  sigma = force/AA;</span><br><span class="line">    Print[<span class="string">&quot;The force of the ele&quot;</span>, i, <span class="string">&quot; is &quot;</span>, force, <span class="string">&quot;kN, &quot;</span>, </span><br><span class="line">       <span class="string">&quot;the stress is &quot;</span>, sigma, <span class="string">&quot; Pa.&quot;</span>];</span><br><span class="line">  ]</span><br></pre></td></tr></table></figure><br>i是单元编号，u是位移向量，k是单刚。</p>
 
     </div>
 
@@ -544,6 +559,59 @@
   
 
   
+      
+
+<script>
+  if (typeof MathJax === 'undefined') {
+    window.MathJax = {
+      loader: {
+        source: {
+          '[tex]/amsCd': '[tex]/amscd',
+          '[tex]/AMScd': '[tex]/amscd'
+        }
+      },
+      tex: {
+        inlineMath: {'[+]': [['$', '$']]},
+        tags: 'ams'
+      },
+      options: {
+        renderActions: {
+          findScript: [10, doc => {
+            document.querySelectorAll('script[type^="math/tex"]').forEach(node => {
+              const display = !!node.type.match(/; *mode=display/);
+              const math = new doc.options.MathItem(node.textContent, doc.inputJax[0], display);
+              const text = document.createTextNode('');
+              node.parentNode.replaceChild(text, node);
+              math.start = {node: text, delim: '', n: 0};
+              math.end = {node: text, delim: '', n: 0};
+              doc.math.push(math);
+            });
+          }, '', false],
+          insertedScript: [200, () => {
+            document.querySelectorAll('mjx-container').forEach(node => {
+              let target = node.parentNode;
+              if (target.nodeName.toLowerCase() === 'li') {
+                target.parentNode.classList.add('has-jax');
+              }
+            });
+          }, '', false]
+        }
+      }
+    };
+    (function () {
+      var script = document.createElement('script');
+      script.src = '//cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js';
+      script.defer = true;
+      document.head.appendChild(script);
+    })();
+  } else {
+    MathJax.startup.document.state(0);
+    MathJax.texReset();
+    MathJax.typeset();
+  }
+</script>
+
+    
 
   
 

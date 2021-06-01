@@ -365,7 +365,6 @@ PyQt是一个GUI控件工具箱，是Qt的Python接口。
 PyQt有两个主要版本：PyQt 4.x和PyQt 5.x，两者不兼容，且前者基于Python 2和Python 3，后者仅基于Python 3。
 
 Linux下载安装：
-
 1
 2
 3
@@ -376,8 +375,9 @@ or
 sudo apt-get install pyqt5-dev-tools
 
 
-PyQt4由以下Modules组成：QtCore、QtGui、QtNetwork、QtXml、QtSvg、QtOpenGL、QtSql。
 
+
+PyQt4由以下Modules组成：QtCore、QtGui、QtNetwork、QtXml、QtSvg、QtOpenGL、QtSql。
           <!--noindex-->
             <div class="post-button">
               <a class="btn" href="/2017/12/02/pyqt4-intro/#more" rel="contents">
@@ -579,27 +579,27 @@ MOOSE项目太宏大，一点点来，这次先以解析怎样输入为主，还
 
 
 声明具体问题类。
-
 1
 
 
 #include "MooseApp.h"
 
 
-用于创建和存储各种对象。
 
+用于创建和存储各种对象。
 1
 
 
 #include "AppFactory.h"
 
 
-声明AppFactory类，用于创建各种对象。里面有一个很隐藏的宏定义：
 
+声明AppFactory类，用于创建各种对象。里面有一个很隐藏的宏定义：
 1
 
 
 #define registerApp(name) AppFactory::instance().reg<name>(#name)
+
 
 
 在ExampleA
@@ -903,7 +903,6 @@ MOOSE项目太宏大，一点点来，这次先以解析怎样输入为主，还
           Intro 1
 第一个例子演示了怎样创建一个Mesh Object。
 头文件：
-
 1
 2
 3
@@ -914,20 +913,20 @@ MOOSE项目太宏大，一点点来，这次先以解析怎样输入为主，还
 using namespace libMesh;  //所有的东西都在libMesh命名空间中
 
 
-入口函数代码： 
 
+入口函数代码：
 1
 
 
 LibMeshInit init (argc, argv); // 初始化，这是必要的一步，因为libMesh可能依赖其他的比如MPI、PETSc等函数库
 
 
-因为该程序的用法是：
 
+因为该程序的用法是：
 1
 
 
-./ex1 -d DI
+./ex1 -d DIM 
           <!--noindex-->
             <div class="post-button">
               <a class="btn" href="/2017/06/18/libmesh-introduction-learn/#more" rel="contents">
@@ -1026,18 +1025,17 @@ LibMeshInit init (argc, argv); // 初始化，这是必要的一步，因为libM
 
 编译
 MOOSE是一个大型工程，从它的编译过程可以看出各个部分之间怎样联系起来。这里以MOOSE的第一个例子为研究对象，分析整个过程。其路径在：
-
 1
 
 
 moose/examples/ex01_inputfile
 
 
+
 整个编译过程都写在了Makefile文件中。
 
 定义环境变量
 首先先定义一下环境变量：
-
 1
 2
 3
@@ -1045,7 +1043,7 @@ moose/examples/ex01_inputfile
 
 EXAMPLE_DIR        ?= $(shell dirname `pwd`)
 MOOSE_DIR          ?= $(shell dirname $(EXAMPLE_DIR))
-FRAMEWOR
+FRAMEWORK
           <!--noindex-->
             <div class="post-button">
               <a class="btn" href="/2017/02/14/moose-run/#more" rel="contents">
@@ -1250,12 +1248,15 @@ moose的相场模块提供了通用的求解相场模型的算法，其通式采
 
 牛顿迭代法
 moose内核模型的表达形式是将原来的控制方程中的右端项都移动到左端，得到这样的形式：
-$$
-R_i(u)=0, \qquad i=1,\ldots, N
-$$
+
 其中，N是分量的个数。
 如果写成有限元函数的形式：
-$$
+
+其中：
+
+即，原来的连续的场变量由节点上的离散的系数来代替。
+
+单变量求根
           <!--noindex-->
             <div class="post-button">
               <a class="btn" href="/2017/01/11/moose-phase-field-kernel/#more" rel="contents">
@@ -1481,6 +1482,59 @@ $$
   
 
   
+      
+
+<script>
+  if (typeof MathJax === 'undefined') {
+    window.MathJax = {
+      loader: {
+        source: {
+          '[tex]/amsCd': '[tex]/amscd',
+          '[tex]/AMScd': '[tex]/amscd'
+        }
+      },
+      tex: {
+        inlineMath: {'[+]': [['$', '$']]},
+        tags: 'ams'
+      },
+      options: {
+        renderActions: {
+          findScript: [10, doc => {
+            document.querySelectorAll('script[type^="math/tex"]').forEach(node => {
+              const display = !!node.type.match(/; *mode=display/);
+              const math = new doc.options.MathItem(node.textContent, doc.inputJax[0], display);
+              const text = document.createTextNode('');
+              node.parentNode.replaceChild(text, node);
+              math.start = {node: text, delim: '', n: 0};
+              math.end = {node: text, delim: '', n: 0};
+              doc.math.push(math);
+            });
+          }, '', false],
+          insertedScript: [200, () => {
+            document.querySelectorAll('mjx-container').forEach(node => {
+              let target = node.parentNode;
+              if (target.nodeName.toLowerCase() === 'li') {
+                target.parentNode.classList.add('has-jax');
+              }
+            });
+          }, '', false]
+        }
+      }
+    };
+    (function () {
+      var script = document.createElement('script');
+      script.src = '//cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js';
+      script.defer = true;
+      document.head.appendChild(script);
+    })();
+  } else {
+    MathJax.startup.document.state(0);
+    MathJax.texReset();
+    MathJax.typeset();
+  }
+</script>
+
+    
 
   
 

@@ -20,12 +20,12 @@
     var CONFIG = {"hostname":"qixinbo.github.io","root":"/","scheme":"Gemini","version":"7.8.0","exturl":false,"sidebar":{"position":"left","display":"post","padding":18,"offset":12,"onmobile":false},"copycode":{"enable":false,"show_result":false,"style":null},"back2top":{"enable":true,"sidebar":false,"scrollpercent":false},"bookmark":{"enable":false,"color":"#222","save":"auto"},"fancybox":false,"mediumzoom":false,"lazyload":false,"pangu":false,"comments":{"style":"tabs","active":null,"storage":true,"lazyload":false,"nav":null},"algolia":{"hits":{"per_page":10},"labels":{"input_placeholder":"Search for Posts","hits_empty":"We didn't find any results for the search: ${query}","hits_stats":"${hits} results found in ${time} ms"}},"localsearch":{"enable":false,"trigger":"auto","top_n_per_article":1,"unescape":false,"preload":false},"motion":{"enable":true,"async":false,"transition":{"post_block":"fadeIn","post_header":"slideDownIn","post_body":"slideDownIn","coll_header":"slideLeftIn","sidebar":"slideUpIn"}}};
   </script>
 
-  <meta name="description" content="Prerequisites Linux系统还是建议选Ubuntu系的，首先是驱动支持得全面，再者是Ubuntu源很给力，安装软件不费劲。 这里选择的Linux发行版是Linux Mint 19，它也是Ubuntu系的，界面比原生的Ubuntu要舒服，且软件源也是用的Ubuntu的。  安装Nvidia GPU驱动 首先确认系统是否有Nvidia GPU驱动：  1   nvidia-smi   如">
+  <meta name="description" content="Prerequisites Linux系统还是建议选Ubuntu系的，首先是驱动支持得全面，再者是Ubuntu源很给力，安装软件不费劲。 这里选择的Linux发行版是Linux Mint 19，它也是Ubuntu系的，界面比原生的Ubuntu要舒服，且软件源也是用的Ubuntu的。  安装Nvidia GPU驱动 首先确认系统是否有Nvidia GPU驱动： 1   nvidia-smi    如">
 <meta property="og:type" content="article">
 <meta property="og:title" content="linux系统Tensorflow GPU版安装过程记录">
 <meta property="og:url" content="http://qixinbo.github.io/2019/07/26/tensorflow-gpu-install/index.html">
 <meta property="og:site_name" content="数字旗手">
-<meta property="og:description" content="Prerequisites Linux系统还是建议选Ubuntu系的，首先是驱动支持得全面，再者是Ubuntu源很给力，安装软件不费劲。 这里选择的Linux发行版是Linux Mint 19，它也是Ubuntu系的，界面比原生的Ubuntu要舒服，且软件源也是用的Ubuntu的。  安装Nvidia GPU驱动 首先确认系统是否有Nvidia GPU驱动：  1   nvidia-smi   如">
+<meta property="og:description" content="Prerequisites Linux系统还是建议选Ubuntu系的，首先是驱动支持得全面，再者是Ubuntu源很给力，安装软件不费劲。 这里选择的Linux发行版是Linux Mint 19，它也是Ubuntu系的，界面比原生的Ubuntu要舒服，且软件源也是用的Ubuntu的。  安装Nvidia GPU驱动 首先确认系统是否有Nvidia GPU驱动： 1   nvidia-smi    如">
 <meta property="og:locale" content="en_US">
 <meta property="article:published_time" content="2019-07-25T16:00:00.000Z">
 <meta property="article:modified_time" content="2021-03-26T07:57:06.243Z">
@@ -257,22 +257,10 @@
 
       
         <h1 id="Prerequisites"><a href="#Prerequisites" class="headerlink" title="Prerequisites"></a>Prerequisites</h1><p>Linux系统还是建议选Ubuntu系的，首先是驱动支持得全面，再者是Ubuntu源很给力，安装软件不费劲。<br>这里选择的Linux发行版是Linux Mint 19，它也是Ubuntu系的，界面比原生的Ubuntu要舒服，且软件源也是用的Ubuntu的。</p>
-<h1 id="安装Nvidia-GPU驱动"><a href="#安装Nvidia-GPU驱动" class="headerlink" title="安装Nvidia GPU驱动"></a>安装Nvidia GPU驱动</h1><p>首先确认系统是否有Nvidia GPU驱动：</p>
-<figure class="highlight cpp"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">nvidia-smi</span><br></pre></td></tr></table></figure>
-<p>如果显示没有驱动的话，则需要下载安装驱动，可以有多种方式安装，最简单的一种是通过Ubuntu或Linux Mint的Driver Manager。打开该管理器，等待更新缓存后，就会有可用的Nvidia驱动下载，建议下载最新的，比如最新的TF就需要驱动版本在410以上。<br>也可以直接上Nvidia官网上下载，链接是：<br><a target="_blank" rel="noopener" href="https://www.nvidia.com/Download/index.aspx?lang=en-us">https://www.nvidia.com/Download/index.aspx?lang=en-us</a><br>但是安装可能很费劲，比如手动禁用开源的Nvidia驱动nouveau等。<br>下面是一篇很详细的安装方法，见：<br><a target="_blank" rel="noopener" href="https://blog.csdn.net/wf19930209/article/details/81877822">Linux安装NVIDIA显卡驱动的正确姿势</a></p>
-<h1 id="安装CUDA工具集"><a href="#安装CUDA工具集" class="headerlink" title="安装CUDA工具集"></a>安装CUDA工具集</h1><p>CUDA的版本与TF的版本要对应好，这里要安装的是TF-1.14，它对应的是CUDA10，所以这里下载并安装CUDA10。<br>下载链接是：<br><a target="_blank" rel="noopener" href="https://developer.nvidia.com/cuda-toolkit-archive">CUDA Toolkit Archive</a><br>依次选择系统、架构、发行版、发行版版本、安装类型后，就会出现下载链接及安装步骤，如：</p>
-<figure class="highlight cpp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line">sudo dpkg -i cuda-repo-ubuntu1804<span class="number">-10</span><span class="number">-1</span>-local<span class="number">-10.1</span><span class="number">.168</span><span class="number">-418.67</span>_1<span class="number">.0</span><span class="number">-1</span>_amd64.deb</span><br><span class="line">sudo apt-key add /var/cuda-repo-&lt;version&gt;/<span class="number">7f</span>a2af80.pub</span><br><span class="line">sudo apt-get update</span><br><span class="line">sudo apt-get install cuda</span><br></pre></td></tr></table></figure>
-<p>然后再将可执行文件和链接库的路径加入到环境变量中：</p>
-<figure class="highlight cpp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">export</span> PATH=/usr/local/cuda<span class="number">-10.1</span>/bin:$PATH</span><br><span class="line"><span class="keyword">export</span> LD_LIBRARY_PATH=/usr/local/cuda<span class="number">-10.1</span>/lib64:$LD_LIBRARY_PATH</span><br></pre></td></tr></table></figure>
-<p>如果有其他版本的cuda安装过，比如cuda9.1，那么需要首先完全卸载才行，否则会冲突：</p>
-<figure class="highlight cpp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line">sudo apt remove cuda</span><br><span class="line">sudo apt autoclean</span><br><span class="line">sudo apt remove cuda*</span><br><span class="line">sudo rm -rf /usr/local/cuda<span class="number">-9.1</span></span><br><span class="line">sudo rm -rf /usr/local/cuda</span><br><span class="line">sudo find / -name cuda<span class="number">-9</span>* (then remove all the files related to cuda<span class="number">-9.1</span>)</span><br></pre></td></tr></table></figure>
-
-<h1 id="安装cuDNN"><a href="#安装cuDNN" class="headerlink" title="安装cuDNN"></a>安装cuDNN</h1><p>这里也是安装最新的，要大于7.4.1。<br>下载链接（要注册）：<br><a target="_blank" rel="noopener" href="https://developer.nvidia.com/rdp/form/cudnn-download-survey">https://developer.nvidia.com/rdp/form/cudnn-download-survey</a><br>选择好与前面cuda版本相对应的版本。<br>如果选择的是cuDNN Runtime Library for Ubuntu18.04 (Deb)。<br>则直接安装即可：</p>
-<figure class="highlight cpp"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">sudo dpkg -i xxx.deb</span><br></pre></td></tr></table></figure>
-<p>如果选择的是cuDNN Library for Linux，则解压后：</p>
-<figure class="highlight cpp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">sudo cp cuda/include<span class="comment">/* /usr/local/cuda-10.1/include</span></span><br><span class="line"><span class="comment">sudo cp cuda/lib64/* /usr/local/cuda-10.1/lib64</span></span><br><span class="line"><span class="comment">sudo /sbin/ldconfig</span></span><br></pre></td></tr></table></figure>
+<h1 id="安装Nvidia-GPU驱动"><a href="#安装Nvidia-GPU驱动" class="headerlink" title="安装Nvidia GPU驱动"></a>安装Nvidia GPU驱动</h1><p>首先确认系统是否有Nvidia GPU驱动：<br><figure class="highlight cpp"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">nvidia-smi</span><br></pre></td></tr></table></figure><br>如果显示没有驱动的话，则需要下载安装驱动，可以有多种方式安装，最简单的一种是通过Ubuntu或Linux Mint的Driver Manager。打开该管理器，等待更新缓存后，就会有可用的Nvidia驱动下载，建议下载最新的，比如最新的TF就需要驱动版本在410以上。<br>也可以直接上Nvidia官网上下载，链接是：<br><a target="_blank" rel="noopener" href="https://www.nvidia.com/Download/index.aspx?lang=en-us">https://www.nvidia.com/Download/index.aspx?lang=en-us</a><br>但是安装可能很费劲，比如手动禁用开源的Nvidia驱动nouveau等。<br>下面是一篇很详细的安装方法，见：<br><a target="_blank" rel="noopener" href="https://blog.csdn.net/wf19930209/article/details/81877822">Linux安装NVIDIA显卡驱动的正确姿势</a></p>
+<h1 id="安装CUDA工具集"><a href="#安装CUDA工具集" class="headerlink" title="安装CUDA工具集"></a>安装CUDA工具集</h1><p>CUDA的版本与TF的版本要对应好，这里要安装的是TF-1.14，它对应的是CUDA10，所以这里下载并安装CUDA10。<br>下载链接是：<br><a target="_blank" rel="noopener" href="https://developer.nvidia.com/cuda-toolkit-archive">CUDA Toolkit Archive</a><br>依次选择系统、架构、发行版、发行版版本、安装类型后，就会出现下载链接及安装步骤，如：<br><figure class="highlight cpp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line">sudo dpkg -i cuda-repo-ubuntu1804<span class="number">-10</span><span class="number">-1</span>-local<span class="number">-10.1</span><span class="number">.168</span><span class="number">-418.67</span>_1<span class="number">.0</span><span class="number">-1</span>_amd64.deb</span><br><span class="line">sudo apt-key add /var/cuda-repo-&lt;version&gt;/<span class="number">7f</span>a2af80.pub</span><br><span class="line">sudo apt-get update</span><br><span class="line">sudo apt-get install cuda</span><br></pre></td></tr></table></figure><br>然后再将可执行文件和链接库的路径加入到环境变量中：<br><figure class="highlight cpp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">export</span> PATH=/usr/local/cuda<span class="number">-10.1</span>/bin:$PATH</span><br><span class="line"><span class="keyword">export</span> LD_LIBRARY_PATH=/usr/local/cuda<span class="number">-10.1</span>/lib64:$LD_LIBRARY_PATH</span><br></pre></td></tr></table></figure><br>如果有其他版本的cuda安装过，比如cuda9.1，那么需要首先完全卸载才行，否则会冲突：<br><figure class="highlight cpp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line">sudo apt remove cuda</span><br><span class="line">sudo apt autoclean</span><br><span class="line">sudo apt remove cuda*</span><br><span class="line">sudo rm -rf /usr/local/cuda<span class="number">-9.1</span></span><br><span class="line">sudo rm -rf /usr/local/cuda</span><br><span class="line">sudo find / -name cuda<span class="number">-9</span>* (then remove all the files related to cuda<span class="number">-9.1</span>)</span><br></pre></td></tr></table></figure></p>
+<h1 id="安装cuDNN"><a href="#安装cuDNN" class="headerlink" title="安装cuDNN"></a>安装cuDNN</h1><p>这里也是安装最新的，要大于7.4.1。<br>下载链接（要注册）：<br><a target="_blank" rel="noopener" href="https://developer.nvidia.com/rdp/form/cudnn-download-survey">https://developer.nvidia.com/rdp/form/cudnn-download-survey</a><br>选择好与前面cuda版本相对应的版本。<br>如果选择的是cuDNN Runtime Library for Ubuntu18.04 (Deb)。<br>则直接安装即可：<br><figure class="highlight cpp"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">sudo dpkg -i xxx.deb</span><br></pre></td></tr></table></figure><br>如果选择的是cuDNN Library for Linux，则解压后：<br><figure class="highlight cpp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">sudo cp cuda/include<span class="comment">/* /usr/local/cuda-10.1/include</span></span><br><span class="line"><span class="comment">sudo cp cuda/lib64/* /usr/local/cuda-10.1/lib64</span></span><br><span class="line"><span class="comment">sudo /sbin/ldconfig</span></span><br></pre></td></tr></table></figure></p>
 <h1 id="安装tensorflow-gpu"><a href="#安装tensorflow-gpu" class="headerlink" title="安装tensorflow-gpu"></a>安装tensorflow-gpu</h1><figure class="highlight cpp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">conda create -n tf python=<span class="number">3.7</span></span><br><span class="line">source activate tf</span><br><span class="line">pip install tensorflow-gpu</span><br></pre></td></tr></table></figure>
-
 <h1 id="测试"><a href="#测试" class="headerlink" title="测试"></a>测试</h1><figure class="highlight cpp"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">python -c <span class="string">&quot;import tensorflow as tf;print(tf.reduce_sum(tf.random.normal([1000, 1000])))&quot;</span></span><br></pre></td></tr></table></figure>
 
     </div>
@@ -528,6 +516,59 @@
   
 
   
+      
+
+<script>
+  if (typeof MathJax === 'undefined') {
+    window.MathJax = {
+      loader: {
+        source: {
+          '[tex]/amsCd': '[tex]/amscd',
+          '[tex]/AMScd': '[tex]/amscd'
+        }
+      },
+      tex: {
+        inlineMath: {'[+]': [['$', '$']]},
+        tags: 'ams'
+      },
+      options: {
+        renderActions: {
+          findScript: [10, doc => {
+            document.querySelectorAll('script[type^="math/tex"]').forEach(node => {
+              const display = !!node.type.match(/; *mode=display/);
+              const math = new doc.options.MathItem(node.textContent, doc.inputJax[0], display);
+              const text = document.createTextNode('');
+              node.parentNode.replaceChild(text, node);
+              math.start = {node: text, delim: '', n: 0};
+              math.end = {node: text, delim: '', n: 0};
+              doc.math.push(math);
+            });
+          }, '', false],
+          insertedScript: [200, () => {
+            document.querySelectorAll('mjx-container').forEach(node => {
+              let target = node.parentNode;
+              if (target.nodeName.toLowerCase() === 'li') {
+                target.parentNode.classList.add('has-jax');
+              }
+            });
+          }, '', false]
+        }
+      }
+    };
+    (function () {
+      var script = document.createElement('script');
+      script.src = '//cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js';
+      script.defer = true;
+      document.head.appendChild(script);
+    })();
+  } else {
+    MathJax.startup.document.state(0);
+    MathJax.texReset();
+    MathJax.typeset();
+  }
+</script>
+
+    
 
   
 

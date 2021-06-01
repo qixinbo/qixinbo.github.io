@@ -264,13 +264,12 @@ ImagePy的主界面就是名为ImagePy的类，这一部分详解主界面是如
 
 父类初始化
 ImagePy这个类是继承自wxPython的Frame类，所以首先对这个类进行初始化，包括名称、尺寸、位置、样式等。
-
 1
 2
 3
 
 
-wx.Frame.__init__ ( self, parent, id = wx.ID_ANY,
+wx.Frame.__init__ ( self, parent, id = wx.ID_ANY, 
           <!--noindex-->
             <div class="post-button">
               <a class="btn" href="/2019/08/31/ImagePy_4/#more" rel="contents">
@@ -590,7 +589,6 @@ self.toolbar = toolsloader.build_tools(self, 'tools', 'plugins', None, True)
 
 主界面构建菜单
 首先在主界面中根据路径添加菜单项（插件就是菜单），即逐层遍历’menus’路径下的文件夹和文件，找到特定后缀的文件（比如后缀为”plgs.py”），并添加为菜单项。这是整个插件加载的入口函数。
-
 1
 2
 3
@@ -598,6 +596,7 @@ self.toolbar = toolsloader.build_tools(self, 'tools', 'plugins', None, True)
 
 self.menubar = pluginloader.buildMenuBarByPath(self, 'menus', 'plugins', None, True)
 self.SetMenuBar( self.menubar )
+
 
 
 
@@ -702,11 +701,11 @@ Linux系统还是建议选Ubuntu系的，首先是驱动支持得全面，再者
 
 安装Nvidia GPU驱动
 首先确认系统是否有Nvidia GPU驱动：
-
 1
 
 
 nvidia-smi
+
 
 
 如果显示没有驱动的话，则需要下载安装驱动，可以有多种方式安装，最简单的一种是通过Ubuntu或Linux Mint的Driver Manager。打开该管理器，等待更新缓存后，就会有可用的Nvidia驱
@@ -806,13 +805,13 @@ nvidia-smi
       
           ==== 2019.7.20 更新：增加docker走代理 ====
 docker也是不走.bashrc中配置的代理，需要走自己的配置文件，修改/etc/default/docker文件，增加：
-
 1
 2
 
 
 HTTP_PROXY="http://[proxy-addr]:[proxy-port]/"
 HTTPS_PROXY="https://[proxy-addr]:[proxy-port]/"
+
 
 
 然后重启docker服务。
@@ -1458,6 +1457,59 @@ ImageJ由于历史原因，存在着ImageJ1和ImageJ2两个版本，且两者的
   
 
   
+      
+
+<script>
+  if (typeof MathJax === 'undefined') {
+    window.MathJax = {
+      loader: {
+        source: {
+          '[tex]/amsCd': '[tex]/amscd',
+          '[tex]/AMScd': '[tex]/amscd'
+        }
+      },
+      tex: {
+        inlineMath: {'[+]': [['$', '$']]},
+        tags: 'ams'
+      },
+      options: {
+        renderActions: {
+          findScript: [10, doc => {
+            document.querySelectorAll('script[type^="math/tex"]').forEach(node => {
+              const display = !!node.type.match(/; *mode=display/);
+              const math = new doc.options.MathItem(node.textContent, doc.inputJax[0], display);
+              const text = document.createTextNode('');
+              node.parentNode.replaceChild(text, node);
+              math.start = {node: text, delim: '', n: 0};
+              math.end = {node: text, delim: '', n: 0};
+              doc.math.push(math);
+            });
+          }, '', false],
+          insertedScript: [200, () => {
+            document.querySelectorAll('mjx-container').forEach(node => {
+              let target = node.parentNode;
+              if (target.nodeName.toLowerCase() === 'li') {
+                target.parentNode.classList.add('has-jax');
+              }
+            });
+          }, '', false]
+        }
+      }
+    };
+    (function () {
+      var script = document.createElement('script');
+      script.src = '//cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js';
+      script.defer = true;
+      document.head.appendChild(script);
+    })();
+  } else {
+    MathJax.startup.document.state(0);
+    MathJax.texReset();
+    MathJax.typeset();
+  }
+</script>
+
+    
 
   
 

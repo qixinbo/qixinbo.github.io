@@ -261,8 +261,13 @@
 <li>使用MeshWorker::loop()来组装系统矩阵</li>
 </ul>
 <p>本例主要关心的就是间断Galerkin法的循环，这相当复杂，因为必须分辨边界、常规内部边和有悬点的内部边。MeshWorker框架能够对所有的单元和边进行标准循环，它将分辨过程隐藏在了内部。<br>使用MeshWorker需要手动做两件事：一是针对特定问题写内部积分器，二是从该命名空间中选择类，然后将它们组合起来来解决问题。</p>
-<p>要求解的问题是线性对流方程：<br>$$<br>\nabla\cdot \left({\mathbf \beta} u\right)=0 \qquad\mbox{in }\Omega,<br>$$<br>边界条件是：<br>$$<br>u=g\quad\mbox{on }\Gamma_-,<br>$$<br>这是入流边界，定义是：<br>$$<br>\Gamma_-:=[{\bf x}\in\Gamma, {\mathbf \beta}({\bf x})\cdot{\bf n}({\bf x})&lt;0]<br>$$</p>
-<p>这个方程是之前的Step9的守恒版本。<br>具体取值为：$\Omega=[0,1]^2$，${\mathbf \beta}=\frac{1}{|x|}(-x_2, x_1)$代表一个环形逆时针流场，在${\bf x}\in\Gamma_-^1:=[0,0.5]\times[0]$上$g=1$，而在${\bf x}\in \Gamma_-\setminus \Gamma_-^1$上$g=0$。<br>这里使用迎风间断Galerkin方法。<br>从这里就完全看不懂了。留坑待填。</p>
+<p>要求解的问题是线性对流方程：</p>
+<script type="math/tex; mode=display">
+\nabla\cdot \left({\mathbf \beta} u\right)=0 \qquad\mbox{in }\Omega,</script><p>边界条件是：</p>
+<script type="math/tex; mode=display">
+u=g\quad\mbox{on }\Gamma\_-,</script><p>这是入流边界，定义是：</p>
+<script type="math/tex; mode=display">
+\Gamma\_-:=[{\bf x}\in\Gamma, {\mathbf \beta}({\bf x})\cdot{\bf n}({\bf x})<0]</script><p>这个方程是之前的Step9的守恒版本。<br>具体取值为：$\Omega=[0,1]^2$，${\mathbf \beta}=\frac{1}{|x|}(-x_2, x_1)$代表一个环形逆时针流场，在${\bf x}\in\Gamma_-^1:=[0,0.5]\times[0]$上$g=1$，而在${\bf x}\in \Gamma_-\setminus \Gamma_-^1$上$g=0$。<br>这里使用迎风间断Galerkin方法。<br>从这里就完全看不懂了。留坑待填。</p>
 
     </div>
 
@@ -296,8 +301,8 @@
         
     <div class="post-nav">
       <div class="post-nav-item">
-    <a href="/2016/09/16/dealii-learn-step11/" rel="prev" title="求解偏微分方程开源有限元软件deal.II学习--Step 11">
-      <i class="fa fa-chevron-left"></i> 求解偏微分方程开源有限元软件deal.II学习--Step 11
+    <a href="/2016/09/16/dealii-learn-step10/" rel="prev" title="求解偏微分方程开源有限元软件deal.II学习--Step 10">
+      <i class="fa fa-chevron-left"></i> 求解偏微分方程开源有限元软件deal.II学习--Step 10
     </a></div>
       <div class="post-nav-item">
     <a href="/2016/09/20/dealii-learn-step13/" rel="next" title="求解偏微分方程开源有限元软件deal.II学习--Step 13">
@@ -516,6 +521,59 @@
   
 
   
+      
+
+<script>
+  if (typeof MathJax === 'undefined') {
+    window.MathJax = {
+      loader: {
+        source: {
+          '[tex]/amsCd': '[tex]/amscd',
+          '[tex]/AMScd': '[tex]/amscd'
+        }
+      },
+      tex: {
+        inlineMath: {'[+]': [['$', '$']]},
+        tags: 'ams'
+      },
+      options: {
+        renderActions: {
+          findScript: [10, doc => {
+            document.querySelectorAll('script[type^="math/tex"]').forEach(node => {
+              const display = !!node.type.match(/; *mode=display/);
+              const math = new doc.options.MathItem(node.textContent, doc.inputJax[0], display);
+              const text = document.createTextNode('');
+              node.parentNode.replaceChild(text, node);
+              math.start = {node: text, delim: '', n: 0};
+              math.end = {node: text, delim: '', n: 0};
+              doc.math.push(math);
+            });
+          }, '', false],
+          insertedScript: [200, () => {
+            document.querySelectorAll('mjx-container').forEach(node => {
+              let target = node.parentNode;
+              if (target.nodeName.toLowerCase() === 'li') {
+                target.parentNode.classList.add('has-jax');
+              }
+            });
+          }, '', false]
+        }
+      }
+    };
+    (function () {
+      var script = document.createElement('script');
+      script.src = '//cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js';
+      script.defer = true;
+      document.head.appendChild(script);
+    })();
+  } else {
+    MathJax.startup.document.state(0);
+    MathJax.texReset();
+    MathJax.typeset();
+  }
+</script>
+
+    
 
   
 

@@ -257,9 +257,9 @@
     <div class="post-body" itemprop="articleBody">
 
       
-        <h1 id="ImagePy简介"><a href="#ImagePy简介" class="headerlink" title="ImagePy简介"></a>ImagePy简介</h1><p>“ImagePy是一款基于 Python 的可扩展图像处理框架，融合了ImageJ与Python的优势，是一个轻量级的、可扩展的图像处理框架。”（语出ImagePy官网：<a target="_blank" rel="noopener" href="http://www.imagepy.org/about/%EF%BC%89">http://www.imagepy.org/about/）</a><br>ImagePy作为一个GUI框架，可以快速接入opencv、scikit-image、mayavi等python的第三方库，因此，在功能性和易用性上都有很好的表现。<br>ImagePy的作者是闫霄龙yxdragon，目前是成都坐标创意科技有限公司的CEO，真牛人~~<br>项目的GitHub主页是：<a target="_blank" rel="noopener" href="https://github.com/Image-Py/imagepy">https://github.com/Image-Py/imagepy</a><br>GitHub上还有基于ImagePy的更多的扩展，比如opencv扩展、itk扩展、IBook扩展、海冰影像分析项目：<a target="_blank" rel="noopener" href="https://github.com/Image-Py">https://github.com/Image-Py</a><br>项目在知乎上的介绍：<a target="_blank" rel="noopener" href="https://zhuanlan.zhihu.com/imagepy">https://zhuanlan.zhihu.com/imagepy</a><br>项目在image.sc上的讨论频道是：<a target="_blank" rel="noopener" href="https://forum.image.sc/tags/imagepy">https://forum.image.sc/tags/imagepy</a><br>闫霄龙的一个视频直播分享：<a target="_blank" rel="noopener" href="https://www.bilibili.com/video/av39218282">B站</a>或<a target="_blank" rel="noopener" href="https://v.qq.com/x/page/b08204k4bjb.html">腾讯视频</a></p>
+        <h1 id="ImagePy简介"><a href="#ImagePy简介" class="headerlink" title="ImagePy简介"></a>ImagePy简介</h1><p>“ImagePy是一款基于 Python 的可扩展图像处理框架，融合了ImageJ与Python的优势，是一个轻量级的、可扩展的图像处理框架。”（语出ImagePy官网：<a target="_blank" rel="noopener" href="http://www.imagepy.org/about/）">http://www.imagepy.org/about/）</a><br>ImagePy作为一个GUI框架，可以快速接入opencv、scikit-image、mayavi等python的第三方库，因此，在功能性和易用性上都有很好的表现。<br>ImagePy的作者是闫霄龙yxdragon，目前是成都坐标创意科技有限公司的CEO，真牛人~~<br>项目的GitHub主页是：<a target="_blank" rel="noopener" href="https://github.com/Image-Py/imagepy">https://github.com/Image-Py/imagepy</a><br>GitHub上还有基于ImagePy的更多的扩展，比如opencv扩展、itk扩展、IBook扩展、海冰影像分析项目：<a target="_blank" rel="noopener" href="https://github.com/Image-Py">https://github.com/Image-Py</a><br>项目在知乎上的介绍：<a target="_blank" rel="noopener" href="https://zhuanlan.zhihu.com/imagepy">https://zhuanlan.zhihu.com/imagepy</a><br>项目在image.sc上的讨论频道是：<a target="_blank" rel="noopener" href="https://forum.image.sc/tags/imagepy">https://forum.image.sc/tags/imagepy</a><br>闫霄龙的一个视频直播分享：<a target="_blank" rel="noopener" href="https://www.bilibili.com/video/av39218282">B站</a>或<a target="_blank" rel="noopener" href="https://v.qq.com/x/page/b08204k4bjb.html">腾讯视频</a></p>
 <h1 id="安装"><a href="#安装" class="headerlink" title="安装"></a>安装</h1><p>如果想直接使用的话，可以直接下载release版本：<br><a target="_blank" rel="noopener" href="https://github.com/Image-Py/imagepy/releases">https://github.com/Image-Py/imagepy/releases</a><br>如果想二次开发的话，可以自己搭建python环境，并通过pip或conda安装必要的包，然后直接clone源码：<br><a target="_blank" rel="noopener" href="https://github.com/Image-Py/imagepy">https://github.com/Image-Py/imagepy</a></p>
-<h1 id="设计架构"><a href="#设计架构" class="headerlink" title="设计架构"></a>设计架构</h1><p>如图：<br><img src="https://ws4.sinaimg.cn/large/006Xmmmggy1g5nhfqnr12j30qf0e20vv.jpg"></p>
+<h1 id="设计架构"><a href="#设计架构" class="headerlink" title="设计架构"></a>设计架构</h1><p>如图：<br><img src="https://ws4.sinaimg.cn/large/006Xmmmggy1g5nhfqnr12j30qf0e20vv.jpg" alt=""></p>
 <h2 id="展示层"><a href="#展示层" class="headerlink" title="展示层"></a>展示层</h2><p>即软件界面，包括菜单栏、工具条、状态栏、图像窗口等组成，ImagePy是基于wxPython来开发GUI。</p>
 <h2 id="管理层"><a href="#管理层" class="headerlink" title="管理层"></a>管理层</h2><p>即系统底层，包括很多管理器，如插件管理器、工具管理器、图像窗口管理器等。</p>
 <h2 id="逻辑层"><a href="#逻辑层" class="headerlink" title="逻辑层"></a>逻辑层</h2><p>即交互逻辑，将用户的界面操作与系统底层联系起来。同时该层也包括两种加载器：插件加载器PluginLoader和工具加载器ToolsLoader，来在软件初始化时来生成菜单栏和工具栏。</p>
@@ -282,10 +282,9 @@
 <h2 id="IPy"><a href="#IPy" class="headerlink" title="IPy"></a>IPy</h2><p>对一些常用功能的引用类，可以通过Ipy访问ImagePy的许多常用功能，比如打开图像、输出日志等。</p>
 <h1 id="启动分析"><a href="#启动分析" class="headerlink" title="启动分析"></a>启动分析</h1><p>Windows下双击ImagePy.bat或Linux下运行ImagePy.sh，皆可启动ImagePy主程序，两者都是执行：</p>
 <figure class="highlight cpp"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">python -m imagepy</span><br></pre></td></tr></table></figure>
-<p>ImagePy软件是以imagepy这个包来组织代码的，所以上面命令以模块形式运行imagepy，会首先运行该包的__init__.py文件，然后再运行__main__.py文件，这里面会有几个添加并识别路径的语句，保证程序能够被顺利找到。具体地：在__init__.py文件中先将系统路径切换到imagepy路径下，这样就可以通过相对路径来引用内部模块、图片等静态文件，然后在__main__.py中通过相对路径将上一层路径加入到sys.path中，从而让python能找到imagepy这个包，然后调用imagepy.show()这个方法开始真正执行具体的逻辑。</p>
+<p>ImagePy软件是以imagepy这个包来组织代码的，所以上面命令以模块形式运行imagepy，会首先运行该包的<strong>init</strong>.py文件，然后再运行<strong>main</strong>.py文件，这里面会有几个添加并识别路径的语句，保证程序能够被顺利找到。具体地：在<strong>init</strong>.py文件中先将系统路径切换到imagepy路径下，这样就可以通过相对路径来引用内部模块、图片等静态文件，然后在<strong>main</strong>.py中通过相对路径将上一层路径加入到sys.path中，从而让python能找到imagepy这个包，然后调用imagepy.show()这个方法开始真正执行具体的逻辑。</p>
 <p>具体地，ImagePy使用wxPython作为GUI框架：</p>
 <figure class="highlight cpp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line">app = wx.<span class="built_in">App</span>(False) #创建application</span><br><span class="line"><span class="built_in">ImagePy</span>(None).<span class="built_in">Show</span>() #显示</span><br><span class="line">app.<span class="built_in">MainLoop</span>() #进入主循环，等待交互</span><br><span class="line"></span><br></pre></td></tr></table></figure>
-
 <p>ImagePy类是自定义的继承自wx.Frame的框架。</p>
 
     </div>
@@ -540,6 +539,59 @@
   
 
   
+      
+
+<script>
+  if (typeof MathJax === 'undefined') {
+    window.MathJax = {
+      loader: {
+        source: {
+          '[tex]/amsCd': '[tex]/amscd',
+          '[tex]/AMScd': '[tex]/amscd'
+        }
+      },
+      tex: {
+        inlineMath: {'[+]': [['$', '$']]},
+        tags: 'ams'
+      },
+      options: {
+        renderActions: {
+          findScript: [10, doc => {
+            document.querySelectorAll('script[type^="math/tex"]').forEach(node => {
+              const display = !!node.type.match(/; *mode=display/);
+              const math = new doc.options.MathItem(node.textContent, doc.inputJax[0], display);
+              const text = document.createTextNode('');
+              node.parentNode.replaceChild(text, node);
+              math.start = {node: text, delim: '', n: 0};
+              math.end = {node: text, delim: '', n: 0};
+              doc.math.push(math);
+            });
+          }, '', false],
+          insertedScript: [200, () => {
+            document.querySelectorAll('mjx-container').forEach(node => {
+              let target = node.parentNode;
+              if (target.nodeName.toLowerCase() === 'li') {
+                target.parentNode.classList.add('has-jax');
+              }
+            });
+          }, '', false]
+        }
+      }
+    };
+    (function () {
+      var script = document.createElement('script');
+      script.src = '//cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js';
+      script.defer = true;
+      document.head.appendChild(script);
+    })();
+  } else {
+    MathJax.startup.document.state(0);
+    MathJax.texReset();
+    MathJax.typeset();
+  }
+</script>
+
+    
 
   
 

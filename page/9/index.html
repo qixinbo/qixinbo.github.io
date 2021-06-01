@@ -359,15 +359,14 @@
 流程
 求解步
 在求解步时，传入时间步数来判断是否自适应：
-
 1
 
 
 adaptiveRefine(currentIncrement);
 
 
-如果时间步数满足要自适应的间隔，那么就开始自适应：
 
+如果时间步数满足要自适应的间隔，那么就开始自适应：
 1
 2
 3
@@ -378,12 +377,12 @@ this->refineMesh(currentIncrement);
 }
 
 
-这个refineMesh函数会调用init函数参数是非0的情形：
 
+这个refineMesh函数会调用init函数参数是非0的情形：
 1
 
 
-init(_current
+init(_currentI
           <!--noindex-->
             <div class="post-button">
               <a class="btn" href="/2016/12/20/prisms-pf-adaptivity/#more" rel="contents">
@@ -487,11 +486,11 @@ init(_current
 扩展过程
 定义要使用解的个数
 在parameter.h中新增宏定义numSolution，其决定方程中用到几步解，比如在枝晶生长的模拟中用到两步解，其就等于2，之前的所有模拟中都等于1。
-
 1
 
 
 #define numSolution 2
+
 
 
 这里涉及头文件的包含顺序，放在后面定义的话，会不
@@ -595,27 +594,27 @@ PRISMS-PF的1.0版本相对于最开始的0.8版本，进行了较大的重构�
 文件结构
 基础头文件
 首先是deal.II的各种头文件：
-
 1
 
 
 include/dealIIheaders.h
 
 
-PDE的无矩阵解法的模板类：
 
+PDE的无矩阵解法的模板类：
 1
 
 
 include/matrixFreePDE.h
 
 
-包含各种属性的物理场的模板类：
 
+包含各种属性的物理场的模板类：
 1
 
 
 include/fields.h
+
 
 
 模型中用到的变量
@@ -925,11 +924,13 @@ PRISMS是“PRedictive Integrated Structural Materials Science”的缩写，是
 单元刚度矩阵的性质
 性质1:矩阵元素具有明确物理意义
 以一维2节点杆单元为例，其刚度方程为：
-$$
-\begin{bmatrix}
-k_{11} & k_{12} \
-k_{21} & k_{22}
-\end{bmatr
+
+分两种情况进行具体讨论：
+(1)考虑单元左端，即节点1，发生单位位移，而右端，即节点2，固定：
+
+此时：
+
+这说明，$k_{
           <!--noindex-->
             <div class="post-button">
               <a class="btn" href="/2016/10/08/fem_matrix/#more" rel="contents">
@@ -1027,7 +1028,7 @@ k_{21} & k_{22}
           2016-11-16 Update
 p4est与deal.II的链接注意事项：
 
- * p4est安装时需要开启mpi，即configure时加上–enable-mpi选项。
+ * p4est安装时需要开启mpi，即configure时加上—enable-mpi选项。
  * 链接时增添：1
    
    
@@ -1248,8 +1249,12 @@ PETSc，全称Portable-Extensible-Toolkit-for-Scientific-Computatio
 使用MeshWorker需要手动做两件事：一是针对特定问题写内部积分器，二是从该命名空间中选择类，然后将它们组合起来来解决问题。
 
 要求解的问题是线性对流方程：
-$$
-\nabla\cdot \left({\mat
+
+边界条件是：
+
+这是入流边界，定义是：
+
+这个方程
           <!--noindex-->
             <div class="post-button">
               <a class="btn" href="/2016/09/17/dealii-learn-step12/#more" rel="contents">
@@ -1475,6 +1480,59 @@ $$
   
 
   
+      
+
+<script>
+  if (typeof MathJax === 'undefined') {
+    window.MathJax = {
+      loader: {
+        source: {
+          '[tex]/amsCd': '[tex]/amscd',
+          '[tex]/AMScd': '[tex]/amscd'
+        }
+      },
+      tex: {
+        inlineMath: {'[+]': [['$', '$']]},
+        tags: 'ams'
+      },
+      options: {
+        renderActions: {
+          findScript: [10, doc => {
+            document.querySelectorAll('script[type^="math/tex"]').forEach(node => {
+              const display = !!node.type.match(/; *mode=display/);
+              const math = new doc.options.MathItem(node.textContent, doc.inputJax[0], display);
+              const text = document.createTextNode('');
+              node.parentNode.replaceChild(text, node);
+              math.start = {node: text, delim: '', n: 0};
+              math.end = {node: text, delim: '', n: 0};
+              doc.math.push(math);
+            });
+          }, '', false],
+          insertedScript: [200, () => {
+            document.querySelectorAll('mjx-container').forEach(node => {
+              let target = node.parentNode;
+              if (target.nodeName.toLowerCase() === 'li') {
+                target.parentNode.classList.add('has-jax');
+              }
+            });
+          }, '', false]
+        }
+      }
+    };
+    (function () {
+      var script = document.createElement('script');
+      script.src = '//cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js';
+      script.defer = true;
+      document.head.appendChild(script);
+    })();
+  } else {
+    MathJax.startup.document.state(0);
+    MathJax.texReset();
+    MathJax.typeset();
+  }
+</script>
+
+    
 
   
 

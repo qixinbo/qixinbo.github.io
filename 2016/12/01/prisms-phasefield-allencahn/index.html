@@ -286,22 +286,13 @@
 <li>余量：rnV和rnxV</li>
 </ul>
 <h2 id="初始条件"><a href="#初始条件" class="headerlink" title="初始条件"></a>初始条件</h2><p>如前所述，初始条件放在main.cc文件中设置。v0.8使用了两种类型的初始条件：在平均值附近的随机噪声(比如初始浓度的微小起伏)或位置的解析函数(比如相场的双曲正切分布)。</p>
-<h1 id="程序解析"><a href="#程序解析" class="headerlink" title="程序解析"></a>程序解析</h1><h2 id="头文件"><a href="#头文件" class="headerlink" title="头文件"></a>头文件</h2><p>包含三种头文件：所用的deal.II的头文件、参数头文件和方程求解方法的头文件：</p>
-<figure class="highlight cpp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">#<span class="meta-keyword">include</span> <span class="meta-string">&quot;../../include/dealIIheaders.h&quot;</span></span></span><br><span class="line"><span class="meta">#<span class="meta-keyword">include</span> <span class="meta-string">&quot;parameters.h&quot;</span></span></span><br><span class="line"><span class="meta">#<span class="meta-keyword">include</span> <span class="meta-string">&quot;../../src/AC.h&quot;</span></span></span><br></pre></td></tr></table></figure>
-<h2 id="初始条件-1"><a href="#初始条件-1" class="headerlink" title="初始条件"></a>初始条件</h2><p>以下使用的是在初始浓度基础上加一个随机噪声小量，实际就是对InitialConditionN类的virtual函数value进行了函数实现。InitialConditionN类在AC.h中定义，是对Function类的Public继承，它的构造函数用srand函数对下面的rand函数撒种子，这个srand函数这里设置成不同进程有不同的seed值。</p>
-<figure class="highlight cpp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">template</span> &lt;<span class="keyword">int</span> dim&gt;</span><br><span class="line"><span class="keyword">double</span> InitialConditionN&lt;dim&gt;::<span class="built_in">value</span> (<span class="keyword">const</span> Point&lt;dim&gt; &amp;p, <span class="keyword">const</span> <span class="keyword">unsigned</span> <span class="keyword">int</span> <span class="comment">/* component */</span>) <span class="keyword">const</span></span><br><span class="line">&#123;</span><br><span class="line">  <span class="comment">//return the value of the initial order parameter field at point p </span></span><br><span class="line">  <span class="keyword">return</span>  <span class="number">0.5</span>+ <span class="number">0.2</span>*(<span class="number">0.5</span> - (<span class="keyword">double</span>)(std::<span class="built_in">rand</span>() % <span class="number">100</span> )/<span class="number">100.0</span>);</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
-
-<h2 id="求解过程"><a href="#求解过程" class="headerlink" title="求解过程"></a>求解过程</h2><p>生成AllenCahnProblem类的一个对象，并执行run函数：</p>
-<figure class="highlight cpp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">AllenCahnProblem&lt;problemDIM&gt; problem;</span><br><span class="line">problem.<span class="built_in">run</span> ();</span><br></pre></td></tr></table></figure>
-<p>AllenCahnProblem类Public继承自Subscriptor类。</p>
+<h1 id="程序解析"><a href="#程序解析" class="headerlink" title="程序解析"></a>程序解析</h1><h2 id="头文件"><a href="#头文件" class="headerlink" title="头文件"></a>头文件</h2><p>包含三种头文件：所用的deal.II的头文件、参数头文件和方程求解方法的头文件：<br><figure class="highlight cpp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">#<span class="meta-keyword">include</span> <span class="meta-string">&quot;../../include/dealIIheaders.h&quot;</span></span></span><br><span class="line"><span class="meta">#<span class="meta-keyword">include</span> <span class="meta-string">&quot;parameters.h&quot;</span></span></span><br><span class="line"><span class="meta">#<span class="meta-keyword">include</span> <span class="meta-string">&quot;../../src/AC.h&quot;</span></span></span><br></pre></td></tr></table></figure></p>
+<h2 id="初始条件-1"><a href="#初始条件-1" class="headerlink" title="初始条件"></a>初始条件</h2><p>以下使用的是在初始浓度基础上加一个随机噪声小量，实际就是对InitialConditionN类的virtual函数value进行了函数实现。InitialConditionN类在AC.h中定义，是对Function类的Public继承，它的构造函数用srand函数对下面的rand函数撒种子，这个srand函数这里设置成不同进程有不同的seed值。<br><figure class="highlight cpp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">template</span> &lt;<span class="keyword">int</span> dim&gt;</span><br><span class="line"><span class="keyword">double</span> InitialConditionN&lt;dim&gt;::<span class="built_in">value</span> (<span class="keyword">const</span> Point&lt;dim&gt; &amp;p, <span class="keyword">const</span> <span class="keyword">unsigned</span> <span class="keyword">int</span> <span class="comment">/* component */</span>) <span class="keyword">const</span></span><br><span class="line">&#123;</span><br><span class="line">  <span class="comment">//return the value of the initial order parameter field at point p </span></span><br><span class="line">  <span class="keyword">return</span>  <span class="number">0.5</span>+ <span class="number">0.2</span>*(<span class="number">0.5</span> - (<span class="keyword">double</span>)(std::<span class="built_in">rand</span>() % <span class="number">100</span> )/<span class="number">100.0</span>);</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure></p>
+<h2 id="求解过程"><a href="#求解过程" class="headerlink" title="求解过程"></a>求解过程</h2><p>生成AllenCahnProblem类的一个对象，并执行run函数：<br><figure class="highlight cpp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">AllenCahnProblem&lt;problemDIM&gt; problem;</span><br><span class="line">problem.<span class="built_in">run</span> ();</span><br></pre></td></tr></table></figure><br>AllenCahnProblem类Public继承自Subscriptor类。</p>
 <h3 id="创建网格"><a href="#创建网格" class="headerlink" title="创建网格"></a>创建网格</h3><p>首先根据不同的维度创建初始网格，网格大小就是从原点到之前参数中给的位置点。然后使用triangulation全局细化，细化次数是之前参数中的refineFactor，所以每个方向上的网格个数是2的refineFactor次方。</p>
 <h3 id="构建系统"><a href="#构建系统" class="headerlink" title="构建系统"></a>构建系统</h3><p>调用该类的setup_system()成员函数：<br>先是自由度分配，因为这里还牵扯到多进程的自由度的分配，使用了很多高级语句，具体可以参考Step-40的用法。<br>再调用该类的setup_matrixfree()成员函数，创建该问题所依赖的数据体data，并初始化，然后建立质量矩阵，因为这里使用了GL单元，所以该矩阵其实是对角的，它的类型是一个存储对角元素的容器。<br>然后施加初始条件。</p>
-<h3 id="求解"><a href="#求解" class="headerlink" title="求解"></a>求解</h3><p>先是调用updateRHS()函数更新右端项，其调用ComputeRHS来计算右端项。<br>这块是程序的主要部分，也是主要修改部分，涉及AC方程的分解：<br>(1)右端项中涉及试探函数的函数值的部分：</p>
-<figure class="highlight cpp"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">valN.<span class="built_in">submit_value</span>(rnV,q);</span><br></pre></td></tr></table></figure>
-<p>(2)右端项中涉及试探函数的梯度的部分：</p>
-<figure class="highlight cpp"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">valN.<span class="built_in">submit_gradient</span>(constNx*rnxV,q);</span><br></pre></td></tr></table></figure>
-
-<h1 id="结果"><a href="#结果" class="headerlink" title="结果"></a>结果</h1><p>结果如图：<br><img src="https://ws1.sinaimg.cn/large/0072Lfvtly1fvjhy2xnszg30o40kgkjn.gif"></p>
+<h3 id="求解"><a href="#求解" class="headerlink" title="求解"></a>求解</h3><p>先是调用updateRHS()函数更新右端项，其调用ComputeRHS来计算右端项。<br>这块是程序的主要部分，也是主要修改部分，涉及AC方程的分解：<br>(1)右端项中涉及试探函数的函数值的部分：<br><figure class="highlight cpp"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">valN.<span class="built_in">submit_value</span>(rnV,q);</span><br></pre></td></tr></table></figure><br>(2)右端项中涉及试探函数的梯度的部分：<br><figure class="highlight cpp"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">valN.<span class="built_in">submit_gradient</span>(constNx*rnxV,q);</span><br></pre></td></tr></table></figure></p>
+<h1 id="结果"><a href="#结果" class="headerlink" title="结果"></a>结果</h1><p>结果如图：<br><img src="https://ws1.sinaimg.cn/large/0072Lfvtly1fvjhy2xnszg30o40kgkjn.gif" alt=""></p>
 
     </div>
 
@@ -556,6 +547,59 @@
   
 
   
+      
+
+<script>
+  if (typeof MathJax === 'undefined') {
+    window.MathJax = {
+      loader: {
+        source: {
+          '[tex]/amsCd': '[tex]/amscd',
+          '[tex]/AMScd': '[tex]/amscd'
+        }
+      },
+      tex: {
+        inlineMath: {'[+]': [['$', '$']]},
+        tags: 'ams'
+      },
+      options: {
+        renderActions: {
+          findScript: [10, doc => {
+            document.querySelectorAll('script[type^="math/tex"]').forEach(node => {
+              const display = !!node.type.match(/; *mode=display/);
+              const math = new doc.options.MathItem(node.textContent, doc.inputJax[0], display);
+              const text = document.createTextNode('');
+              node.parentNode.replaceChild(text, node);
+              math.start = {node: text, delim: '', n: 0};
+              math.end = {node: text, delim: '', n: 0};
+              doc.math.push(math);
+            });
+          }, '', false],
+          insertedScript: [200, () => {
+            document.querySelectorAll('mjx-container').forEach(node => {
+              let target = node.parentNode;
+              if (target.nodeName.toLowerCase() === 'li') {
+                target.parentNode.classList.add('has-jax');
+              }
+            });
+          }, '', false]
+        }
+      }
+    };
+    (function () {
+      var script = document.createElement('script');
+      script.src = '//cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js';
+      script.defer = true;
+      document.head.appendChild(script);
+    })();
+  } else {
+    MathJax.startup.document.state(0);
+    MathJax.texReset();
+    MathJax.typeset();
+  }
+</script>
+
+    
 
   
 

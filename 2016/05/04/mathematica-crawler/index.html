@@ -20,12 +20,12 @@
     var CONFIG = {"hostname":"qixinbo.github.io","root":"/","scheme":"Gemini","version":"7.8.0","exturl":false,"sidebar":{"position":"left","display":"post","padding":18,"offset":12,"onmobile":false},"copycode":{"enable":false,"show_result":false,"style":null},"back2top":{"enable":true,"sidebar":false,"scrollpercent":false},"bookmark":{"enable":false,"color":"#222","save":"auto"},"fancybox":false,"mediumzoom":false,"lazyload":false,"pangu":false,"comments":{"style":"tabs","active":null,"storage":true,"lazyload":false,"nav":null},"algolia":{"hits":{"per_page":10},"labels":{"input_placeholder":"Search for Posts","hits_empty":"We didn't find any results for the search: ${query}","hits_stats":"${hits} results found in ${time} ms"}},"localsearch":{"enable":false,"trigger":"auto","top_n_per_article":1,"unescape":false,"preload":false},"motion":{"enable":true,"async":false,"transition":{"post_block":"fadeIn","post_header":"slideDownIn","post_body":"slideDownIn","coll_header":"slideLeftIn","sidebar":"slideUpIn"}}};
   </script>
 
-  <meta name="description" content="今下午实在不想改论文，学着做了一个Mathematica爬虫，用来爬取即将上映(后天5月6号)的的剧照。 参考文献： 看这里  第一步：导入网页源文件 首先得找到的照片网站吧，这里用的是经典大牌电影网站——时光网，链接是here，然后将网页的源文件导入Mathmatica中：  1   input &#x3D; Import[&quot;http:&#x2F;&#x2F;movie.mtime.com&#x2F;209122&#x2F;posters_an">
+  <meta name="description" content="今下午实在不想改论文，学着做了一个Mathematica爬虫，用来爬取即将上映(后天5月6号)的的剧照。 参考文献： 看这里  第一步：导入网页源文件 首先得找到的照片网站吧，这里用的是经典大牌电影网站——时光网，链接是here，然后将网页的源文件导入Mathmatica中： 1   input &#x3D; Import[&quot;http:&#x2F;&#x2F;movie.mtime.com&#x2F;209122&#x2F;posters_and">
 <meta property="og:type" content="article">
 <meta property="og:title" content="用Mathematica抓取《美国队长3》的剧照">
 <meta property="og:url" content="http://qixinbo.github.io/2016/05/04/mathematica-crawler/index.html">
 <meta property="og:site_name" content="数字旗手">
-<meta property="og:description" content="今下午实在不想改论文，学着做了一个Mathematica爬虫，用来爬取即将上映(后天5月6号)的的剧照。 参考文献： 看这里  第一步：导入网页源文件 首先得找到的照片网站吧，这里用的是经典大牌电影网站——时光网，链接是here，然后将网页的源文件导入Mathmatica中：  1   input &#x3D; Import[&quot;http:&#x2F;&#x2F;movie.mtime.com&#x2F;209122&#x2F;posters_an">
+<meta property="og:description" content="今下午实在不想改论文，学着做了一个Mathematica爬虫，用来爬取即将上映(后天5月6号)的的剧照。 参考文献： 看这里  第一步：导入网页源文件 首先得找到的照片网站吧，这里用的是经典大牌电影网站——时光网，链接是here，然后将网页的源文件导入Mathmatica中： 1   input &#x3D; Import[&quot;http:&#x2F;&#x2F;movie.mtime.com&#x2F;209122&#x2F;posters_and">
 <meta property="og:locale" content="en_US">
 <meta property="og:image" content="https://ws1.sinaimg.cn/large/0072Lfvtly1fvjjvvmi55j30m90ar40c.jpg">
 <meta property="og:image" content="https://ws1.sinaimg.cn/large/0072Lfvtly1fvjjw69w1sj30iq0femzp.jpg">
@@ -260,21 +260,11 @@
 
       
         <p>今下午实在不想改论文，学着做了一个Mathematica爬虫，用来爬取即将上映(后天5月6号)的&lt;美国队长3&gt;的剧照。<br>参考文献：<br><a target="_blank" rel="noopener" href="http://shuli.xianyungu.com/software-download-mathematica-quick-start-application-handouts-videos/">看这里</a></p>
-<h1 id="第一步：导入网页源文件"><a href="#第一步：导入网页源文件" class="headerlink" title="第一步：导入网页源文件"></a>第一步：导入网页源文件</h1><p>首先得找到&lt;美队3&gt;的照片网站吧，这里用的是经典大牌电影网站——时光网，链接是<a target="_blank" rel="noopener" href="http://movie.mtime.com/209122/posters_and_images/">here</a>，然后将网页的源文件导入Mathmatica中：</p>
-<figure class="highlight cpp"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">input = Import[<span class="string">&quot;http://movie.mtime.com/209122/posters_and_images/posters/hot.html&quot;</span>, <span class="string">&quot;Source&quot;</span>];</span><br></pre></td></tr></table></figure>
-<p>注意这里导入的元素是Source，即原始的源文件，没有经过任何转化。还可以用XMLObject，见<a target="_blank" rel="noopener" href="http://www.kylen314.com/archives/1647">这个教程</a>，但是我感觉没有Source好使。</p>
-<h1 id="第二步：分析源文件"><a href="#第二步：分析源文件" class="headerlink" title="第二步：分析源文件"></a>第二步：分析源文件</h1><p>这一步是分析出来图片在网站的哪一部分。可以通过两种途径，一个是可视化操作，即用浏览器的检查功能，比如火狐的“查看元素”和Chrome的“检查”，通过点击不同的地方，就能在原网页中高亮该部分;另一种是直接分析，即在源文件中直接查看寻找。一般是两者结合着用，比如先用方法一找到该元素的标记，然后在源文件中直接找到该标记。但是此例中找到的网页元素在“查看源代码”中找不到，难道是因为启用了JS的某项特技？搞不懂为啥，所以还是按部就班地在源文件中查找，于是发现了这样一行：</p>
-<figure class="highlight cpp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br></pre></td><td class="code"><pre><span class="line">var imageList = \</span><br><span class="line">[&#123;<span class="string">&quot;stagepicture&quot;</span>:[&#123;<span class="string">&quot;officialstageimage&quot;</span>:[&#123;<span class="string">&quot;id&quot;</span>:<span class="number">7141431</span>,<span class="string">&quot;title&quot;</span>:<span class="string">&quot;官方剧照 \</span></span><br><span class="line"><span class="string">#01&quot;</span>,<span class="string">&quot;type&quot;</span>:<span class="number">6</span>,<span class="string">&quot;subType&quot;</span>:<span class="number">6001</span>,<span class="string">&quot;status&quot;</span>:<span class="number">1</span>,<span class="string">&quot;img_ \</span></span><br><span class="line"><span class="string">220&quot;</span>:<span class="string">&quot;http://img31.mtime.cn/pi/2016/03/11/133802.60497903_ \</span></span><br><span class="line"><span class="string">220X220.jpg&quot;</span>,<span class="string">&quot;img_ \</span></span><br><span class="line"><span class="string">1000&quot;</span>:<span class="string">&quot;http://img31.mtime.cn/pi/2016/03/11/133802.60497903_ \</span></span><br><span class="line"><span class="string">1000X1000.jpg&quot;</span>,<span class="string">&quot;width&quot;</span>:<span class="number">4785</span>,<span class="string">&quot;height&quot;</span>:<span class="number">3190</span>,<span class="string">&quot;fileSize&quot;</span>:<span class="number">5236</span>,<span class="string">&quot;enterTime&quot;</span>:\</span><br><span class="line"><span class="string">&quot;2015-12-10&quot;</span>,<span class="string">&quot;enterNickName&quot;</span>:<span class="string">&quot;旁聽生&quot;</span>,<span class="string">&quot;description&quot;</span>:<span class="string">&quot;&quot;</span>,<span class="string">&quot;commentCount&quot;</span>:<span class="number">0</span>,\</span><br><span class="line"><span class="string">&quot;imgDetailUrl&quot;</span>:</span><br></pre></td></tr></table></figure>
-<p>这里面就暴露了图片的地址。<br>找到地址后，复制出来实际验证一下，这时可以发现这里每张图片都对应了两种尺寸，一种是220x220的缩略图形式，一种是1000x1000的高清无码大图。两个都下下来有些浪费空间，后面选哪个下那很清楚了。</p>
-<h1 id="第三步：提取图片地址"><a href="#第三步：提取图片地址" class="headerlink" title="第三步：提取图片地址"></a>第三步：提取图片地址</h1><p>上一步虽然找到了图片地址，但是它埋没在了整个源文件中，所以还需要通过Mathematica的字符串操作将它规矩地提取出来。</p>
-<figure class="highlight cpp"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">data1 = StringCases[input, <span class="string">&quot;\&quot;img_1000\&quot;&quot;</span> ~~ Shortest[__] ~~ <span class="string">&quot;jpg&quot;</span>]</span><br></pre></td></tr></table></figure>
-<p>得到的结果为：<br><img src="https://ws1.sinaimg.cn/large/0072Lfvtly1fvjjvvmi55j30m90ar40c.jpg"></p>
-<p>继续利用StringCases进一步提炼：</p>
-<figure class="highlight cpp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">data2 = StringCases[data1, <span class="string">&quot;http&quot;</span> ~~ Shortest[__] ~~ <span class="string">&quot;jpg&quot;</span>];</span><br><span class="line">data3 = Flatten[data2];</span><br></pre></td></tr></table></figure>
-<p>得到的结果为：<br><img src="https://ws1.sinaimg.cn/large/0072Lfvtly1fvjjw69w1sj30iq0femzp.jpg"></p>
-<h1 id="第四步：批量导出图片"><a href="#第四步：批量导出图片" class="headerlink" title="第四步：批量导出图片"></a>第四步：批量导出图片</h1><p>将图片批量保存到本地，这一步参考了<a target="_blank" rel="noopener" href="http://www.kylen314.com/archives/1647">这篇博文</a>。</p>
-<figure class="highlight cpp"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">Export[<span class="string">&quot;~/Public/&quot;</span> &lt;&gt; StringSplit[#, <span class="string">&quot;/&quot;</span>][[<span class="number">-1</span>]], Import[#]] &amp; /@ data3;</span><br></pre></td></tr></table></figure>
-<p>结果为：<br><img src="https://ws1.sinaimg.cn/large/0072Lfvtly1fvjjwhkbzrj30s10h6thl.jpg"></p>
+<h1 id="第一步：导入网页源文件"><a href="#第一步：导入网页源文件" class="headerlink" title="第一步：导入网页源文件"></a>第一步：导入网页源文件</h1><p>首先得找到&lt;美队3&gt;的照片网站吧，这里用的是经典大牌电影网站——时光网，链接是<a target="_blank" rel="noopener" href="http://movie.mtime.com/209122/posters_and_images/">here</a>，然后将网页的源文件导入Mathmatica中：<br><figure class="highlight cpp"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">input = Import[<span class="string">&quot;http://movie.mtime.com/209122/posters_and_images/posters/hot.html&quot;</span>, <span class="string">&quot;Source&quot;</span>];</span><br></pre></td></tr></table></figure><br>注意这里导入的元素是Source，即原始的源文件，没有经过任何转化。还可以用XMLObject，见<a target="_blank" rel="noopener" href="http://www.kylen314.com/archives/1647">这个教程</a>，但是我感觉没有Source好使。</p>
+<h1 id="第二步：分析源文件"><a href="#第二步：分析源文件" class="headerlink" title="第二步：分析源文件"></a>第二步：分析源文件</h1><p>这一步是分析出来图片在网站的哪一部分。可以通过两种途径，一个是可视化操作，即用浏览器的检查功能，比如火狐的“查看元素”和Chrome的“检查”，通过点击不同的地方，就能在原网页中高亮该部分;另一种是直接分析，即在源文件中直接查看寻找。一般是两者结合着用，比如先用方法一找到该元素的标记，然后在源文件中直接找到该标记。但是此例中找到的网页元素在“查看源代码”中找不到，难道是因为启用了JS的某项特技？搞不懂为啥，所以还是按部就班地在源文件中查找，于是发现了这样一行：<br><figure class="highlight cpp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br></pre></td><td class="code"><pre><span class="line">var imageList = \</span><br><span class="line">[&#123;<span class="string">&quot;stagepicture&quot;</span>:[&#123;<span class="string">&quot;officialstageimage&quot;</span>:[&#123;<span class="string">&quot;id&quot;</span>:<span class="number">7141431</span>,<span class="string">&quot;title&quot;</span>:<span class="string">&quot;官方剧照 \</span></span><br><span class="line"><span class="string">#01&quot;</span>,<span class="string">&quot;type&quot;</span>:<span class="number">6</span>,<span class="string">&quot;subType&quot;</span>:<span class="number">6001</span>,<span class="string">&quot;status&quot;</span>:<span class="number">1</span>,<span class="string">&quot;img_ \</span></span><br><span class="line"><span class="string">220&quot;</span>:<span class="string">&quot;http://img31.mtime.cn/pi/2016/03/11/133802.60497903_ \</span></span><br><span class="line"><span class="string">220X220.jpg&quot;</span>,<span class="string">&quot;img_ \</span></span><br><span class="line"><span class="string">1000&quot;</span>:<span class="string">&quot;http://img31.mtime.cn/pi/2016/03/11/133802.60497903_ \</span></span><br><span class="line"><span class="string">1000X1000.jpg&quot;</span>,<span class="string">&quot;width&quot;</span>:<span class="number">4785</span>,<span class="string">&quot;height&quot;</span>:<span class="number">3190</span>,<span class="string">&quot;fileSize&quot;</span>:<span class="number">5236</span>,<span class="string">&quot;enterTime&quot;</span>:\</span><br><span class="line"><span class="string">&quot;2015-12-10&quot;</span>,<span class="string">&quot;enterNickName&quot;</span>:<span class="string">&quot;旁聽生&quot;</span>,<span class="string">&quot;description&quot;</span>:<span class="string">&quot;&quot;</span>,<span class="string">&quot;commentCount&quot;</span>:<span class="number">0</span>,\</span><br><span class="line"><span class="string">&quot;imgDetailUrl&quot;</span>:</span><br></pre></td></tr></table></figure><br>这里面就暴露了图片的地址。<br>找到地址后，复制出来实际验证一下，这时可以发现这里每张图片都对应了两种尺寸，一种是220x220的缩略图形式，一种是1000x1000的高清无码大图。两个都下下来有些浪费空间，后面选哪个下那很清楚了。</p>
+<h1 id="第三步：提取图片地址"><a href="#第三步：提取图片地址" class="headerlink" title="第三步：提取图片地址"></a>第三步：提取图片地址</h1><p>上一步虽然找到了图片地址，但是它埋没在了整个源文件中，所以还需要通过Mathematica的字符串操作将它规矩地提取出来。<br><figure class="highlight cpp"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">data1 = StringCases[input, <span class="string">&quot;\&quot;img_1000\&quot;&quot;</span> ~~ Shortest[__] ~~ <span class="string">&quot;jpg&quot;</span>]</span><br></pre></td></tr></table></figure><br>得到的结果为：<br><img src="https://ws1.sinaimg.cn/large/0072Lfvtly1fvjjvvmi55j30m90ar40c.jpg" alt=""></p>
+<p>继续利用StringCases进一步提炼：<br><figure class="highlight cpp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">data2 = StringCases[data1, <span class="string">&quot;http&quot;</span> ~~ Shortest[__] ~~ <span class="string">&quot;jpg&quot;</span>];</span><br><span class="line">data3 = Flatten[data2];</span><br></pre></td></tr></table></figure><br>得到的结果为：<br><img src="https://ws1.sinaimg.cn/large/0072Lfvtly1fvjjw69w1sj30iq0femzp.jpg" alt=""></p>
+<h1 id="第四步：批量导出图片"><a href="#第四步：批量导出图片" class="headerlink" title="第四步：批量导出图片"></a>第四步：批量导出图片</h1><p>将图片批量保存到本地，这一步参考了<a target="_blank" rel="noopener" href="http://www.kylen314.com/archives/1647">这篇博文</a>。<br><figure class="highlight cpp"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">Export[<span class="string">&quot;~/Public/&quot;</span> &lt;&gt; StringSplit[#, <span class="string">&quot;/&quot;</span>][[<span class="number">-1</span>]], Import[#]] &amp; /@ data3;</span><br></pre></td></tr></table></figure><br>结果为：<br><img src="https://ws1.sinaimg.cn/large/0072Lfvtly1fvjjwhkbzrj30s10h6thl.jpg" alt=""></p>
 <p>Over!</p>
 
     </div>
@@ -529,6 +519,59 @@
   
 
   
+      
+
+<script>
+  if (typeof MathJax === 'undefined') {
+    window.MathJax = {
+      loader: {
+        source: {
+          '[tex]/amsCd': '[tex]/amscd',
+          '[tex]/AMScd': '[tex]/amscd'
+        }
+      },
+      tex: {
+        inlineMath: {'[+]': [['$', '$']]},
+        tags: 'ams'
+      },
+      options: {
+        renderActions: {
+          findScript: [10, doc => {
+            document.querySelectorAll('script[type^="math/tex"]').forEach(node => {
+              const display = !!node.type.match(/; *mode=display/);
+              const math = new doc.options.MathItem(node.textContent, doc.inputJax[0], display);
+              const text = document.createTextNode('');
+              node.parentNode.replaceChild(text, node);
+              math.start = {node: text, delim: '', n: 0};
+              math.end = {node: text, delim: '', n: 0};
+              doc.math.push(math);
+            });
+          }, '', false],
+          insertedScript: [200, () => {
+            document.querySelectorAll('mjx-container').forEach(node => {
+              let target = node.parentNode;
+              if (target.nodeName.toLowerCase() === 'li') {
+                target.parentNode.classList.add('has-jax');
+              }
+            });
+          }, '', false]
+        }
+      }
+    };
+    (function () {
+      var script = document.createElement('script');
+      script.src = '//cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js';
+      script.defer = true;
+      document.head.appendChild(script);
+    })();
+  } else {
+    MathJax.startup.document.state(0);
+    MathJax.texReset();
+    MathJax.typeset();
+  }
+</script>
+
+    
 
   
 

@@ -367,14 +367,13 @@ Fiji官方的Jython指南在这里。
 
 获取打开的图片
 在编辑器中输入以下代码：
-
 1
 2
 3
 4
 
 
-from
+from 
           <!--noindex-->
             <div class="post-button">
               <a class="btn" href="/2018/09/15/imagej-python/#more" rel="contents">
@@ -812,16 +811,12 @@ Smooth
 
 Sharpen
 对当前图片或选区进行锐化，即增加对比度和强调细节，但有可能对噪点进行了加强。该滤波器使用下面的权重因子：
-$$
-\begin{matrix}
--1 & -1 & -1 \
--1 & 12 & -1 \
--1 & -1 & -1
-\end{matrix}
-$$
 
 Find Edges
-使用Sobel边缘检测器来高粱像素值强度的剧烈变化。使用下面的两个3*3的卷积核来产生垂直和水平的梯度。最终的图片是计算两个梯度的平方的和的
+使用Sobel边缘检测器来高粱像素值强度的剧烈变化。使用下面的两个3*3的卷积核来产生垂直和水平的梯度。最终的图片是计算两个梯度的平方的和的平方根得到：
+
+Find Maxima
+计算当前图片的局部最大值，然后创建一个含最大值等形式的二值图片。对于RGB图片，挑选的是luminance的最大值
           <!--noindex-->
             <div class="post-button">
               <a class="btn" href="/2018/09/08/imagej-ui-menu-process/#more" rel="contents">
@@ -1485,6 +1480,59 @@ ImageJ的用户界面非常简单，包含菜单栏、工具栏、状态栏和�
   
 
   
+      
+
+<script>
+  if (typeof MathJax === 'undefined') {
+    window.MathJax = {
+      loader: {
+        source: {
+          '[tex]/amsCd': '[tex]/amscd',
+          '[tex]/AMScd': '[tex]/amscd'
+        }
+      },
+      tex: {
+        inlineMath: {'[+]': [['$', '$']]},
+        tags: 'ams'
+      },
+      options: {
+        renderActions: {
+          findScript: [10, doc => {
+            document.querySelectorAll('script[type^="math/tex"]').forEach(node => {
+              const display = !!node.type.match(/; *mode=display/);
+              const math = new doc.options.MathItem(node.textContent, doc.inputJax[0], display);
+              const text = document.createTextNode('');
+              node.parentNode.replaceChild(text, node);
+              math.start = {node: text, delim: '', n: 0};
+              math.end = {node: text, delim: '', n: 0};
+              doc.math.push(math);
+            });
+          }, '', false],
+          insertedScript: [200, () => {
+            document.querySelectorAll('mjx-container').forEach(node => {
+              let target = node.parentNode;
+              if (target.nodeName.toLowerCase() === 'li') {
+                target.parentNode.classList.add('has-jax');
+              }
+            });
+          }, '', false]
+        }
+      }
+    };
+    (function () {
+      var script = document.createElement('script');
+      script.src = '//cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js';
+      script.defer = true;
+      document.head.appendChild(script);
+    })();
+  } else {
+    MathJax.startup.document.state(0);
+    MathJax.texReset();
+    MathJax.typeset();
+  }
+</script>
+
+    
 
   
 

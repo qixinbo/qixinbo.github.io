@@ -266,12 +266,11 @@ Indexing
 
 Example 1
 我们想把下面两个数组相加：
-
 1
 2
 
 
-M = np.ones
+M = np.ones(
           <!--noindex-->
             <div class="post-button">
               <a class="btn" href="/2019/10/20/python-indexing/#more" rel="contents">
@@ -473,7 +472,7 @@ wxPython设备上下文
 在Python中，星号除了用于乘法数值运算和幂运算外，还有一种特殊的用法”在变量前添加单个星号或两个星号”，实现多参数的传入或变量的拆解，本文将详细介绍”星号参数”的用法。
 
 0×1.什么是星号变量
-最初，星号变量是用在函数的参数传递上的，在下面的实例中，单个星号代表这个位置接收任意多个非关键字参数，在函数的*b位置上将其转化成元组，而双星号代表这个位置接收任意多个关键字参数，在**b位
+最初，星号变量是用在函数的参数传递上的，在下面的实例中，单个星号代表这个位置接收任意多个非关键字参数，在函数的b位置上将其转化成元组，而双星号代表这个位置接收任意多个关键字参数，在*b位置上
           <!--noindex-->
             <div class="post-button">
               <a class="btn" href="/2019/10/15/python-asterisk/#more" rel="contents">
@@ -788,7 +787,6 @@ Filter引擎是最重要的一类插件，用于对二维图像进行滤波，�
 
 Filter引擎
 Filter引擎的基本类结构如下：
-
 1
 2
 3
@@ -815,7 +813,7 @@ class Filter:
     title = 'Filter'
     modal = True
     note = []
-    para, vi
+    para, vie
           <!--noindex-->
             <div class="post-button">
               <a class="btn" href="/2019/10/06/ImagePy_9/#more" rel="contents">
@@ -921,7 +919,6 @@ ImagePy开发文档 —— 图像封装类
 
 新建图像的插件
 最简单的新建图像的插件代码如下：
-
 1
 2
 3
@@ -943,7 +940,7 @@ from imagepy import IPy
 import numpy as np
 
 class Plugin(Free):
-    title = '
+    title = 'N
           <!--noindex-->
             <div class="post-button">
               <a class="btn" href="/2019/10/05/ImagePy_8/#more" rel="contents">
@@ -1476,6 +1473,59 @@ Python多线程threading
   
 
   
+      
+
+<script>
+  if (typeof MathJax === 'undefined') {
+    window.MathJax = {
+      loader: {
+        source: {
+          '[tex]/amsCd': '[tex]/amscd',
+          '[tex]/AMScd': '[tex]/amscd'
+        }
+      },
+      tex: {
+        inlineMath: {'[+]': [['$', '$']]},
+        tags: 'ams'
+      },
+      options: {
+        renderActions: {
+          findScript: [10, doc => {
+            document.querySelectorAll('script[type^="math/tex"]').forEach(node => {
+              const display = !!node.type.match(/; *mode=display/);
+              const math = new doc.options.MathItem(node.textContent, doc.inputJax[0], display);
+              const text = document.createTextNode('');
+              node.parentNode.replaceChild(text, node);
+              math.start = {node: text, delim: '', n: 0};
+              math.end = {node: text, delim: '', n: 0};
+              doc.math.push(math);
+            });
+          }, '', false],
+          insertedScript: [200, () => {
+            document.querySelectorAll('mjx-container').forEach(node => {
+              let target = node.parentNode;
+              if (target.nodeName.toLowerCase() === 'li') {
+                target.parentNode.classList.add('has-jax');
+              }
+            });
+          }, '', false]
+        }
+      }
+    };
+    (function () {
+      var script = document.createElement('script');
+      script.src = '//cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js';
+      script.defer = true;
+      document.head.appendChild(script);
+    })();
+  } else {
+    MathJax.startup.document.state(0);
+    MathJax.texReset();
+    MathJax.typeset();
+  }
+</script>
+
+    
 
   
 

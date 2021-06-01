@@ -258,7 +258,6 @@
         <p>本文参考了百度Mathematica吧的<a target="_blank" rel="noopener" href="http://tieba.baidu.com/p/2222457786">这个帖子</a>。<br>统计图片中某个区域的面积可以有多种方法和多种软件，比如ImageJ(多谢柏爷推荐~)、ImageMagick(参见<a target="_blank" rel="noopener" href="http://www.ps314.com/photoshop/jiqiao/20131119/161.html">这篇教程</a>)、PhotoShop(参见<a target="_blank" rel="noopener" href="http://www.ps314.com/photoshop/jiqiao/20131119/160.html">这篇教程</a>)。这里采用Mathematica，仅用少于10行代码即可实现。</p>
 <p>Mathematica源码为：</p>
 <figure class="highlight cpp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line">img2 = Binarize[img];</span><br><span class="line">totalPixels = Times @@ ImageDimensions[img2];</span><br><span class="line">blackPixels = Count[ImageData[img2], a_ /; a &lt; <span class="number">0.5</span>, &#123;<span class="number">2</span>&#125;];</span><br><span class="line">blackAreaFraction = blackPixels/totalPixels <span class="comment">// N</span></span><br></pre></td></tr></table></figure>
-
 <p>程序思路：<br>先将导入的img图片通过Binarize函数二值化成为img2,再计算img2总的像素数totalPixels。针对图片的黑色部分，通过判断每个像素点的数值是否小于0.5而统计相应的数量。最后黑色部分像素数除以总像素数就得到区域的面积比。</p>
 <p>这是一个基础版程序，有一个缺陷是其导入的图片必须是去边且去除杂质以后的图片，这意味着首先要用PhotoShop或截图软件等将图片裁剪并去掉杂色。</p>
 <p>更高级的功能可以在此基础程序上继续添加：</p>
@@ -518,6 +517,59 @@
   
 
   
+      
+
+<script>
+  if (typeof MathJax === 'undefined') {
+    window.MathJax = {
+      loader: {
+        source: {
+          '[tex]/amsCd': '[tex]/amscd',
+          '[tex]/AMScd': '[tex]/amscd'
+        }
+      },
+      tex: {
+        inlineMath: {'[+]': [['$', '$']]},
+        tags: 'ams'
+      },
+      options: {
+        renderActions: {
+          findScript: [10, doc => {
+            document.querySelectorAll('script[type^="math/tex"]').forEach(node => {
+              const display = !!node.type.match(/; *mode=display/);
+              const math = new doc.options.MathItem(node.textContent, doc.inputJax[0], display);
+              const text = document.createTextNode('');
+              node.parentNode.replaceChild(text, node);
+              math.start = {node: text, delim: '', n: 0};
+              math.end = {node: text, delim: '', n: 0};
+              doc.math.push(math);
+            });
+          }, '', false],
+          insertedScript: [200, () => {
+            document.querySelectorAll('mjx-container').forEach(node => {
+              let target = node.parentNode;
+              if (target.nodeName.toLowerCase() === 'li') {
+                target.parentNode.classList.add('has-jax');
+              }
+            });
+          }, '', false]
+        }
+      }
+    };
+    (function () {
+      var script = document.createElement('script');
+      script.src = '//cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js';
+      script.defer = true;
+      document.head.appendChild(script);
+    })();
+  } else {
+    MathJax.startup.document.state(0);
+    MathJax.texReset();
+    MathJax.typeset();
+  }
+</script>
+
+    
 
   
 

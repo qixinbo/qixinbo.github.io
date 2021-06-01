@@ -20,12 +20,12 @@
     var CONFIG = {"hostname":"qixinbo.github.io","root":"/","scheme":"Gemini","version":"7.8.0","exturl":false,"sidebar":{"position":"left","display":"post","padding":18,"offset":12,"onmobile":false},"copycode":{"enable":false,"show_result":false,"style":null},"back2top":{"enable":true,"sidebar":false,"scrollpercent":false},"bookmark":{"enable":false,"color":"#222","save":"auto"},"fancybox":false,"mediumzoom":false,"lazyload":false,"pangu":false,"comments":{"style":"tabs","active":null,"storage":true,"lazyload":false,"nav":null},"algolia":{"hits":{"per_page":10},"labels":{"input_placeholder":"Search for Posts","hits_empty":"We didn't find any results for the search: ${query}","hits_stats":"${hits} results found in ${time} ms"}},"localsearch":{"enable":false,"trigger":"auto","top_n_per_article":1,"unescape":false,"preload":false},"motion":{"enable":true,"async":false,"transition":{"post_block":"fadeIn","post_header":"slideDownIn","post_body":"slideDownIn","coll_header":"slideLeftIn","sidebar":"slideUpIn"}}};
   </script>
 
-  <meta name="description" content="Update 2016-11-16更新： 在Ubuntu10.10上安装gcc4.8.0时，出现错误：  1   ‘CHAR_BIT’ was not declared in this scope   解决方法：  1   unset LIBRARY_PATH CPATH C_INCLUDE_PATH PKG_CONFIG_PATH CPLUS_INCLUDE_PATH INCLUDE   如果在">
+  <meta name="description" content="Update 2016-11-16更新： 在Ubuntu10.10上安装gcc4.8.0时，出现错误： 1   ‘CHAR_BIT’ was not declared in this scope    解决方法： 1   unset LIBRARY_PATH CPATH C_INCLUDE_PATH PKG_CONFIG_PATH CPLUS_INCLUDE_PATH INCLUDE    如果在">
 <meta property="og:type" content="article">
 <meta property="og:title" content="手动安装特定版本的gcc编译器">
 <meta property="og:url" content="http://qixinbo.github.io/2016/03/23/gcc-install/index.html">
 <meta property="og:site_name" content="数字旗手">
-<meta property="og:description" content="Update 2016-11-16更新： 在Ubuntu10.10上安装gcc4.8.0时，出现错误：  1   ‘CHAR_BIT’ was not declared in this scope   解决方法：  1   unset LIBRARY_PATH CPATH C_INCLUDE_PATH PKG_CONFIG_PATH CPLUS_INCLUDE_PATH INCLUDE   如果在">
+<meta property="og:description" content="Update 2016-11-16更新： 在Ubuntu10.10上安装gcc4.8.0时，出现错误： 1   ‘CHAR_BIT’ was not declared in this scope    解决方法： 1   unset LIBRARY_PATH CPATH C_INCLUDE_PATH PKG_CONFIG_PATH CPLUS_INCLUDE_PATH INCLUDE    如果在">
 <meta property="og:locale" content="en_US">
 <meta property="article:published_time" content="2016-03-22T16:00:00.000Z">
 <meta property="article:modified_time" content="2021-03-26T06:52:07.503Z">
@@ -256,29 +256,19 @@
     <div class="post-body" itemprop="articleBody">
 
       
-        <h1 id="Update"><a href="#Update" class="headerlink" title="Update"></a>Update</h1><p>2016-11-16更新：<br>在Ubuntu10.10上安装gcc4.8.0时，出现错误：</p>
-<figure class="highlight cpp"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">‘CHAR_BIT’ was <span class="keyword">not</span> declared in <span class="keyword">this</span> scope</span><br></pre></td></tr></table></figure>
-<p>解决方法：</p>
-<figure class="highlight cpp"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">unset LIBRARY_PATH CPATH C_INCLUDE_PATH PKG_CONFIG_PATH CPLUS_INCLUDE_PATH INCLUDE</span><br></pre></td></tr></table></figure>
-<p>如果在/etc/profile 或者 ~/.bashrc中设置了ccache的话,也暂时去掉ccache的设置.</p>
+        <h1 id="Update"><a href="#Update" class="headerlink" title="Update"></a>Update</h1><p>2016-11-16更新：<br>在Ubuntu10.10上安装gcc4.8.0时，出现错误：<br><figure class="highlight cpp"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">‘CHAR_BIT’ was <span class="keyword">not</span> declared in <span class="keyword">this</span> scope</span><br></pre></td></tr></table></figure><br>解决方法：<br><figure class="highlight cpp"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">unset LIBRARY_PATH CPATH C_INCLUDE_PATH PKG_CONFIG_PATH CPLUS_INCLUDE_PATH INCLUDE</span><br></pre></td></tr></table></figure><br>如果在/etc/profile 或者 ~/.bashrc中设置了ccache的话,也暂时去掉ccache的设置.</p>
 <p>参考自<a target="_blank" rel="noopener" href="http://www.cnblogs.com/shakin/p/4276434.html">这里</a>。</p>
-<p>另外：<br>单纯修改gcc的指向后，会造成其他编译器的不匹配，比如gcc虽然指向了4.8，但gfortran还是4.6，两者就不匹配，就会造成如下错误：</p>
-<figure class="highlight cpp"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">/usr/bin/ld: cannot find “-lgfortran”</span><br></pre></td></tr></table></figure>
-<p>这时可以先搜索到4.6版本的gfortran的静态链接库，比如：</p>
-<figure class="highlight cpp"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">/usr/lib/gcc/x86_64-linux-gnu/<span class="number">4.6</span>/libgfortran.a</span><br></pre></td></tr></table></figure>
-<p>然后将它软链接到默认链接库的路径中：</p>
-<figure class="highlight cpp"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">sudo ln -sf /usr/lib/gcc/x86_64-linux-gnu/<span class="number">4.6</span>/libgfortran.a /usr/lib/libgfortran.a</span><br></pre></td></tr></table></figure>
-<p>这样问题就解决了。</p>
+<p>另外：<br>单纯修改gcc的指向后，会造成其他编译器的不匹配，比如gcc虽然指向了4.8，但gfortran还是4.6，两者就不匹配，就会造成如下错误：<br><figure class="highlight cpp"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">/usr/bin/ld: cannot find “-lgfortran”</span><br></pre></td></tr></table></figure><br>这时可以先搜索到4.6版本的gfortran的静态链接库，比如：<br><figure class="highlight cpp"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">/usr/lib/gcc/x86_64-linux-gnu/<span class="number">4.6</span>/libgfortran.a</span><br></pre></td></tr></table></figure><br>然后将它软链接到默认链接库的路径中：<br><figure class="highlight cpp"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">sudo ln -sf /usr/lib/gcc/x86_64-linux-gnu/<span class="number">4.6</span>/libgfortran.a /usr/lib/libgfortran.a</span><br></pre></td></tr></table></figure><br>这样问题就解决了。</p>
 <h1 id="引子"><a href="#引子" class="headerlink" title="引子"></a>引子</h1><p>Linux发行版中一般预装了gcc编译器，版本随系统不同而不同，有时候不想用（或者是不能用）系统默认的gcc编译器，就需要自己编译特定版本的gcc编译器。</p>
 <p>这里以在Ubuntu14.04环境（默认gcc为4.8.2）安装gcc4.6.3为例，记录一下安装过程。<br>整个安装过程很繁琐且漫长，计入发现坑以及填坑的时间，至少需要两个小时（也与机器有关），总之耐心。。。</p>
 <p>期间参考了以下网站：<br><a target="_blank" rel="noopener" href="http://blog.csdn.net/wtfmonking/article/details/17577925">http://blog.csdn.net/wtfmonking/article/details/17577925</a><br><a target="_blank" rel="noopener" href="http://www.oschina.net/question/12_49423">http://www.oschina.net/question/12_49423</a><br><a target="_blank" rel="noopener" href="http://askubuntu.com/questions/251978/cannot-find-crti-o-no-such-file-or-directory">http://askubuntu.com/questions/251978/cannot-find-crti-o-no-such-file-or-directory</a><br><a target="_blank" rel="noopener" href="http://blog.csdn.net/gengshenghong/article/details/7498085">http://blog.csdn.net/gengshenghong/article/details/7498085</a><br><a target="_blank" rel="noopener" href="https://github.com/couchbase/couchbase-lite-java-native/issues/11">https://github.com/couchbase/couchbase-lite-java-native/issues/11</a></p>
 <p>需要提前准备好的软件有：系统自带的gcc（如果没有，需要从软件库中通过apt-get安装）、m4、gmp、mpfr、mpc。<br>gcc-4.6.3源码和gmp、mpfr、mpc的源码都可以在gcc官网中找到，gcc在release文件夹中，其他的在infrastructure文件夹中。<br>因为这几个软件之间相互有依赖关系，故它们的安装顺序不要打乱。</p>
 <h1 id="安装m4"><a href="#安装m4" class="headerlink" title="安装m4"></a>安装m4</h1><p>sudo apt-get install m4<br>（上面命令可能提示找不到m4，此时可以更换软件源试试，也可以使用新立得软件包管理器synpatic安装）</p>
-<h1 id="安装gmp"><a href="#安装gmp" class="headerlink" title="安装gmp"></a>安装gmp</h1><p>tar -xjvf gmp-4.3.2.tar.bz2<br>cd gmp-4.3.2<br>./configure –prefix=/usr/local/gmp<br>make<br>sudo make install</p>
-<h1 id="安装mpfr"><a href="#安装mpfr" class="headerlink" title="安装mpfr"></a>安装mpfr</h1><p>tar -xjvf mpfr-2.4.2.tar.bz2<br>cd mpfr-2.4.2<br>./configure –prefix=/usr/local/mpfr –with-gmp=/usr/local/gmp<br>make<br>sudo make install</p>
-<h1 id="安装mpc"><a href="#安装mpc" class="headerlink" title="安装mpc"></a>安装mpc</h1><p>tar -xzvf mpc-0.8.1.tar.gz<br>cd mpc-0.8.1<br>./configure –prefix=/usr/local/mpc –with-gmp=/usr/local/gmp –with-mpfr=/usr/local/mpfr<br>make<br>sudo make install</p>
+<h1 id="安装gmp"><a href="#安装gmp" class="headerlink" title="安装gmp"></a>安装gmp</h1><p>tar -xjvf gmp-4.3.2.tar.bz2<br>cd gmp-4.3.2<br>./configure —prefix=/usr/local/gmp<br>make<br>sudo make install</p>
+<h1 id="安装mpfr"><a href="#安装mpfr" class="headerlink" title="安装mpfr"></a>安装mpfr</h1><p>tar -xjvf mpfr-2.4.2.tar.bz2<br>cd mpfr-2.4.2<br>./configure —prefix=/usr/local/mpfr —with-gmp=/usr/local/gmp<br>make<br>sudo make install</p>
+<h1 id="安装mpc"><a href="#安装mpc" class="headerlink" title="安装mpc"></a>安装mpc</h1><p>tar -xzvf mpc-0.8.1.tar.gz<br>cd mpc-0.8.1<br>./configure —prefix=/usr/local/mpc —with-gmp=/usr/local/gmp —with-mpfr=/usr/local/mpfr<br>make<br>sudo make install</p>
 <h1 id="配置库路径"><a href="#配置库路径" class="headerlink" title="配置库路径"></a>配置库路径</h1><p>将三个软件的库文件加入动态链接库中：<br>vim ~/.bashrc<br>export LD_LIBRARY_PATH=$LD_LIBRARY_PATH:/usr/local/gmp/lib:/usr/local/mpfr/lib:/usr/local/mpc/lib<br>保存以后：<br>source ~/.bashrc<br>将三个软件的库文件加入共享链接库中：<br>vim /etc/ld.so.conf<br>/usr/local/mpc/lib<br>/usr/local/gmp/lib<br>/usr/local/mpfr/lib<br>保存以后：<br>sudo /sbin/ldconfig  </p>
-<h1 id="安装gcc-4-6-3"><a href="#安装gcc-4-6-3" class="headerlink" title="安装gcc-4.6.3"></a>安装gcc-4.6.3</h1><p>cd gcc-4.6.3<br>./configure –prefix=/usr/local/gcc-4.6.3 –enable-threads=posix –disable-checking<br>–disable-multilib   –enable-languages=c,c++ –with-gmp=/usr/local/gmp<br>–with-mpfr=/usr/local/mpfr –with-mpc=/usr/local/mpc<br>make<br>sudo make install</p>
+<h1 id="安装gcc-4-6-3"><a href="#安装gcc-4-6-3" class="headerlink" title="安装gcc-4.6.3"></a>安装gcc-4.6.3</h1><p>cd gcc-4.6.3<br>./configure —prefix=/usr/local/gcc-4.6.3 —enable-threads=posix —disable-checking<br>—disable-multilib   —enable-languages=c,c++ —with-gmp=/usr/local/gmp<br>—with-mpfr=/usr/local/mpfr —with-mpc=/usr/local/mpc<br>make<br>sudo make install</p>
 <p>在make中有可能出现以下错误：</p>
 <p>（1）/usr/include/features.h:374:25: fatalerror: sys/cdefs.h: 没有那个文件或目录<br>这是因为在64位机器上生成32位的编译代码，因此需要安装32位的库：<br>sudo apt-get install gcc-multilib<br>sudo apt-get install g++-multilib</p>
 <p>（2）/usr/bin/ld: cannot find crti.o: No suchfile or directory<br>此时需要修改LD_LIBRARY_PATH变量，即在.bashrc中设置：<br>export LD_LIBRARY_PATH=$LD_LIBRARY_PATH:/usr/lib/x86_64-linux-gnu<br>并且做一个链接：<br>sudo ln -s /usr/lib/x86_64-linux-gnu /usr/lib64<br>这里的路径与机器位数有关，64位为x86_64，32位为i386。</p>
@@ -537,6 +527,59 @@
   
 
   
+      
+
+<script>
+  if (typeof MathJax === 'undefined') {
+    window.MathJax = {
+      loader: {
+        source: {
+          '[tex]/amsCd': '[tex]/amscd',
+          '[tex]/AMScd': '[tex]/amscd'
+        }
+      },
+      tex: {
+        inlineMath: {'[+]': [['$', '$']]},
+        tags: 'ams'
+      },
+      options: {
+        renderActions: {
+          findScript: [10, doc => {
+            document.querySelectorAll('script[type^="math/tex"]').forEach(node => {
+              const display = !!node.type.match(/; *mode=display/);
+              const math = new doc.options.MathItem(node.textContent, doc.inputJax[0], display);
+              const text = document.createTextNode('');
+              node.parentNode.replaceChild(text, node);
+              math.start = {node: text, delim: '', n: 0};
+              math.end = {node: text, delim: '', n: 0};
+              doc.math.push(math);
+            });
+          }, '', false],
+          insertedScript: [200, () => {
+            document.querySelectorAll('mjx-container').forEach(node => {
+              let target = node.parentNode;
+              if (target.nodeName.toLowerCase() === 'li') {
+                target.parentNode.classList.add('has-jax');
+              }
+            });
+          }, '', false]
+        }
+      }
+    };
+    (function () {
+      var script = document.createElement('script');
+      script.src = '//cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js';
+      script.defer = true;
+      document.head.appendChild(script);
+    })();
+  } else {
+    MathJax.startup.document.state(0);
+    MathJax.texReset();
+    MathJax.typeset();
+  }
+</script>
+
+    
 
   
 

@@ -260,20 +260,150 @@
       
         <p>本文是对<a target="_blank" rel="noopener" href="https://www.amazon.cn/Mathematica%E6%9C%89%E9%99%90%E5%85%83%E5%88%86%E6%9E%90%E4%B8%8E%E5%B7%A5%E7%A8%8B%E5%BA%94%E7%94%A8-%E9%B2%8D%E5%9B%9B%E5%85%83/dp/B00328IIOC">Mathematica有限元分析与工程应用</a>一书的学习笔记。</p>
 <p>三角形单元适用于具有复杂和不规则边界形状的问题，是一种常见的网格离散方式。</p>
-<h1 id="双线性三角形单元"><a href="#双线性三角形单元" class="headerlink" title="双线性三角形单元"></a>双线性三角形单元</h1><h2 id="局部坐标系"><a href="#局部坐标系" class="headerlink" title="局部坐标系"></a>局部坐标系</h2><p>之前的杆单元和桁架元的局部坐标系容易建立，即建在其自身上即可。而三角形单元的局部坐标系显然不能这样建立，其常采用一套无量纲的自然坐标系——面积坐标，如下图所示：<br><img src="https://ws1.sinaimg.cn/large/0072Lfvtly1fvjjrmjerxj30c50890su.jpg"><br>三角形123内部有一任意点P，P与顶点1、2、3组成3个子三角形，每个子三角形的面积与总面积之比记为$L_i$，即P点的面积坐标为$(L_1,L_2,L_3)$。<br>因为三个坐标相加为1，所以仅有两个独立的自然坐标，所以可以简记为：<br>$$(\xi,\eta,1-\xi-\eta)$$<br>注意到：面积坐标还有如下特点，在顶点1时，$\xi=1$，其他坐标为0。其他顶点亦同，见上图三个顶点处的坐标值。因此，面积坐标还有形函数的功能。即：<br>$$<br>N_1=L_1=\xi, N_2=L_2=\eta, N_3=L_3=1-\xi-\eta<br>$$<br>写成矩阵形式为:<br>$$<br>ShapeN=<br>\begin{bmatrix}<br>\xi \<br>\eta \<br>1-\xi-\eta<br>\end{bmatrix}<br>$$<br>在局部坐标系下形函数对$\xi,\eta$的偏导数为：<br>$$<br>DeriveN=<br>\begin{bmatrix}<br>\partial ShapeN^T/\partial\xi \<br>\partial ShapeN^T/\partial\eta<br>\end{bmatrix}<br>$$<br>代码为：</p>
-<figure class="highlight cpp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">ShapeN = &#123;xi, eta, <span class="number">1</span> - xi - eta&#125;;</span><br><span class="line">DeriveN = &#123;D[ShapeN, xi], D[ShapeN, eta]&#125;</span><br></pre></td></tr></table></figure>
-<p>结果为：</p>
-<figure class="highlight cpp"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">&#123;&#123;<span class="number">1</span>, <span class="number">0</span>, <span class="number">-1</span>&#125;, &#123;<span class="number">0</span>, <span class="number">1</span>, <span class="number">-1</span>&#125;&#125;</span><br></pre></td></tr></table></figure>
-<p>偏导数在不同坐标系下的变换：<br>$$<br>\begin{bmatrix}<br>\partial N_1/\partial\xi \<br>\partial N_1/\partial\eta<br>\end{bmatrix}<br>=<br>\begin{bmatrix}<br>\partial x/\partial\xi &amp; \partial y/\partial\xi \<br>\partial x/\partial\eta &amp; \partial y/\partial\eta<br>\end{bmatrix}<br>\begin{bmatrix}<br>\partial N_1/\partial x \<br>\partial N_1/\partial y<br>\end{bmatrix}<br>=J<br>\begin{bmatrix}<br>\partial N_1/\partial x \<br>\partial N_1/\partial y<br>\end{bmatrix}<br>$$<br>其中，J为Jacobian矩阵。在上式中，当局部坐标系中明确给定函数$N_1$时，等式的左侧可以求出。同时，当基于局部坐标系给出x和y的显式表达时，基于局部坐标系也可以给出Jacobian矩阵的显式表达。具体过程如下：<br>根据等参元的性质，基于局部坐标给出的标准形函数与整体坐标的形函数完全形同，则：<br>$$<br>\begin{equation}<br>\begin{split}<br>x&amp;=N_1 x_1+N_2 x_2 +N_3 x_3 \<br>y&amp;=N_1 y_1+N_2 y_2 +N_3 y_3<br>\end{split}<br>\end{equation}<br>$$<br>所以，Jacobian矩阵为：<br>$$<br>J=<br>\begin{bmatrix}<br>\partial x/\partial\xi &amp; \partial y/\partial\xi \<br>\partial x/\partial\eta &amp; \partial y/\partial\eta<br>\end{bmatrix}<br>=<br>\begin{bmatrix}<br>\sum\frac{\partial N_i}{\partial\xi}x_i &amp; \sum\frac{\partial N_i}{\partial\xi}y_i \<br>\sum\frac{\partial N_i}{\partial\eta}x_i &amp; \sum\frac{\partial N_i}{\partial\eta}y_i<br>\end{bmatrix}<br>=<br>\begin{bmatrix}<br>\frac{\partial N_1}{\partial\xi} &amp; \frac{\partial N_2}{\partial\xi} &amp; \frac{\partial N_3}{\partial\xi} \<br>\frac{\partial N_1}{\partial\eta} &amp; \frac{\partial N_2}{\partial\eta} &amp; \frac{\partial N_3}{\partial\eta}<br>\end{bmatrix}<br>\begin{bmatrix}<br>x_1 &amp; y_1 \<br>x_2 &amp; y_2 \<br>x_3 &amp; y_3<br>\end{bmatrix}<br>$$<br>具体到这里使用的面积坐标，则有：<br>$$<br>\begin{equation}<br>\begin{split}<br>x&amp;=N_1 x_1+N_2 x_2 +N_3 x_3=\xi(x_1-x_3)+\eta(x_2-x_3)+x_3 \<br>y&amp;=N_1 y_1+N_2 y_2 +N_3 y_3=\xi(y_1-y_3)+\eta(y_2-y_3)+y_3<br>\end{split}<br>\end{equation}<br>$$<br>所以：<br>$$<br>J=<br>\begin{bmatrix}<br>x_1-x_3 &amp; y_1-y_3 \<br>x_2-x_3 &amp; y_2-y_3<br>\end{bmatrix}<br>$$</p>
-<p>Jacobian矩阵的逆变换为：<br>$$<br>\begin{bmatrix}<br>\partial/\partial x \<br>\partial/\partial y<br>\end{bmatrix}<br>=J^{-1}<br>\begin{bmatrix}<br>\partial/\partial\xi \<br>\partial/\partial\eta<br>\end{bmatrix}<br>$$<br>而Jacobian行列式则为：<br>$$<br>|J|=<br>\begin{vmatrix}<br>\partial x/\partial\xi &amp; \partial y/\partial\xi \<br>\partial x/\partial\eta &amp; \partial y/\partial\eta<br>\end{vmatrix}<br>=\frac{\partial x}{\partial\xi}\frac{\partial y}{\partial\eta}-\frac{\partial y}{\partial\xi}\frac{\partial x}{\partial\eta}<br>$$<br>在求解刚度矩阵时，所对应的积分中要用到此行列式。积分过程中的变量和区域需要进行变换：<br>$$<br>dxdy=|J|d\xi d\eta<br>$$</p>
-<p>Jacobian矩阵的逆矩阵和行列式则可以通过Inverse和Det命令求得。</p>
-<h2 id="应力应变矩阵"><a href="#应力应变矩阵" class="headerlink" title="应力应变矩阵"></a>应力应变矩阵</h2><p>对平面应力问题，应力应变矩阵D为：<br>$$<br>D=\frac{E}{1-\nu^2}<br>\begin{bmatrix}<br>1 &amp; \nu &amp; 0 \<br>\nu &amp; 1 &amp; 0 \<br>0 &amp; 0 &amp; (1-\nu)/2<br>\end{bmatrix}<br>$$<br>对平面应变问题，应力应变矩阵D为：<br>$$<br>D=\frac{E}{(1+\nu)(1-2\nu)}<br>\begin{bmatrix}<br>1-\nu &amp; \nu &amp; 0 \<br>\nu &amp; 1-\nu &amp; 0 \<br>0 &amp; 0 &amp; (1-2\nu)/2<br>\end{bmatrix}<br>$$</p>
-<h2 id="应变位移矩阵"><a href="#应变位移矩阵" class="headerlink" title="应变位移矩阵"></a>应变位移矩阵</h2><p>应变、位移的关系为：<br>$$<br>\epsilon=<br>\begin{bmatrix}<br>\frac{\partial}{\partial x} &amp; 0 \<br>0 &amp; \frac{\partial}{\partial y} \<br>\frac{\partial}{\partial y} &amp; \frac{\partial}{\partial x}<br>\end{bmatrix}<br>\begin{bmatrix}<br>u \<br>v<br>\end{bmatrix}<br>$$<br>代入位移函数表达式，可得：<br>$$<br>\epsilon=Ba=<br>\begin{bmatrix}<br>B_1 &amp; B_2 &amp; B_3<br>\end{bmatrix}<br>\begin{bmatrix}<br>a_1 \<br>a_2 \<br>a_3<br>\end{bmatrix}<br>$$<br>其中应变位移矩阵的一部分为：<br>$$<br>B1=<br>\begin{bmatrix}<br>\frac{\partial N_1}{\partial x} &amp; 0 \<br>0 &amp; \frac{\partial N_1}{\partial y} \<br>\frac{\partial N_1}{\partial y} &amp; \frac{\partial N_1}{\partial x}<br>\end{bmatrix}<br>$$</p>
-<h2 id="单元刚度矩阵"><a href="#单元刚度矩阵" class="headerlink" title="单元刚度矩阵"></a>单元刚度矩阵</h2><p>根据最小势能原理，求得单元刚度矩阵表达式：<br>$$<br>K=\int_0^1\int_0^{1-\eta}B^TDBt|J|d\xi d\eta<br>$$</p>
-<h2 id="模块分析"><a href="#模块分析" class="headerlink" title="模块分析"></a>模块分析</h2><h3 id="建立单元刚度矩阵"><a href="#建立单元刚度矩阵" class="headerlink" title="建立单元刚度矩阵"></a>建立单元刚度矩阵</h3><figure class="highlight cpp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br></pre></td><td class="code"><pre><span class="line">GenerateLinearTriangKm[cord_] := Module[&#123;Bmatrix, DeriveN, J, km&#125;,</span><br><span class="line">      n1 = xi; n2 = eta; n3 = <span class="number">1</span> - xi - eta;</span><br><span class="line">  bdv = &#123;&#123;<span class="number">1</span>, <span class="number">0</span>, <span class="number">-1</span>&#125;, &#123;<span class="number">0</span>, <span class="number">1</span>, <span class="number">-1</span>&#125;&#125;;(*这里是局部坐标系下的偏导数*)</span><br><span class="line">  J = bdv.cord;(*求解Jacobian矩阵*)</span><br><span class="line">  bdv = Simplify[Inverse[J].bdv];(*转换成整体坐标系下的偏导数*)</span><br><span class="line">  Bmatrix = &#123;&#123;bdv[[<span class="number">1</span>, <span class="number">1</span>]], <span class="number">0</span>, bdv[[<span class="number">1</span>, <span class="number">2</span>]], <span class="number">0</span>, bdv[[<span class="number">1</span>, <span class="number">3</span>]], <span class="number">0</span>&#125;, &#123;<span class="number">0</span>, </span><br><span class="line">              bdv[[<span class="number">2</span>, <span class="number">1</span>]], <span class="number">0</span>, bdv[[<span class="number">2</span>, <span class="number">2</span>]], <span class="number">0</span>, bdv[[<span class="number">2</span>, <span class="number">3</span>]]&#125;, &#123;bdv[[<span class="number">2</span>, <span class="number">1</span>]], </span><br><span class="line">              bdv[[<span class="number">1</span>, <span class="number">1</span>]], bdv[[<span class="number">2</span>, <span class="number">2</span>]], bdv[[<span class="number">1</span>, <span class="number">2</span>]], bdv[[<span class="number">2</span>, <span class="number">3</span>]], bdv[[<span class="number">1</span>, <span class="number">3</span>]]&#125;&#125;;</span><br><span class="line">  Dmatrix = </span><br><span class="line">     ee/(<span class="number">1</span> - nu*nu) &#123;&#123;<span class="number">1</span>, nu, <span class="number">0</span>&#125;, &#123;nu, <span class="number">1</span>, <span class="number">0</span>&#125;, &#123;<span class="number">0</span>, <span class="number">0</span>, (<span class="number">1</span> - nu)/<span class="number">2</span>&#125;&#125;;</span><br><span class="line">  km = h Integrate[</span><br><span class="line">       Det[J] (Transpose[Bmatrix].Dmatrix.Bmatrix), &#123;xi, <span class="number">0</span>, <span class="number">1</span>&#125;, &#123;eta, <span class="number">0</span>,</span><br><span class="line">                  <span class="number">1</span> - xi&#125;]</span><br><span class="line">                    ]</span><br></pre></td></tr></table></figure>
+<h1 id="双线性三角形单元"><a href="#双线性三角形单元" class="headerlink" title="双线性三角形单元"></a>双线性三角形单元</h1><h2 id="局部坐标系"><a href="#局部坐标系" class="headerlink" title="局部坐标系"></a>局部坐标系</h2><p>之前的杆单元和桁架元的局部坐标系容易建立，即建在其自身上即可。而三角形单元的局部坐标系显然不能这样建立，其常采用一套无量纲的自然坐标系——面积坐标，如下图所示：<br><img src="https://ws1.sinaimg.cn/large/0072Lfvtly1fvjjrmjerxj30c50890su.jpg" alt=""><br>三角形123内部有一任意点P，P与顶点1、2、3组成3个子三角形，每个子三角形的面积与总面积之比记为$L_i$，即P点的面积坐标为$(L_1,L_2,L_3)$。<br>因为三个坐标相加为1，所以仅有两个独立的自然坐标，所以可以简记为：</p>
+<script type="math/tex; mode=display">(\xi,\eta,1-\xi-\eta)</script><p>注意到：面积坐标还有如下特点，在顶点1时，$\xi=1$，其他坐标为0。其他顶点亦同，见上图三个顶点处的坐标值。因此，面积坐标还有形函数的功能。即：</p>
+<script type="math/tex; mode=display">
+N\_1=L\_1=\xi, N\_2=L\_2=\eta, N\_3=L\_3=1-\xi-\eta</script><p>写成矩阵形式为:</p>
+<script type="math/tex; mode=display">
+ShapeN=
+\begin{bmatrix}
+\xi \\\
+\eta \\\
+1-\xi-\eta
+\end{bmatrix}</script><p>在局部坐标系下形函数对$\xi,\eta$的偏导数为：</p>
+<script type="math/tex; mode=display">
+DeriveN=
+\begin{bmatrix}
+\partial ShapeN^T/\partial\xi \\\
+\partial ShapeN^T/\partial\eta
+\end{bmatrix}</script><p>代码为：<br><figure class="highlight cpp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">ShapeN = &#123;xi, eta, <span class="number">1</span> - xi - eta&#125;;</span><br><span class="line">DeriveN = &#123;D[ShapeN, xi], D[ShapeN, eta]&#125;</span><br></pre></td></tr></table></figure><br>结果为：<br><figure class="highlight cpp"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">&#123;&#123;<span class="number">1</span>, <span class="number">0</span>, <span class="number">-1</span>&#125;, &#123;<span class="number">0</span>, <span class="number">1</span>, <span class="number">-1</span>&#125;&#125;</span><br></pre></td></tr></table></figure><br>偏导数在不同坐标系下的变换：</p>
+<script type="math/tex; mode=display">
+\begin{bmatrix}
+\partial N\_1/\partial\xi \\\
+\partial N\_1/\partial\eta
+\end{bmatrix}
+=
+\begin{bmatrix}
+\partial x/\partial\xi & \partial y/\partial\xi \\\
+\partial x/\partial\eta & \partial y/\partial\eta
+\end{bmatrix}
+\begin{bmatrix}
+\partial N\_1/\partial x \\\
+\partial N\_1/\partial y
+\end{bmatrix}
+=J
+\begin{bmatrix}
+\partial N\_1/\partial x \\\
+\partial N\_1/\partial y
+\end{bmatrix}</script><p>其中，J为Jacobian矩阵。在上式中，当局部坐标系中明确给定函数$N_1$时，等式的左侧可以求出。同时，当基于局部坐标系给出x和y的显式表达时，基于局部坐标系也可以给出Jacobian矩阵的显式表达。具体过程如下：<br>根据等参元的性质，基于局部坐标给出的标准形函数与整体坐标的形函数完全形同，则：</p>
+<script type="math/tex; mode=display">
+\begin{equation}
+\begin{split}
+x&=N\_1 x\_1+N\_2 x\_2 +N\_3 x\_3 \\\
+y&=N\_1 y\_1+N\_2 y\_2 +N\_3 y\_3 
+\end{split}
+\end{equation}</script><p>所以，Jacobian矩阵为：</p>
+<script type="math/tex; mode=display">
+J=
+\begin{bmatrix}
+\partial x/\partial\xi & \partial y/\partial\xi \\\
+\partial x/\partial\eta & \partial y/\partial\eta
+\end{bmatrix}
+=
+\begin{bmatrix}
+\sum\frac{\partial N\_i}{\partial\xi}x\_i & \sum\frac{\partial N\_i}{\partial\xi}y\_i \\\
+\sum\frac{\partial N\_i}{\partial\eta}x\_i & \sum\frac{\partial N\_i}{\partial\eta}y\_i
+\end{bmatrix}
+=
+\begin{bmatrix}
+\frac{\partial N\_1}{\partial\xi} & \frac{\partial N\_2}{\partial\xi} & \frac{\partial N\_3}{\partial\xi} \\\
+\frac{\partial N\_1}{\partial\eta} & \frac{\partial N\_2}{\partial\eta} & \frac{\partial N\_3}{\partial\eta} 
+\end{bmatrix}
+\begin{bmatrix}
+x\_1 & y\_1 \\\
+x\_2 & y\_2 \\\
+x\_3 & y\_3
+\end{bmatrix}</script><p>具体到这里使用的面积坐标，则有：</p>
+<script type="math/tex; mode=display">
+\begin{equation}
+\begin{split}
+x&=N\_1 x\_1+N\_2 x\_2 +N\_3 x\_3=\xi(x\_1-x\_3)+\eta(x\_2-x\_3)+x\_3 \\\
+y&=N\_1 y\_1+N\_2 y\_2 +N\_3 y\_3=\xi(y\_1-y\_3)+\eta(y\_2-y\_3)+y\_3 
+\end{split}
+\end{equation}</script><p>所以：</p>
+<script type="math/tex; mode=display">
+J=
+\begin{bmatrix}
+x\_1-x\_3 & y\_1-y\_3 \\\
+x\_2-x\_3 & y\_2-y\_3
+\end{bmatrix}</script><p>Jacobian矩阵的逆变换为：</p>
+<script type="math/tex; mode=display">
+\begin{bmatrix}
+\partial/\partial x \\\
+\partial/\partial y
+\end{bmatrix}
+=J^{-1}
+\begin{bmatrix}
+\partial/\partial\xi \\\
+\partial/\partial\eta
+\end{bmatrix}</script><p>而Jacobian行列式则为：</p>
+<script type="math/tex; mode=display">
+|J|=
+\begin{vmatrix}
+\partial x/\partial\xi & \partial y/\partial\xi \\\
+\partial x/\partial\eta & \partial y/\partial\eta
+\end{vmatrix}
+=\frac{\partial x}{\partial\xi}\frac{\partial y}{\partial\eta}-\frac{\partial y}{\partial\xi}\frac{\partial x}{\partial\eta}</script><p>在求解刚度矩阵时，所对应的积分中要用到此行列式。积分过程中的变量和区域需要进行变换：</p>
+<script type="math/tex; mode=display">
+dxdy=|J|d\xi d\eta</script><p>Jacobian矩阵的逆矩阵和行列式则可以通过Inverse和Det命令求得。</p>
+<h2 id="应力应变矩阵"><a href="#应力应变矩阵" class="headerlink" title="应力应变矩阵"></a>应力应变矩阵</h2><p>对平面应力问题，应力应变矩阵D为：</p>
+<script type="math/tex; mode=display">
+D=\frac{E}{1-\nu^2}
+\begin{bmatrix}
+1 & \nu & 0 \\\
+\nu & 1 & 0 \\\
+0 & 0 & (1-\nu)/2
+\end{bmatrix}</script><p>对平面应变问题，应力应变矩阵D为：</p>
+<script type="math/tex; mode=display">
+D=\frac{E}{(1+\nu)(1-2\nu)}
+\begin{bmatrix}
+1-\nu & \nu & 0 \\\
+\nu & 1-\nu & 0 \\\
+0 & 0 & (1-2\nu)/2
+\end{bmatrix}</script><h2 id="应变位移矩阵"><a href="#应变位移矩阵" class="headerlink" title="应变位移矩阵"></a>应变位移矩阵</h2><p>应变、位移的关系为：</p>
+<script type="math/tex; mode=display">
+\epsilon=
+\begin{bmatrix}
+\frac{\partial}{\partial x} & 0 \\\
+0 & \frac{\partial}{\partial y} \\\
+\frac{\partial}{\partial y} & \frac{\partial}{\partial x}
+\end{bmatrix}
+\begin{bmatrix}
+u \\\
+v
+\end{bmatrix}</script><p>代入位移函数表达式，可得：</p>
+<script type="math/tex; mode=display">
+\epsilon=Ba=
+\begin{bmatrix}
+B\_1 & B\_2 & B\_3 
+\end{bmatrix}
+\begin{bmatrix}
+a\_1 \\\
+a\_2 \\\
+a\_3
+\end{bmatrix}</script><p>其中应变位移矩阵的一部分为：</p>
+<script type="math/tex; mode=display">
+B1=
+\begin{bmatrix}
+\frac{\partial N\_1}{\partial x} & 0 \\\
+0 & \frac{\partial N\_1}{\partial y} \\\
+\frac{\partial N\_1}{\partial y} & \frac{\partial N\_1}{\partial x}
+\end{bmatrix}</script><h2 id="单元刚度矩阵"><a href="#单元刚度矩阵" class="headerlink" title="单元刚度矩阵"></a>单元刚度矩阵</h2><p>根据最小势能原理，求得单元刚度矩阵表达式：</p>
+<script type="math/tex; mode=display">
+K=\int\_0^1\int\_0^{1-\eta}B^TDBt|J|d\xi d\eta</script><h2 id="模块分析"><a href="#模块分析" class="headerlink" title="模块分析"></a>模块分析</h2><h3 id="建立单元刚度矩阵"><a href="#建立单元刚度矩阵" class="headerlink" title="建立单元刚度矩阵"></a>建立单元刚度矩阵</h3><figure class="highlight cpp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br></pre></td><td class="code"><pre><span class="line">GenerateLinearTriangKm[cord_] := Module[&#123;Bmatrix, DeriveN, J, km&#125;,</span><br><span class="line">      n1 = xi; n2 = eta; n3 = <span class="number">1</span> - xi - eta;</span><br><span class="line">  bdv = &#123;&#123;<span class="number">1</span>, <span class="number">0</span>, <span class="number">-1</span>&#125;, &#123;<span class="number">0</span>, <span class="number">1</span>, <span class="number">-1</span>&#125;&#125;;(*这里是局部坐标系下的偏导数*)</span><br><span class="line">  J = bdv.cord;(*求解Jacobian矩阵*)</span><br><span class="line">  bdv = Simplify[Inverse[J].bdv];(*转换成整体坐标系下的偏导数*)</span><br><span class="line">  Bmatrix = &#123;&#123;bdv[[<span class="number">1</span>, <span class="number">1</span>]], <span class="number">0</span>, bdv[[<span class="number">1</span>, <span class="number">2</span>]], <span class="number">0</span>, bdv[[<span class="number">1</span>, <span class="number">3</span>]], <span class="number">0</span>&#125;, &#123;<span class="number">0</span>, </span><br><span class="line">              bdv[[<span class="number">2</span>, <span class="number">1</span>]], <span class="number">0</span>, bdv[[<span class="number">2</span>, <span class="number">2</span>]], <span class="number">0</span>, bdv[[<span class="number">2</span>, <span class="number">3</span>]]&#125;, &#123;bdv[[<span class="number">2</span>, <span class="number">1</span>]], </span><br><span class="line">              bdv[[<span class="number">1</span>, <span class="number">1</span>]], bdv[[<span class="number">2</span>, <span class="number">2</span>]], bdv[[<span class="number">1</span>, <span class="number">2</span>]], bdv[[<span class="number">2</span>, <span class="number">3</span>]], bdv[[<span class="number">1</span>, <span class="number">3</span>]]&#125;&#125;;</span><br><span class="line">  Dmatrix = </span><br><span class="line">     ee/(<span class="number">1</span> - nu*nu) &#123;&#123;<span class="number">1</span>, nu, <span class="number">0</span>&#125;, &#123;nu, <span class="number">1</span>, <span class="number">0</span>&#125;, &#123;<span class="number">0</span>, <span class="number">0</span>, (<span class="number">1</span> - nu)/<span class="number">2</span>&#125;&#125;;</span><br><span class="line">  km = h Integrate[</span><br><span class="line">       Det[J] (Transpose[Bmatrix].Dmatrix.Bmatrix), &#123;xi, <span class="number">0</span>, <span class="number">1</span>&#125;, &#123;eta, <span class="number">0</span>,</span><br><span class="line">                  <span class="number">1</span> - xi&#125;]</span><br><span class="line">                    ]</span><br></pre></td></tr></table></figure>
 <h3 id="组装刚度矩阵"><a href="#组装刚度矩阵" class="headerlink" title="组装刚度矩阵"></a>组装刚度矩阵</h3><figure class="highlight cpp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br></pre></td><td class="code"><pre><span class="line">AssembleLinearTriangKm[p1_, p2_, p3_, m_] := </span><br><span class="line"> Module[&#123;f&#125;, f = &#123;p1, p2, p3&#125;;</span><br><span class="line">  For[j = <span class="number">1</span>, j &lt;= <span class="number">3</span>, j++, For[k = <span class="number">1</span>, k &lt;= <span class="number">3</span>, k++,</span><br><span class="line">      GlobalK[[<span class="number">2</span> f[[j]], <span class="number">2</span> f[[k]]]] += m[[<span class="number">2</span> j, <span class="number">2</span> k]];</span><br><span class="line">      GlobalK[[<span class="number">2</span> f[[j]] - <span class="number">1</span>, <span class="number">2</span> f[[k]]]] += m[[<span class="number">2</span> j - <span class="number">1</span>, <span class="number">2</span> k]];</span><br><span class="line">      GlobalK[[<span class="number">2</span> f[[j]], <span class="number">2</span> f[[k]] - <span class="number">1</span>]] += m[[<span class="number">2</span> j, <span class="number">2</span> k - <span class="number">1</span>]];</span><br><span class="line">      GlobalK[[<span class="number">2</span> f[[j]] - <span class="number">1</span>, <span class="number">2</span> f[[k]] - <span class="number">1</span>]] += m[[<span class="number">2</span> j - <span class="number">1</span>, <span class="number">2</span> k - <span class="number">1</span>]];</span><br><span class="line">      ]];</span><br><span class="line">  GlobalK]</span><br></pre></td></tr></table></figure>
 <p>这里注意矩阵带不带Matrixform在计算时有很大区别。<br>注意这里的循环次数为3,是因为每个单元有3个节点。</p>
-<h1 id="二次三角形单元"><a href="#二次三角形单元" class="headerlink" title="二次三角形单元"></a>二次三角形单元</h1><p>二次三角形单元就是在每条边上还各有一个节点，如图：<br><img src="https://ws1.sinaimg.cn/large/0072Lfvtly1fvjjryk2i9j30fa0a774i.jpg"><br>具体分析过程跟双线性三角形单元相同，只不过形函数更加复杂。且在组装总刚时循环系数为6。</p>
+<h1 id="二次三角形单元"><a href="#二次三角形单元" class="headerlink" title="二次三角形单元"></a>二次三角形单元</h1><p>二次三角形单元就是在每条边上还各有一个节点，如图：<br><img src="https://ws1.sinaimg.cn/large/0072Lfvtly1fvjjryk2i9j30fa0a774i.jpg" alt=""><br>具体分析过程跟双线性三角形单元相同，只不过形函数更加复杂。且在组装总刚时循环系数为6。</p>
 
     </div>
 
@@ -527,6 +657,59 @@
   
 
   
+      
+
+<script>
+  if (typeof MathJax === 'undefined') {
+    window.MathJax = {
+      loader: {
+        source: {
+          '[tex]/amsCd': '[tex]/amscd',
+          '[tex]/AMScd': '[tex]/amscd'
+        }
+      },
+      tex: {
+        inlineMath: {'[+]': [['$', '$']]},
+        tags: 'ams'
+      },
+      options: {
+        renderActions: {
+          findScript: [10, doc => {
+            document.querySelectorAll('script[type^="math/tex"]').forEach(node => {
+              const display = !!node.type.match(/; *mode=display/);
+              const math = new doc.options.MathItem(node.textContent, doc.inputJax[0], display);
+              const text = document.createTextNode('');
+              node.parentNode.replaceChild(text, node);
+              math.start = {node: text, delim: '', n: 0};
+              math.end = {node: text, delim: '', n: 0};
+              doc.math.push(math);
+            });
+          }, '', false],
+          insertedScript: [200, () => {
+            document.querySelectorAll('mjx-container').forEach(node => {
+              let target = node.parentNode;
+              if (target.nodeName.toLowerCase() === 'li') {
+                target.parentNode.classList.add('has-jax');
+              }
+            });
+          }, '', false]
+        }
+      }
+    };
+    (function () {
+      var script = document.createElement('script');
+      script.src = '//cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js';
+      script.defer = true;
+      document.head.appendChild(script);
+    })();
+  } else {
+    MathJax.startup.document.state(0);
+    MathJax.texReset();
+    MathJax.typeset();
+  }
+</script>
+
+    
 
   
 

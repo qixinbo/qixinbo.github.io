@@ -267,8 +267,7 @@
 <p>将高斯模糊后的坐标与之前的坐标进行对比，用标准差来衡量差距大小。</p>
 <h2 id="寻找局部极大值"><a href="#寻找局部极大值" class="headerlink" title="寻找局部极大值"></a>寻找局部极大值</h2><figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">maxds = ndimg.maximum_filter(ds, <span class="number">100</span>, mode=<span class="string">&#x27;wrap&#x27;</span>)</span><br><span class="line">idx = np.where((ds &gt; ds.std()*<span class="number">3</span>) &amp; (ds==maxds))[<span class="number">0</span>]</span><br></pre></td></tr></table></figure>
 <p>这个地方首先使用一个极大值滤波，然后再通过两个判断条件：是否大于标准差的3倍以及同时等于局部极大值。<br>这样就找到了局部极大值点所在的位置。<br>当然也可以直接用那种寻找局部极值的算法，但不如这种“极大值滤波+大于某个阈值”的方法来得简单直接。</p>
-<p>#可视化</p>
-<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br></pre></td><td class="code"><pre><span class="line">ax = plt.subplot(<span class="number">211</span>)</span><br><span class="line">ax.plot(xs, ys)</span><br><span class="line">ax.plot(gxs, gys)</span><br><span class="line">plt.plot(xs[idx], ys[idx], <span class="string">&#x27;ro&#x27;</span>)</span><br><span class="line"></span><br><span class="line">ax = plt.subplot(<span class="number">212</span>)</span><br><span class="line">ax.plot(ds)</span><br><span class="line">ax.plot(maxds)</span><br><span class="line">ax.plot(ds/ds*ds.std()*<span class="number">3</span>)</span><br><span class="line">ax.plot(idx, ds[idx], <span class="string">&#x27;ro&#x27;</span>)</span><br><span class="line">plt.show()</span><br></pre></td></tr></table></figure>
+<h1 id="可视化"><a href="#可视化" class="headerlink" title="可视化"></a>可视化</h1><figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br></pre></td><td class="code"><pre><span class="line">ax = plt.subplot(<span class="number">211</span>)</span><br><span class="line">ax.plot(xs, ys)</span><br><span class="line">ax.plot(gxs, gys)</span><br><span class="line">plt.plot(xs[idx], ys[idx], <span class="string">&#x27;ro&#x27;</span>)</span><br><span class="line"></span><br><span class="line">ax = plt.subplot(<span class="number">212</span>)</span><br><span class="line">ax.plot(ds)</span><br><span class="line">ax.plot(maxds)</span><br><span class="line">ax.plot(ds/ds*ds.std()*<span class="number">3</span>)</span><br><span class="line">ax.plot(idx, ds[idx], <span class="string">&#x27;ro&#x27;</span>)</span><br><span class="line">plt.show()</span><br></pre></td></tr></table></figure>
 <p>将结果可视化出来：<br><img src="https://user-images.githubusercontent.com/6218739/112804493-115a4980-90a7-11eb-8992-f2f8fb80b3b9.png" alt="vis_peak"></p>
 
     </div>
@@ -375,7 +374,7 @@
 
       <!--noindex-->
       <div class="post-toc-wrap sidebar-panel">
-          <div class="post-toc motion-element"><ol class="nav"><li class="nav-item nav-level-1"><a class="nav-link" href="#%E9%97%AE%E9%A2%98%E6%8F%8F%E8%BF%B0"><span class="nav-number">1.</span> <span class="nav-text">问题描述</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#%E8%A7%A3%E6%B3%95"><span class="nav-number">2.</span> <span class="nav-text">解法</span></a><ol class="nav-child"><li class="nav-item nav-level-2"><a class="nav-link" href="#%E6%89%BE%E5%88%B0%E8%BD%AE%E5%BB%93%E7%BA%BF"><span class="nav-number">2.1.</span> <span class="nav-text">找到轮廓线</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E9%AB%98%E6%96%AF%E6%A8%A1%E7%B3%8A"><span class="nav-number">2.2.</span> <span class="nav-text">高斯模糊</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E6%96%B0%E6%97%A7%E5%9D%90%E6%A0%87%E5%AF%B9%E6%AF%94"><span class="nav-number">2.3.</span> <span class="nav-text">新旧坐标对比</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E5%AF%BB%E6%89%BE%E5%B1%80%E9%83%A8%E6%9E%81%E5%A4%A7%E5%80%BC"><span class="nav-number">2.4.</span> <span class="nav-text">寻找局部极大值</span></a></li></ol></li></ol></div>
+          <div class="post-toc motion-element"><ol class="nav"><li class="nav-item nav-level-1"><a class="nav-link" href="#%E9%97%AE%E9%A2%98%E6%8F%8F%E8%BF%B0"><span class="nav-number">1.</span> <span class="nav-text">问题描述</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#%E8%A7%A3%E6%B3%95"><span class="nav-number">2.</span> <span class="nav-text">解法</span></a><ol class="nav-child"><li class="nav-item nav-level-2"><a class="nav-link" href="#%E6%89%BE%E5%88%B0%E8%BD%AE%E5%BB%93%E7%BA%BF"><span class="nav-number">2.1.</span> <span class="nav-text">找到轮廓线</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E9%AB%98%E6%96%AF%E6%A8%A1%E7%B3%8A"><span class="nav-number">2.2.</span> <span class="nav-text">高斯模糊</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E6%96%B0%E6%97%A7%E5%9D%90%E6%A0%87%E5%AF%B9%E6%AF%94"><span class="nav-number">2.3.</span> <span class="nav-text">新旧坐标对比</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E5%AF%BB%E6%89%BE%E5%B1%80%E9%83%A8%E6%9E%81%E5%A4%A7%E5%80%BC"><span class="nav-number">2.4.</span> <span class="nav-text">寻找局部极大值</span></a></li></ol></li><li class="nav-item nav-level-1"><a class="nav-link" href="#%E5%8F%AF%E8%A7%86%E5%8C%96"><span class="nav-number">3.</span> <span class="nav-text">可视化</span></a></li></ol></div>
       </div>
       <!--/noindex-->
 
@@ -523,6 +522,59 @@
   
 
   
+      
+
+<script>
+  if (typeof MathJax === 'undefined') {
+    window.MathJax = {
+      loader: {
+        source: {
+          '[tex]/amsCd': '[tex]/amscd',
+          '[tex]/AMScd': '[tex]/amscd'
+        }
+      },
+      tex: {
+        inlineMath: {'[+]': [['$', '$']]},
+        tags: 'ams'
+      },
+      options: {
+        renderActions: {
+          findScript: [10, doc => {
+            document.querySelectorAll('script[type^="math/tex"]').forEach(node => {
+              const display = !!node.type.match(/; *mode=display/);
+              const math = new doc.options.MathItem(node.textContent, doc.inputJax[0], display);
+              const text = document.createTextNode('');
+              node.parentNode.replaceChild(text, node);
+              math.start = {node: text, delim: '', n: 0};
+              math.end = {node: text, delim: '', n: 0};
+              doc.math.push(math);
+            });
+          }, '', false],
+          insertedScript: [200, () => {
+            document.querySelectorAll('mjx-container').forEach(node => {
+              let target = node.parentNode;
+              if (target.nodeName.toLowerCase() === 'li') {
+                target.parentNode.classList.add('has-jax');
+              }
+            });
+          }, '', false]
+        }
+      }
+    };
+    (function () {
+      var script = document.createElement('script');
+      script.src = '//cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js';
+      script.defer = true;
+      document.head.appendChild(script);
+    })();
+  } else {
+    MathJax.startup.document.state(0);
+    MathJax.texReset();
+    MathJax.typeset();
+  }
+</script>
+
+    
 
   
 

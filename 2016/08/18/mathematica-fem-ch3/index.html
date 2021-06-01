@@ -20,12 +20,12 @@
     var CONFIG = {"hostname":"qixinbo.github.io","root":"/","scheme":"Gemini","version":"7.8.0","exturl":false,"sidebar":{"position":"left","display":"post","padding":18,"offset":12,"onmobile":false},"copycode":{"enable":false,"show_result":false,"style":null},"back2top":{"enable":true,"sidebar":false,"scrollpercent":false},"bookmark":{"enable":false,"color":"#222","save":"auto"},"fancybox":false,"mediumzoom":false,"lazyload":false,"pangu":false,"comments":{"style":"tabs","active":null,"storage":true,"lazyload":false,"nav":null},"algolia":{"hits":{"per_page":10},"labels":{"input_placeholder":"Search for Posts","hits_empty":"We didn't find any results for the search: ${query}","hits_stats":"${hits} results found in ${time} ms"}},"localsearch":{"enable":false,"trigger":"auto","top_n_per_article":1,"unescape":false,"preload":false},"motion":{"enable":true,"async":false,"transition":{"post_block":"fadeIn","post_header":"slideDownIn","post_body":"slideDownIn","coll_header":"slideLeftIn","sidebar":"slideUpIn"}}};
   </script>
 
-  <meta name="description" content="本文是对Mathematica有限元分析与工程应用一书的学习笔记。  桁架元的特点 平面桁架元是既有局部坐标又有整体坐标的二维有限元，因此比起之前的杆单元，需要多一步坐标变换。 桁架元示意图如下：  指定整体坐标系为X-Y，局部坐标系为x-y。则两者之间的转换关系为： $$ \begin{equation} \begin{split} U_{Xi}&amp;&#x3D;u_{xi}cos\theta,U_{Yi}&#x3D;">
+  <meta name="description" content="本文是对Mathematica有限元分析与工程应用一书的学习笔记。  桁架元的特点 平面桁架元是既有局部坐标又有整体坐标的二维有限元，因此比起之前的杆单元，需要多一步坐标变换。 桁架元示意图如下：  指定整体坐标系为X-Y，局部坐标系为x-y。则两者之间的转换关系为：  即：  其中：  局部坐标系下的有限元方程为：  为了把有限元方程从局部坐标系变换到整体坐标系，可通过转换矩阵：  所以：  又">
 <meta property="og:type" content="article">
 <meta property="og:title" content="利用Mathematica进行有限元编程(二)：桁架元分析">
 <meta property="og:url" content="http://qixinbo.github.io/2016/08/18/mathematica-fem-ch3/index.html">
 <meta property="og:site_name" content="数字旗手">
-<meta property="og:description" content="本文是对Mathematica有限元分析与工程应用一书的学习笔记。  桁架元的特点 平面桁架元是既有局部坐标又有整体坐标的二维有限元，因此比起之前的杆单元，需要多一步坐标变换。 桁架元示意图如下：  指定整体坐标系为X-Y，局部坐标系为x-y。则两者之间的转换关系为： $$ \begin{equation} \begin{split} U_{Xi}&amp;&#x3D;u_{xi}cos\theta,U_{Yi}&#x3D;">
+<meta property="og:description" content="本文是对Mathematica有限元分析与工程应用一书的学习笔记。  桁架元的特点 平面桁架元是既有局部坐标又有整体坐标的二维有限元，因此比起之前的杆单元，需要多一步坐标变换。 桁架元示意图如下：  指定整体坐标系为X-Y，局部坐标系为x-y。则两者之间的转换关系为：  即：  其中：  局部坐标系下的有限元方程为：  为了把有限元方程从局部坐标系变换到整体坐标系，可通过转换矩阵：  所以：  又">
 <meta property="og:locale" content="en_US">
 <meta property="og:image" content="https://ws1.sinaimg.cn/large/0072Lfvtly1fvjjq6vt55j30l0098t8w.jpg">
 <meta property="og:image" content="https://ws1.sinaimg.cn/large/0072Lfvtly1fvjjqkfym8j30mc0ay3zt.jpg">
@@ -259,10 +259,65 @@
 
       
         <p>本文是对<a target="_blank" rel="noopener" href="https://www.amazon.cn/Mathematica%E6%9C%89%E9%99%90%E5%85%83%E5%88%86%E6%9E%90%E4%B8%8E%E5%B7%A5%E7%A8%8B%E5%BA%94%E7%94%A8-%E9%B2%8D%E5%9B%9B%E5%85%83/dp/B00328IIOC">Mathematica有限元分析与工程应用</a>一书的学习笔记。</p>
-<h1 id="桁架元的特点"><a href="#桁架元的特点" class="headerlink" title="桁架元的特点"></a>桁架元的特点</h1><p>平面桁架元是既有局部坐标又有整体坐标的二维有限元，因此比起之前的杆单元，需要多一步坐标变换。<br>桁架元示意图如下：<br><img src="https://ws1.sinaimg.cn/large/0072Lfvtly1fvjjq6vt55j30l0098t8w.jpg"><br>指定整体坐标系为X-Y，局部坐标系为x-y。则两者之间的转换关系为：<br>$$<br>\begin{equation}<br>\begin{split}<br>U_{Xi}&amp;=u_{xi}cos\theta,U_{Yi}=u_{xi}sin\theta \<br>U_{Xj}&amp;=u_{xj}cos\theta,U_{Yj}=u_{xj}sin\theta<br>\end{split}<br>\end{equation}<br>$$<br>即：<br>$$<br>U=Tu<br>$$<br>其中：<br>$$<br>U=<br>\begin{bmatrix}<br>U_{Xi} \<br>U_{Yi} \<br>U_{Xj} \<br>U_{Yj}<br>\end{bmatrix}<br>,T=<br>\begin{bmatrix}<br>cos\theta &amp; 0 \<br>sin\theta &amp; 0 \<br>0 &amp; cos\theta \<br>0 &amp; sin\theta<br>\end{bmatrix}<br>,u=<br>\begin{bmatrix}<br>u_{xi} \<br>u_{xj}<br>\end{bmatrix}<br>$$<br>局部坐标系下的有限元方程为：<br>$$<br>f=Ku<br>$$<br>为了把有限元方程从局部坐标系变换到整体坐标系，可通过转换矩阵：<br>$$<br>u=T^{-1}U, f=T^{-1}F<br>$$<br>所以：<br>$$<br>F=TKT^{-1}U<br>$$<br>又因为转换矩阵T满足如下关系(可实际计算验证一下)：<br>$$<br>T^{T}T=I<br>$$<br>所以：<br>$$<br>F=TKT^TU=\overline{K}U<br>$$<br>所以整体坐标系的刚度矩阵与局部坐标系的刚度矩阵关系为：<br>$$<br>\overline{K}=TKT^T<br>$$<br>由于局部坐标系下的单元刚度矩阵为：<br>$$<br>K=<br>\begin{bmatrix}<br>k &amp; -k \<br>-k &amp; k<br>\end{bmatrix}<br>$$<br>其中$k=\frac{EA}{L}$。那么整体坐标系下的单刚为：<br>$$<br>\overline{K}=\frac{EA}{L}<br>\begin{bmatrix}<br>C^2 &amp; CS &amp; -C^2 &amp; -CS \<br>CS &amp; S^2 &amp; -CS &amp; -S^2 \<br>-C^2 &amp; -CS &amp; C^2 &amp; CS \<br>-CS &amp; -S^2 &amp; CS &amp; S^2<br>\end{bmatrix}<br>$$<br>其中$C=cos\theta,S=sin\theta$。</p>
+<h1 id="桁架元的特点"><a href="#桁架元的特点" class="headerlink" title="桁架元的特点"></a>桁架元的特点</h1><p>平面桁架元是既有局部坐标又有整体坐标的二维有限元，因此比起之前的杆单元，需要多一步坐标变换。<br>桁架元示意图如下：<br><img src="https://ws1.sinaimg.cn/large/0072Lfvtly1fvjjq6vt55j30l0098t8w.jpg" alt=""><br>指定整体坐标系为X-Y，局部坐标系为x-y。则两者之间的转换关系为：</p>
+<script type="math/tex; mode=display">
+\begin{equation}
+\begin{split}
+U\_{Xi}&=u\_{xi}cos\theta,U\_{Yi}=u\_{xi}sin\theta \\\
+U\_{Xj}&=u\_{xj}cos\theta,U\_{Yj}=u\_{xj}sin\theta 
+\end{split}
+\end{equation}</script><p>即：</p>
+<script type="math/tex; mode=display">
+U=Tu</script><p>其中：</p>
+<script type="math/tex; mode=display">
+U=
+\begin{bmatrix}
+U\_{Xi} \\\
+U\_{Yi} \\\
+U\_{Xj} \\\
+U\_{Yj} 
+\end{bmatrix}
+,T=
+\begin{bmatrix}
+cos\theta & 0 \\\
+sin\theta & 0 \\\
+0 & cos\theta \\\
+0 & sin\theta 
+\end{bmatrix}
+,u=
+\begin{bmatrix}
+u\_{xi} \\\
+u\_{xj}
+\end{bmatrix}</script><p>局部坐标系下的有限元方程为：</p>
+<script type="math/tex; mode=display">
+f=Ku</script><p>为了把有限元方程从局部坐标系变换到整体坐标系，可通过转换矩阵：</p>
+<script type="math/tex; mode=display">
+u=T^{-1}U, f=T^{-1}F</script><p>所以：</p>
+<script type="math/tex; mode=display">
+F=TKT^{-1}U</script><p>又因为转换矩阵T满足如下关系(可实际计算验证一下)：</p>
+<script type="math/tex; mode=display">
+T^{T}T=I</script><p>所以：</p>
+<script type="math/tex; mode=display">
+F=TKT^TU=\overline{K}U</script><p>所以整体坐标系的刚度矩阵与局部坐标系的刚度矩阵关系为：</p>
+<script type="math/tex; mode=display">
+\overline{K}=TKT^T</script><p>由于局部坐标系下的单元刚度矩阵为：</p>
+<script type="math/tex; mode=display">
+K=
+\begin{bmatrix}
+k & -k \\\
+-k & k
+\end{bmatrix}</script><p>其中$k=\frac{EA}{L}$。那么整体坐标系下的单刚为：</p>
+<script type="math/tex; mode=display">
+\overline{K}=\frac{EA}{L}
+\begin{bmatrix}
+C^2 & CS & -C^2 & -CS \\\
+CS & S^2 & -CS & -S^2 \\\
+-C^2 & -CS & C^2 & CS \\\
+-CS & -S^2 & CS & S^2
+\end{bmatrix}</script><p>其中$C=cos\theta,S=sin\theta$。</p>
 <h1 id="模块分析："><a href="#模块分析：" class="headerlink" title="模块分析："></a>模块分析：</h1><h2 id="建立单元刚度矩阵-经过了坐标变换"><a href="#建立单元刚度矩阵-经过了坐标变换" class="headerlink" title="建立单元刚度矩阵(经过了坐标变换)"></a>建立单元刚度矩阵(经过了坐标变换)</h2><figure class="highlight cpp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br></pre></td><td class="code"><pre><span class="line">TrussElementKm[EE_, AA_, LL_, theta_] := Module[&#123;&#125;,</span><br><span class="line">      x = theta*Pi/<span class="number">180</span>;</span><br><span class="line">  w1 = Cos[x]^<span class="number">2</span>;</span><br><span class="line">    w2 = Sin[x]^<span class="number">2</span>;</span><br><span class="line">      w3 = Sin[x]*Cos[x];</span><br><span class="line">        y = EE*AA/</span><br><span class="line">             LL*&#123;&#123;w1, w3, -w1, -w3&#125;, &#123;w3, w2, -w3, -w2&#125;, &#123;-w1, -w3, w1, </span><br><span class="line">                       w3&#125;, &#123;-w3, -w2, w3, w2&#125;&#125;;</span><br><span class="line">  y]</span><br></pre></td></tr></table></figure>
 <h2 id="组装整体刚度矩阵"><a href="#组装整体刚度矩阵" class="headerlink" title="组装整体刚度矩阵"></a>组装整体刚度矩阵</h2><figure class="highlight cpp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><span class="line">AssembleSpringKm[p1_, p2_, m_] := Module[&#123;j, k&#125;, f = &#123;p1, p2&#125;;</span><br><span class="line">  For[j = <span class="number">1</span>, j &lt;= <span class="number">2</span>, j++, For[k = <span class="number">1</span>, k &lt;= <span class="number">2</span>, k++,</span><br><span class="line">      GlobalK[[<span class="number">2</span> f[[j]], <span class="number">2</span> f[[k]]]] += m[[<span class="number">2</span> j, <span class="number">2</span> k]];</span><br><span class="line">    GlobalK[[<span class="number">2</span> f[[j]] - <span class="number">1</span>, <span class="number">2</span> f[[k]]]] += m[[<span class="number">2</span> j - <span class="number">1</span>, <span class="number">2</span> k]];</span><br><span class="line">        GlobalK[[<span class="number">2</span> f[[j]], <span class="number">2</span> f[[k]] - <span class="number">1</span>]] += m[[<span class="number">2</span> j, <span class="number">2</span> k - <span class="number">1</span>]];</span><br><span class="line">            GlobalK[[<span class="number">2</span> f[[j]] - <span class="number">1</span>, <span class="number">2</span> f[[k]] - <span class="number">1</span>]] += m[[<span class="number">2</span> j - <span class="number">1</span>, <span class="number">2</span> k - <span class="number">1</span>]];</span><br><span class="line">                ]];</span><br><span class="line">                  GlobalK]</span><br></pre></td></tr></table></figure>
-<p>这里的组装与之前的杆单元不同，注意此处每个节点上有两个自由度，但总体原则还是将单刚的每个元素叠加到总刚的对应位置上，只是自由度的多少决定了每个单刚的矩阵块的大小，所以得乘以适当的系数。<br>比如平面刚架元，其既考虑轴向变形，也考虑弯曲变形，每个节点上有三个自由度，其总刚组装时的系数同时变化，如图：<br><img src="https://ws1.sinaimg.cn/large/0072Lfvtly1fvjjqkfym8j30mc0ay3zt.jpg"></p>
+<p>这里的组装与之前的杆单元不同，注意此处每个节点上有两个自由度，但总体原则还是将单刚的每个元素叠加到总刚的对应位置上，只是自由度的多少决定了每个单刚的矩阵块的大小，所以得乘以适当的系数。<br>比如平面刚架元，其既考虑轴向变形，也考虑弯曲变形，每个节点上有三个自由度，其总刚组装时的系数同时变化，如图：<br><img src="https://ws1.sinaimg.cn/large/0072Lfvtly1fvjjqkfym8j30mc0ay3zt.jpg" alt=""></p>
 
     </div>
 
@@ -516,6 +571,59 @@
   
 
   
+      
+
+<script>
+  if (typeof MathJax === 'undefined') {
+    window.MathJax = {
+      loader: {
+        source: {
+          '[tex]/amsCd': '[tex]/amscd',
+          '[tex]/AMScd': '[tex]/amscd'
+        }
+      },
+      tex: {
+        inlineMath: {'[+]': [['$', '$']]},
+        tags: 'ams'
+      },
+      options: {
+        renderActions: {
+          findScript: [10, doc => {
+            document.querySelectorAll('script[type^="math/tex"]').forEach(node => {
+              const display = !!node.type.match(/; *mode=display/);
+              const math = new doc.options.MathItem(node.textContent, doc.inputJax[0], display);
+              const text = document.createTextNode('');
+              node.parentNode.replaceChild(text, node);
+              math.start = {node: text, delim: '', n: 0};
+              math.end = {node: text, delim: '', n: 0};
+              doc.math.push(math);
+            });
+          }, '', false],
+          insertedScript: [200, () => {
+            document.querySelectorAll('mjx-container').forEach(node => {
+              let target = node.parentNode;
+              if (target.nodeName.toLowerCase() === 'li') {
+                target.parentNode.classList.add('has-jax');
+              }
+            });
+          }, '', false]
+        }
+      }
+    };
+    (function () {
+      var script = document.createElement('script');
+      script.src = '//cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js';
+      script.defer = true;
+      document.head.appendChild(script);
+    })();
+  } else {
+    MathJax.startup.document.state(0);
+    MathJax.texReset();
+    MathJax.typeset();
+  }
+</script>
+
+    
 
   
 

@@ -267,22 +267,10 @@
 <h2 id="SSH客户端使用账号密码进行连接"><a href="#SSH客户端使用账号密码进行连接" class="headerlink" title="SSH客户端使用账号密码进行连接"></a>SSH客户端使用账号密码进行连接</h2><p>这里的SSH客户端比如Windows系统下的Putty、Linux系统下的各种终端等。<br>首先要先设置管理员密码，具体方法见：<br><a target="_blank" rel="noopener" href="https://help.aliyun.com/document_detail/60055.html?spm=a2c4g.11186623.2.15.5e512eebolLgUZ">重置服务器密码</a><br>然后SSH客户端中配置Host、端口和密码等。<br>具体方法见：<br><a target="_blank" rel="noopener" href="https://help.aliyun.com/document_detail/59083.html?spm=5176.10173289.107.4.4db62e774lYrrT">通过账号密码方式连接</a><br>优点是能在本地操作服务器，且与本地进行互动，如下面的传输文件等。这种使用账号密码的方式的安全性要比下面的使用密钥要低一些。</p>
 <h2 id="SSH客户端使用密钥进行连接："><a href="#SSH客户端使用密钥进行连接：" class="headerlink" title="SSH客户端使用密钥进行连接："></a>SSH客户端使用密钥进行连接：</h2><p>这种方式要比第二步的使用账号密码多了个密钥验证，所以更安全。<br>首先要先设置密钥并下载私钥，然后在各种SSH客户端中加载该私钥。具体的设置方式如下：<br><a target="_blank" rel="noopener" href="https://help.aliyun.com/document_detail/59083.html?spm=5176.10173289.107.4.4db62e774lYrrT">使用密钥方式连接</a><br>注意，开启密钥验证后，默认自动禁止使用账号密码登录。如需开启，也见上面链接。</p>
 <h1 id="传输文件"><a href="#传输文件" class="headerlink" title="传输文件"></a>传输文件</h1><p>本地为Linux系统，可以在终端使用scp命令。<br>本地为Windows系统，推荐使用有图形化界面的WinSCP软件，下载链接为：<br><a target="_blank" rel="noopener" href="https://winscp.net/eng/index.php">WinSCP</a><br>跟上面配置SSH相同（注意如果启用了密钥验证，在WinSCP中也要通过Advanced加载私钥文件）。<br>然后就可以通过自由拖拽在本地和服务器之间方便地传输文件。</p>
-<h1 id="部署"><a href="#部署" class="headerlink" title="部署"></a>部署</h1><p>通过pip安装必要的包，比如flask、opencv-python、opencv-contrib-python、plotly等。<br>通过gunicorn来启动flask应用，使用方法见：<br><a target="_blank" rel="noopener" href="https://www.jianshu.com/p/e8d125372ca5">flask下 gunicorn在Python中的使用</a><br><a target="_blank" rel="noopener" href="https://blog.csdn.net/y472360651/article/details/78538188">Gunicorn-配置详解</a><br>（注意这个地方踩了一个坑，主要是因为自己对网络编程不熟：gnicorn会使用多线程，而自己编写的程序中使用的是传统的Python的全局变量，而没有引用flask的那些与request、context相关的全局变量，导致在程序运行时每点一下按钮，会出现不同结果。）<br>一个较详细的部署教程见：<br><a target="_blank" rel="noopener" href="https://juejin.im/post/5a5a1408518825733060e232">通过Gunicorn部署flask应用（阿里云服务器：Ubuntu 16.04）</a><br>中间出现了以下几个问题，并给出解决方法：<br>（1）导入opencv时，报错：</p>
-<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">ImportError: libSM.so<span class="number">.6</span>: cannot <span class="built_in">open</span> shared <span class="built_in">object</span> file: No such file <span class="keyword">or</span> directory</span><br><span class="line">ImportError: libXrender.so<span class="number">.1</span>: cannot <span class="built_in">open</span> shared <span class="built_in">object</span> file: No such file <span class="keyword">or</span> directory</span><br></pre></td></tr></table></figure>
-<p>原因是：服务器在安装时没有安装图形库。解决方法：</p>
+<h1 id="部署"><a href="#部署" class="headerlink" title="部署"></a>部署</h1><p>通过pip安装必要的包，比如flask、opencv-python、opencv-contrib-python、plotly等。<br>通过gunicorn来启动flask应用，使用方法见：<br><a target="_blank" rel="noopener" href="https://www.jianshu.com/p/e8d125372ca5">flask下 gunicorn在Python中的使用</a><br><a target="_blank" rel="noopener" href="https://blog.csdn.net/y472360651/article/details/78538188">Gunicorn-配置详解</a><br>（注意这个地方踩了一个坑，主要是因为自己对网络编程不熟：gnicorn会使用多线程，而自己编写的程序中使用的是传统的Python的全局变量，而没有引用flask的那些与request、context相关的全局变量，导致在程序运行时每点一下按钮，会出现不同结果。）<br>一个较详细的部署教程见：<br><a target="_blank" rel="noopener" href="https://juejin.im/post/5a5a1408518825733060e232">通过Gunicorn部署flask应用（阿里云服务器：Ubuntu 16.04）</a><br>中间出现了以下几个问题，并给出解决方法：<br>（1）导入opencv时，报错：<br><figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">ImportError: libSM.so<span class="number">.6</span>: cannot <span class="built_in">open</span> shared <span class="built_in">object</span> file: No such file <span class="keyword">or</span> directory</span><br><span class="line">ImportError: libXrender.so<span class="number">.1</span>: cannot <span class="built_in">open</span> shared <span class="built_in">object</span> file: No such file <span class="keyword">or</span> directory</span><br></pre></td></tr></table></figure><br>原因是：服务器在安装时没有安装图形库。解决方法：</p>
 <figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">apt-get install libsm6 libxrender1</span><br></pre></td></tr></table></figure>
 <p>参考见下面链接：<br><a target="_blank" rel="noopener" href="https://my.oschina.net/u/2422458/blog/1815712">服务器opencv-python使用问题及解决</a></p>
-<p>（2）在执行到imgproc时，出现：</p>
-<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">TypeError: Expected cv::UMat <span class="keyword">for</span> argument <span class="string">&#x27;M&#x27;</span></span><br></pre></td></tr></table></figure>
-<p>怀疑是python2.7的锅，所以重新配置了pipenv，使用python3环境就好了。以下是具体配置过程：<br>（a）安装pip3<br>首先需要升级一下，否则阿里云找不到pip3：</p>
-<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">apt-get update</span><br></pre></td></tr></table></figure>
-<p>然后安装pip3：</p>
-<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">apt-get install python3-pip</span><br></pre></td></tr></table></figure>
-<p>然后使用pip3安装pipenv</p>
-<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">pip3 install pipenv</span><br></pre></td></tr></table></figure>
-<p>使用pipenv创建虚拟环境时，指定python版本：</p>
-<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">pipenv --python <span class="number">3</span> install</span><br></pre></td></tr></table></figure>
-<p>（3）启动了flask服务器，但是外部无法连接，总是“time out”：<br>这是因为阿里云默认只开启几个端口，如果需要额外的端口，需要自己去防火墙那开启。<br>参考见：<br><a target="_blank" rel="noopener" href="https://yq.aliyun.com/ask/57796">在ecs上启动flask应用后，无法通过公网ip访问网站</a></p>
+<p>（2）在执行到imgproc时，出现：<br><figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">TypeError: Expected cv::UMat <span class="keyword">for</span> argument <span class="string">&#x27;M&#x27;</span></span><br></pre></td></tr></table></figure><br>怀疑是python2.7的锅，所以重新配置了pipenv，使用python3环境就好了。以下是具体配置过程：<br>（a）安装pip3<br>首先需要升级一下，否则阿里云找不到pip3：<br><figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">apt-get update</span><br></pre></td></tr></table></figure><br>然后安装pip3：<br><figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">apt-get install python3-pip</span><br></pre></td></tr></table></figure><br>然后使用pip3安装pipenv<br><figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">pip3 install pipenv</span><br></pre></td></tr></table></figure><br>使用pipenv创建虚拟环境时，指定python版本：<br><figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">pipenv --python <span class="number">3</span> install</span><br></pre></td></tr></table></figure><br>（3）启动了flask服务器，但是外部无法连接，总是“time out”：<br>这是因为阿里云默认只开启几个端口，如果需要额外的端口，需要自己去防火墙那开启。<br>参考见：<br><a target="_blank" rel="noopener" href="https://yq.aliyun.com/ask/57796">在ecs上启动flask应用后，无法通过公网ip访问网站</a></p>
 
     </div>
 
@@ -536,6 +524,59 @@
   
 
   
+      
+
+<script>
+  if (typeof MathJax === 'undefined') {
+    window.MathJax = {
+      loader: {
+        source: {
+          '[tex]/amsCd': '[tex]/amscd',
+          '[tex]/AMScd': '[tex]/amscd'
+        }
+      },
+      tex: {
+        inlineMath: {'[+]': [['$', '$']]},
+        tags: 'ams'
+      },
+      options: {
+        renderActions: {
+          findScript: [10, doc => {
+            document.querySelectorAll('script[type^="math/tex"]').forEach(node => {
+              const display = !!node.type.match(/; *mode=display/);
+              const math = new doc.options.MathItem(node.textContent, doc.inputJax[0], display);
+              const text = document.createTextNode('');
+              node.parentNode.replaceChild(text, node);
+              math.start = {node: text, delim: '', n: 0};
+              math.end = {node: text, delim: '', n: 0};
+              doc.math.push(math);
+            });
+          }, '', false],
+          insertedScript: [200, () => {
+            document.querySelectorAll('mjx-container').forEach(node => {
+              let target = node.parentNode;
+              if (target.nodeName.toLowerCase() === 'li') {
+                target.parentNode.classList.add('has-jax');
+              }
+            });
+          }, '', false]
+        }
+      }
+    };
+    (function () {
+      var script = document.createElement('script');
+      script.src = '//cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js';
+      script.defer = true;
+      document.head.appendChild(script);
+    })();
+  } else {
+    MathJax.startup.document.state(0);
+    MathJax.texReset();
+    MathJax.typeset();
+  }
+</script>
+
+    
 
   
 

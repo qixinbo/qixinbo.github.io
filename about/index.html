@@ -221,7 +221,7 @@
 <li>OS Platform: Linux, Windows</li>
 </ul>
 <h1 id="Contact-details"><a href="#Contact-details" class="headerlink" title="Contact details"></a>Contact details</h1><ul>
-<li>E-mail: <a href="mailto:&#113;&#x69;&#120;&#105;&#x6e;&#x62;&#x6f;&#64;&#103;&#x6d;&#97;&#105;&#108;&#x2e;&#x63;&#111;&#109;">&#113;&#x69;&#120;&#105;&#x6e;&#x62;&#x6f;&#64;&#103;&#x6d;&#97;&#105;&#108;&#x2e;&#x63;&#111;&#109;</a></li>
+<li>E-mail: qixinbo@gmail.com</li>
 <li>WeChat:<br><img src="https://user-images.githubusercontent.com/6218739/107872337-a1bc4080-6ee4-11eb-9481-49cb21891f16.png" alt="wechat"></li>
 </ul>
 
@@ -440,6 +440,59 @@
   
 
   
+      
+
+<script>
+  if (typeof MathJax === 'undefined') {
+    window.MathJax = {
+      loader: {
+        source: {
+          '[tex]/amsCd': '[tex]/amscd',
+          '[tex]/AMScd': '[tex]/amscd'
+        }
+      },
+      tex: {
+        inlineMath: {'[+]': [['$', '$']]},
+        tags: 'ams'
+      },
+      options: {
+        renderActions: {
+          findScript: [10, doc => {
+            document.querySelectorAll('script[type^="math/tex"]').forEach(node => {
+              const display = !!node.type.match(/; *mode=display/);
+              const math = new doc.options.MathItem(node.textContent, doc.inputJax[0], display);
+              const text = document.createTextNode('');
+              node.parentNode.replaceChild(text, node);
+              math.start = {node: text, delim: '', n: 0};
+              math.end = {node: text, delim: '', n: 0};
+              doc.math.push(math);
+            });
+          }, '', false],
+          insertedScript: [200, () => {
+            document.querySelectorAll('mjx-container').forEach(node => {
+              let target = node.parentNode;
+              if (target.nodeName.toLowerCase() === 'li') {
+                target.parentNode.classList.add('has-jax');
+              }
+            });
+          }, '', false]
+        }
+      }
+    };
+    (function () {
+      var script = document.createElement('script');
+      script.src = '//cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js';
+      script.defer = true;
+      document.head.appendChild(script);
+    })();
+  } else {
+    MathJax.startup.document.state(0);
+    MathJax.texReset();
+    MathJax.typeset();
+  }
+</script>
+
+    
 
   
 

@@ -259,7 +259,7 @@
     <div class="post-body" itemprop="articleBody">
 
       
-        <h1 id="开篇说明"><a href="#开篇说明" class="headerlink" title="开篇说明"></a>开篇说明</h1><p>前面介绍过开发ImageJ的Python脚本的过程（<a target="_blank" rel="noopener" href="http://qixinbo.info/2018/09/15/imagej-python/">在这里</a>），这里介绍怎样开发ImageJ的插件。<br>插件相对于脚本来说，一方面，它的功能更加强大，可以认为是寄生在ImageJ上面的一个完备的小程序；另一方面，它使用Java开发，格式可以采用编译好的class文件，有利于保护代码不被泄露。<br>ImageJ由于历史原因，存在着ImageJ1和ImageJ2两个版本，且两者的API是迥然不同的，底层架构更是不同，导致两者的开发套路有很大差别。在写这篇tutorial时，深感两者在网上的文档资源相互交叉，论坛里的答案在不同版本间有时不适用。所以这里尝试从零开始一步步地记录ImageJ2的插件开发过程。<br>所基于的Fiji/ImageJ版本为：<br><img src="https://ws1.sinaimg.cn/large/0072Lfvtly1fvylcrof71j30bg095wff.jpg"><br>参考资源有：</p>
+        <h1 id="开篇说明"><a href="#开篇说明" class="headerlink" title="开篇说明"></a>开篇说明</h1><p>前面介绍过开发ImageJ的Python脚本的过程（<a target="_blank" rel="noopener" href="http://qixinbo.info/2018/09/15/imagej-python/">在这里</a>），这里介绍怎样开发ImageJ的插件。<br>插件相对于脚本来说，一方面，它的功能更加强大，可以认为是寄生在ImageJ上面的一个完备的小程序；另一方面，它使用Java开发，格式可以采用编译好的class文件，有利于保护代码不被泄露。<br>ImageJ由于历史原因，存在着ImageJ1和ImageJ2两个版本，且两者的API是迥然不同的，底层架构更是不同，导致两者的开发套路有很大差别。在写这篇tutorial时，深感两者在网上的文档资源相互交叉，论坛里的答案在不同版本间有时不适用。所以这里尝试从零开始一步步地记录ImageJ2的插件开发过程。<br>所基于的Fiji/ImageJ版本为：<br><img src="https://ws1.sinaimg.cn/large/0072Lfvtly1fvylcrof71j30bg095wff.jpg" alt=""><br>参考资源有：</p>
 <ul>
 <li><a target="_blank" rel="noopener" href="https://imagej.net/Writing_plugins">Writing plugins</a></li>
 <li><a target="_blank" rel="noopener" href="https://imagej.net/Developing_Fiji">Developing Fiji</a></li>
@@ -270,12 +270,8 @@
 <li><a target="_blank" rel="noopener" href="https://github.com/imagej/example-legacy-plugin/">A simple Maven project implementing an ImageJ 1.x plugin</a></li>
 </ul>
 <h1 id="上手例子"><a href="#上手例子" class="headerlink" title="上手例子"></a>上手例子</h1><p>下载ImageJ的一个简单事例（在<a target="_blank" rel="noopener" href="https://github.com/imagej/example-imagej-command">这里</a>），看看插件的源代码是什么样子以及怎样编译和安装。</p>
-<h2 id="编译"><a href="#编译" class="headerlink" title="编译"></a>编译</h2><p>这个例子是一个Maven工程（Maven是Java的一种项目管理软件），即遵循了Maven的代码约定：有一个关键的配置文件pom.xml，以及源代码放在src文件夹下。pom.xml文件中指明了src目录下的java源码的依赖，如果直接使用传统的javac编译该源码，就会报“找不到ij包”的错误，所以这里要使用Maven进行编译（Maven的下载、安装和配置不在这里赘述）。</p>
-<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">mvn package</span><br></pre></td></tr></table></figure>
-<p>上述命令就是使用Maven进行打包，结果就是生成target文件夹及下面的“GaussFiltering-0.1.0-SNAPSHOT.jar”这个jar包。<br>（Attention!!：这里生成的jar包中并没有下划线，这是ImageJ2允许的，它可以通过在源码的Plugin注解中指明menuPath即可在ImageJ对应菜单下显示，而ImageJ1则不允许，其明确要求jar包中必须有下划线，且它自定义在菜单中的显示是通过plugins.config配置文件指定，说明在<a target="_blank" rel="noopener" href="https://imagej.net/Description_of_ImageJ%27s_plugin_architecture">这里</a>）</p>
-<h2 id="安装"><a href="#安装" class="headerlink" title="安装"></a>安装</h2><p>第二步是将该jar包“安装”到Fiji目录中，这里就是直接复制过去就行：</p>
-<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">copy target/GaussFiltering-0.1.0-SNAPSHOT.jar /Path/to/Fiji.app/plugins/</span><br></pre></td></tr></table></figure>
-<p>然后启动Fiji（如果Fiji本来就运行着，则退出重启）。</p>
+<h2 id="编译"><a href="#编译" class="headerlink" title="编译"></a>编译</h2><p>这个例子是一个Maven工程（Maven是Java的一种项目管理软件），即遵循了Maven的代码约定：有一个关键的配置文件pom.xml，以及源代码放在src文件夹下。pom.xml文件中指明了src目录下的java源码的依赖，如果直接使用传统的javac编译该源码，就会报“找不到ij包”的错误，所以这里要使用Maven进行编译（Maven的下载、安装和配置不在这里赘述）。<br><figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">mvn package</span><br></pre></td></tr></table></figure><br>上述命令就是使用Maven进行打包，结果就是生成target文件夹及下面的“GaussFiltering-0.1.0-SNAPSHOT.jar”这个jar包。<br>（Attention!!：这里生成的jar包中并没有下划线，这是ImageJ2允许的，它可以通过在源码的Plugin注解中指明menuPath即可在ImageJ对应菜单下显示，而ImageJ1则不允许，其明确要求jar包中必须有下划线，且它自定义在菜单中的显示是通过plugins.config配置文件指定，说明在<a target="_blank" rel="noopener" href="https://imagej.net/Description_of_ImageJ%27s_plugin_architecture">这里</a>）</p>
+<h2 id="安装"><a href="#安装" class="headerlink" title="安装"></a>安装</h2><p>第二步是将该jar包“安装”到Fiji目录中，这里就是直接复制过去就行：<br><figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">copy target/GaussFiltering-0.1.0-SNAPSHOT.jar /Path/to/Fiji.app/plugins/</span><br></pre></td></tr></table></figure><br>然后启动Fiji（如果Fiji本来就运行着，则退出重启）。</p>
 <h2 id="运行"><a href="#运行" class="headerlink" title="运行"></a>运行</h2><p>那么，这个插件怎么在Fiji中调用呢？有两种方法：</p>
 <ul>
 <li>直接使用命令查找功能，即Ctrl+l（小写的字母L），然后输入该插件的名字Gauss Filtering，这是最快捷的一种方式。</li>
@@ -287,25 +283,18 @@
 <li>NetBeans：File &gt; Open Project</li>
 <li>IDEA：File &gt; Open Project (Select pom.xml)</li>
 </ul>
-<p>这里使用IDEA-2018-2进行操作，将pom.xml作为Project打开后，IDEA会根据pom中指定的依赖dependencies联网下载所依赖的jar包。然后点击左侧的Maven Projects，选择LifeCycle下面的Package，双击即可进行打包操作，如下：<br><img src="https://ws1.sinaimg.cn/large/0072Lfvtly1fvyiyh836ej30lb0g9my8.jpg"></p>
+<p>这里使用IDEA-2018-2进行操作，将pom.xml作为Project打开后，IDEA会根据pom中指定的依赖dependencies联网下载所依赖的jar包。然后点击左侧的Maven Projects，选择LifeCycle下面的Package，双击即可进行打包操作，如下：<br><img src="https://ws1.sinaimg.cn/large/0072Lfvtly1fvyiyh836ej30lb0g9my8.jpg" alt=""></p>
 <h1 id="ImageJ插件开发的“Hello-World”"><a href="#ImageJ插件开发的“Hello-World”" class="headerlink" title="ImageJ插件开发的“Hello World”"></a>ImageJ插件开发的“Hello World”</h1><p>学习任何一名编程语言，第一个例子肯定是向新世界打招呼——“Hello, World!”。基于ImageJ开发的插件也不例外。从<a target="_blank" rel="noopener" href="https://github.com/imagej/tutorials/">这里</a>下载ImageJ的入门例子，其中就包含了“Hello, World!”的书写方式。</p>
-<h2 id="编译运行"><a href="#编译运行" class="headerlink" title="编译运行"></a>编译运行</h2><p>依然是用IDEA-2018-2来打开该项目的pom.xml文件，点击窗口左侧的Maven Projects，找到”Simple ImageJ Commands”这个项目，然后在LifeCycle下双击package命令进行打包，如图：<br><img src="https://ws1.sinaimg.cn/large/0072Lfvtly1fvym64ybm2j31hc0suk0s.jpg"><br>生成jar包后，复制到Fiji的plugins文件夹下，重启Fiji，然后可以在Help菜单下发现”Hello, World!”命令。</p>
+<h2 id="编译运行"><a href="#编译运行" class="headerlink" title="编译运行"></a>编译运行</h2><p>依然是用IDEA-2018-2来打开该项目的pom.xml文件，点击窗口左侧的Maven Projects，找到”Simple ImageJ Commands”这个项目，然后在LifeCycle下双击package命令进行打包，如图：<br><img src="https://ws1.sinaimg.cn/large/0072Lfvtly1fvym64ybm2j31hc0suk0s.jpg" alt=""><br>生成jar包后，复制到Fiji的plugins文件夹下，重启Fiji，然后可以在Help菜单下发现”Hello, World!”命令。</p>
 <h2 id="代码解析"><a href="#代码解析" class="headerlink" title="代码解析"></a>代码解析</h2><p>下面是一步步地分析HelloWorld的代码。</p>
 <h3 id="插件声明"><a href="#插件声明" class="headerlink" title="插件声明"></a>插件声明</h3><figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">@Plugin(type = Command.class, headless = true, menuPath = &quot;Help&gt;Hello, World!&quot;)</span></span><br></pre></td></tr></table></figure>
-<p>技术上讲，ImageJ插件是一个名为Plugin的注解（ImageJ基于SciJava插件系统），这样注解的类可以在运行时自动查找到并索引。有很多种插件类型，HelloWorld用的是Command类型的插件，这种类型的插件是应用最广泛的：Command接收输入，然后产生输出。Command插件最常用的就是与菜单绑定，这里使用menuPath指定在哪个菜单下显示及其显示名称。<br>关于插件，多说两句：<br>（1）插件类型<br>除了上面的Command类型的插件，还有一些基于Service的插件。显式地指定插件type后，可以有效地找到某种类型的插件。比如：</p>
-<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">@Plugin(type=Service.class)</span></span><br><span class="line"><span class="keyword">public</span> <span class="class"><span class="keyword">class</span> <span class="title">MyService</span> <span class="keyword">implements</span> <span class="title">Service</span> </span>&#123; &#125;</span><br><span class="line"></span><br><span class="line"><span class="meta">@Plugin(type=SpecialService.class)</span></span><br><span class="line"><span class="keyword">public</span> <span class="class"><span class="keyword">class</span> <span class="title">SpecialService</span> <span class="keyword">implements</span> <span class="title">Service</span> </span>&#123; &#125;</span><br></pre></td></tr></table></figure>
-<p>那么问题来了，上述代码中，如果软件上下文想要的插件是Service，那么将会找到哪个插件？<br>答案是MyService和SpecialService都会返回，因为SpecialService是Service的Service的一个子类；而如果想要的是SpecialService插件，那么就只返回SpecialService类。<br>（2）插件优先级<br>当匹配的插件有很多时，插件会按类的priority的顺序来呈现，这个变量是double类型的数值，也可以使用已规定好的静态常量来表示：</p>
-<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">@Plugin(priority=Priority.HIGH_PRIORITY)</span></span><br><span class="line"><span class="keyword">public</span> <span class="class"><span class="keyword">class</span> <span class="title">MyService</span> <span class="keyword">implements</span> <span class="title">Service</span> </span>&#123; &#125;</span><br><span class="line"></span><br><span class="line"><span class="meta">@Plugin(priority=224)</span></span><br><span class="line"><span class="keyword">public</span> <span class="class"><span class="keyword">class</span> <span class="title">SpecialService</span> <span class="keyword">implements</span> <span class="title">Service</span> </span>&#123; &#125;</span><br></pre></td></tr></table></figure>
-<p>那么问题是，当寻找Service插件时，上面哪个插件会排在前面？<br>答案是SpecialService，因为从<a target="_blank" rel="noopener" href="https://github.com/scijava/scijava-common/blob/scijava-common-2.47.0/src/main/java/org/scijava/Priority.java">SciJava-Common的源码</a>上可以看出HIGH_PRIORITY的数值是100。<br>更好的一种方式是使用相对优先级，比如：</p>
-<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">@Plugin(priority=Priority.HIGH_PRIORITY+124)</span></span><br><span class="line"><span class="keyword">public</span> <span class="class"><span class="keyword">class</span> <span class="title">SpecialService</span> <span class="keyword">implements</span> <span class="title">Service</span> </span>&#123; &#125;</span><br></pre></td></tr></table></figure>
+<p>技术上讲，ImageJ插件是一个名为Plugin的注解（ImageJ基于SciJava插件系统），这样注解的类可以在运行时自动查找到并索引。有很多种插件类型，HelloWorld用的是Command类型的插件，这种类型的插件是应用最广泛的：Command接收输入，然后产生输出。Command插件最常用的就是与菜单绑定，这里使用menuPath指定在哪个菜单下显示及其显示名称。<br>关于插件，多说两句：<br>（1）插件类型<br>除了上面的Command类型的插件，还有一些基于Service的插件。显式地指定插件type后，可以有效地找到某种类型的插件。比如：<br><figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">@Plugin(type=Service.class)</span></span><br><span class="line"><span class="keyword">public</span> <span class="class"><span class="keyword">class</span> <span class="title">MyService</span> <span class="keyword">implements</span> <span class="title">Service</span> </span>&#123; &#125;</span><br><span class="line"></span><br><span class="line"><span class="meta">@Plugin(type=SpecialService.class)</span></span><br><span class="line"><span class="keyword">public</span> <span class="class"><span class="keyword">class</span> <span class="title">SpecialService</span> <span class="keyword">implements</span> <span class="title">Service</span> </span>&#123; &#125;</span><br></pre></td></tr></table></figure><br>那么问题来了，上述代码中，如果软件上下文想要的插件是Service，那么将会找到哪个插件？<br>答案是MyService和SpecialService都会返回，因为SpecialService是Service的Service的一个子类；而如果想要的是SpecialService插件，那么就只返回SpecialService类。<br>（2）插件优先级<br>当匹配的插件有很多时，插件会按类的priority的顺序来呈现，这个变量是double类型的数值，也可以使用已规定好的静态常量来表示：<br><figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">@Plugin(priority=Priority.HIGH_PRIORITY)</span></span><br><span class="line"><span class="keyword">public</span> <span class="class"><span class="keyword">class</span> <span class="title">MyService</span> <span class="keyword">implements</span> <span class="title">Service</span> </span>&#123; &#125;</span><br><span class="line"></span><br><span class="line"><span class="meta">@Plugin(priority=224)</span></span><br><span class="line"><span class="keyword">public</span> <span class="class"><span class="keyword">class</span> <span class="title">SpecialService</span> <span class="keyword">implements</span> <span class="title">Service</span> </span>&#123; &#125;</span><br></pre></td></tr></table></figure><br>那么问题是，当寻找Service插件时，上面哪个插件会排在前面？<br>答案是SpecialService，因为从<a target="_blank" rel="noopener" href="https://github.com/scijava/scijava-common/blob/scijava-common-2.47.0/src/main/java/org/scijava/Priority.java">SciJava-Common的源码</a>上可以看出HIGH_PRIORITY的数值是100。<br>更好的一种方式是使用相对优先级，比如：<br><figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">@Plugin(priority=Priority.HIGH_PRIORITY+124)</span></span><br><span class="line"><span class="keyword">public</span> <span class="class"><span class="keyword">class</span> <span class="title">SpecialService</span> <span class="keyword">implements</span> <span class="title">Service</span> </span>&#123; &#125;</span><br></pre></td></tr></table></figure></p>
 <h3 id="该命令的输入输出，两者都是使用Parameter注解。"><a href="#该命令的输入输出，两者都是使用Parameter注解。" class="headerlink" title="该命令的输入输出，两者都是使用Parameter注解。"></a>该命令的输入输出，两者都是使用Parameter注解。</h3><figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">public</span> <span class="class"><span class="keyword">class</span> <span class="title">HelloWorld</span> <span class="keyword">implements</span> <span class="title">Command</span> </span>&#123;</span><br><span class="line"></span><br><span class="line">	<span class="meta">@Parameter(label = &quot;What is your name?&quot;)</span></span><br><span class="line">	<span class="keyword">private</span> String name = <span class="string">&quot;J. Doe&quot;</span>;</span><br><span class="line"></span><br><span class="line">	<span class="meta">@Parameter(type = ItemIO.OUTPUT)</span></span><br><span class="line">	<span class="keyword">private</span> String greeting;</span><br></pre></td></tr></table></figure>
 <p>从command类中派生出helloWorld类。每个command类都有input和output，所以这里使用两个成员变量来承载，两者都要用Parameter来注解，所不同的是output需要Parameter的type明确指定为”ItemIO.OUTPUT”。<br>即，使用Parameter来注解的变量都是该命令的输入或输出，其中非Service类的变量会明确显示出来，而Service类的变量是用来隐式地调用。</p>
 <h3 id="命令的运行函数"><a href="#命令的运行函数" class="headerlink" title="命令的运行函数"></a>命令的运行函数</h3><figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">@Override</span></span><br><span class="line"><span class="function"><span class="keyword">public</span> <span class="keyword">void</span> <span class="title">run</span><span class="params">()</span> </span>&#123;</span><br><span class="line">	greeting = <span class="string">&quot;Hello, &quot;</span> + name + <span class="string">&quot;!&quot;</span>;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
 <p>上面的run函数是ImageJ的每个command的入口点，当用户点击菜单上的该命令时，先让用户输入input值，然后就会执行该函数。</p>
 <h3 id="命令的调试"><a href="#命令的调试" class="headerlink" title="命令的调试"></a>命令的调试</h3><figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br></pre></td><td class="code"><pre><span class="line">	<span class="function"><span class="keyword">public</span> <span class="keyword">static</span> <span class="keyword">void</span> <span class="title">main</span><span class="params">(<span class="keyword">final</span> String... args)</span> </span>&#123;</span><br><span class="line">		<span class="comment">// Launch ImageJ as usual.</span></span><br><span class="line">		<span class="keyword">final</span> ImageJ ij = <span class="keyword">new</span> ImageJ();</span><br><span class="line">		ij.launch(args);</span><br><span class="line"></span><br><span class="line">		<span class="comment">// Launch our &quot;Hello World&quot; command right away.</span></span><br><span class="line">		ij.command().run(HelloWorld.class, <span class="keyword">true</span>);</span><br><span class="line">	&#125;</span><br><span class="line"></span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
-<p>上面的代码是用来在IDE中调试所用。通过创建main函数，使得IDE创建一个ImageJ的上下文环境，然后调用该插件。<br>更一般的调用方式是：</p>
-<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">ij.command().run(MyPlugin.class, <span class="string">&quot;inputImage&quot;</span>, myImage)&#125;</span><br></pre></td></tr></table></figure>
-
+<p>上面的代码是用来在IDE中调试所用。通过创建main函数，使得IDE创建一个ImageJ的上下文环境，然后调用该插件。<br>更一般的调用方式是：<br><figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">ij.command().run(MyPlugin.class, <span class="string">&quot;inputImage&quot;</span>, myImage)&#125;</span><br></pre></td></tr></table></figure></p>
 <p>这就是最基本的ImageJ插件。<br>上面的代码中除了HelloWorld，还包含了更多ImageJ插件开发的入门例子，自行探索吧！</p>
 
     </div>
@@ -560,6 +549,59 @@
   
 
   
+      
+
+<script>
+  if (typeof MathJax === 'undefined') {
+    window.MathJax = {
+      loader: {
+        source: {
+          '[tex]/amsCd': '[tex]/amscd',
+          '[tex]/AMScd': '[tex]/amscd'
+        }
+      },
+      tex: {
+        inlineMath: {'[+]': [['$', '$']]},
+        tags: 'ams'
+      },
+      options: {
+        renderActions: {
+          findScript: [10, doc => {
+            document.querySelectorAll('script[type^="math/tex"]').forEach(node => {
+              const display = !!node.type.match(/; *mode=display/);
+              const math = new doc.options.MathItem(node.textContent, doc.inputJax[0], display);
+              const text = document.createTextNode('');
+              node.parentNode.replaceChild(text, node);
+              math.start = {node: text, delim: '', n: 0};
+              math.end = {node: text, delim: '', n: 0};
+              doc.math.push(math);
+            });
+          }, '', false],
+          insertedScript: [200, () => {
+            document.querySelectorAll('mjx-container').forEach(node => {
+              let target = node.parentNode;
+              if (target.nodeName.toLowerCase() === 'li') {
+                target.parentNode.classList.add('has-jax');
+              }
+            });
+          }, '', false]
+        }
+      }
+    };
+    (function () {
+      var script = document.createElement('script');
+      script.src = '//cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js';
+      script.defer = true;
+      document.head.appendChild(script);
+    })();
+  } else {
+    MathJax.startup.document.state(0);
+    MathJax.texReset();
+    MathJax.typeset();
+  }
+</script>
+
+    
 
   
 

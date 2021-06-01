@@ -274,14 +274,16 @@
 <li>宏微观尺度结合</li>
 <li>非平均场近似，能够给出组织分布(尺寸、形貌等)??</li>
 </ul>
-<h1 id="模型描述"><a href="#模型描述" class="headerlink" title="模型描述"></a>模型描述</h1><h2 id="物理图像"><a href="#物理图像" class="headerlink" title="物理图像"></a>物理图像</h2><p>该模型用来模拟单个等轴晶在无限大熔体中的组织演化过程。等轴晶的尖端连成一条假想的包络线，包络线内部的固相分数表达式为：<br>$$ g_i=\frac{V_s}{V_e} $$<br>当$g_i=1$时，晶体为球晶;当$g_i&lt;1$时，晶体为枝晶。<br>这样晶粒的演化分为两部分：</p>
+<h1 id="模型描述"><a href="#模型描述" class="headerlink" title="模型描述"></a>模型描述</h1><h2 id="物理图像"><a href="#物理图像" class="headerlink" title="物理图像"></a>物理图像</h2><p>该模型用来模拟单个等轴晶在无限大熔体中的组织演化过程。等轴晶的尖端连成一条假想的包络线，包络线内部的固相分数表达式为：</p>
+<script type="math/tex; mode=display">g\_i=\frac{V\_s}{V\_e}</script><p>当$g_i=1$时，晶体为球晶;当$g_i&lt;1$时，晶体为枝晶。<br>这样晶粒的演化分为两部分：</p>
 <ol>
 <li>包络线的演化动力学;</li>
 <li>晶内区域的演化动力学。</li>
 </ol>
-<h2 id="相图"><a href="#相图" class="headerlink" title="相图"></a>相图</h2><p>简化起见，液相线和固相线都假定为直线(二维)或平面(三维)，同时，平衡分配系数也假定为常数。当合金为稀溶液时，上述简化是合理的。对于溶质元素较多时，液固相线可以在平衡浓度附近线性化，下式中的$T_m$是一个假想温度。所以液相线温度为：<br>$$ T_L=T_m+\sum_{i}{m_i c_{i}^{l}} $$<br>$T_m$是纯物质的熔点，$c_{i}^{l}$是液相中i组员的浓度。<br>此表达式假定溶质元素之间没有相互作用，同时过冷度也不是很大。</p>
-<h2 id="包络线"><a href="#包络线" class="headerlink" title="包络线"></a>包络线</h2><h3 id="包络线的形状"><a href="#包络线的形状" class="headerlink" title="包络线的形状"></a>包络线的形状</h3><p>对于一个立方晶格结构的合金(如钢、铝合金等)，包络线是一个规则的八面体，其中六个角对应枝晶尖端，十二条边对应二次枝晶尖端。如图：<br><img src="https://ws1.sinaimg.cn/large/0072Lfvtly1fvjhsfkx90j309s08vdhx.jpg" alt="枝晶的八面体包络线"><br>这种形状假设二次枝晶与一次枝晶生长速度相同，要比之前的球状假设要合理得多。<br>晶粒的体积和表面积是枝晶臂长的简单的函数：<br>$$ V_e=4L_1^3/3 $$<br>$$ S_e=4\sqrt{3}L_1^2 $$</p>
-<h3 id="包络线的动力学"><a href="#包络线的动力学" class="headerlink" title="包络线的动力学"></a>包络线的动力学</h3><p>包络线的演化动力学由$d_tL_1$决定，其中$d_t$表示对时间的偏导。</p>
+<h2 id="相图"><a href="#相图" class="headerlink" title="相图"></a>相图</h2><p>简化起见，液相线和固相线都假定为直线(二维)或平面(三维)，同时，平衡分配系数也假定为常数。当合金为稀溶液时，上述简化是合理的。对于溶质元素较多时，液固相线可以在平衡浓度附近线性化，下式中的$T_m$是一个假想温度。所以液相线温度为：</p>
+<script type="math/tex; mode=display">T\_L=T\_m+\sum\_{i}{m\_i c\_{i}^{l}}</script><p>$T_m$是纯物质的熔点，$c_{i}^{l}$是液相中i组员的浓度。<br>此表达式假定溶质元素之间没有相互作用，同时过冷度也不是很大。</p>
+<h2 id="包络线"><a href="#包络线" class="headerlink" title="包络线"></a>包络线</h2><h3 id="包络线的形状"><a href="#包络线的形状" class="headerlink" title="包络线的形状"></a>包络线的形状</h3><p>对于一个立方晶格结构的合金(如钢、铝合金等)，包络线是一个规则的八面体，其中六个角对应枝晶尖端，十二条边对应二次枝晶尖端。如图：<br><img src="https://ws1.sinaimg.cn/large/0072Lfvtly1fvjhsfkx90j309s08vdhx.jpg" alt="枝晶的八面体包络线"><br>这种形状假设二次枝晶与一次枝晶生长速度相同，要比之前的球状假设要合理得多。<br>晶粒的体积和表面积是枝晶臂长的简单的函数：</p>
+<script type="math/tex; mode=display">V\_e=4L\_1^3/3</script><script type="math/tex; mode=display">S\_e=4\sqrt{3}L\_1^2</script><h3 id="包络线的动力学"><a href="#包络线的动力学" class="headerlink" title="包络线的动力学"></a>包络线的动力学</h3><p>包络线的演化动力学由$d_tL_1$决定，其中$d_t$表示对时间的偏导。</p>
 <ul>
 <li>生长情形</li>
 <li>熔化情形:因为枝晶臂的长度至少是其平均宽度的一个数量级以上，因此熔化过程中包络线的收缩可以忽略，即$d_tL_1=0$。</li>
@@ -308,7 +310,8 @@
 <li>根据两个体积之比得到固相分数$g_i$;</li>
 <li>枝晶的微观参数根据上述参数更新。</li>
 </ol>
-<h1 id="与下落实验对比"><a href="#与下落实验对比" class="headerlink" title="与下落实验对比"></a>与下落实验对比</h1><p>在计算枝晶下落时，该模型采用牛顿第二定律：<br>$$ \frac{d}{dt}(\rho_gV_eU_G)=F_w+F_b+F_D $$<br>结果显示：枝晶臂长和下落速度都与实验吻合良好。</p>
+<h1 id="与下落实验对比"><a href="#与下落实验对比" class="headerlink" title="与下落实验对比"></a>与下落实验对比</h1><p>在计算枝晶下落时，该模型采用牛顿第二定律：</p>
+<script type="math/tex; mode=display">\frac{d}{dt}(\rho\_gV\_eU\_G)=F\_w+F\_b+F\_D</script><p>结果显示：枝晶臂长和下落速度都与实验吻合良好。</p>
 <h1 id="在多元钢中应用"><a href="#在多元钢中应用" class="headerlink" title="在多元钢中应用"></a>在多元钢中应用</h1><p>研究了过冷度、对流等因素的影响。</p>
 
     </div>
@@ -564,6 +567,59 @@
   
 
   
+      
+
+<script>
+  if (typeof MathJax === 'undefined') {
+    window.MathJax = {
+      loader: {
+        source: {
+          '[tex]/amsCd': '[tex]/amscd',
+          '[tex]/AMScd': '[tex]/amscd'
+        }
+      },
+      tex: {
+        inlineMath: {'[+]': [['$', '$']]},
+        tags: 'ams'
+      },
+      options: {
+        renderActions: {
+          findScript: [10, doc => {
+            document.querySelectorAll('script[type^="math/tex"]').forEach(node => {
+              const display = !!node.type.match(/; *mode=display/);
+              const math = new doc.options.MathItem(node.textContent, doc.inputJax[0], display);
+              const text = document.createTextNode('');
+              node.parentNode.replaceChild(text, node);
+              math.start = {node: text, delim: '', n: 0};
+              math.end = {node: text, delim: '', n: 0};
+              doc.math.push(math);
+            });
+          }, '', false],
+          insertedScript: [200, () => {
+            document.querySelectorAll('mjx-container').forEach(node => {
+              let target = node.parentNode;
+              if (target.nodeName.toLowerCase() === 'li') {
+                target.parentNode.classList.add('has-jax');
+              }
+            });
+          }, '', false]
+        }
+      }
+    };
+    (function () {
+      var script = document.createElement('script');
+      script.src = '//cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js';
+      script.defer = true;
+      document.head.appendChild(script);
+    })();
+  } else {
+    MathJax.startup.document.state(0);
+    MathJax.texReset();
+    MathJax.typeset();
+  }
+</script>
+
+    
 
   
 

@@ -260,7 +260,6 @@
 假设有这么一张要分割的图像，大小为10像素乘以10像素（选择这么小的像素矩阵以方便打印和查看数值），背底为黑色，图像中间有一个白色圆盘，即：
 
 它的像素矩阵为：
-
 1
 2
 3
@@ -274,7 +273,7 @@
 11
 
 
-array([[  0.,   0.,   0.,   
+array([[  0.,   0.,   0.,   0
           <!--noindex-->
             <div class="post-button">
               <a class="btn" href="/2020/10/24/cellpose-2/#more" rel="contents">
@@ -817,7 +816,6 @@ fr
 静态管理器
 创建管理器
 这里创建一个money管理器，里面可以添加美元USD、欧元EUR、人民币RMB，比如：
-
 1
 2
 3
@@ -825,7 +823,7 @@ fr
 
 Source.manager('money').add('USD', MoneyReader, 'MoneyDisplay')
 Source.manager('money').add('EUR', MoneyReader, 'MoneyDisplay')
-Source.manager('money').add('RM
+Source.manager('money').add('RMB
           <!--noindex-->
             <div class="post-button">
               <a class="btn" href="/2020/06/19/ImagePy_21/#more" rel="contents">
@@ -1152,7 +1150,6 @@ ImagePy/sciwx有个Mark模式，即在图像上面可以再绘制其他图形，
 
 demo
 先给出一个小的demo，主要就是为了看Mark模式的输入输出，方便理解它的运行本质。
-
 1
 2
 3
@@ -1180,7 +1177,7 @@ demo
 25
 
 
-from sciwx.canvas.mark import drawm
+from sciwx.canvas.mark import drawma
           <!--noindex-->
             <div class="post-button">
               <a class="btn" href="/2020/03/28/ImagePy_19/#more" rel="contents">
@@ -1279,7 +1276,6 @@ from sciwx.canvas.mark import drawm
 
 demo全景
 首先还是直接给出sciwx库中可运行的demo：
-
 1
 2
 3
@@ -1308,7 +1304,7 @@ demo全景
 from sciwx.widgets import ParaDialog
 
 if __name__ == '__main__':
-    para = {'name':'yxdragon', 'age':10, 'h':1.72, 'w':70, 'sport':True, 'sys':'Mac', 'lan':['C/C++', '
+    para = {'name':'yxdragon', 'age':10, 'h':1.72, 'w':70, 'sport':True, 'sys':'Mac', 'lan':['C/C++', 'P
           <!--noindex-->
             <div class="post-button">
               <a class="btn" href="/2020/03/24/ImagePy_18/#more" rel="contents">
@@ -1534,6 +1530,59 @@ if __name__ == '__main__':
   
 
   
+      
+
+<script>
+  if (typeof MathJax === 'undefined') {
+    window.MathJax = {
+      loader: {
+        source: {
+          '[tex]/amsCd': '[tex]/amscd',
+          '[tex]/AMScd': '[tex]/amscd'
+        }
+      },
+      tex: {
+        inlineMath: {'[+]': [['$', '$']]},
+        tags: 'ams'
+      },
+      options: {
+        renderActions: {
+          findScript: [10, doc => {
+            document.querySelectorAll('script[type^="math/tex"]').forEach(node => {
+              const display = !!node.type.match(/; *mode=display/);
+              const math = new doc.options.MathItem(node.textContent, doc.inputJax[0], display);
+              const text = document.createTextNode('');
+              node.parentNode.replaceChild(text, node);
+              math.start = {node: text, delim: '', n: 0};
+              math.end = {node: text, delim: '', n: 0};
+              doc.math.push(math);
+            });
+          }, '', false],
+          insertedScript: [200, () => {
+            document.querySelectorAll('mjx-container').forEach(node => {
+              let target = node.parentNode;
+              if (target.nodeName.toLowerCase() === 'li') {
+                target.parentNode.classList.add('has-jax');
+              }
+            });
+          }, '', false]
+        }
+      }
+    };
+    (function () {
+      var script = document.createElement('script');
+      script.src = '//cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js';
+      script.defer = true;
+      document.head.appendChild(script);
+    })();
+  } else {
+    MathJax.startup.document.state(0);
+    MathJax.texReset();
+    MathJax.typeset();
+  }
+</script>
+
+    
 
   
 

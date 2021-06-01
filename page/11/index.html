@@ -259,16 +259,26 @@
 桁架元示意图如下：
 
 指定整体坐标系为X-Y，局部坐标系为x-y。则两者之间的转换关系为：
-$$
-\begin{equation}
-\begin{split}
-U_{Xi}&=u_{xi}cos\theta,U_{Yi}=u_{xi}sin\theta \
-U_{Xj}&=u_{xj}cos\theta,U_{Yj}=u_{xj}sin\theta
-\end{split}
-\end{equation}
-$$
+
 即：
-$$
+
+其中：
+
+局部坐标系下的有限元方程为：
+
+为了把有限元方程从局部坐标系变换到整体坐标系，可通过转换矩阵：
+
+所以：
+
+又因为转换矩阵T满足如下关系(可实际计算验证一下)：
+
+所以：
+
+所以整体坐标系的刚度矩阵与局部坐标系的刚度矩阵关系为：
+
+由于局部坐标系下的单元刚度矩阵为：
+
+其中$k=\frac{EA}{L}$。那
           <!--noindex-->
             <div class="post-button">
               <a class="btn" href="/2016/08/18/mathematica-fem-ch3/#more" rel="contents">
@@ -369,7 +379,6 @@ $$
 
 线性杆单元的形函数
 线性杆单元的位移函数是坐标x的一次函数，可用以下代码求解：
-
 1
 2
 3
@@ -382,12 +391,13 @@ solut = Solve[{u1 == (u /. x -> 0), u2 == (u /. x -> 1)}, {a1, a2}];
 u = u /. solut[[1]]
 
 
-其中u1和u2是杆端点x=0和x=1处的位移，结果为：
 
+其中u1和u2是杆端点x=0和x=1处的位移，结果为：
 1
 
 
 u1 + (-u1 + u2) x
+
 
           <!--noindex-->
             <div class="post-button">
@@ -496,11 +506,11 @@ u1 + (-u1 + u2) x
 
 
 该头文件将自由度与顶点、线、cell联系起来。
-
 1
 
 
 #include <deal.II/fe/fe_q.h>
+
 
 
 该头文件包
@@ -610,7 +620,6 @@ deal.II是一款开源的求解偏微分方程的有限元软件，它有如下�
 
 安装
 deal.II最新版本为8.4.1,可从官网上下载源码，解压后进入源文件目录安装：
-
 1
 2
 3
@@ -623,6 +632,7 @@ cd build
 cmake -DCMAKE_INSTALL_PREFIX=/path/to/install/dir ../deal.II
 make install
 make test
+
 
 
 如果期间需要其他依赖如cmake、doxygen
@@ -935,11 +945,11 @@ data2 = StringCases[data1, "\"https:"
 
 第一步：导入网页源文件
 首先得找到<美队3>的照片网站吧，这里用的是经典大牌电影网站——时光网，链接是here，然后将网页的源文件导入Mathmatica中：
-
 1
 
 
 input = Import["http://movie.mtime.com/209122/posters_and_images/posters/hot.html", "Source"];
+
 
 
 注意这里导入的元素是Source，即原始的源文件，没有经过任何转化。还可以用XMLObject
@@ -1043,14 +1053,13 @@ input = Import["http://movie.mtime.com/209122/posters_and_images/posters/hot.htm
 
 对于黑白图片，或可以将图片转为黑白的情形：
 Mathematica源码为：
-
 1
 2
 3
 
 
 img1 = Binarize[img];
-img2 = ColorConv
+img2 = ColorConve
           <!--noindex-->
             <div class="post-button">
               <a class="btn" href="/2016/04/26/mathematica-pic2transparent/#more" rel="contents">
@@ -1490,6 +1499,59 @@ blackAre
   
 
   
+      
+
+<script>
+  if (typeof MathJax === 'undefined') {
+    window.MathJax = {
+      loader: {
+        source: {
+          '[tex]/amsCd': '[tex]/amscd',
+          '[tex]/AMScd': '[tex]/amscd'
+        }
+      },
+      tex: {
+        inlineMath: {'[+]': [['$', '$']]},
+        tags: 'ams'
+      },
+      options: {
+        renderActions: {
+          findScript: [10, doc => {
+            document.querySelectorAll('script[type^="math/tex"]').forEach(node => {
+              const display = !!node.type.match(/; *mode=display/);
+              const math = new doc.options.MathItem(node.textContent, doc.inputJax[0], display);
+              const text = document.createTextNode('');
+              node.parentNode.replaceChild(text, node);
+              math.start = {node: text, delim: '', n: 0};
+              math.end = {node: text, delim: '', n: 0};
+              doc.math.push(math);
+            });
+          }, '', false],
+          insertedScript: [200, () => {
+            document.querySelectorAll('mjx-container').forEach(node => {
+              let target = node.parentNode;
+              if (target.nodeName.toLowerCase() === 'li') {
+                target.parentNode.classList.add('has-jax');
+              }
+            });
+          }, '', false]
+        }
+      }
+    };
+    (function () {
+      var script = document.createElement('script');
+      script.src = '//cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js';
+      script.defer = true;
+      document.head.appendChild(script);
+    })();
+  } else {
+    MathJax.startup.document.state(0);
+    MathJax.texReset();
+    MathJax.typeset();
+  }
+</script>
+
+    
 
   
 

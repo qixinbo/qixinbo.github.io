@@ -264,8 +264,10 @@
 <li>析出相的粗化，此过程中小尺寸的颗粒溶解，使得大尺寸的颗粒继续生长。</li>
 </ol>
 <p>前两个过程是由相变的自由能差驱动，其在达到平衡相体积分数后就结束，而粗化则只是界面能降低的过程，可以一直持续到仅有一个颗粒为止。另外，生长和粗化这两个阶段较难区分，实际上这里是为了分析方便，对于不同阶段配合真实的边界条件而采用不同的处理方法。</p>
-<h2 id="形核"><a href="#形核" class="headerlink" title="形核"></a>形核</h2><p>形核模型可采用基于随机性形核的经典形核理论或基于确定性形核的自由生长模型。<br>经典形核理论的形核率的表达式为：<br>$$ J=e^{-t_w/t}z\beta N_0 e^{-\frac{\Delta G^*}{kT}} $$<br>其中$\Delta G^*=\frac{4\pi}{3}R^{* 2}\gamma$是包含$n^*$个原子的半径为$R^*$的临界晶核的形成功，$\gamma$是界面能。<br>$z=(\Delta G^*/(3\pi kT n^{* 2}))^{1/2}$是Zeldovich因子。<br>$\beta=(D \overline{c}/\lambda^2)$是从平均浓度为$\overline{c}$的基体中加入临界晶核的速率。D是有效扩散率。$N_0$是单位体积原子位置数目，$t_w$是孕育期，$\lambda$是原子跃迁宽度。</p>
-<h2 id="生长"><a href="#生长" class="headerlink" title="生长"></a>生长</h2><p>设一已形核的稳定的半径为R、浓度为$c_p$的球形颗粒嵌入过饱和基体中，远离颗粒的基体中的浓度为$\overline{c}(t)$，那么该颗粒的生长速率为：<br>$$ \frac{dR}{dt}=v(R)=\frac{\overline{c}(t)-c_R}{c_p-c_R}\frac{D}{R} $$<br>其中，$c_R$是界面上的基体溶质浓度，其已经考虑了Gibbs-Thomson效应。</p>
+<h2 id="形核"><a href="#形核" class="headerlink" title="形核"></a>形核</h2><p>形核模型可采用基于随机性形核的经典形核理论或基于确定性形核的自由生长模型。<br>经典形核理论的形核率的表达式为：</p>
+<script type="math/tex; mode=display">J=e^{-t\_w/t}z\beta N\_0 e^{-\frac{\Delta G^\*}{kT}}</script><p>其中$\Delta G^*=\frac{4\pi}{3}R^{* 2}\gamma$是包含$n^*$个原子的半径为$R^*$的临界晶核的形成功，$\gamma$是界面能。<br>$z=(\Delta G^*/(3\pi kT n^{* 2}))^{1/2}$是Zeldovich因子。<br>$\beta=(D \overline{c}/\lambda^2)$是从平均浓度为$\overline{c}$的基体中加入临界晶核的速率。D是有效扩散率。$N_0$是单位体积原子位置数目，$t_w$是孕育期，$\lambda$是原子跃迁宽度。</p>
+<h2 id="生长"><a href="#生长" class="headerlink" title="生长"></a>生长</h2><p>设一已形核的稳定的半径为R、浓度为$c_p$的球形颗粒嵌入过饱和基体中，远离颗粒的基体中的浓度为$\overline{c}(t)$，那么该颗粒的生长速率为：</p>
+<script type="math/tex; mode=display">\frac{dR}{dt}=v(R)=\frac{\overline{c}(t)-c\_R}{c\_p-c\_R}\frac{D}{R}</script><p>其中，$c_R$是界面上的基体溶质浓度，其已经考虑了Gibbs-Thomson效应。</p>
 <h2 id="粗化"><a href="#粗化" class="headerlink" title="粗化"></a>粗化</h2><p>粗化是大的颗粒继续生长而小的颗粒溶解的过程。因此粗化的表现方式还在于生长速率方程上：速率为正，表示粗化;速率为负，表示溶解。</p>
 <p>1984年Kampmann和Wagner提出了一种在经典形核和生长理论框架下精确描述整个析出过程的数值方法，其在没有近似假定的条件下能够计算尺寸分布随时间的演化过程，自称为N model (Numerical model)，以后人们称为KWN(Kampmann-Wagner-Numerical)模型。</p>
 <blockquote>
@@ -277,17 +279,27 @@
 <li>设定实验条件：相变温度、冷却速度、初始浓度及其他实验条件</li>
 <li>颗粒尺寸分布：一般颗粒的初始分布为空。还有一种尺寸分布PSD(particles size distribution)特指自由生长模型中提供异质形核位置的分布，如铝合金凝固中的孕育剂质点，但因为其尚未形核，故不能放入颗粒的尺寸区间中。</li>
 </ul>
-<h2 id="设定边界条件"><a href="#设定边界条件" class="headerlink" title="设定边界条件"></a>设定边界条件</h2><p>将时间和尺寸分布离散化，时间步长$\Delta t$，尺寸步长$\Delta R$。<br>采用自动调整的时间步长，防止某一尺寸区间的移动距离超过尺寸步长：<br>$$\Delta t=\frac{\Delta R}{2}\frac{1}{MAX|dR/dt|}$$<br>但实际计算中，最大速度通常在最小半径的晶核中出现(根据生长速度方程可以得出，甚至对于非常小的晶核，可以得到无限大的速度)，而这些晶核正在溶解，因此需要将过小的晶核排除。另一方面，在具有最大尺寸的区间中，也可能因为其速度为正而不断产生新的更大的尺寸区间。总结来说，需要对尺寸分布的上下限设定一个阈值。<br>具体设置需要根据所研究的过程进行试错，如KW在1984年文献中建议：至少包含200个区间，其中大于平均半径的区间至少有50个，小于平均半径的某一固定分数的尺寸从区间中移除，从而限制区间的个数。对于时间步长，保证在粗化阶段，平均半径在5000个时间步后达到自身的两倍。(KW从数值上给出了建议，不过具体问题需要具体分析)</p>
-<h2 id="计算临界形核半径"><a href="#计算临界形核半径" class="headerlink" title="计算临界形核半径"></a>计算临界形核半径</h2><p>根据所选模型的不同，临界形核半径的计算有两种不同的计算方法：<br>(1)随机形核模型：<br>根据Gibbs-Thomson条件，得到界面浓度与半径的关系：<br>$$c_R=c_e exp(\frac{2\gamma V_m}{R_g T}\frac{1}{R})$$<br>其中，$c_e$是不考虑GT效应的相图中的平衡浓度，$V_m$是摩尔体积，$R_g$是气体常数。当半径等于临界半径时，颗粒既不生长也不溶解。因此根据生长速率方程和Gibbs-Thomson条件可以得到临界半径$R^*$的表达式：<br>$$ R^*=\frac{2\gamma V_m}{R_g T}\frac{1}{ln\frac{\overline{c}}{c_e}}<br>=K\gamma\frac{1}{ln\frac{\overline{c}}{c_e}}$$</p>
-<p>(2)自由生长模型：<br>$$R^*=\frac{2\gamma}{\Delta S_f \Delta T}$$</p>
-<h2 id="更新尺寸区间中的颗粒数目"><a href="#更新尺寸区间中的颗粒数目" class="headerlink" title="更新尺寸区间中的颗粒数目"></a>更新尺寸区间中的颗粒数目</h2><p>尺寸区间中的颗粒数目的变化跟两方面的因素有关：(1)新形核的颗粒进入包含临界形核半径的尺寸空间中;(2)已形核的颗粒的生长或溶解导致其可能向相邻的尺寸空间中迁移。<br>(1)新形核的颗粒的数目：<br>(I)根据随机性形核模型计算形核率：<br>$$ J=e^{-t_w/t}z\beta N_0 e^{-\frac{\delta G^*}{kT}} $$<br>$$ \Delta N=J \Delta t $$<br>将这些新形成的核心放入包含临界半径的尺寸区间中。<br>(II)根据自由生长模型，大于等于临界形核半径的尺寸区间中的孕育剂直接转化为颗粒，注意将之前已转化的孕育剂排除。</p>
+<h2 id="设定边界条件"><a href="#设定边界条件" class="headerlink" title="设定边界条件"></a>设定边界条件</h2><p>将时间和尺寸分布离散化，时间步长$\Delta t$，尺寸步长$\Delta R$。<br>采用自动调整的时间步长，防止某一尺寸区间的移动距离超过尺寸步长：</p>
+<script type="math/tex; mode=display">\Delta t=\frac{\Delta R}{2}\frac{1}{MAX|dR/dt|}</script><p>但实际计算中，最大速度通常在最小半径的晶核中出现(根据生长速度方程可以得出，甚至对于非常小的晶核，可以得到无限大的速度)，而这些晶核正在溶解，因此需要将过小的晶核排除。另一方面，在具有最大尺寸的区间中，也可能因为其速度为正而不断产生新的更大的尺寸区间。总结来说，需要对尺寸分布的上下限设定一个阈值。<br>具体设置需要根据所研究的过程进行试错，如KW在1984年文献中建议：至少包含200个区间，其中大于平均半径的区间至少有50个，小于平均半径的某一固定分数的尺寸从区间中移除，从而限制区间的个数。对于时间步长，保证在粗化阶段，平均半径在5000个时间步后达到自身的两倍。(KW从数值上给出了建议，不过具体问题需要具体分析)</p>
+<h2 id="计算临界形核半径"><a href="#计算临界形核半径" class="headerlink" title="计算临界形核半径"></a>计算临界形核半径</h2><p>根据所选模型的不同，临界形核半径的计算有两种不同的计算方法：<br>(1)随机形核模型：<br>根据Gibbs-Thomson条件，得到界面浓度与半径的关系：</p>
+<script type="math/tex; mode=display">c\_R=c\_e exp(\frac{2\gamma V\_m}{R\_g T}\frac{1}{R})</script><p>其中，$c_e$是不考虑GT效应的相图中的平衡浓度，$V_m$是摩尔体积，$R_g$是气体常数。当半径等于临界半径时，颗粒既不生长也不溶解。因此根据生长速率方程和Gibbs-Thomson条件可以得到临界半径$R^*$的表达式：</p>
+<script type="math/tex; mode=display">R^\*=\frac{2\gamma V\_m}{R\_g T}\frac{1}{ln\frac{\overline{c}}{c\_e}}
+=K\gamma\frac{1}{ln\frac{\overline{c}}{c\_e}}</script><p>(2)自由生长模型：</p>
+<script type="math/tex; mode=display">R^\*=\frac{2\gamma}{\Delta S\_f \Delta T}</script><h2 id="更新尺寸区间中的颗粒数目"><a href="#更新尺寸区间中的颗粒数目" class="headerlink" title="更新尺寸区间中的颗粒数目"></a>更新尺寸区间中的颗粒数目</h2><p>尺寸区间中的颗粒数目的变化跟两方面的因素有关：(1)新形核的颗粒进入包含临界形核半径的尺寸空间中;(2)已形核的颗粒的生长或溶解导致其可能向相邻的尺寸空间中迁移。<br>(1)新形核的颗粒的数目：<br>(I)根据随机性形核模型计算形核率：</p>
+<script type="math/tex; mode=display">J=e^{-t\_w/t}z\beta N\_0 e^{-\frac{\delta G^\*}{kT}}</script><script type="math/tex; mode=display">\Delta N=J \Delta t</script><p>将这些新形成的核心放入包含临界半径的尺寸区间中。<br>(II)根据自由生长模型，大于等于临界形核半径的尺寸区间中的孕育剂直接转化为颗粒，注意将之前已转化的孕育剂排除。</p>
 <p>注意：赋予新形核的质点半径比临界半径大10%，以使它们顺利生长。</p>
-<p>(2)已形核的颗粒的生长或溶解：<br>$$\Delta R=v(R)\Delta t$$<br>由于之前采用了自动调整的时间步长，因此这里可以保证颗粒的迁移只在相邻尺寸区间中进行。</p>
-<h2 id="计算平均基体浓度"><a href="#计算平均基体浓度" class="headerlink" title="计算平均基体浓度"></a>计算平均基体浓度</h2><p>根据已知的形核数目、尺寸及颗粒的平均浓度，通过质量守恒定律计算平均基体浓度$\overline{c}$：<br>$$ \sum_{j=1}^{NOS}\frac{4}{3}\pi R_j^3 n_j c_{p,j}<br>+(V_{Domain}-\sum_{j=1}^{NOS}\frac{4}{3}\pi R_j^3 n_j)\overline{c}=V_{Domain}c_0$$<br>其中，$R_j, n_j, c_{p,j}$分别是第j个尺寸区间的颗粒的半径、个数和平均浓度，共有$NOS$个尺寸区间，$V_{Domain}$是总体积，那么$N_j=n_j/V_{Domain}$就是第j个区间的单位体积的数目，即数密度。因此，化简一下，可以得到平均基体浓度的表达式为：<br>$$\overline{c}=c_0-(c_{p,j}-\overline{c})\sum_{j=1}^{NOS}\frac{4}{3}\pi R_j^3 N_j$$</p>
-<h2 id="计算界面上的基体浓度和颗粒浓度"><a href="#计算界面上的基体浓度和颗粒浓度" class="headerlink" title="计算界面上的基体浓度和颗粒浓度"></a>计算界面上的基体浓度和颗粒浓度</h2><p>首先根据考虑Gibbs-Thomson条件的局域平衡的相图计算界面上的基体浓度：<br>$$T^*=T(c_R)-\Delta T_r=T(c_R-\frac{2\gamma}{\Delta S_f R})$$<br>然后根据溶质再分配定律计算界面上的颗粒浓度：<br>$$c_p^*=k c_R$$</p>
-<h2 id="计算颗粒生长速度"><a href="#计算颗粒生长速度" class="headerlink" title="计算颗粒生长速度"></a>计算颗粒生长速度</h2><p>根据晶粒的生长速率方程，判断是生长还是溶解。<br>$$ \frac{dR}{dt}=v(R)=\frac{\overline{c}(t)-c_R}{c_p-c_R}\frac{D}{R} $$</p>
-<h2 id="更新颗粒平均浓度"><a href="#更新颗粒平均浓度" class="headerlink" title="更新颗粒平均浓度"></a>更新颗粒平均浓度</h2><p>对于颗粒中的平均浓度$c_{p,j}$，其与界面上颗粒浓度的关系可以按两种模型处理，<br>一种是无限扩散，即：<br>$$c_{p,j}=c_{p,j}^*$$<br>一种是无扩散，即：<br>$$c_{p,j}=\frac{\int_0^{R_j}c_{p,j}^* 4\pi r^2dr}{4\pi R_j^3/3}<br>=\frac{3\int_0^{R_j}c_{p,j}^* r^2dr}{R_j^3}<br>$$</p>
-<h2 id="计算平均颗粒尺寸和总的数密度"><a href="#计算平均颗粒尺寸和总的数密度" class="headerlink" title="计算平均颗粒尺寸和总的数密度"></a>计算平均颗粒尺寸和总的数密度</h2><h2 id="存储结果并进入下一步循环"><a href="#存储结果并进入下一步循环" class="headerlink" title="存储结果并进入下一步循环"></a>存储结果并进入下一步循环</h2><h1 id="附录"><a href="#附录" class="headerlink" title="附录"></a>附录</h1>
+<p>(2)已形核的颗粒的生长或溶解：</p>
+<script type="math/tex; mode=display">\Delta R=v(R)\Delta t</script><p>由于之前采用了自动调整的时间步长，因此这里可以保证颗粒的迁移只在相邻尺寸区间中进行。</p>
+<h2 id="计算平均基体浓度"><a href="#计算平均基体浓度" class="headerlink" title="计算平均基体浓度"></a>计算平均基体浓度</h2><p>根据已知的形核数目、尺寸及颗粒的平均浓度，通过质量守恒定律计算平均基体浓度$\overline{c}$：</p>
+<script type="math/tex; mode=display">\sum\_{j=1}^{NOS}\frac{4}{3}\pi R\_j^3 n\_j c\_{p,j}
++(V\_{Domain}-\sum\_{j=1}^{NOS}\frac{4}{3}\pi R\_j^3 n\_j)\overline{c}=V\_{Domain}c\_0</script><p>其中，$R_j, n_j, c_{p,j}$分别是第j个尺寸区间的颗粒的半径、个数和平均浓度，共有$NOS$个尺寸区间，$V_{Domain}$是总体积，那么$N_j=n_j/V_{Domain}$就是第j个区间的单位体积的数目，即数密度。因此，化简一下，可以得到平均基体浓度的表达式为：</p>
+<script type="math/tex; mode=display">\overline{c}=c\_0-(c\_{p,j}-\overline{c})\sum\_{j=1}^{NOS}\frac{4}{3}\pi R\_j^3 N\_j</script><h2 id="计算界面上的基体浓度和颗粒浓度"><a href="#计算界面上的基体浓度和颗粒浓度" class="headerlink" title="计算界面上的基体浓度和颗粒浓度"></a>计算界面上的基体浓度和颗粒浓度</h2><p>首先根据考虑Gibbs-Thomson条件的局域平衡的相图计算界面上的基体浓度：</p>
+<script type="math/tex; mode=display">T^\*=T(c\_R)-\Delta T\_r=T(c\_R-\frac{2\gamma}{\Delta S\_f R})</script><p>然后根据溶质再分配定律计算界面上的颗粒浓度：</p>
+<script type="math/tex; mode=display">c\_p^\*=k c\_R</script><h2 id="计算颗粒生长速度"><a href="#计算颗粒生长速度" class="headerlink" title="计算颗粒生长速度"></a>计算颗粒生长速度</h2><p>根据晶粒的生长速率方程，判断是生长还是溶解。</p>
+<script type="math/tex; mode=display">\frac{dR}{dt}=v(R)=\frac{\overline{c}(t)-c\_R}{c\_p-c\_R}\frac{D}{R}</script><h2 id="更新颗粒平均浓度"><a href="#更新颗粒平均浓度" class="headerlink" title="更新颗粒平均浓度"></a>更新颗粒平均浓度</h2><p>对于颗粒中的平均浓度$c_{p,j}$，其与界面上颗粒浓度的关系可以按两种模型处理，<br>一种是无限扩散，即：</p>
+<script type="math/tex; mode=display">c\_{p,j}=c\_{p,j}^\*</script><p>一种是无扩散，即：</p>
+<script type="math/tex; mode=display">c\_{p,j}=\frac{\int\_0^{R\_j}c\_{p,j}^\* 4\pi r^2dr}{4\pi R\_j^3/3}
+=\frac{3\int\_0^{R\_j}c\_{p,j}^\* r^2dr}{R\_j^3}</script><h2 id="计算平均颗粒尺寸和总的数密度"><a href="#计算平均颗粒尺寸和总的数密度" class="headerlink" title="计算平均颗粒尺寸和总的数密度"></a>计算平均颗粒尺寸和总的数密度</h2><h2 id="存储结果并进入下一步循环"><a href="#存储结果并进入下一步循环" class="headerlink" title="存储结果并进入下一步循环"></a>存储结果并进入下一步循环</h2><h1 id="附录"><a href="#附录" class="headerlink" title="附录"></a>附录</h1>
     </div>
 
     
@@ -542,6 +554,59 @@
   
 
   
+      
+
+<script>
+  if (typeof MathJax === 'undefined') {
+    window.MathJax = {
+      loader: {
+        source: {
+          '[tex]/amsCd': '[tex]/amscd',
+          '[tex]/AMScd': '[tex]/amscd'
+        }
+      },
+      tex: {
+        inlineMath: {'[+]': [['$', '$']]},
+        tags: 'ams'
+      },
+      options: {
+        renderActions: {
+          findScript: [10, doc => {
+            document.querySelectorAll('script[type^="math/tex"]').forEach(node => {
+              const display = !!node.type.match(/; *mode=display/);
+              const math = new doc.options.MathItem(node.textContent, doc.inputJax[0], display);
+              const text = document.createTextNode('');
+              node.parentNode.replaceChild(text, node);
+              math.start = {node: text, delim: '', n: 0};
+              math.end = {node: text, delim: '', n: 0};
+              doc.math.push(math);
+            });
+          }, '', false],
+          insertedScript: [200, () => {
+            document.querySelectorAll('mjx-container').forEach(node => {
+              let target = node.parentNode;
+              if (target.nodeName.toLowerCase() === 'li') {
+                target.parentNode.classList.add('has-jax');
+              }
+            });
+          }, '', false]
+        }
+      }
+    };
+    (function () {
+      var script = document.createElement('script');
+      script.src = '//cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js';
+      script.defer = true;
+      document.head.appendChild(script);
+    })();
+  } else {
+    MathJax.startup.document.state(0);
+    MathJax.texReset();
+    MathJax.typeset();
+  }
+</script>
+
+    
 
   
 

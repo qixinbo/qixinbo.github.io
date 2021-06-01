@@ -293,18 +293,18 @@
 </ul>
 <h1 id="初始化"><a href="#初始化" class="headerlink" title="初始化"></a>初始化</h1><h2 id="相场的初始化："><a href="#相场的初始化：" class="headerlink" title="相场的初始化："></a>相场的初始化：</h2><ol>
 <li>依次读入三个维度的格点数目、网格间距、界面宽度、相的个数</li>
-<li>分配Fields场空间<br>Fields是Storage3D&lt;Node,0&gt;类型的场，通过Allocate函数给其成员变量赋值：<br>Size_X=Nx+2=66, Size_Y=Ny+2=3, Size_Z=Nz+2=66<br>同时开辟出一块大小为Size_X<em>Size_Y</em>Size_Z=13068的Node类型的内存，将初始地址赋给指针Array。</li>
-<li>分配Fractions场空间<br>Fractions是Storage3D&lt;double,1&gt;类型的场，同样通过Allocate函数给其成员变量(这里是四个)赋值：<br>Size_X=Nx+2=66, Size_Y=Ny+2=3, Size_Z=Nz+2=66, Size_N=Nphases=2<br>但它开辟出一块的double类型的内存大小为Size_X*Size_Y*Size_Z*Size_N=26136，同时将初始地址赋给指针Array。</li>
+<li>分配Fields场空间<br>Fields是Storage3D<Node,0>类型的场，通过Allocate函数给其成员变量赋值：<br>Size_X=Nx+2=66, Size_Y=Ny+2=3, Size_Z=Nz+2=66<br>同时开辟出一块大小为Size_X<em>Size_Y</em>Size_Z=13068的Node类型的内存，将初始地址赋给指针Array。</li>
+<li>分配Fractions场空间<br>Fractions是Storage3D<double,1>类型的场，同样通过Allocate函数给其成员变量(这里是四个)赋值：<br>Size_X=Nx+2=66, Size_Y=Ny+2=3, Size_Z=Nz+2=66, Size_N=Nphases=2<br>但它开辟出一块的double类型的内存大小为Size_X*Size_Y*Size_Z*Size_N=26136，同时将初始地址赋给指针Array。</li>
 <li>分配Laplacians场空间<br>Laplacians场的类型及操作与Fields场相同。</li>
-<li>分配Gradients场空间<br>Gradients场的类型是Storage3D&lt;NodeV,0&gt;，其操作与之前的Fields相同，注意Array返回类型不同。</li>
+<li>分配Gradients场空间<br>Gradients场的类型是Storage3D<NodeV,0>，其操作与之前的Fields相同，注意Array返回类型不同。</li>
 <li>分配Normals场空间<br>Normals同Gradients场。</li>
-<li>分配Flags场空间<br>Flags场是Storage3D&lt;int,0&gt;类型，操作如前，只是返回类型不同</li>
+<li>分配Flags场空间<br>Flags场是Storage3D<int,0>类型，操作如前，只是返回类型不同</li>
 <li>分配FieldIndex场空间<br>FieldIndex同Flags场。</li>
 <li>分配FieldsStatistics场空间<br>FieldsStatistics场是GrainInfo类型的场，其Allocate函数传入晶粒个数Ngrains和相个数Nphases，此处初始化就直接将Ngrains设为1，该场的成员变量GrainStorage是一个元素为Grain类型的容器，Allocate函数将该容器的大小(即里面元素的个数)设定为Ngrains*Nphases=1*2=2，同时对该场的成员变量Nphases赋值。</li>
 <li>对相场的成员变量TotFractions(是元素为double的容器)的尺寸设定为Nphases=2，传入iWidth，对RefVolume赋值，根据Nx等与iWidth的关系判断，此处为0。</li>
 </ol>
 <h2 id="温度场的初始化"><a href="#温度场的初始化" class="headerlink" title="温度场的初始化"></a>温度场的初始化</h2><p>与相场的初始化的逻辑相同，也是读入网格格点、相的个数、网格间距。对场Tx、Txdx、qdot三个场分配空间，注意Txdx的Array指向dVector3类型的变量。初始温度T0=500, 初始温度梯度dT_dr是一个dVector3的变量，此处调用它的set_to_zero成员函数将其成员变量Storage[]清零(这里调用了c++的memset函数)。初始温度梯度所在的位置r0也是一个dVector3，其set_to_zero同理。</p>
-<h2 id="热传导方程求解器的初始化"><a href="#热传导方程求解器的初始化" class="headerlink" title="热传导方程求解器的初始化"></a>热传导方程求解器的初始化</h2><p>与以上的逻辑相同，相继读入网格格点、相的个数、网格间距。成员变量PhaseThermalDiffusivity是一个类型为Storage<double>的变量，其Alllocate函数传入Nphases，将它传给自己的成员变量Size_X=2,同时开辟一个大小为Size_X的指向double的指针Array。PhaseHeatCapacity、PhaseDensity同理。EffectiveThermalDiffusivity、EffectiveHeatCapacity、EffectiveDensity则都是Storage3D&lt;double,0&gt;类型，其Allocate过程之前已描述过。</p>
+<h2 id="热传导方程求解器的初始化"><a href="#热传导方程求解器的初始化" class="headerlink" title="热传导方程求解器的初始化"></a>热传导方程求解器的初始化</h2><p>与以上的逻辑相同，相继读入网格格点、相的个数、网格间距。成员变量PhaseThermalDiffusivity是一个类型为Storage<double>的变量，其Alllocate函数传入Nphases，将它传给自己的成员变量Size_X=2,同时开辟一个大小为Size_X的指向double的指针Array。PhaseHeatCapacity、PhaseDensity同理。EffectiveThermalDiffusivity、EffectiveHeatCapacity、EffectiveDensity则都是Storage3D<double,0>类型，其Allocate过程之前已描述过。</p>
 <h2 id="边界条件的初始化"><a href="#边界条件的初始化" class="headerlink" title="边界条件的初始化"></a>边界条件的初始化</h2><p>其Initialize函数传入的是Settings类，但此处初始化中直接将其六个int型的成员变量BC0X、BCNX、BC0Y、BCNY、BC0Z、BCNZ都用OpenPhase的整型常量Periodic=0来赋值。</p>
 <p>以上可以看出，OpenPhase在设计Initialize函数时并没有完全真的读入相应的参数并初始化，而是采取类似于定义一个变量并赋无意义的初值这样的做法。下面是真正的读取输入文件。</p>
 <h2 id="边界条件读取输入文件"><a href="#边界条件读取输入文件" class="headerlink" title="边界条件读取输入文件"></a>边界条件读取输入文件</h2><p>调用ReadInput函数，传入的形参是FileName字符串，实参是ProjectDir+BCInputFileName，这两个字符串是命令空间OpenPhase的全局变量，默认是ProjectDir = “ProjectInput/“和BCInputFileName = “BoundaryConditions.opi”。<br>调用Type.h定义的ReadParameterF函数读取.opi中的数据(详见后面的解析)，取得了该文件的字符串，然后通过判断字符串，将相应的边界条件的整型数值传入BCOX、BCNX等六个成员变量：0是周期性边界；1是非流动边界；2是自由边界；3是固定边界。</p>
@@ -312,7 +312,7 @@
 <h2 id="热传导求解器读取输入文件"><a href="#热传导求解器读取输入文件" class="headerlink" title="热传导求解器读取输入文件"></a>热传导求解器读取输入文件</h2><p>Heat的ReadInput函数有些特殊，其会对不同的相进行循环，对于相的指标n，分别将热导率和热容存入PhaseThermalDiffusivity和PhaseHeatCapacity中，注意[]依然是一个运算符重载，实际是将数值存入变量的Array指针指向的地址中。</p>
 <p>经过上面的初始化，各个物理场中存储了正确的模拟参数，下面是初始条件设置。</p>
 <h1 id="相的分布设定"><a href="#相的分布设定" class="headerlink" title="相的分布设定"></a>相的分布设定</h1><h2 id="Initializations-Single函数"><a href="#Initializations-Single函数" class="headerlink" title="Initializations::Single函数"></a>Initializations::Single函数</h2><p>该函数首先调用PhaseField类的FieldStatistics成员变量的add_grain函数，传入的参数是PhaseIndex这个重要参数，此处的实参是0，即代表0号相。注意GrainStorage在之前相场的初始化分配FieldsStatistics时已经设定了，其size()=2，经过add_grain后，返回locIndex=0，GrainStorage[0].Exist=true。</p>
-<p>然后对格点进行循环，对Flags、Fields、FieldIndex这三个成员变量进行设定。注意到之前初始化时Allocate后开辟的各自的Array指针的地址都是Size_X*Size_Y*Size_Z=66*3*66=13068大小，故循环是for(int i = 0; i &lt; Nx+2; ++i)这样的类型。注意赋值时使用Storage&lt;T,0&gt;的()运算符重载，返回指向不同偏移量的Array指针，该偏移量为(Size_Y*x+y)*Size_Z+z，这是一个神奇的表达式，它起始为0，中间连续加1，最终为(3*65+2)*66+65=13067，正好满足13068的大小，其实奥妙在这里：<br>(Size_Y*x+y)*Size_Z+z=(Size_Y*(Size_X-1)+Size_Y-1)*Size_Z+Size_Z-1=Size_X*Size_Y*Size_Z-1<br>就这样取得Array指针指向的所有地址后，再对其赋值。对于Flags(i,j,k)，其返回值是int型，直接赋值0。而对于Fields，其返回值是Node类型，其再调用Node类型的set函数(注意是有两个形参的set)。具体的set过程为：Node类的Fields成员变量(注意与前面的Fields区别)是一个元素为FieldEntry的容器，FieldEntry是一个结构体，从Fields.begin()开始做循环时，发现里面根本没有东西，就新建一个NewEntry，并将传入的两个参数,一个是locIndex=0赋给NewEntry的index，一个是1.0赋给NewEntry的value，NewEntry的另外两个值为0，然后将NewEntry压入Fields中。后面对于FieldIndex(i,j,k)就很自然地取得刚刚的index。</p>
+<p>然后对格点进行循环，对Flags、Fields、FieldIndex这三个成员变量进行设定。注意到之前初始化时Allocate后开辟的各自的Array指针的地址都是Size_X*Size_Y*Size_Z=66*3*66=13068大小，故循环是for(int i = 0; i &lt; Nx+2; ++i)这样的类型。注意赋值时使用Storage<T,0>的()运算符重载，返回指向不同偏移量的Array指针，该偏移量为(Size_Y*x+y)*Size_Z+z，这是一个神奇的表达式，它起始为0，中间连续加1，最终为(3*65+2)*66+65=13067，正好满足13068的大小，其实奥妙在这里：<br>(Size_Y*x+y)*Size_Z+z=(Size_Y*(Size_X-1)+Size_Y-1)*Size_Z+Size_Z-1=Size_X*Size_Y*Size_Z-1<br>就这样取得Array指针指向的所有地址后，再对其赋值。对于Flags(i,j,k)，其返回值是int型，直接赋值0。而对于Fields，其返回值是Node类型，其再调用Node类型的set函数(注意是有两个形参的set)。具体的set过程为：Node类的Fields成员变量(注意与前面的Fields区别)是一个元素为FieldEntry的容器，FieldEntry是一个结构体，从Fields.begin()开始做循环时，发现里面根本没有东西，就新建一个NewEntry，并将传入的两个参数,一个是locIndex=0赋给NewEntry的index，一个是1.0赋给NewEntry的value，NewEntry的另外两个值为0，然后将NewEntry压入Fields中。后面对于FieldIndex(i,j,k)就很自然地取得刚刚的index。</p>
 <p>最后的Finalize函数由多个部分组成：</p>
 <ol>
 <li>FinalizeStepOne(BoundaryCondition&amp;)函数。<br>它使用了OpenMP的并行计算方法，这个地方不好用gdb调试，所以可以直接在源码中用cout输出。首先用omp_get_num_threads()得到线程总数，此处为nOMP=2，然后用omp_get_thread_num()得到线程标识，分别为0和1，然后将x方向的格点分为两段，分别是从1到32和从33到64，然后对三维的格点进行循环，判断Flags(i,j,k)是否为0，因为上面已经设定此值为0，所以此处不进入if处理。</li>
@@ -604,6 +604,59 @@
   
 
   
+      
+
+<script>
+  if (typeof MathJax === 'undefined') {
+    window.MathJax = {
+      loader: {
+        source: {
+          '[tex]/amsCd': '[tex]/amscd',
+          '[tex]/AMScd': '[tex]/amscd'
+        }
+      },
+      tex: {
+        inlineMath: {'[+]': [['$', '$']]},
+        tags: 'ams'
+      },
+      options: {
+        renderActions: {
+          findScript: [10, doc => {
+            document.querySelectorAll('script[type^="math/tex"]').forEach(node => {
+              const display = !!node.type.match(/; *mode=display/);
+              const math = new doc.options.MathItem(node.textContent, doc.inputJax[0], display);
+              const text = document.createTextNode('');
+              node.parentNode.replaceChild(text, node);
+              math.start = {node: text, delim: '', n: 0};
+              math.end = {node: text, delim: '', n: 0};
+              doc.math.push(math);
+            });
+          }, '', false],
+          insertedScript: [200, () => {
+            document.querySelectorAll('mjx-container').forEach(node => {
+              let target = node.parentNode;
+              if (target.nodeName.toLowerCase() === 'li') {
+                target.parentNode.classList.add('has-jax');
+              }
+            });
+          }, '', false]
+        }
+      }
+    };
+    (function () {
+      var script = document.createElement('script');
+      script.src = '//cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js';
+      script.defer = true;
+      document.head.appendChild(script);
+    })();
+  } else {
+    MathJax.startup.document.state(0);
+    MathJax.texReset();
+    MathJax.typeset();
+  }
+</script>
+
+    
 
   
 

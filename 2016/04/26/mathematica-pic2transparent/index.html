@@ -257,12 +257,8 @@
       
         <p>2016-4-26更新：新增针对彩色图片的处理。</p>
 <p>有时候需要将图片的背底变成透明，从而适应各种不同背景(尤其不是白色背景)，使得图片能更融入到背景中去。专业中也遇到这样一个问题，需要将两个枝晶轮廓在一起比对看是否重合。将背底变为透明色，通常可以使用PowerPoint的”设置透明色”这一功能，但对于对比很明显的图片效果较好，对比不明显的图片则偏差很大，且不能人为操纵。这里采用Mathematica，仅用几行代码即可实现。</p>
-<p>对于黑白图片，或可以将图片转为黑白的情形：<br>Mathematica源码为：</p>
-<figure class="highlight cpp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">img1 = Binarize[img];</span><br><span class="line">img2 = ColorConvert[img1, <span class="string">&quot;Grayscale&quot;</span>];</span><br><span class="line">img3 = ImageApply[&#123;#, Boole[# &lt; <span class="number">.1</span>]&#125; &amp;, img2]</span><br></pre></td></tr></table></figure>
-<p>程序思路：<br>先将导入的img图片通过Binarize函数二值化成为img1,再将img1的颜色空间转化为Grayscale灰度，这一步很重要，否则下一步无法进行。最后使用ImageApply函数对img2的每个像素添加一个alpha通道，具体为判断像素是否为黑色，若是则alpha通道为1;若否则alpha通道为0。</p>
-<p>对于彩色图片，想要将某一颜色设为透明：<br>Mathematica源码为：</p>
-<figure class="highlight cpp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">imgB1 = SetAlphaChannel[imgB, <span class="number">1</span>];</span><br><span class="line">imgB2 = ImageApply[</span><br><span class="line">  If[(#[[<span class="number">1</span>]] + #[[<span class="number">2</span>]] + #[[<span class="number">3</span>]])/<span class="number">3</span> &lt; <span class="number">0.9</span>, #, &#123;#[[<span class="number">1</span>]], #[[<span class="number">2</span>]], #[[<span class="number">3</span>]],<span class="number">0</span>&#125;] &amp;, imgB1]</span><br></pre></td></tr></table></figure>
-<p>程序思路：<br>首先应用SetAlphaChannel对导入的图片增加alpha通道，然后应用ImageApply对每个像素进行判断，这里的判断条件需要针对要研究的对象进行调节，如果不满足设为透明的条件，则保留原像素值;若满足，则保留像素的RGB值，但修改其alpha通道为0。</p>
+<p>对于黑白图片，或可以将图片转为黑白的情形：<br>Mathematica源码为：<br><figure class="highlight cpp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">img1 = Binarize[img];</span><br><span class="line">img2 = ColorConvert[img1, <span class="string">&quot;Grayscale&quot;</span>];</span><br><span class="line">img3 = ImageApply[&#123;#, Boole[# &lt; <span class="number">.1</span>]&#125; &amp;, img2]</span><br></pre></td></tr></table></figure><br>程序思路：<br>先将导入的img图片通过Binarize函数二值化成为img1,再将img1的颜色空间转化为Grayscale灰度，这一步很重要，否则下一步无法进行。最后使用ImageApply函数对img2的每个像素添加一个alpha通道，具体为判断像素是否为黑色，若是则alpha通道为1;若否则alpha通道为0。</p>
+<p>对于彩色图片，想要将某一颜色设为透明：<br>Mathematica源码为：<br><figure class="highlight cpp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">imgB1 = SetAlphaChannel[imgB, <span class="number">1</span>];</span><br><span class="line">imgB2 = ImageApply[</span><br><span class="line">  If[(#[[<span class="number">1</span>]] + #[[<span class="number">2</span>]] + #[[<span class="number">3</span>]])/<span class="number">3</span> &lt; <span class="number">0.9</span>, #, &#123;#[[<span class="number">1</span>]], #[[<span class="number">2</span>]], #[[<span class="number">3</span>]],<span class="number">0</span>&#125;] &amp;, imgB1]</span><br></pre></td></tr></table></figure><br>程序思路：<br>首先应用SetAlphaChannel对导入的图片增加alpha通道，然后应用ImageApply对每个像素进行判断，这里的判断条件需要针对要研究的对象进行调节，如果不满足设为透明的条件，则保留原像素值;若满足，则保留像素的RGB值，但修改其alpha通道为0。</p>
 <p>注意：输出图片的格式需要选择支持alpha通道的格式，如png，而不能选择jpg。</p>
 
     </div>
@@ -516,6 +512,59 @@
   
 
   
+      
+
+<script>
+  if (typeof MathJax === 'undefined') {
+    window.MathJax = {
+      loader: {
+        source: {
+          '[tex]/amsCd': '[tex]/amscd',
+          '[tex]/AMScd': '[tex]/amscd'
+        }
+      },
+      tex: {
+        inlineMath: {'[+]': [['$', '$']]},
+        tags: 'ams'
+      },
+      options: {
+        renderActions: {
+          findScript: [10, doc => {
+            document.querySelectorAll('script[type^="math/tex"]').forEach(node => {
+              const display = !!node.type.match(/; *mode=display/);
+              const math = new doc.options.MathItem(node.textContent, doc.inputJax[0], display);
+              const text = document.createTextNode('');
+              node.parentNode.replaceChild(text, node);
+              math.start = {node: text, delim: '', n: 0};
+              math.end = {node: text, delim: '', n: 0};
+              doc.math.push(math);
+            });
+          }, '', false],
+          insertedScript: [200, () => {
+            document.querySelectorAll('mjx-container').forEach(node => {
+              let target = node.parentNode;
+              if (target.nodeName.toLowerCase() === 'li') {
+                target.parentNode.classList.add('has-jax');
+              }
+            });
+          }, '', false]
+        }
+      }
+    };
+    (function () {
+      var script = document.createElement('script');
+      script.src = '//cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js';
+      script.defer = true;
+      document.head.appendChild(script);
+    })();
+  } else {
+    MathJax.startup.document.state(0);
+    MathJax.texReset();
+    MathJax.typeset();
+  }
+</script>
+
+    
 
   
 

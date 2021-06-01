@@ -263,24 +263,15 @@
         <p>2018-1-12更新：<br>电脑重装后再次安装DAMASK，完善文档，遇到了几个新问题，并附解决方法。</p>
 <p>DAMASK是马普钢铁研究所开发的一款用于晶体塑性有限元模拟的开源软件。<br>安装过程如下：</p>
 <h1 id="求解器和编译器"><a href="#求解器和编译器" class="headerlink" title="求解器和编译器"></a>求解器和编译器</h1><p>DAMASK可以调用三种求解器：MSC.Marc/Mentat，Abaqus和自带的谱方法求解器。鉴于Abaqus用得范围广，这里选择Abaqus作为求解器。DAMASK实际是Abaqus的子程序，因此还需要安装Abaqus的subroutine编译器，即Intel的Fortran编译器。<br>这两个软件的安装及相互调用在之前的博客中已写过，见<a target="_blank" rel="noopener" href="http://qixinbo.info/2018/01/12/abaqus-install/">here</a>。</p>
-<h1 id="Python及其Modules"><a href="#Python及其Modules" class="headerlink" title="Python及其Modules"></a>Python及其Modules</h1><p>DAMASK的安装脚本、前处理和后处理等工具都是由Python写的，所以还要安装Python的编译器及相关Module。</p>
-<figure class="highlight cpp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line">sudo apt-get install python python-dev  <span class="comment">// 安装Python编译器</span></span><br><span class="line">sudo pip install numpy  <span class="comment">// 安装numpy包</span></span><br><span class="line">sudo pip install scipy  <span class="comment">// 安装scipy包</span></span><br><span class="line">sudo pip install h5py   <span class="comment">// 安装h5py包</span></span><br><span class="line">sudo apt-get install python-vtk <span class="comment">// 安装vtk</span></span><br></pre></td></tr></table></figure>
-<h1 id="系统配置"><a href="#系统配置" class="headerlink" title="系统配置"></a>系统配置</h1><p>用文本编辑器编辑DAMASK文件夹中的CONFIG文件，根据自己的系统配置进行改写（默认配置已基本适用于大部分系统）。注意，该CONFIG文件是在v2.0.1以后才有，之前的v2.0.0没有该文件，是有一个configure的脚本来执行。</p>
-<figure class="highlight cpp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br></pre></td><td class="code"><pre><span class="line"># <span class="string">&quot;set&quot;</span>-<span class="function">syntax needed only <span class="keyword">for</span> <span class="title">tcsh</span> <span class="params">(but works with bash <span class="keyword">and</span> zsh)</span></span></span><br><span class="line"># DAMASK_ROOT will be expanded</span><br><span class="line">set DAMASK_BIN=$&#123;DAMASK_ROOT&#125;/bin</span><br><span class="line">set DAMASK_NUM_THREADS = <span class="number">4</span> <span class="comment">// 配置线程数目</span></span><br><span class="line"></span><br><span class="line">set MSC_ROOT=/opt/MSC  <span class="comment">// MSC的安装路径</span></span><br><span class="line">set MARC_VERSION=<span class="number">2015</span>  <span class="comment">// MARC的版本</span></span><br><span class="line"></span><br><span class="line">set ABAQUS_VERSION=<span class="number">6.14</span><span class="number">-1</span>  <span class="comment">// Abaqus的版本</span></span><br></pre></td></tr></table></figure>
-<p>然后根据自己适用的shell环境来选择不同的文件使配置生效，即使用source命令，如使用bash的话就选择后缀为sh的文件：</p>
-<figure class="highlight cpp"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">source DAMASK_env.sh</span><br></pre></td></tr></table></figure>
-<p>这一步是编译或运行DAMASK的必要条件，因为它让DAMASK知道其使用怎样的配置，同时将DAMASK的bin路径加入到PATH变量中。因此，必须确保它是第一个执行的。或者直接就将该source命令加入到用户配置文件.bashrc中，让其自动生效。</p>
+<h1 id="Python及其Modules"><a href="#Python及其Modules" class="headerlink" title="Python及其Modules"></a>Python及其Modules</h1><p>DAMASK的安装脚本、前处理和后处理等工具都是由Python写的，所以还要安装Python的编译器及相关Module。<br><figure class="highlight cpp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line">sudo apt-get install python python-dev  <span class="comment">// 安装Python编译器</span></span><br><span class="line">sudo pip install numpy  <span class="comment">// 安装numpy包</span></span><br><span class="line">sudo pip install scipy  <span class="comment">// 安装scipy包</span></span><br><span class="line">sudo pip install h5py   <span class="comment">// 安装h5py包</span></span><br><span class="line">sudo apt-get install python-vtk <span class="comment">// 安装vtk</span></span><br></pre></td></tr></table></figure></p>
+<h1 id="系统配置"><a href="#系统配置" class="headerlink" title="系统配置"></a>系统配置</h1><p>用文本编辑器编辑DAMASK文件夹中的CONFIG文件，根据自己的系统配置进行改写（默认配置已基本适用于大部分系统）。注意，该CONFIG文件是在v2.0.1以后才有，之前的v2.0.0没有该文件，是有一个configure的脚本来执行。<br><figure class="highlight cpp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br></pre></td><td class="code"><pre><span class="line"># <span class="string">&quot;set&quot;</span>-<span class="function">syntax needed only <span class="keyword">for</span> <span class="title">tcsh</span> <span class="params">(but works with bash <span class="keyword">and</span> zsh)</span></span></span><br><span class="line"># DAMASK_ROOT will be expanded</span><br><span class="line">set DAMASK_BIN=$&#123;DAMASK_ROOT&#125;/bin</span><br><span class="line">set DAMASK_NUM_THREADS = <span class="number">4</span> <span class="comment">// 配置线程数目</span></span><br><span class="line"></span><br><span class="line">set MSC_ROOT=/opt/MSC  <span class="comment">// MSC的安装路径</span></span><br><span class="line">set MARC_VERSION=<span class="number">2015</span>  <span class="comment">// MARC的版本</span></span><br><span class="line"></span><br><span class="line">set ABAQUS_VERSION=<span class="number">6.14</span><span class="number">-1</span>  <span class="comment">// Abaqus的版本</span></span><br></pre></td></tr></table></figure><br>然后根据自己适用的shell环境来选择不同的文件使配置生效，即使用source命令，如使用bash的话就选择后缀为sh的文件：<br><figure class="highlight cpp"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">source DAMASK_env.sh</span><br></pre></td></tr></table></figure><br>这一步是编译或运行DAMASK的必要条件，因为它让DAMASK知道其使用怎样的配置，同时将DAMASK的bin路径加入到PATH变量中。因此，必须确保它是第一个执行的。或者直接就将该source命令加入到用户配置文件.bashrc中，让其自动生效。</p>
 <p><em>ATTENTION!: 如果之前abaqus是用sudo安装并运行的，那么还要将该命令加入到root用户的.bashrc中，否则sudo运行abaqus后，会将普通用户的环境变量覆盖，导致找不到DAMASK。</em></p>
-<h1 id="安装前处理和后处理工具"><a href="#安装前处理和后处理工具" class="headerlink" title="安装前处理和后处理工具"></a>安装前处理和后处理工具</h1><p>DAMASK有一些前后处理的工具放在了processing路径下，在有Makefile文件的那级目录下使用：</p>
-<figure class="highlight cpp"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">make install</span><br></pre></td></tr></table></figure>
-<p>在DAMASK/bin下创建符号链接来指向这些工具，因此就可以直接调用这些工具。</p>
-<h1 id="Abaqus配置"><a href="#Abaqus配置" class="headerlink" title="Abaqus配置"></a>Abaqus配置</h1><p>Abaqus在不同的操作系统Linux和Windows下不同，具体见DAMASK官网配置。<br>对于Linux来说，需要将Abaqus的环境文件复制到用户路径下或者模型所在路径下：</p>
-<figure class="highlight cpp"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">cp DAMASK/installation/mods_Abaqus/abaqus_v6.env  /Dir/of/home/OR/Dir/of/Model/</span><br></pre></td></tr></table></figure>
-<h1 id="Abaqus压缩模型"><a href="#Abaqus压缩模型" class="headerlink" title="Abaqus压缩模型"></a>Abaqus压缩模型</h1><p>在example路径下有一个运行实例，可以用来测试是否安装和求解成功：</p>
-<figure class="highlight cpp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">cd DAMASK/examples/AbaqusStandard</span><br><span class="line">abaqus job=Job_sx-px user=../../code/DAMASK_abaqus_std.f interactive</span><br><span class="line">abaqus viewer database=Job_sx-px.odb</span><br></pre></td></tr></table></figure>
+<h1 id="安装前处理和后处理工具"><a href="#安装前处理和后处理工具" class="headerlink" title="安装前处理和后处理工具"></a>安装前处理和后处理工具</h1><p>DAMASK有一些前后处理的工具放在了processing路径下，在有Makefile文件的那级目录下使用：<br><figure class="highlight cpp"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">make install</span><br></pre></td></tr></table></figure><br>在DAMASK/bin下创建符号链接来指向这些工具，因此就可以直接调用这些工具。</p>
+<h1 id="Abaqus配置"><a href="#Abaqus配置" class="headerlink" title="Abaqus配置"></a>Abaqus配置</h1><p>Abaqus在不同的操作系统Linux和Windows下不同，具体见DAMASK官网配置。<br>对于Linux来说，需要将Abaqus的环境文件复制到用户路径下或者模型所在路径下：<br><figure class="highlight cpp"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">cp DAMASK/installation/mods_Abaqus/abaqus_v6.env  /Dir/of/home/OR/Dir/of/Model/</span><br></pre></td></tr></table></figure></p>
+<h1 id="Abaqus压缩模型"><a href="#Abaqus压缩模型" class="headerlink" title="Abaqus压缩模型"></a>Abaqus压缩模型</h1><p>在example路径下有一个运行实例，可以用来测试是否安装和求解成功：<br><figure class="highlight cpp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">cd DAMASK/examples/AbaqusStandard</span><br><span class="line">abaqus job=Job_sx-px user=../../code/DAMASK_abaqus_std.f interactive</span><br><span class="line">abaqus viewer database=Job_sx-px.odb</span><br></pre></td></tr></table></figure></p>
 <h2 id="可能遇到的问题"><a href="#可能遇到的问题" class="headerlink" title="可能遇到的问题"></a>可能遇到的问题</h2><p>(1) Out of memory asking for<br>(2) Illegal memory reference<br>第一个问题是出现在Abaqus编译.f文件时，第二个是出现在Abaqus开始运行程序时，原因可能是电脑的运行资源不够。此时的一个方法是重启电脑，然后启动后直接运行该模型，保证程序拥有最多的计算资源。</p>
-<h2 id="运行结果"><a href="#运行结果" class="headerlink" title="运行结果"></a>运行结果</h2><p>两个圆柱体，一个是单晶，一个是多晶，其受压变形：<br><img src="https://ws1.sinaimg.cn/large/0072Lfvtly1fvjjyg1ei7j31b90nimy0.jpg"></p>
-<h1 id="前处理生成晶粒"><a href="#前处理生成晶粒" class="headerlink" title="前处理生成晶粒"></a>前处理生成晶粒</h1><p>用DAMASK生成50个晶粒：<br><img src="https://ws1.sinaimg.cn/large/0072Lfvtly1fvjjypvjb5j312d0li0u9.jpg"></p>
+<h2 id="运行结果"><a href="#运行结果" class="headerlink" title="运行结果"></a>运行结果</h2><p>两个圆柱体，一个是单晶，一个是多晶，其受压变形：<br><img src="https://ws1.sinaimg.cn/large/0072Lfvtly1fvjjyg1ei7j31b90nimy0.jpg" alt=""></p>
+<h1 id="前处理生成晶粒"><a href="#前处理生成晶粒" class="headerlink" title="前处理生成晶粒"></a>前处理生成晶粒</h1><p>用DAMASK生成50个晶粒：<br><img src="https://ws1.sinaimg.cn/large/0072Lfvtly1fvjjypvjb5j312d0li0u9.jpg" alt=""></p>
 
     </div>
 
@@ -536,6 +527,59 @@
   
 
   
+      
+
+<script>
+  if (typeof MathJax === 'undefined') {
+    window.MathJax = {
+      loader: {
+        source: {
+          '[tex]/amsCd': '[tex]/amscd',
+          '[tex]/AMScd': '[tex]/amscd'
+        }
+      },
+      tex: {
+        inlineMath: {'[+]': [['$', '$']]},
+        tags: 'ams'
+      },
+      options: {
+        renderActions: {
+          findScript: [10, doc => {
+            document.querySelectorAll('script[type^="math/tex"]').forEach(node => {
+              const display = !!node.type.match(/; *mode=display/);
+              const math = new doc.options.MathItem(node.textContent, doc.inputJax[0], display);
+              const text = document.createTextNode('');
+              node.parentNode.replaceChild(text, node);
+              math.start = {node: text, delim: '', n: 0};
+              math.end = {node: text, delim: '', n: 0};
+              doc.math.push(math);
+            });
+          }, '', false],
+          insertedScript: [200, () => {
+            document.querySelectorAll('mjx-container').forEach(node => {
+              let target = node.parentNode;
+              if (target.nodeName.toLowerCase() === 'li') {
+                target.parentNode.classList.add('has-jax');
+              }
+            });
+          }, '', false]
+        }
+      }
+    };
+    (function () {
+      var script = document.createElement('script');
+      script.src = '//cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js';
+      script.defer = true;
+      document.head.appendChild(script);
+    })();
+  } else {
+    MathJax.startup.document.state(0);
+    MathJax.texReset();
+    MathJax.typeset();
+  }
+</script>
+
+    
 
   
 
