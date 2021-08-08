@@ -1,0 +1,683 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=2">
+<meta name="theme-color" content="#222">
+<meta name="generator" content="Hexo 5.4.0">
+  <link rel="apple-touch-icon" sizes="180x180" href="/images/apple-touch-icon-next.png">
+  <link rel="icon" type="image/png" sizes="32x32" href="/favicon.ico">
+  <link rel="icon" type="image/png" sizes="16x16" href="/favicon.ico">
+  <link rel="mask-icon" href="/images/logo.svg" color="#222">
+
+<link rel="stylesheet" href="/css/main.css">
+
+
+<link rel="stylesheet" href="/lib/font-awesome/css/all.min.css">
+
+<script id="hexo-configurations">
+    var NexT = window.NexT || {};
+    var CONFIG = {"hostname":"qixinbo.github.io","root":"/","scheme":"Gemini","version":"7.8.0","exturl":false,"sidebar":{"position":"left","display":"post","padding":18,"offset":12,"onmobile":false},"copycode":{"enable":false,"show_result":false,"style":null},"back2top":{"enable":true,"sidebar":false,"scrollpercent":false},"bookmark":{"enable":false,"color":"#222","save":"auto"},"fancybox":false,"mediumzoom":false,"lazyload":false,"pangu":false,"comments":{"style":"tabs","active":null,"storage":true,"lazyload":false,"nav":null},"algolia":{"hits":{"per_page":10},"labels":{"input_placeholder":"Search for Posts","hits_empty":"We didn't find any results for the search: ${query}","hits_stats":"${hits} results found in ${time} ms"}},"localsearch":{"enable":false,"trigger":"auto","top_n_per_article":1,"unescape":false,"preload":false},"motion":{"enable":true,"async":false,"transition":{"post_block":"fadeIn","post_header":"slideDownIn","post_body":"slideDownIn","coll_header":"slideLeftIn","sidebar":"slideUpIn"}}};
+  </script>
+
+  <meta name="description" content="讲义地址 B站地址  深度学习基础 数据操作 广播：数据操作中易错的一个地方是广播机制，可能造成想象不到的错误。但广播也会非常方便。在计算总和或均值时，保持轴数不变keepdims&#x3D;True，可以有效利用广播。  原地操作：对于占据内存比较大的数组，可以使用原地操作来避免重复创建使用内存。  pytorch的reshape和view的区别： torch的view()与reshape()方法都可以用">
+<meta property="og:type" content="article">
+<meta property="og:title" content="《动手学深度学习》视频课程学习笔记">
+<meta property="og:url" content="http://qixinbo.github.io/2020/03/09/dive-into-dl-video/index.html">
+<meta property="og:site_name" content="数字旗手">
+<meta property="og:description" content="讲义地址 B站地址  深度学习基础 数据操作 广播：数据操作中易错的一个地方是广播机制，可能造成想象不到的错误。但广播也会非常方便。在计算总和或均值时，保持轴数不变keepdims&#x3D;True，可以有效利用广播。  原地操作：对于占据内存比较大的数组，可以使用原地操作来避免重复创建使用内存。  pytorch的reshape和view的区别： torch的view()与reshape()方法都可以用">
+<meta property="og:locale" content="en_US">
+<meta property="og:image" content="https://user-images.githubusercontent.com/6218739/125578224-ee57736e-8f8d-4860-a206-5c843996a1ea.png">
+<meta property="og:image" content="https://user-images.githubusercontent.com/6218739/125578078-27b23a05-77f6-48a6-9e67-cf93a88d15bb.png">
+<meta property="og:image" content="https://user-images.githubusercontent.com/6218739/125717907-efea76d0-69f5-4bda-8766-597ed23def97.png">
+<meta property="og:image" content="https://user-images.githubusercontent.com/6218739/125719060-36c12bc0-724e-4d33-8765-717e4fd2328f.png">
+<meta property="og:image" content="https://user-images.githubusercontent.com/6218739/127438125-4ec2e8fa-876b-4447-ac60-e005e8d9ed8a.png">
+<meta property="og:image" content="https://user-images.githubusercontent.com/6218739/127293555-822ddff0-48d7-488b-b1dd-7530386df069.gif">
+<meta property="og:image" content="https://user-images.githubusercontent.com/6218739/127605212-9e45557f-be04-4870-b896-791b2886d891.png">
+<meta property="og:image" content="https://user-images.githubusercontent.com/6218739/127817392-62cb2a30-6c0b-4429-ad19-0da9bf5749ae.png">
+<meta property="og:image" content="https://user-images.githubusercontent.com/6218739/127819013-9637a861-d32e-4c0e-beef-1d676fd1e402.png">
+<meta property="og:image" content="https://user-images.githubusercontent.com/6218739/128323707-6114e761-d06b-4c71-88d3-b95c3dba103f.png">
+<meta property="article:published_time" content="2020-03-08T16:00:00.000Z">
+<meta property="article:modified_time" content="2021-08-08T09:04:33.532Z">
+<meta property="article:author" content="Xin-Bo Qi(亓欣波)">
+<meta property="article:tag" content="PyTorch">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:image" content="https://user-images.githubusercontent.com/6218739/125578224-ee57736e-8f8d-4860-a206-5c843996a1ea.png">
+
+<link rel="canonical" href="http://qixinbo.github.io/2020/03/09/dive-into-dl-video/">
+
+
+<script id="page-configurations">
+  // https://hexo.io/docs/variables.html
+  CONFIG.page = {
+    sidebar: "",
+    isHome : false,
+    isPost : true,
+    lang   : 'en'
+  };
+</script>
+
+  <title>《动手学深度学习》视频课程学习笔记 | 数字旗手</title>
+  
+
+
+
+
+
+
+  <noscript>
+  <style>
+  .use-motion .brand,
+  .use-motion .menu-item,
+  .sidebar-inner,
+  .use-motion .post-block,
+  .use-motion .pagination,
+  .use-motion .comments,
+  .use-motion .post-header,
+  .use-motion .post-body,
+  .use-motion .collection-header { opacity: initial; }
+
+  .use-motion .site-title,
+  .use-motion .site-subtitle {
+    opacity: initial;
+    top: initial;
+  }
+
+  .use-motion .logo-line-before i { left: initial; }
+  .use-motion .logo-line-after i { right: initial; }
+  </style>
+</noscript>
+
+<link rel="alternate" href="/atom.xml" title="数字旗手" type="application/atom+xml">
+</head>
+
+<body itemscope itemtype="http://schema.org/WebPage">
+  <div class="container use-motion">
+    <div class="headband"></div>
+
+    <header class="header" itemscope itemtype="http://schema.org/WPHeader">
+      <div class="header-inner"><div class="site-brand-container">
+  <div class="site-nav-toggle">
+    <div class="toggle" aria-label="Toggle navigation bar">
+      <span class="toggle-line toggle-line-first"></span>
+      <span class="toggle-line toggle-line-middle"></span>
+      <span class="toggle-line toggle-line-last"></span>
+    </div>
+  </div>
+
+  <div class="site-meta">
+
+    <a href="/" class="brand" rel="start">
+      <span class="logo-line-before"><i></i></span>
+      <h1 class="site-title">数字旗手</h1>
+      <span class="logo-line-after"><i></i></span>
+    </a>
+      <p class="site-subtitle" itemprop="description">电气化、自动化、数字化、智能化、智慧化</p>
+  </div>
+
+  <div class="site-nav-right">
+    <div class="toggle popup-trigger">
+    </div>
+  </div>
+</div>
+
+
+
+
+<nav class="site-nav">
+  <ul id="menu" class="main-menu menu">
+        <li class="menu-item menu-item-home">
+
+    <a href="/" rel="section"><i class="fa fa-home fa-fw"></i>Home</a>
+
+  </li>
+        <li class="menu-item menu-item-categories">
+
+    <a href="/categories/" rel="section"><i class="fa fa-th fa-fw"></i>Categories</a>
+
+  </li>
+        <li class="menu-item menu-item-archives">
+
+    <a href="/archives/" rel="section"><i class="fa fa-archive fa-fw"></i>Archives</a>
+
+  </li>
+        <li class="menu-item menu-item-tags">
+
+    <a href="/tags/" rel="section"><i class="fa fa-tags fa-fw"></i>Tags</a>
+
+  </li>
+        <li class="menu-item menu-item-scholar">
+
+    <a href="/scholar/" rel="section"><i class="fa fa-chart-bar fa-fw"></i>scholar</a>
+
+  </li>
+        <li class="menu-item menu-item-sources">
+
+    <a href="/sources/" rel="section"><i class="fa fa-rss fa-fw"></i>sources</a>
+
+  </li>
+        <li class="menu-item menu-item-gallery">
+
+    <a href="/gallery/" rel="section"><i class="fa fa-file-image fa-fw"></i>gallery</a>
+
+  </li>
+        <li class="menu-item menu-item-about">
+
+    <a href="/about/" rel="section"><i class="fa fa-user fa-fw"></i>About</a>
+
+  </li>
+        <li class="menu-item menu-item-commonweal">
+
+    <a href="/404.html" rel="section"><i class="fa fa-heartbeat fa-fw"></i>Commonweal 404</a>
+
+  </li>
+  </ul>
+</nav>
+
+
+
+
+</div>
+    </header>
+
+    
+  <div class="back-to-top">
+    <i class="fa fa-arrow-up"></i>
+    <span>0%</span>
+  </div>
+
+
+    <main class="main">
+      <div class="main-inner">
+        <div class="content-wrap">
+          
+
+          <div class="content post posts-expand">
+            
+
+    
+  
+  
+  <article itemscope itemtype="http://schema.org/Article" class="post-block" lang="en">
+    <link itemprop="mainEntityOfPage" href="http://qixinbo.github.io/2020/03/09/dive-into-dl-video/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="image" content="/images/avatar.jpg">
+      <meta itemprop="name" content="Xin-Bo Qi(亓欣波)">
+      <meta itemprop="description" content="Digitize everything to realize Digitalization!">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="数字旗手">
+    </span>
+      <header class="post-header">
+        <h1 class="post-title" itemprop="name headline">
+          《动手学深度学习》视频课程学习笔记
+        </h1>
+
+        <div class="post-meta">
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="far fa-calendar"></i>
+              </span>
+              <span class="post-meta-item-text">Posted on</span>
+
+              <time title="Created: 2020-03-09 00:00:00" itemprop="dateCreated datePublished" datetime="2020-03-09T00:00:00+08:00">2020-03-09</time>
+            </span>
+              <span class="post-meta-item">
+                <span class="post-meta-item-icon">
+                  <i class="far fa-calendar-check"></i>
+                </span>
+                <span class="post-meta-item-text">Edited on</span>
+                <time title="Modified: 2021-08-08 17:04:33" itemprop="dateModified" datetime="2021-08-08T17:04:33+08:00">2021-08-08</time>
+              </span>
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="far fa-folder"></i>
+              </span>
+              <span class="post-meta-item-text">In</span>
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+                  <a href="/categories/machine-learning/" itemprop="url" rel="index"><span itemprop="name">machine learning</span></a>
+                </span>
+            </span>
+
+          
+  
+  <span class="post-meta-item">
+    
+      <span class="post-meta-item-icon">
+        <i class="far fa-comment"></i>
+      </span>
+      <span class="post-meta-item-text">Disqus: </span>
+    
+    <a title="disqus" href="/2020/03/09/dive-into-dl-video/#disqus_thread" itemprop="discussionUrl">
+      <span class="post-comments-count disqus-comment-count" data-disqus-identifier="2020/03/09/dive-into-dl-video/" itemprop="commentCount"></span>
+    </a>
+  </span>
+  
+  
+
+        </div>
+      </header>
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+        <p><a target="_blank" rel="noopener" href="https://courses.d2l.ai/zh-v2/">讲义地址</a><br><a target="_blank" rel="noopener" href="https://space.bilibili.com/1567748478/channel/detail?cid=175509">B站地址</a></p>
+<h1 id="深度学习基础"><a href="#深度学习基础" class="headerlink" title="深度学习基础"></a>深度学习基础</h1><h2 id="数据操作"><a href="#数据操作" class="headerlink" title="数据操作"></a>数据操作</h2><p>广播：数据操作中易错的一个地方是广播机制，可能造成想象不到的错误。但广播也会非常方便。在计算总和或均值时，保持轴数不变keepdims=True，可以有效利用广播。</p>
+<p>原地操作：对于占据内存比较大的数组，可以使用原地操作来避免重复创建使用内存。</p>
+<p>pytorch的reshape和view的区别：<br>torch的view()与reshape()方法都可以用来重塑tensor的shape，区别就是使用的条件不一样。view()方法只适用于满足连续性条件的tensor，并且该操作不会开辟新的内存空间，只是产生了对原存储空间的一个新别称和引用，返回值是视图。而reshape()方法的返回值既可以是视图，也可以是副本，当满足连续性条件时返回view，否则返回副本[ 此时等价于先调用contiguous()方法在使用view() ]。因此当不确能否使用view时，可以使用reshape。如果只是想简单地重塑一个tensor的shape，那么就是用reshape，但是如果需要考虑内存的开销而且要确保重塑后的tensor与之前的tensor共享存储空间，那就使用view()。<br><a target="_blank" rel="noopener" href="https://blog.csdn.net/Flag_ing/article/details/109129752">1</a><br><a target="_blank" rel="noopener" href="https://stackoverflow.com/questions/49643225/whats-the-difference-between-reshape-and-view-in-pytorch">2</a></p>
+<h2 id="线性代数"><a href="#线性代数" class="headerlink" title="线性代数"></a>线性代数</h2><p>点积：又称数量积或标量积（Scalar Product）、内积（Inner Product），是一种接受两个等长的数字序列（通常是坐标向量）、返回单个数字的代数运算。从代数角度看，先对两个数字序列中的每组对应元素求积，再对所有积求和，结果即为点积。从几何角度看，点积则是两个向量的长度与它们夹角余弦的积。点积的名称源自表示点乘运算的点号，标量积的叫法则是在强调其运算结果为标量而非向量。</p>
+<p>叉积：又称向量积（英语：Vector product）、外积（Cross product），是对三维空间中的两个向量的二元运算。与点积不同，它的运算结果是向量。对于线性无关的两个向量 ，它们的外积是 它们 所在平面的法线向量，与 a和b都垂直。外积被广泛运用于数学、物理、工程学、计算机科学领域。如果两个向量方向相同或相反（即它们没有线性无关的分量），亦或任意一个的长度为零，那么它们的外积为零。推广开来，外积的模长和以这两个向量为边的平行四边形的面积相等；如果两个向量成直角，它们外积的模长即为两者长度的乘积。叉积的名称源自表示叉乘运算的叉号，外积和点积一样依赖于欧几里德空间的度量，但与点积之不同的是，外积还依赖于定向或右手定则。 </p>
+<p>哈达玛积：Hadamard product，是两个矩阵按元素相乘，符号是星号。</p>
+<p>矩阵向量积：torch.mv<br>矩阵矩阵乘法：torch.mm</p>
+<p>L2范数：向量元素平方和的平方根<br>L1范数：向量元素的绝对值之和<br>矩阵的F范数：Frobenius norm，矩阵元素的平方和的平方根，等价于将矩阵拉直成一个向量。</p>
+<p>偏差Bias和方差Variance：<br>准：bias描述的是根据样本拟合出的模型的输出预测结果的期望与样本真实结果的差距，简单讲，就是在样本上拟合的好不好。要想在bias上表现好，low bias，就得复杂化模型，增加模型的参数，但这样容易过拟合 (overfitting)，过拟合对应上图是high variance，点很分散。low bias对应就是点都打在靶心附近，所以瞄的是准的，但手不一定稳。<br>确：varience描述的是样本上训练出来的模型在测试集上的表现，要想在variance上表现好，low varience，就要简化模型，减少模型的参数，但这样容易欠拟合(unfitting)，欠拟合对应上图是high bias，点偏离中心。low variance对应就是点都打的很集中，但不一定是靶心附近，手很稳，但是瞄的不准。<br><a target="_blank" rel="noopener" href="https://www.zhihu.com/question/27068705">机器学习中的 Bias（偏差）Error（误差）Variance（方差）有什么区别和联系</a></p>
+<h2 id="自动求导"><a href="#自动求导" class="headerlink" title="自动求导"></a>自动求导</h2><p>梯度：梯度是指向数值变化最大的方向。</p>
+<p>静态图和动态图：动态图比较方便debug，使用者能够用任何他们喜欢的方式进行debug，同时非常直观，而静态图是通过先定义后运行的方式，之后再次运行的时候就不再需要重新构建计算图，所以速度会比动态图更快。</p>
+<p>前向传播：是把神经网络从前向后计算一遍，同时存储中间计算结果，供反向传播时调用。<br>反向传播：在神经网络的反向计算过程中，因为一开始获得的是损失函数相对于输出层神经元的函数和对应的导数值，则需要依靠式（1.36）和式（1.37）来反向计算损失函数相对于前一层的权重的导数式（1.36）和相对于前一层神经元值的导数式（1.37）。根据式（1.37）求出的损失函数相对于神经元的导数可以递归的应用式（1.36）和式（1.37），进一步求出前一层的对应导数，这样就能求得损失函数相对于所有权重的导数。这个过程称之为反向传播过程（BackwardPropagation，BP），和计算损失函数时的前向传播（Forward）相反，同时前向计算的权重和反向计算的权重导数一一对应。为了方便起见，我们称式（1.36）求出的导数为权重梯度（Weight Gradient），式（1.37）求出的导数为数据梯度（Data Gradient）。这样公式可以总结为，前一层的数据梯度和权重梯度依赖于后一层的数据梯度，且数据梯度和权重有关，权重梯度和数据（当前神经网络层神经元的值）有关。由于需要求解的权重梯度和当前神经网络层的值有关，在计算神经网络的时候，在进行前向传播时一般需要保存每一层神经网络计算出来的结果，以便在反向传播的时候用来求权重梯度。<br><img src="https://user-images.githubusercontent.com/6218739/125578224-ee57736e-8f8d-4860-a206-5c843996a1ea.png" alt="chain"><br><img src="https://user-images.githubusercontent.com/6218739/125578078-27b23a05-77f6-48a6-9e67-cf93a88d15bb.png" alt="bp"></p>
+<p>深度学习一般都是对标量求导，因为从工程上没法处理tensor对tensor求导。<br>假设 x 经过一番计算得到 y，那么 y.backward(w) 求的不是 y 对 x 的导数，而是 l = torch.sum(y*w) 对 x 的导数。w 可以视为 y 的各分量的权重，也可以视为遥远的损失函数 l 对 y 的偏导数。也就是说，不一定需要从计算图最后的节点 y 往前反向传播，从中间某个节点 n 开始传也可以，只要你能把损失函数 l 关于这个节点的导数 dl/dn 记录下来，n.backward(dl/dn) 照样能往前回传，正确地计算出损失函数 l 对于节点 n 之前的节点的导数。特别地，若 y 为标量，w 取默认值 1.0，才是按照我们通常理解的那样，求 y 对 x 的导数。<br><a target="_blank" rel="noopener" href="https://zhuanlan.zhihu.com/p/29923090">PyTorch 的 backward 为什么有一个 grad variables参数</a></p>
+<h2 id="线性回归"><a href="#线性回归" class="headerlink" title="线性回归"></a>线性回归</h2><p>yield：如果列表元素可以按照某种算法推算出来，那我们是否可以在循环的过程中不断推算出后续的元素呢？这样就不必创建完整的list，从而节省大量的空间和开销。在Python中，这种一边循环一边计算的机制，称为生成器：generator。</p>
+<p>收敛判据：（1）判断两个epoch之间损失差别小于某个阈值，则判断为收敛；（2）拿一个验证集作为判断，验证集上的损失开始上升了，则判断为收敛。</p>
+<h2 id="Softmax回归"><a href="#Softmax回归" class="headerlink" title="Softmax回归"></a>Softmax回归</h2><p>Softmax回归：（用于计算y）softmax回归跟线性回归一样将输入特征与权重做线性叠加。与线性回归的一个主要不同在于，softmax回归的输出值个数等于标签里的类别数。既然分类问题需要得到离散的预测输出，一个简单的办法是将输出值当作对应预测类别的置信度，并将值最大的输出所对应的类作为预测输出。然而，直接使用输出层的输出有两个问题。一方面，由于输出层的输出值的范围不确定，我们难以直观上判断这些值的意义；另一方面，由于真实标签是离散值，这些离散值与不确定范围的输出值之间的误差难以衡量。softmax运算符（softmax operator）解决了以上两个问题。它通过下式将输出值变换成值为正且和为1的概率分布：<br><img src="https://user-images.githubusercontent.com/6218739/125717907-efea76d0-69f5-4bda-8766-597ed23def97.png" alt="softmax"></p>
+<p>CrossEntropy损失：（用于计算y与y_hat的损失）对于Softmax回归，softmax运算将输出变换成一个合法的类别预测分布，然后就可以计算真实概率和预测概率之间的区别作为损失。但计算这个损失时，其实并不需要预测概率完全等于标签概率，只要预测的那个目标类别的概率比另外类别的概率大即可，此时使用平方损失就会过于严格，因此使用更适合衡量两个概率分布差异的测量函数，比如交叉熵损失函数：<br><img src="https://user-images.githubusercontent.com/6218739/125719060-36c12bc0-724e-4d33-8765-717e4fd2328f.png" alt="crossentropy"></p>
+<h2 id="感知机"><a href="#感知机" class="headerlink" title="感知机"></a>感知机</h2><p>感知机是一个二分类模型，是最早的AI模型之一。它的求解方法等价于使用批量大小为1的梯度下降。<br>感知机不能拟合XOR函数，它只能产生线性分割面。</p>
+<h2 id="多层感知机"><a href="#多层感知机" class="headerlink" title="多层感知机"></a>多层感知机</h2><p>先学一种模式，再基于这种模式学习下一个模式，可以解决XOR问题。<br>多层感知机：引入多层神经元（隐藏层）和非线性激活函数来得到非线性模型。<br>常用激活函数Sigmoid、Tanh、ReLU。</p>
+<p>统计是数学理论（收敛性、稳定性分析都是统计），机器学习是算法实现，两者可以认为是解析解和数值解的区别。<br>将神经网络“变深”与“变宽”的区别：变宽不容易训练，因为极易过拟合；而变深（深度学习）是逐层有了特征，是从易到难的特征进行学习，更易训练。</p>
+<h2 id="模型选择"><a href="#模型选择" class="headerlink" title="模型选择"></a>模型选择</h2><p>验证数据集：一个用来评估模型好坏的数据集，用来确定模型超参数，不要跟训练数据混在一起。非大数据集上通常使用K折交叉验证。<br>测试数据集：只用一次的数据集。</p>
+<h2 id="过拟合和欠拟合"><a href="#过拟合和欠拟合" class="headerlink" title="过拟合和欠拟合"></a>过拟合和欠拟合</h2><p>深度学习的一个核心是先确保模型容量足够大（太小没什么用处），然后再控制模型容量，使得泛化误差较小。<br>估计模型容量有两个主要因素：参数的个数和参数的取值范围。<br>如果遇到样本不平衡的情形，比如二分类问题，数据集中有90%数据是某一类，而另一类的数据只有10%，那么需要首先考虑通过加权的方式使得两者“平衡”：比如最简单一种方式是直接复制第二类9遍，这样使得两类样本在数量上平衡；还可以在损失函数中给小样本更大的权重。</p>
+<p>神经网络可以看作是一门“编程语言”。</p>
+<h2 id="Batch-Size"><a href="#Batch-Size" class="headerlink" title="Batch Size"></a>Batch Size</h2><p><a target="_blank" rel="noopener" href="https://www.zhihu.com/question/32673260">深度学习中的batch的大小对学习效果有何影响？</a><br>首先，为什么要有Batch size这个参数：<br>Batch的选择，首先决定的是下降的方向。如果数据集比较小，完全可以采用全数据集（FullBatch Learning ）的形式，这样做至少有2个好处：其一，由全数据集确定的方向能够更好地代表样本总体，从而更准确地朝向极值所在的方向。其二，由于不同权重的梯度值差别巨大，因此选取一个全局的学习率很困难。Full Batch Learning可以使用Rprop只基于梯度符号并且针对性单独更新各权值。对于更大的数据集，以上2个好处又变成了2个坏处：其一，随着数据集的海量增长和内存限制，一次性载入所有的数据进来变得越来越不可行。其二，以Rprop的方式迭代，会由于各个Batch之间的采样差异性，各次梯度修正值相互抵消，无法修正。这才有了后来RMSProp的妥协方案。</p>
+<p>既然Full Batch Learning并不适用大数据集，那么走向另一个极端怎么样？所谓另一个极端，就是每次只训练一个样本，即Batch Size =1，这就是在线学习（Online Learning） 。使用在线学习，每次修正方向以各自样本的梯度方向修正，横冲直撞各自为政，难以达到收敛。</p>
+<p>可不可以选择一个适中的Batch Size值呢？<br>当然可以，这就是批梯度下降法（Mini—batches Learning） 。因为如果数据集足够充分，那么用一半（甚至少得多）的数据训练算出来的梯度与用全部数据训练出来的梯度是几乎一样的。<br>在合理范围内，增大Batch Size有何好处？<br>（1）内存利用率提高了，大矩阵乘法的并行化效率提高。<br>（2）跑完一次epoch （全数据集）所需的迭代次数减少，对于相同数据量的处理速度进一步加快。<br>（3）在一定范围内，一般来说Batch Size越大，其确定的下降方向越准，引起训练震荡越小，收敛会变快。<br>盲目增大Batch Size有何坏处？<br>（1）内存利用率提高了，但是内存容量可能撑不住了。<br>（2）跑完一次epoch （全数据集）所需的迭代次数减少，要想达到相同的精度，其所花费的时间大大增加了，从而对参数的修正也就显得更加缓慢。<br>（3）Batch Size增大到一定程度，其确定的下降方向已经基本不再变化。</p>
+<h2 id="权重衰退"><a href="#权重衰退" class="headerlink" title="权重衰退"></a>权重衰退</h2><p>权重衰退是通过限制参数值的选择范围来控制模型容量，可以有效应对过拟合。“限制参数值”等价于在损失函数中加入L2范数惩罚项（可以通过拉格朗日乘子来证明）。<br>L2范数正则化的超参数是lambda，控制了正则项的重要程度。<br>L2​范数正则化令权重先自乘小于1的数，再减去不含惩罚项的梯度。因此，L2​范数正则化又叫权重衰退。</p>
+<h2 id="丢弃法"><a href="#丢弃法" class="headerlink" title="丢弃法"></a>丢弃法</h2><p>使用有噪音的数据等价于Tikhonov正则，而丢弃法等于在层之间加入噪音（不是在数据上），因此丢弃法也等价于一个正则惩罚。<br>对数据加入噪音，但噪音不是胡乱加的，而是希望最终的数学期望不被改变；而丢弃法中，对每个元素施加如下噪音：有一定几率p将元素置为0，而其他的元素变为原值除以(1-p)，此时能保证期望不变。丢弃概率p是控制模型复杂度的超参数。<br>通常将丢弃法作用在隐藏全连接层的输出上（注意是输出值，不是那个连接权重w）。<br>正则项（包括之前的L2正则以及这里的丢弃法）只在训练中使用，因为它们影响模型参数的更新。在推理中不使用丢弃法。<br>注意固定住随机种子，保证dropout的重复性（如果使用了cudnn，很难保证重复性，这是并行计算的固有问题）。但随机性增加，使得稳定性也会提高。</p>
+<h2 id="数值稳定性"><a href="#数值稳定性" class="headerlink" title="数值稳定性"></a>数值稳定性</h2><p>（这一节一定区分好“值”和“梯度”的概念）<br>归根结底，数值过大或过小，都会导致数值问题。<br>该问题常发生在深度模型中，因为层数很多，梯度实际在这些层中累乘。<br>在神经网络的训练过程中梯度的传播是一个反向传播的过程，而且与每一层的权重和数据有关。当神经网络很深的时候，如果使用Sigmoid函数和Tanh函数作为激活函数（因为每次的梯度都小于1），那么在反向传播的时候，因为每次数据梯度的传播都要乘以关于数据的导数，数据梯度就会越来越小，对应的权重梯度也会越来越小。这样就会造成随着梯度的反向传播，靠前的神经网络层的梯度非常小。因此，会造成难以对这部分的权重进行优化的结果，这个现象就称为梯度消失。<br>用来解决梯度消失问题的方法有很多，其中一个方法就是使用ReLU作为激活函数。ReLU函数既可以提供深度学习需要的非线性激活函数，也因为其特殊的梯度（每次传播的时候，数据大于0的部分的数据梯度保持不变）能够解决梯度消失的问题。<br>假如一开始权重取值比较大，随着反向传播的进行，数据梯度会逐渐变大，最后在前几层会变得非常大（超过浮点数的表示范围），这个过程称为梯度爆炸。<br>同理，如果权重的值非常小，那么就会造成梯度消失的结果。<br>为了避免因为权重过大或者过小造成梯度爆炸和消失的结果，权重的初始化非常重要，其核心是让下一层的数据绝对值尽可能分布在1附近。除权重的初始化外，为了避免梯度爆炸的结果，还可以对神经网络反向传播过程中的梯度做梯度截断（Gradient Clipping），使得梯度的L2模长小于一定的值，这样就可以避免梯度在传播过程中过大的问题。<br>还有归一化（将每层的输出和梯度当成是随机变量，让他们的均值和方差都保持一致）、乘法变加法（ResNet）等。</p>
+<p>Xavier初始化的目的是保证这一层的输入和输出的方差差不多，防止梯度爆炸。</p>
+<h1 id="卷积神经网络"><a href="#卷积神经网络" class="headerlink" title="卷积神经网络"></a>卷积神经网络</h1><h2 id="参数管理"><a href="#参数管理" class="headerlink" title="参数管理"></a>参数管理</h2><p>参数绑定：将一个网络层使用多次（创建一次实例，然后使用多次），那么这些位置的参数都是共享的，就实现了不同层之间的参数共享。</p>
+<h2 id="读写文件"><a href="#读写文件" class="headerlink" title="读写文件"></a>读写文件</h2><p>因为PyTorch是动态图，所以它不方便将整个模型存下来（通过TorchScript可以），所以一般是通过将模型的state_dict将模型的参数存下来，而模型结构是在外面显式定义的。</p>
+<h2 id="GPU"><a href="#GPU" class="headerlink" title="GPU"></a>GPU</h2><p>选购GPU的三个主要指标：显存、浮点数计算、价格，另外还有带宽、功耗等。</p>
+<h2 id="预测房价竞赛总结"><a href="#预测房价竞赛总结" class="headerlink" title="预测房价竞赛总结"></a>预测房价竞赛总结</h2><p>数据科学家80%时间在处理数据，20%调模型。<br>实际场景中，不用太担心调参，因为数据变换太快。</p>
+<h2 id="从全连接层到卷积"><a href="#从全连接层到卷积" class="headerlink" title="从全连接层到卷积"></a>从全连接层到卷积</h2><p>从图片中寻找物体的原则：平移不变性、局部性。<br>平移不变性原则使得权重不随着位置变化，即权重共享的效果，也即共用一个卷积核。<br>局部性原则使得离中心像素较远距离的权重为0，即卷积核有一定的大小。<br>总起来说，对全连接层使用平移不变性和局部性就可以得到卷积层，即卷积层是一种特殊的全连接层。</p>
+<p>卷积层的参数量等于：输入通道数乘以输出通道数<em>核高</em>核宽。</p>
+<h2 id="填充和步幅"><a href="#填充和步幅" class="headerlink" title="填充和步幅"></a>填充和步幅</h2><p>卷积的输入输出的尺寸计算：<br><img src="https://user-images.githubusercontent.com/6218739/127438125-4ec2e8fa-876b-4447-ac60-e005e8d9ed8a.png" alt="cnn-size"></p>
+<p>转置卷积能用来增大输入的高宽，被广泛应用于图像的上采样。</p>
+<h2 id="多输入多输出通道"><a href="#多输入多输出通道" class="headerlink" title="多输入多输出通道"></a>多输入多输出通道</h2><p>卷积的通道变化：<br><img src="https://user-images.githubusercontent.com/6218739/127293555-822ddff0-48d7-488b-b1dd-7530386df069.gif" alt="cnn"><br>多输出通道：每个输出通道可以识别特定模式。<br>多输入通道：输入通道核识别并组合输入中的模式。</p>
+<p>1乘1卷积层：<br>不识别空间模式，只是融合通道。等价于这样形式的全连接层：空间维度（高和宽）上的每个像素相当于样本，输入通道相当于特征，输出通道相当于目标，权重则为输入通道数乘以输出通道数，即所有的像素都共享这些权重，因此能有效降低参数量。</p>
+<p>通常情况下：如果高和宽减半，那么通道数加倍，这样直观上保证信息量差不多。<br>卷积的输出就是Feature Map。</p>
+<h2 id="池化层"><a href="#池化层" class="headerlink" title="池化层"></a>池化层</h2><p>池化层的效果是缓解卷积层对位置的敏感性。不过，旋转、裁剪等数据增强的预处理会让对池化层的需求变小。<br>池化层对每一层输入通道都单独池化，因此输出通道等于输入通道。没有可学习的参数。</p>
+<h2 id="LeNet"><a href="#LeNet" class="headerlink" title="LeNet"></a>LeNet</h2><p>LeNet先使用卷积层来学习图片空间信息，然后使用全连接层转换到类别空间。<br>LeNet的网络架构，可以使用下面的方式，先构造一个随机变量，然后每层输出一下shape，这样能清晰把握尺寸变化：<br><img src="https://user-images.githubusercontent.com/6218739/127605212-9e45557f-be04-4870-b896-791b2886d891.png" alt="lenet"></p>
+<h2 id="AlexNet"><a href="#AlexNet" class="headerlink" title="AlexNet"></a>AlexNet</h2><p>AlexNet实际是更大更深的LeNet，主要改进有：Dropout、ReLu、MaxPooling、数据增强。<br>它最重要的贡献是改变了计算机视觉方法论，证明了使用机器学习来学习特征从而代替人工设计特征的可行性。<br>（用机器来自动学习特征，也体现了工业革命中使用机器来替代人的动作的大方向）</p>
+<h2 id="VGG"><a href="#VGG" class="headerlink" title="VGG"></a>VGG</h2><p>VGG的思路：将卷积层组合成块，然后“拼乐高”。<br>VGG块：若干个3乘3卷积（填充1，保证输入输出尺寸相同，选3乘3不选5乘5是因为窄但深的网络效果更好）+1个2乘2最大池化层（步幅2）<br>VGG架构：多个VGG块后接全连接层<br>VGG架构的命名是根据卷积层个数+3个全连接层，比如VGG16就是13个卷积层（注意不是13个VGG块）+3个全连接层。</p>
+<h2 id="NiN"><a href="#NiN" class="headerlink" title="NiN"></a>NiN</h2><p>全连接层的问题是参数量众多。<br>NiN的思路：用1乘1的卷积层替代全连接层。<br>NiN块：1个卷积层+2个1乘1卷积层（步幅1，无填充，输出形状跟卷积层输出一样，起到全连接层作用）<br>NiN架构：交替使用NiN块和步幅为2的最大池化层，最后使用全局平均池化层得到输出（对每一个输入通道做全局平均池化，然后softmax得到一个概率值从而当作类别预测，因此输入通道数就是类别数。全局平均池化层替代了全连接层，无参数可学习，不容易过拟合，泛化性能更好，但收敛会变慢）</p>
+<h2 id="GoogLeNet"><a href="#GoogLeNet" class="headerlink" title="GoogLeNet"></a>GoogLeNet</h2><p>卷积神经网络不容易确定网络结构中的超参数，比如到底使用1乘1还是3乘3、5乘5。<br>GoogLeNet思路：小学生才做选择题，我全要了<br>Inception块：4个路径（3个不同窗口大小的卷积层+1个池化层）从不同层面抽取信息，然后在输出通道维合并（输入和输出的高宽相同，只是通道数变化）。<br>（在3乘3和5乘5那两条路径之前加1乘1的卷积，是为了先使用1乘1来改变通道数，否则直接用3乘3或5乘5的卷积来调整通道数的复杂度比较大，计算量大）</p>
+<p>GoogLeNet架构：5段，9个Inception块。GoogLeNet是第一个达到上百层的网络。</p>
+<p>Inception有各种后续变种，比如V2是加了BN，V3替换5乘5为多个3乘3等，V4使用残差连接等。</p>
+<h2 id="批量归一化"><a href="#批量归一化" class="headerlink" title="批量归一化"></a>批量归一化</h2><p>深度神经网络之所以如此难训练，其中一个重要原因就是网络中层与层之间存在高度的关联性与耦合性。随着训练的进行，网络中的参数也随着梯度下降在不停更新，一方面，当底层网络中参数发生微弱变化时，由于每一层中的线性变换与非线性激活映射，这些微弱变化随着网络层数的加深而被放大；另一方面，参数的变化导致每一层的输入分布会发生改变，进而上层的网络需要不停地去适应这些分布变化，使得我们的模型训练变得困难。上述这一现象叫做Internal Covariate Shift内部协变量偏移。<br>Internal Covariate Shift带来的问题是什么呢？<br>（1）上层网络需要不停调整来适应输入数据分布的变化，导致网络学习速度的降低<br>（2）网络的训练过程容易陷入梯度饱和区，减缓网络收敛速度<br>BN优点：<br>（1）BN使得网络中每层输入数据的分布相对稳定，加速模型学习速度<br>BN通过规范化与线性变换使得每一层网络的输入数据的均值与方差都在一定范围内，使得后一层网络不必不断去适应底层网络中输入的变化，从而实现了网络中层与层之间的解耦，允许每一层进行独立学习，有利于提高整个神经网络的学习速度。<br>（2）BN使得模型对网络中的参数不那么敏感，简化调参过程，使得网络学习更加稳定<br>在神经网络中，我们经常会谨慎地采用一些权重初始化方法（例如Xavier）或者合适的学习率来保证网络稳定训练。<br>（3）BN允许网络使用饱和性激活函数（例如sigmoid，tanh等），缓解梯度消失问题<br>在不使用BN层的时候，由于网络的深度与复杂性，很容易使得底层网络变化累积到上层网络中，导致模型的训练很容易进入到激活函数的梯度饱和区；通过normalize操作可以让激活函数的输入数据落在梯度非饱和区，缓解梯度消失的问题；另外通过自适应学习$\gamma$与$\beta$又让数据保留更多的原始信息。<br>（4）BN具有一定的正则化效果<br>在Batch Normalization中，由于我们使用mini-batch的均值与方差作为对整体训练样本均值与方差的估计，尽管每一个batch中的数据都是从总体样本中抽样得到，但不同mini-batch的均值与方差会有所不同，这就为网络的学习过程中增加了随机噪音，与Dropout通过关闭神经元给网络训练带来噪音类似，在一定程度上对模型起到了正则化的效果。</p>
+<p>BN可以加速收敛速度，但一般不改变模型精度。</p>
+<p>训练时：通常将BN作用在全连接层和卷积层的输出和激活函数之间。对于全连接层，作用在特征维，即对于每一个特征，在mini-batch个样本上求均值和方差，然后做BN；对于卷积层，可以仿照1乘1卷积层的理解，作用在通道维，即每一个通道视为一个特征，所有的像素都是样本，也即对于每一个通道，在mini-batch乘以width乘以height个样本上求均值和方差，然后做BN。<br>预测时：理想情况下是使用总训练样本的均值和方差，这样不受限于随机批量；实际是通过移动平均估算整个训练数据集的样本均值和方差（当前mean = 0.1 乘以 当前mean + 0.9 乘以 以前的mean）。可见，和丢弃层一样，批量归一化层在训练模式和预测模式下的计算结果也是不一样的。</p>
+<h2 id="ResNet"><a href="#ResNet" class="headerlink" title="ResNet"></a>ResNet</h2><p>对神经网络模型添加新的层，充分训练后的模型是否只可能更有效地降低训练误差？答案是不一定。如下图所示，左侧非嵌套的函数集并不能使得更深的网络有更高的精度，而右侧嵌套的函数集则可以。<br><img src="https://user-images.githubusercontent.com/6218739/127817392-62cb2a30-6c0b-4429-ad19-0da9bf5749ae.png" alt="more-layer"><br>ResNet的目的就是使得添加更多的层，新模型和原模型同样有效，起码不会变差；且理论上原模型解的空间只是新模型解的空间的子空间，因此添加层会更容易降低训练误差。<br><img src="https://user-images.githubusercontent.com/6218739/127819013-9637a861-d32e-4c0e-beef-1d676fd1e402.png" alt="resnet-block"><br>ResNet块（残差块）就是上图结构。在残差块中，输入可通过跨层的数据线路更快地向前传播，“相当于架设了一条高速公路，保证高效更新”。<br>这样设计的优点：假设我们希望学出的理想映射为$f(x)$，虚线框中的部分则需要拟合出有关恒等映射的残差映射$f(x)-x$。残差映射在实际中往往更容易优化，也易于捕捉数值的细微波动。极端地，假设新模型仅仅与原模型有同样效果，那么此时就对应恒等映射$f(x)=x$，此时只需将虚线框内上方的加权运算（如仿射）的权重和偏差参数学成0。</p>
+<p>ResNet块可以有两种结构：<br>（1）ResNet沿用了VGG全3乘3卷积层的设计。残差块里首先有2个有相同输出通道数的3乘3卷积层。每个卷积层后接一个批量归一化层和ReLU激活函数。然后将输入跳过这2个卷积运算后直接加在最后的ReLU激活函数前。这样的设计要求2个卷积层的输出与输入形状一样，从而可以相加。<br>（2）如果想改变通道数，就需要引入一个额外的1×1卷积层来将输入变换成需要的形状后再做相加运算。</p>
+<p>ResNet架构：类似VGG和GoogLeNet的总体架构，5个stage，但换成了ResNet块。</p>
+<p>通过配置不同的通道数和模块里的残差块数可以得到不同的ResNet模型。比如ResNet-18、ResNet-152，数字代表的是卷积层+全连接层的层数，并不是全部的层数，也不是单纯的卷积层的个数，其中激活层，BN层，池化层统统不包括在内。</p>
+<h1 id="计算机视觉"><a href="#计算机视觉" class="headerlink" title="计算机视觉"></a>计算机视觉</h1><h2 id="更多的硬件"><a href="#更多的硬件" class="headerlink" title="更多的硬件"></a>更多的硬件</h2><p>深度学习的芯片与算法是“鸡生蛋、蛋生鸡”。AlexNet是因为有了GPU来得以实现（硬件生软件），而Google强推Transformer算法，是为了它的TPU卖得好（软件生硬件，Transformer有很多全连接层，TPU的内存很大，所以对Transformer很友好）。</p>
+<h2 id="多GPU训练"><a href="#多GPU训练" class="headerlink" title="多GPU训练"></a>多GPU训练</h2><p>数据并行：核心操作是AllReduce（规约）操作。目标是高效地将不同机器中的数据整合（reduce）之后再把结果分发给各个机器。</p>
+<h2 id="数据增广"><a href="#数据增广" class="headerlink" title="数据增广"></a>数据增广</h2><p>数据增广不会改变均值，但增大了方差（比如增亮和调暗操作，但均值不变），增加了数据多样性。</p>
+<h2 id="微调"><a href="#微调" class="headerlink" title="微调"></a>微调</h2><p>微调通过使用在大数据上得到的预训练好的模型来初始化模型权重来提升精度。</p>
+<h2 id="锚框"><a href="#锚框" class="headerlink" title="锚框"></a>锚框</h2><p>目标检测算法中有一类是基于锚框（还有anchor-free这样的算法）。<br>在训练阶段分三步走：（1）生成多个锚框（比如以每个像素为中心生成不同形状的锚框，但这种很耗资源）；（2）根据锚框与边界框的交并比IoU及其阈值为每个锚框分配边界框，并设定类别；（3）计算从锚框到真实边缘框的偏移量（偏移量的计算需要一些特殊变换，目的是为了使得这些偏移量的分布更均匀，这样才能用于后面的预测过程）。<br>锚框生成的参数可以这样来设定：假设输入图像高为h，宽为w。设大小为$s\in (0,1]$且宽高比为$r&gt;0$，那么锚框的宽和高将分别为$ws\sqrt{r}$和$hs/\sqrt{r}$。这样表示的好处是当两者相乘时，就是$whs^2$，那么s就控制了锚框的面积，当$s=1$时表示该锚框与原图像一样大；当两者相除时，就是$wr/h$，这样r就控制了宽高比，当$r=1$时，表示该锚框与原图的宽高比相等。<br><img src="https://user-images.githubusercontent.com/6218739/128323707-6114e761-d06b-4c71-88d3-b95c3dba103f.png" alt="anchor"><br>在预测阶段也是三步走：（1）生成多个锚框；（2）为这些锚框一一预测类别和偏移量，并根据锚框及其预测偏移量得到预测边界框；（3）当锚框数量较多时，同一个目标上可能会输出较多相似的预测边界框。通常使用非极大值抑制NMS移除相似的预测边界框。<br>NMS的过程：（1）挑选出非背景类别的最大预测概率，如最大预测概率为0.99，对应类别为狗，所在预测边界框为A；（2）去掉所有和该预测边界框的IoU值大于阈值（如0.5）的预测，如某一预测边界框基本与边界框B重合，但预测概率为0.8，说明它俩都预测此处为狗，但我们只选A这个边界框；如果边界框C离A比较远，IoU小于该阈值，那么就不会删除它；（3）重复上述过程直到所有预测要么被选中，要么被删除。</p>
+<h2 id="区域卷积神经网络R-CNNs"><a href="#区域卷积神经网络R-CNNs" class="headerlink" title="区域卷积神经网络R-CNNs"></a>区域卷积神经网络R-CNNs</h2><p>R-CNN系列是two-stage的算法，主要是因为生成锚框那块也使用了单独网络RPN。<br>R-CNN有四步：（1）使用启发式搜索算法来选择锚框；（2）使用预训练模型对每个锚框抽取特征；（3）训练一个SVM对类别分类；（4）训练一个线性回归模型预测边界框偏移量。<br>因为选择出的锚框的尺寸不一定一样大，这里使用兴趣区域ROI池化层来处理：给定一个锚框，均匀分割成n乘m块，输出每块里的最大值，这样不管锚框多大，总是输出n乘m个值。</p>
+<p>Fast R-CNN的改进：之前的RCNN是对每个锚框都运行一遍预训练模型抽取特征，Fast RCNN则对整个图像直接使用CNN来抽取特征，生成feature map，然后将启发式搜索得到的锚框按比例放在该feature map中，再对其进行ROI池化层，最后送入全连接层进行类别预测和边界框偏移计算。</p>
+<p>Faster R-CNN：使用一个区域提议网络RPN(Region Proposal Network)替代启发式搜索获得更好的锚框。RPN实际是一个粗糙的预测锚框的卷积神经网络。<br>Mask R-CNN：如果有像素级别的标注，则使用FCN全卷积网络利用这些信息。</p>
+<h2 id="单发多框检测SSD"><a href="#单发多框检测SSD" class="headerlink" title="单发多框检测SSD"></a>单发多框检测SSD</h2><p>SSD通过单神经网络来检测模型，是one-stage算法。<br>SSD模型架构：首先使用一个基础网络对整个图像来抽取特征，生成feature map，对该map有两条处理：（1）第一条处理是以该map中的每个像素为中心生成多个锚框（就是锚框那一节的生成方法），接着对每个锚框预测类别和边界框偏移；（2）第二条处理是对其使用卷积层来减半高宽，再次形成feature map。对新生成的map继续这两种处理，即生成锚框及其预测，以及再次生成feature map。这样就形成了多尺度的特征检测：底部段拟合小物体，顶部段拟合大物体。对每次生成的锚框，也有两个处理，一个是类别预测层，输出通道个数是锚框个数乘以（类别数+1），1是背景类，所以是对feature map中每个像素的每个锚框都会做类别判断；另一个是边界框预测层，输出通道个数是锚框个数乘以4，即对每个像素的每个锚框做偏移量预测。<br>对于不同尺度的输出，将每一尺度都拉直，即只保留批量大小那个维度，其他所有维度都拉平，然后再连接起来concatenate，这样能省好多事。（后面可以按锚框个数reshape，这样容易计算类别损失）<br>损失函数也由两部分构成：类别的loss由交叉熵损失计算，锚框偏移量的loss由L1回归损失计算。</p>
+<p>SSD相对于Fast RCNN，速度更快，但精度更低。</p>
+<h2 id="YOLO"><a href="#YOLO" class="headerlink" title="YOLO"></a>YOLO</h2><p>在SSD中，因为对每个像素都要生成多个锚框，所以相邻像素的锚框会大量重叠，因此会浪费很多计算。<br>YOLO的思路就是让锚框不会重叠，具体做法是将图片均匀分成S乘S个锚框，每个锚框预测多个边界框。<br>后续版本V2、V3、V4等有持续改进，比如先对图像进行聚类，判断一下锚框形状，这样其实就相当于加入了先验知识。</p>
+<h2 id="语义分割"><a href="#语义分割" class="headerlink" title="语义分割"></a>语义分割</h2><p>一般的图像分割不给出像素所属的label，可以用聚类来实现；<br>语义分割可以给出像素所属的label，是监督学习；<br>实例分割可以给出像素属于“哪一条狗”。<br>自动驾驶技术栈有很多模型，语义分割主要用在路面分割，目标检测主要用于车辆和行人检测。</p>
+<p>语义分割因为要对每个像素做预测，所以最终的输出要与原图尺寸相同，因此通常需要转置卷积进行上采样。</p>
+<p>转置卷积不等同于数学上的反卷积操作，但在神经网络中，通常将两者等同。</p>
+<h2 id="全卷积网络"><a href="#全卷积网络" class="headerlink" title="全卷积网络"></a>全卷积网络</h2><p>FCN：用转置卷积层替代CNN最后的全连接层，从而实现每个像素的预测，其输出通道个数就是类别个数。<br>损失函数是对所有像素的交叉熵的平均。<br>对于里面的转置卷积层，可以用双线性插值的方法来对其初始化，加速收敛。</p>
+<h1 id="循环神经网络"><a href="#循环神经网络" class="headerlink" title="循环神经网络"></a>循环神经网络</h1><p>待续。。</p>
+
+    </div>
+
+    
+    
+    
+        <div class="reward-container">
+  <div></div>
+  <button onclick="var qr = document.getElementById('qr'); qr.style.display = (qr.style.display === 'none') ? 'block' : 'none';">
+    Donate
+  </button>
+  <div id="qr" style="display: none;">
+      
+      <div style="display: inline-block;">
+        <img src="/images/wechat_reward.png" alt="Xin-Bo Qi(亓欣波) WeChat Pay">
+        <p>WeChat Pay</p>
+      </div>
+
+  </div>
+</div>
+
+
+      <footer class="post-footer">
+          <div class="post-tags">
+              <a href="/tags/PyTorch/" rel="tag"># PyTorch</a>
+          </div>
+
+        
+
+
+        
+    <div class="post-nav">
+      <div class="post-nav-item">
+    <a href="/2020/03/08/dive-into-dl/" rel="prev" title="《动手学深度学习》PyTorch版学习笔记">
+      <i class="fa fa-chevron-left"></i> 《动手学深度学习》PyTorch版学习笔记
+    </a></div>
+      <div class="post-nav-item">
+    <a href="/2020/03/24/ImagePy_18/" rel="next" title="ImagePy解析：18 -- 参数对话框ParaDialog详解">
+      ImagePy解析：18 -- 参数对话框ParaDialog详解 <i class="fa fa-chevron-right"></i>
+    </a></div>
+    </div>
+      </footer>
+    
+  </article>
+  
+  
+  
+
+
+
+          </div>
+          
+    
+  <div class="comments">
+    <div id="disqus_thread">
+      <noscript>Please enable JavaScript to view the comments powered by Disqus.</noscript>
+    </div>
+  </div>
+  
+
+<script>
+  window.addEventListener('tabs:register', () => {
+    let { activeClass } = CONFIG.comments;
+    if (CONFIG.comments.storage) {
+      activeClass = localStorage.getItem('comments_active') || activeClass;
+    }
+    if (activeClass) {
+      let activeTab = document.querySelector(`a[href="#comment-${activeClass}"]`);
+      if (activeTab) {
+        activeTab.click();
+      }
+    }
+  });
+  if (CONFIG.comments.storage) {
+    window.addEventListener('tabs:click', event => {
+      if (!event.target.matches('.tabs-comment .tab-content .tab-pane')) return;
+      let commentClass = event.target.classList[1];
+      localStorage.setItem('comments_active', commentClass);
+    });
+  }
+</script>
+
+        </div>
+          
+  
+  <div class="toggle sidebar-toggle">
+    <span class="toggle-line toggle-line-first"></span>
+    <span class="toggle-line toggle-line-middle"></span>
+    <span class="toggle-line toggle-line-last"></span>
+  </div>
+
+  <aside class="sidebar">
+    <div class="sidebar-inner">
+
+      <ul class="sidebar-nav motion-element">
+        <li class="sidebar-nav-toc">
+          Table of Contents
+        </li>
+        <li class="sidebar-nav-overview">
+          Overview
+        </li>
+      </ul>
+
+      <!--noindex-->
+      <div class="post-toc-wrap sidebar-panel">
+          <div class="post-toc motion-element"><ol class="nav"><li class="nav-item nav-level-1"><a class="nav-link" href="#%E6%B7%B1%E5%BA%A6%E5%AD%A6%E4%B9%A0%E5%9F%BA%E7%A1%80"><span class="nav-number">1.</span> <span class="nav-text">深度学习基础</span></a><ol class="nav-child"><li class="nav-item nav-level-2"><a class="nav-link" href="#%E6%95%B0%E6%8D%AE%E6%93%8D%E4%BD%9C"><span class="nav-number">1.1.</span> <span class="nav-text">数据操作</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E7%BA%BF%E6%80%A7%E4%BB%A3%E6%95%B0"><span class="nav-number">1.2.</span> <span class="nav-text">线性代数</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E8%87%AA%E5%8A%A8%E6%B1%82%E5%AF%BC"><span class="nav-number">1.3.</span> <span class="nav-text">自动求导</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E7%BA%BF%E6%80%A7%E5%9B%9E%E5%BD%92"><span class="nav-number">1.4.</span> <span class="nav-text">线性回归</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#Softmax%E5%9B%9E%E5%BD%92"><span class="nav-number">1.5.</span> <span class="nav-text">Softmax回归</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E6%84%9F%E7%9F%A5%E6%9C%BA"><span class="nav-number">1.6.</span> <span class="nav-text">感知机</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E5%A4%9A%E5%B1%82%E6%84%9F%E7%9F%A5%E6%9C%BA"><span class="nav-number">1.7.</span> <span class="nav-text">多层感知机</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E6%A8%A1%E5%9E%8B%E9%80%89%E6%8B%A9"><span class="nav-number">1.8.</span> <span class="nav-text">模型选择</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E8%BF%87%E6%8B%9F%E5%90%88%E5%92%8C%E6%AC%A0%E6%8B%9F%E5%90%88"><span class="nav-number">1.9.</span> <span class="nav-text">过拟合和欠拟合</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#Batch-Size"><span class="nav-number">1.10.</span> <span class="nav-text">Batch Size</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E6%9D%83%E9%87%8D%E8%A1%B0%E9%80%80"><span class="nav-number">1.11.</span> <span class="nav-text">权重衰退</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E4%B8%A2%E5%BC%83%E6%B3%95"><span class="nav-number">1.12.</span> <span class="nav-text">丢弃法</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E6%95%B0%E5%80%BC%E7%A8%B3%E5%AE%9A%E6%80%A7"><span class="nav-number">1.13.</span> <span class="nav-text">数值稳定性</span></a></li></ol></li><li class="nav-item nav-level-1"><a class="nav-link" href="#%E5%8D%B7%E7%A7%AF%E7%A5%9E%E7%BB%8F%E7%BD%91%E7%BB%9C"><span class="nav-number">2.</span> <span class="nav-text">卷积神经网络</span></a><ol class="nav-child"><li class="nav-item nav-level-2"><a class="nav-link" href="#%E5%8F%82%E6%95%B0%E7%AE%A1%E7%90%86"><span class="nav-number">2.1.</span> <span class="nav-text">参数管理</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E8%AF%BB%E5%86%99%E6%96%87%E4%BB%B6"><span class="nav-number">2.2.</span> <span class="nav-text">读写文件</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#GPU"><span class="nav-number">2.3.</span> <span class="nav-text">GPU</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E9%A2%84%E6%B5%8B%E6%88%BF%E4%BB%B7%E7%AB%9E%E8%B5%9B%E6%80%BB%E7%BB%93"><span class="nav-number">2.4.</span> <span class="nav-text">预测房价竞赛总结</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E4%BB%8E%E5%85%A8%E8%BF%9E%E6%8E%A5%E5%B1%82%E5%88%B0%E5%8D%B7%E7%A7%AF"><span class="nav-number">2.5.</span> <span class="nav-text">从全连接层到卷积</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E5%A1%AB%E5%85%85%E5%92%8C%E6%AD%A5%E5%B9%85"><span class="nav-number">2.6.</span> <span class="nav-text">填充和步幅</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E5%A4%9A%E8%BE%93%E5%85%A5%E5%A4%9A%E8%BE%93%E5%87%BA%E9%80%9A%E9%81%93"><span class="nav-number">2.7.</span> <span class="nav-text">多输入多输出通道</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E6%B1%A0%E5%8C%96%E5%B1%82"><span class="nav-number">2.8.</span> <span class="nav-text">池化层</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#LeNet"><span class="nav-number">2.9.</span> <span class="nav-text">LeNet</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#AlexNet"><span class="nav-number">2.10.</span> <span class="nav-text">AlexNet</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#VGG"><span class="nav-number">2.11.</span> <span class="nav-text">VGG</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#NiN"><span class="nav-number">2.12.</span> <span class="nav-text">NiN</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#GoogLeNet"><span class="nav-number">2.13.</span> <span class="nav-text">GoogLeNet</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E6%89%B9%E9%87%8F%E5%BD%92%E4%B8%80%E5%8C%96"><span class="nav-number">2.14.</span> <span class="nav-text">批量归一化</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#ResNet"><span class="nav-number">2.15.</span> <span class="nav-text">ResNet</span></a></li></ol></li><li class="nav-item nav-level-1"><a class="nav-link" href="#%E8%AE%A1%E7%AE%97%E6%9C%BA%E8%A7%86%E8%A7%89"><span class="nav-number">3.</span> <span class="nav-text">计算机视觉</span></a><ol class="nav-child"><li class="nav-item nav-level-2"><a class="nav-link" href="#%E6%9B%B4%E5%A4%9A%E7%9A%84%E7%A1%AC%E4%BB%B6"><span class="nav-number">3.1.</span> <span class="nav-text">更多的硬件</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E5%A4%9AGPU%E8%AE%AD%E7%BB%83"><span class="nav-number">3.2.</span> <span class="nav-text">多GPU训练</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E6%95%B0%E6%8D%AE%E5%A2%9E%E5%B9%BF"><span class="nav-number">3.3.</span> <span class="nav-text">数据增广</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E5%BE%AE%E8%B0%83"><span class="nav-number">3.4.</span> <span class="nav-text">微调</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E9%94%9A%E6%A1%86"><span class="nav-number">3.5.</span> <span class="nav-text">锚框</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E5%8C%BA%E5%9F%9F%E5%8D%B7%E7%A7%AF%E7%A5%9E%E7%BB%8F%E7%BD%91%E7%BB%9CR-CNNs"><span class="nav-number">3.6.</span> <span class="nav-text">区域卷积神经网络R-CNNs</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E5%8D%95%E5%8F%91%E5%A4%9A%E6%A1%86%E6%A3%80%E6%B5%8BSSD"><span class="nav-number">3.7.</span> <span class="nav-text">单发多框检测SSD</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#YOLO"><span class="nav-number">3.8.</span> <span class="nav-text">YOLO</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E8%AF%AD%E4%B9%89%E5%88%86%E5%89%B2"><span class="nav-number">3.9.</span> <span class="nav-text">语义分割</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E5%85%A8%E5%8D%B7%E7%A7%AF%E7%BD%91%E7%BB%9C"><span class="nav-number">3.10.</span> <span class="nav-text">全卷积网络</span></a></li></ol></li><li class="nav-item nav-level-1"><a class="nav-link" href="#%E5%BE%AA%E7%8E%AF%E7%A5%9E%E7%BB%8F%E7%BD%91%E7%BB%9C"><span class="nav-number">4.</span> <span class="nav-text">循环神经网络</span></a></li></ol></div>
+      </div>
+      <!--/noindex-->
+
+      <div class="site-overview-wrap sidebar-panel">
+        <div class="site-author motion-element" itemprop="author" itemscope itemtype="http://schema.org/Person">
+    <img class="site-author-image" itemprop="image" alt="Xin-Bo Qi(亓欣波)"
+      src="/images/avatar.jpg">
+  <p class="site-author-name" itemprop="name">Xin-Bo Qi(亓欣波)</p>
+  <div class="site-description" itemprop="description">Digitize everything to realize Digitalization!</div>
+</div>
+<div class="site-state-wrap motion-element">
+  <nav class="site-state">
+      <div class="site-state-item site-state-posts">
+          <a href="/archives/">
+        
+          <span class="site-state-item-count">127</span>
+          <span class="site-state-item-name">posts</span>
+        </a>
+      </div>
+      <div class="site-state-item site-state-categories">
+            <a href="/categories/">
+          
+        <span class="site-state-item-count">6</span>
+        <span class="site-state-item-name">categories</span></a>
+      </div>
+      <div class="site-state-item site-state-tags">
+            <a href="/tags/">
+          
+        <span class="site-state-item-count">43</span>
+        <span class="site-state-item-name">tags</span></a>
+      </div>
+  </nav>
+</div>
+  <div class="links-of-author motion-element">
+      <span class="links-of-author-item">
+        <a href="https://github.com/qixinbo" title="GitHub → https:&#x2F;&#x2F;github.com&#x2F;qixinbo" rel="noopener" target="_blank"><i class="github fa-fw"></i>GitHub</a>
+      </span>
+      <span class="links-of-author-item">
+        <a href="mailto:qixinbo@gmail.com" title="E-Mail → mailto:qixinbo@gmail.com" rel="noopener" target="_blank"><i class="envelope fa-fw"></i>E-Mail</a>
+      </span>
+      <span class="links-of-author-item">
+        <a href="https://twitter.com/qixinbo" title="Twitter → https:&#x2F;&#x2F;twitter.com&#x2F;qixinbo" rel="noopener" target="_blank"><i class="fab fa-twitter fa-fw"></i>Twitter</a>
+      </span>
+      <span class="links-of-author-item">
+        <a href="/atom.xml" title="RSS → &#x2F;atom.xml"><i class="fas fa-rss fa-fw"></i>RSS</a>
+      </span>
+  </div>
+
+
+  <div class="links-of-blogroll motion-element">
+    <div class="links-of-blogroll-title"><i class="fa fa-link fa-fw"></i>
+      Links
+    </div>
+    <ul class="links-of-blogroll-list">
+        <li class="links-of-blogroll-item">
+          <a href="https://www.tsinghua.edu.cn/" title="https:&#x2F;&#x2F;www.tsinghua.edu.cn" rel="noopener" target="_blank">THU</a>
+        </li>
+        <li class="links-of-blogroll-item">
+          <a href="http://www.imr.cas.cn/" title="http:&#x2F;&#x2F;www.imr.cas.cn" rel="noopener" target="_blank">IMR</a>
+        </li>
+        <li class="links-of-blogroll-item">
+          <a href="http://www.sdu.edu.cn/" title="http:&#x2F;&#x2F;www.sdu.edu.cn" rel="noopener" target="_blank">SDU</a>
+        </li>
+        <li class="links-of-blogroll-item">
+          <a href="http://liam0205.me/" title="http:&#x2F;&#x2F;liam0205.me&#x2F;" rel="noopener" target="_blank">黄晨成</a>
+        </li>
+    </ul>
+  </div>
+
+      </div>
+
+    </div>
+  </aside>
+  <div id="sidebar-dimmer"></div>
+
+
+      </div>
+    </main>
+
+    <footer class="footer">
+      <div class="footer-inner">
+        
+
+        
+
+<div class="copyright">
+  
+  &copy; 
+  <span itemprop="copyrightYear">2021</span>
+  <span class="with-love">
+    <i class="fa fa-heart"></i>
+  </span>
+  <span class="author" itemprop="copyrightHolder">Xin-Bo Qi(亓欣波)</span>
+</div>
+  <div class="powered-by">Powered by <a href="https://hexo.io/" class="theme-link" rel="noopener" target="_blank">Hexo</a> & <a href="https://theme-next.org/" class="theme-link" rel="noopener" target="_blank">NexT.Gemini</a>
+  </div>
+
+        
+
+
+
+
+
+
+
+
+      </div>
+    </footer>
+  </div>
+
+  
+  <script src="/lib/anime.min.js"></script>
+  <script src="/lib/velocity/velocity.min.js"></script>
+  <script src="/lib/velocity/velocity.ui.min.js"></script>
+
+<script src="/js/utils.js"></script>
+
+<script src="/js/motion.js"></script>
+
+
+<script src="/js/schemes/pisces.js"></script>
+
+
+<script src="/js/next-boot.js"></script>
+
+
+
+
+  
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+  
+
+  
+      
+
+<script>
+  if (typeof MathJax === 'undefined') {
+    window.MathJax = {
+      loader: {
+        source: {
+          '[tex]/amsCd': '[tex]/amscd',
+          '[tex]/AMScd': '[tex]/amscd'
+        }
+      },
+      tex: {
+        inlineMath: {'[+]': [['$', '$']]},
+        tags: 'ams'
+      },
+      options: {
+        renderActions: {
+          findScript: [10, doc => {
+            document.querySelectorAll('script[type^="math/tex"]').forEach(node => {
+              const display = !!node.type.match(/; *mode=display/);
+              const math = new doc.options.MathItem(node.textContent, doc.inputJax[0], display);
+              const text = document.createTextNode('');
+              node.parentNode.replaceChild(text, node);
+              math.start = {node: text, delim: '', n: 0};
+              math.end = {node: text, delim: '', n: 0};
+              doc.math.push(math);
+            });
+          }, '', false],
+          insertedScript: [200, () => {
+            document.querySelectorAll('mjx-container').forEach(node => {
+              let target = node.parentNode;
+              if (target.nodeName.toLowerCase() === 'li') {
+                target.parentNode.classList.add('has-jax');
+              }
+            });
+          }, '', false]
+        }
+      }
+    };
+    (function () {
+      var script = document.createElement('script');
+      script.src = '//cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js';
+      script.defer = true;
+      document.head.appendChild(script);
+    })();
+  } else {
+    MathJax.startup.document.state(0);
+    MathJax.texReset();
+    MathJax.typeset();
+  }
+</script>
+
+    
+
+  
+
+<script>
+  function loadCount() {
+    var d = document, s = d.createElement('script');
+    s.src = 'https://qixinbo.disqus.com/count.js';
+    s.id = 'dsq-count-scr';
+    (d.head || d.body).appendChild(s);
+  }
+  // defer loading until the whole page loading is completed
+  window.addEventListener('load', loadCount, false);
+</script>
+<script>
+  var disqus_config = function() {
+    this.page.url = "http://qixinbo.github.io/2020/03/09/dive-into-dl-video/";
+    this.page.identifier = "2020/03/09/dive-into-dl-video/";
+    this.page.title = "《动手学深度学习》视频课程学习笔记";
+    };
+  NexT.utils.loadComments(document.querySelector('#disqus_thread'), () => {
+    if (window.DISQUS) {
+      DISQUS.reset({
+        reload: true,
+        config: disqus_config
+      });
+    } else {
+      var d = document, s = d.createElement('script');
+      s.src = 'https://qixinbo.disqus.com/embed.js';
+      s.setAttribute('data-timestamp', '' + +new Date());
+      (d.head || d.body).appendChild(s);
+    }
+  });
+</script>
+
+</body>
+</html>
