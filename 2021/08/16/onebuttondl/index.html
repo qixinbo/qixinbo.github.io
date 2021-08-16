@@ -1,0 +1,617 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=2">
+<meta name="theme-color" content="#222">
+<meta name="generator" content="Hexo 5.4.0">
+  <link rel="apple-touch-icon" sizes="180x180" href="/images/apple-touch-icon-next.png">
+  <link rel="icon" type="image/png" sizes="32x32" href="/favicon.ico">
+  <link rel="icon" type="image/png" sizes="16x16" href="/favicon.ico">
+  <link rel="mask-icon" href="/images/logo.svg" color="#222">
+
+<link rel="stylesheet" href="/css/main.css">
+
+
+<link rel="stylesheet" href="/lib/font-awesome/css/all.min.css">
+
+<script id="hexo-configurations">
+    var NexT = window.NexT || {};
+    var CONFIG = {"hostname":"qixinbo.github.io","root":"/","scheme":"Gemini","version":"7.8.0","exturl":false,"sidebar":{"position":"left","display":"post","padding":18,"offset":12,"onmobile":false},"copycode":{"enable":false,"show_result":false,"style":null},"back2top":{"enable":true,"sidebar":false,"scrollpercent":false},"bookmark":{"enable":false,"color":"#222","save":"auto"},"fancybox":false,"mediumzoom":false,"lazyload":false,"pangu":false,"comments":{"style":"tabs","active":null,"storage":true,"lazyload":false,"nav":null},"algolia":{"hits":{"per_page":10},"labels":{"input_placeholder":"Search for Posts","hits_empty":"We didn't find any results for the search: ${query}","hits_stats":"${hits} results found in ${time} ms"}},"localsearch":{"enable":false,"trigger":"auto","top_n_per_article":1,"unescape":false,"preload":false},"motion":{"enable":true,"async":false,"transition":{"post_block":"fadeIn","post_header":"slideDownIn","post_body":"slideDownIn","coll_header":"slideLeftIn","sidebar":"slideUpIn"}}};
+  </script>
+
+  <meta name="description" content="起因 日常工作中，调用深度学习算法通常需要在命令行中进行，该过程通常涉及复杂的流程，比如修改配置文件、指定文件路径、打开命令行调用算法运行。此时如果能有一个图形界面软件实现“一键调用”，就会极大地节省工作量，提高工作效率，避免来来回回地反复修改文件、执行命令等。  最近新写了一个库，就是把常用的深度学习算法都集成在了ImagePy中，这样用户和开发者就能直接在ImagePy中愉快地“玩”算法了。">
+<meta property="og:type" content="article">
+<meta property="og:title" content="一键深度学习：将常用深度学习算法集成在ImagePy软件">
+<meta property="og:url" content="http://qixinbo.github.io/2021/08/16/onebuttondl/index.html">
+<meta property="og:site_name" content="数字旗手">
+<meta property="og:description" content="起因 日常工作中，调用深度学习算法通常需要在命令行中进行，该过程通常涉及复杂的流程，比如修改配置文件、指定文件路径、打开命令行调用算法运行。此时如果能有一个图形界面软件实现“一键调用”，就会极大地节省工作量，提高工作效率，避免来来回回地反复修改文件、执行命令等。  最近新写了一个库，就是把常用的深度学习算法都集成在了ImagePy中，这样用户和开发者就能直接在ImagePy中愉快地“玩”算法了。">
+<meta property="og:locale" content="en_US">
+<meta property="og:image" content="https://github.com/qixinbo/OneButtonDeepLearning/blob/main/OCR/menus/OCR/demo.png">
+<meta property="og:image" content="https://github.com/qixinbo/OneButtonDeepLearning/blob/main/YOLOv5/menus/YOLOv5/demo.png">
+<meta property="og:image" content="https://github.com/qixinbo/OneButtonDeepLearning/blob/main/FaceAnalysis/menus/Face/demo.png">
+<meta property="og:image" content="https://github.com/qixinbo/OneButtonDeepLearning/blob/main/Cellpose/menus/Cellpose/demo.png">
+<meta property="og:image" content="https://github.com/qixinbo/OneButtonDeepLearning/blob/main/BulkSeg/menus/BulkSeg/demo.png">
+<meta property="og:image" content="https://github.com/qixinbo/OneButtonDeepLearning/blob/main/DeepLab/menus/DeepLab/demo.png">
+<meta property="article:published_time" content="2021-08-15T16:00:00.000Z">
+<meta property="article:modified_time" content="2021-08-16T07:27:49.650Z">
+<meta property="article:author" content="Xin-Bo Qi(亓欣波)">
+<meta property="article:tag" content="Machine Learning">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:image" content="https://github.com/qixinbo/OneButtonDeepLearning/blob/main/OCR/menus/OCR/demo.png">
+
+<link rel="canonical" href="http://qixinbo.github.io/2021/08/16/onebuttondl/">
+
+
+<script id="page-configurations">
+  // https://hexo.io/docs/variables.html
+  CONFIG.page = {
+    sidebar: "",
+    isHome : false,
+    isPost : true,
+    lang   : 'en'
+  };
+</script>
+
+  <title>一键深度学习：将常用深度学习算法集成在ImagePy软件 | 数字旗手</title>
+  
+
+
+
+
+
+
+  <noscript>
+  <style>
+  .use-motion .brand,
+  .use-motion .menu-item,
+  .sidebar-inner,
+  .use-motion .post-block,
+  .use-motion .pagination,
+  .use-motion .comments,
+  .use-motion .post-header,
+  .use-motion .post-body,
+  .use-motion .collection-header { opacity: initial; }
+
+  .use-motion .site-title,
+  .use-motion .site-subtitle {
+    opacity: initial;
+    top: initial;
+  }
+
+  .use-motion .logo-line-before i { left: initial; }
+  .use-motion .logo-line-after i { right: initial; }
+  </style>
+</noscript>
+
+<link rel="alternate" href="/atom.xml" title="数字旗手" type="application/atom+xml">
+</head>
+
+<body itemscope itemtype="http://schema.org/WebPage">
+  <div class="container use-motion">
+    <div class="headband"></div>
+
+    <header class="header" itemscope itemtype="http://schema.org/WPHeader">
+      <div class="header-inner"><div class="site-brand-container">
+  <div class="site-nav-toggle">
+    <div class="toggle" aria-label="Toggle navigation bar">
+      <span class="toggle-line toggle-line-first"></span>
+      <span class="toggle-line toggle-line-middle"></span>
+      <span class="toggle-line toggle-line-last"></span>
+    </div>
+  </div>
+
+  <div class="site-meta">
+
+    <a href="/" class="brand" rel="start">
+      <span class="logo-line-before"><i></i></span>
+      <h1 class="site-title">数字旗手</h1>
+      <span class="logo-line-after"><i></i></span>
+    </a>
+      <p class="site-subtitle" itemprop="description">电气化、自动化、数字化、智能化、智慧化</p>
+  </div>
+
+  <div class="site-nav-right">
+    <div class="toggle popup-trigger">
+    </div>
+  </div>
+</div>
+
+
+
+
+<nav class="site-nav">
+  <ul id="menu" class="main-menu menu">
+        <li class="menu-item menu-item-home">
+
+    <a href="/" rel="section"><i class="fa fa-home fa-fw"></i>Home</a>
+
+  </li>
+        <li class="menu-item menu-item-categories">
+
+    <a href="/categories/" rel="section"><i class="fa fa-th fa-fw"></i>Categories</a>
+
+  </li>
+        <li class="menu-item menu-item-archives">
+
+    <a href="/archives/" rel="section"><i class="fa fa-archive fa-fw"></i>Archives</a>
+
+  </li>
+        <li class="menu-item menu-item-tags">
+
+    <a href="/tags/" rel="section"><i class="fa fa-tags fa-fw"></i>Tags</a>
+
+  </li>
+        <li class="menu-item menu-item-scholar">
+
+    <a href="/scholar/" rel="section"><i class="fa fa-chart-bar fa-fw"></i>scholar</a>
+
+  </li>
+        <li class="menu-item menu-item-sources">
+
+    <a href="/sources/" rel="section"><i class="fa fa-rss fa-fw"></i>sources</a>
+
+  </li>
+        <li class="menu-item menu-item-gallery">
+
+    <a href="/gallery/" rel="section"><i class="fa fa-file-image fa-fw"></i>gallery</a>
+
+  </li>
+        <li class="menu-item menu-item-about">
+
+    <a href="/about/" rel="section"><i class="fa fa-user fa-fw"></i>About</a>
+
+  </li>
+        <li class="menu-item menu-item-commonweal">
+
+    <a href="/404.html" rel="section"><i class="fa fa-heartbeat fa-fw"></i>Commonweal 404</a>
+
+  </li>
+  </ul>
+</nav>
+
+
+
+
+</div>
+    </header>
+
+    
+  <div class="back-to-top">
+    <i class="fa fa-arrow-up"></i>
+    <span>0%</span>
+  </div>
+
+
+    <main class="main">
+      <div class="main-inner">
+        <div class="content-wrap">
+          
+
+          <div class="content post posts-expand">
+            
+
+    
+  
+  
+  <article itemscope itemtype="http://schema.org/Article" class="post-block" lang="en">
+    <link itemprop="mainEntityOfPage" href="http://qixinbo.github.io/2021/08/16/onebuttondl/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="image" content="/images/avatar.jpg">
+      <meta itemprop="name" content="Xin-Bo Qi(亓欣波)">
+      <meta itemprop="description" content="Digitize everything to realize Digitalization!">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="数字旗手">
+    </span>
+      <header class="post-header">
+        <h1 class="post-title" itemprop="name headline">
+          一键深度学习：将常用深度学习算法集成在ImagePy软件
+        </h1>
+
+        <div class="post-meta">
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="far fa-calendar"></i>
+              </span>
+              <span class="post-meta-item-text">Posted on</span>
+              
+
+              <time title="Created: 2021-08-16 00:00:00 / Modified: 15:27:49" itemprop="dateCreated datePublished" datetime="2021-08-16T00:00:00+08:00">2021-08-16</time>
+            </span>
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="far fa-folder"></i>
+              </span>
+              <span class="post-meta-item-text">In</span>
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+                  <a href="/categories/machine-learning/" itemprop="url" rel="index"><span itemprop="name">machine learning</span></a>
+                </span>
+            </span>
+
+          
+  
+  <span class="post-meta-item">
+    
+      <span class="post-meta-item-icon">
+        <i class="far fa-comment"></i>
+      </span>
+      <span class="post-meta-item-text">Disqus: </span>
+    
+    <a title="disqus" href="/2021/08/16/onebuttondl/#disqus_thread" itemprop="discussionUrl">
+      <span class="post-comments-count disqus-comment-count" data-disqus-identifier="2021/08/16/onebuttondl/" itemprop="commentCount"></span>
+    </a>
+  </span>
+  
+  
+
+        </div>
+      </header>
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+        <h1 id="起因"><a href="#起因" class="headerlink" title="起因"></a>起因</h1><p>日常工作中，调用深度学习算法通常需要在命令行中进行，该过程通常涉及复杂的流程，比如修改配置文件、指定文件路径、打开命令行调用算法运行。此时如果能有一个图形界面软件实现“一键调用”，就会极大地节省工作量，提高工作效率，避免来来回回地反复修改文件、执行命令等。</p>
+<p>最近新写了一个库，就是把常用的深度学习算法都集成在了ImagePy中，这样用户和开发者就能直接在ImagePy中愉快地“玩”算法了。</p>
+<h1 id="OneButtonDeepLearning"><a href="#OneButtonDeepLearning" class="headerlink" title="OneButtonDeepLearning"></a>OneButtonDeepLearning</h1><p>该仓库在<a target="_blank" rel="noopener" href="https://github.com/qixinbo/OneButtonDeepLearning">这里https://github.com/qixinbo/OneButtonDeepLearning</a>。<br>宗旨就是：让深度学习算法触手可及、一键调用，不必每次在命令行进行复杂配置。</p>
+<h1 id="使用方法"><a href="#使用方法" class="headerlink" title="使用方法"></a>使用方法</h1><p>只需将要使用的模型文件夹复制到<code>imagepy/plugins</code>文件夹下，再次启动ImagePy后即可在菜单栏看到该算法。</p>
+<h2 id="配置环境"><a href="#配置环境" class="headerlink" title="配置环境"></a>配置环境</h2><p>如果运行深度学习算法的环境没有事先搭建好，那么在模型的<code>menus</code> 下都有一个配置文件，直接运行:<br><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">pip install -r requirements.txt</span><br></pre></td></tr></table></figure><br>即可下载相应的依赖包。</p>
+<h1 id="当前模型"><a href="#当前模型" class="headerlink" title="当前模型"></a>当前模型</h1><h2 id="光学字符识别OCR"><a href="#光学字符识别OCR" class="headerlink" title="光学字符识别OCR"></a>光学字符识别OCR</h2><p><a target="_blank" rel="noopener" href="https://github.com/PaddlePaddle/PaddleOCR">PaddleOCR</a> aims to create multilingual, awesome, leading, and practical OCR tools that help users train better models and apply them into practice.</p>
+<p><img src="https://github.com/qixinbo/OneButtonDeepLearning/blob/main/OCR/menus/OCR/demo.png" alt="ocr-demo"></p>
+<h2 id="目标检测YOLOv5"><a href="#目标检测YOLOv5" class="headerlink" title="目标检测YOLOv5"></a>目标检测YOLOv5</h2><p><a target="_blank" rel="noopener" href="https://github.com/ultralytics/yolov5">YOLOv5</a> is a family of compound-scaled object detection models trained on the COCO dataset.</p>
+<p><img src="https://github.com/qixinbo/OneButtonDeepLearning/blob/main/YOLOv5/menus/YOLOv5/demo.png" alt="yolov5-demo"></p>
+<h2 id="人脸识别"><a href="#人脸识别" class="headerlink" title="人脸识别"></a>人脸识别</h2><p><a target="_blank" rel="noopener" href="https://github.com/deepinsight/insightface">InsightFace</a> is an open source 2D&amp;3D deep face analysis toolbox, and efficiently implements a rich variety of state of the art algorithms of face recognition, face detection and face alignment, which optimized for both training and deployment.</p>
+<p><img src="https://github.com/qixinbo/OneButtonDeepLearning/blob/main/FaceAnalysis/menus/Face/demo.png" alt="face-demo"></p>
+<h2 id="胞状物体分割Cellpose"><a href="#胞状物体分割Cellpose" class="headerlink" title="胞状物体分割Cellpose"></a>胞状物体分割Cellpose</h2><p><a target="_blank" rel="noopener" href="https://github.com/MouseLand/cellpose">Cellpose</a> is a generalist algorithm for cell and nucleus segmentation.</p>
+<p><img src="https://github.com/qixinbo/OneButtonDeepLearning/blob/main/Cellpose/menus/Cellpose/demo.png" alt="cellpose-demo"></p>
+<h2 id="胞状物体分割BulkSeg"><a href="#胞状物体分割BulkSeg" class="headerlink" title="胞状物体分割BulkSeg"></a>胞状物体分割BulkSeg</h2><p><a target="_blank" rel="noopener" href="https://github.com/qixinbo/BulkSeg">BulkSeg</a> which is inspired by Cellpose, is a fast and generalist algorithm for segmenting bulk-like objects.<br><img src="https://github.com/qixinbo/OneButtonDeepLearning/blob/main/BulkSeg/menus/BulkSeg/demo.png" alt="bulkseg-demo"></p>
+<h2 id="物体分割DeepLab"><a href="#物体分割DeepLab" class="headerlink" title="物体分割DeepLab"></a>物体分割DeepLab</h2><p><a target="_blank" rel="noopener" href="https://github.com/pytorch/vision/blob/master/torchvision/models/segmentation/deeplabv3.py">DeepLab</a> is a state-of-art deep learning model for semantic image segmentation, where the goal is to assign semantic labels (e.g., person, dog, cat and so on) to every pixel in the input image.<br><img src="https://github.com/qixinbo/OneButtonDeepLearning/blob/main/DeepLab/menus/DeepLab/demo.png" alt="deeplab-demo"></p>
+<h1 id="计划"><a href="#计划" class="headerlink" title="计划"></a>计划</h1><p>下一步计划添加的模型有：</p>
+<ul>
+<li>图像生成</li>
+<li>风格迁移</li>
+</ul>
+
+    </div>
+
+    
+    
+    
+        <div class="reward-container">
+  <div></div>
+  <button onclick="var qr = document.getElementById('qr'); qr.style.display = (qr.style.display === 'none') ? 'block' : 'none';">
+    Donate
+  </button>
+  <div id="qr" style="display: none;">
+      
+      <div style="display: inline-block;">
+        <img src="/images/wechat_reward.png" alt="Xin-Bo Qi(亓欣波) WeChat Pay">
+        <p>WeChat Pay</p>
+      </div>
+
+  </div>
+</div>
+
+
+      <footer class="post-footer">
+          <div class="post-tags">
+              <a href="/tags/Machine-Learning/" rel="tag"># Machine Learning</a>
+          </div>
+
+        
+
+
+        
+    <div class="post-nav">
+      <div class="post-nav-item">
+    <a href="/2021/07/10/ImagePy_27/" rel="prev" title="ImagePy解析： 27 -- 工作流workflow组件">
+      <i class="fa fa-chevron-left"></i> ImagePy解析： 27 -- 工作流workflow组件
+    </a></div>
+      <div class="post-nav-item"></div>
+    </div>
+      </footer>
+    
+  </article>
+  
+  
+  
+
+
+
+          </div>
+          
+    
+  <div class="comments">
+    <div id="disqus_thread">
+      <noscript>Please enable JavaScript to view the comments powered by Disqus.</noscript>
+    </div>
+  </div>
+  
+
+<script>
+  window.addEventListener('tabs:register', () => {
+    let { activeClass } = CONFIG.comments;
+    if (CONFIG.comments.storage) {
+      activeClass = localStorage.getItem('comments_active') || activeClass;
+    }
+    if (activeClass) {
+      let activeTab = document.querySelector(`a[href="#comment-${activeClass}"]`);
+      if (activeTab) {
+        activeTab.click();
+      }
+    }
+  });
+  if (CONFIG.comments.storage) {
+    window.addEventListener('tabs:click', event => {
+      if (!event.target.matches('.tabs-comment .tab-content .tab-pane')) return;
+      let commentClass = event.target.classList[1];
+      localStorage.setItem('comments_active', commentClass);
+    });
+  }
+</script>
+
+        </div>
+          
+  
+  <div class="toggle sidebar-toggle">
+    <span class="toggle-line toggle-line-first"></span>
+    <span class="toggle-line toggle-line-middle"></span>
+    <span class="toggle-line toggle-line-last"></span>
+  </div>
+
+  <aside class="sidebar">
+    <div class="sidebar-inner">
+
+      <ul class="sidebar-nav motion-element">
+        <li class="sidebar-nav-toc">
+          Table of Contents
+        </li>
+        <li class="sidebar-nav-overview">
+          Overview
+        </li>
+      </ul>
+
+      <!--noindex-->
+      <div class="post-toc-wrap sidebar-panel">
+          <div class="post-toc motion-element"><ol class="nav"><li class="nav-item nav-level-1"><a class="nav-link" href="#%E8%B5%B7%E5%9B%A0"><span class="nav-number">1.</span> <span class="nav-text">起因</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#OneButtonDeepLearning"><span class="nav-number">2.</span> <span class="nav-text">OneButtonDeepLearning</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#%E4%BD%BF%E7%94%A8%E6%96%B9%E6%B3%95"><span class="nav-number">3.</span> <span class="nav-text">使用方法</span></a><ol class="nav-child"><li class="nav-item nav-level-2"><a class="nav-link" href="#%E9%85%8D%E7%BD%AE%E7%8E%AF%E5%A2%83"><span class="nav-number">3.1.</span> <span class="nav-text">配置环境</span></a></li></ol></li><li class="nav-item nav-level-1"><a class="nav-link" href="#%E5%BD%93%E5%89%8D%E6%A8%A1%E5%9E%8B"><span class="nav-number">4.</span> <span class="nav-text">当前模型</span></a><ol class="nav-child"><li class="nav-item nav-level-2"><a class="nav-link" href="#%E5%85%89%E5%AD%A6%E5%AD%97%E7%AC%A6%E8%AF%86%E5%88%ABOCR"><span class="nav-number">4.1.</span> <span class="nav-text">光学字符识别OCR</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E7%9B%AE%E6%A0%87%E6%A3%80%E6%B5%8BYOLOv5"><span class="nav-number">4.2.</span> <span class="nav-text">目标检测YOLOv5</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E4%BA%BA%E8%84%B8%E8%AF%86%E5%88%AB"><span class="nav-number">4.3.</span> <span class="nav-text">人脸识别</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E8%83%9E%E7%8A%B6%E7%89%A9%E4%BD%93%E5%88%86%E5%89%B2Cellpose"><span class="nav-number">4.4.</span> <span class="nav-text">胞状物体分割Cellpose</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E8%83%9E%E7%8A%B6%E7%89%A9%E4%BD%93%E5%88%86%E5%89%B2BulkSeg"><span class="nav-number">4.5.</span> <span class="nav-text">胞状物体分割BulkSeg</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E7%89%A9%E4%BD%93%E5%88%86%E5%89%B2DeepLab"><span class="nav-number">4.6.</span> <span class="nav-text">物体分割DeepLab</span></a></li></ol></li><li class="nav-item nav-level-1"><a class="nav-link" href="#%E8%AE%A1%E5%88%92"><span class="nav-number">5.</span> <span class="nav-text">计划</span></a></li></ol></div>
+      </div>
+      <!--/noindex-->
+
+      <div class="site-overview-wrap sidebar-panel">
+        <div class="site-author motion-element" itemprop="author" itemscope itemtype="http://schema.org/Person">
+    <img class="site-author-image" itemprop="image" alt="Xin-Bo Qi(亓欣波)"
+      src="/images/avatar.jpg">
+  <p class="site-author-name" itemprop="name">Xin-Bo Qi(亓欣波)</p>
+  <div class="site-description" itemprop="description">Digitize everything to realize Digitalization!</div>
+</div>
+<div class="site-state-wrap motion-element">
+  <nav class="site-state">
+      <div class="site-state-item site-state-posts">
+          <a href="/archives/">
+        
+          <span class="site-state-item-count">128</span>
+          <span class="site-state-item-name">posts</span>
+        </a>
+      </div>
+      <div class="site-state-item site-state-categories">
+            <a href="/categories/">
+          
+        <span class="site-state-item-count">6</span>
+        <span class="site-state-item-name">categories</span></a>
+      </div>
+      <div class="site-state-item site-state-tags">
+            <a href="/tags/">
+          
+        <span class="site-state-item-count">43</span>
+        <span class="site-state-item-name">tags</span></a>
+      </div>
+  </nav>
+</div>
+  <div class="links-of-author motion-element">
+      <span class="links-of-author-item">
+        <a href="https://github.com/qixinbo" title="GitHub → https:&#x2F;&#x2F;github.com&#x2F;qixinbo" rel="noopener" target="_blank"><i class="github fa-fw"></i>GitHub</a>
+      </span>
+      <span class="links-of-author-item">
+        <a href="mailto:qixinbo@gmail.com" title="E-Mail → mailto:qixinbo@gmail.com" rel="noopener" target="_blank"><i class="envelope fa-fw"></i>E-Mail</a>
+      </span>
+      <span class="links-of-author-item">
+        <a href="https://twitter.com/qixinbo" title="Twitter → https:&#x2F;&#x2F;twitter.com&#x2F;qixinbo" rel="noopener" target="_blank"><i class="fab fa-twitter fa-fw"></i>Twitter</a>
+      </span>
+      <span class="links-of-author-item">
+        <a href="/atom.xml" title="RSS → &#x2F;atom.xml"><i class="fas fa-rss fa-fw"></i>RSS</a>
+      </span>
+  </div>
+
+
+  <div class="links-of-blogroll motion-element">
+    <div class="links-of-blogroll-title"><i class="fa fa-link fa-fw"></i>
+      Links
+    </div>
+    <ul class="links-of-blogroll-list">
+        <li class="links-of-blogroll-item">
+          <a href="https://www.tsinghua.edu.cn/" title="https:&#x2F;&#x2F;www.tsinghua.edu.cn" rel="noopener" target="_blank">THU</a>
+        </li>
+        <li class="links-of-blogroll-item">
+          <a href="http://www.imr.cas.cn/" title="http:&#x2F;&#x2F;www.imr.cas.cn" rel="noopener" target="_blank">IMR</a>
+        </li>
+        <li class="links-of-blogroll-item">
+          <a href="http://www.sdu.edu.cn/" title="http:&#x2F;&#x2F;www.sdu.edu.cn" rel="noopener" target="_blank">SDU</a>
+        </li>
+        <li class="links-of-blogroll-item">
+          <a href="http://liam0205.me/" title="http:&#x2F;&#x2F;liam0205.me&#x2F;" rel="noopener" target="_blank">黄晨成</a>
+        </li>
+    </ul>
+  </div>
+
+      </div>
+
+    </div>
+  </aside>
+  <div id="sidebar-dimmer"></div>
+
+
+      </div>
+    </main>
+
+    <footer class="footer">
+      <div class="footer-inner">
+        
+
+        
+
+<div class="copyright">
+  
+  &copy; 
+  <span itemprop="copyrightYear">2021</span>
+  <span class="with-love">
+    <i class="fa fa-heart"></i>
+  </span>
+  <span class="author" itemprop="copyrightHolder">Xin-Bo Qi(亓欣波)</span>
+</div>
+  <div class="powered-by">Powered by <a href="https://hexo.io/" class="theme-link" rel="noopener" target="_blank">Hexo</a> & <a href="https://theme-next.org/" class="theme-link" rel="noopener" target="_blank">NexT.Gemini</a>
+  </div>
+
+        
+
+
+
+
+
+
+
+
+      </div>
+    </footer>
+  </div>
+
+  
+  <script src="/lib/anime.min.js"></script>
+  <script src="/lib/velocity/velocity.min.js"></script>
+  <script src="/lib/velocity/velocity.ui.min.js"></script>
+
+<script src="/js/utils.js"></script>
+
+<script src="/js/motion.js"></script>
+
+
+<script src="/js/schemes/pisces.js"></script>
+
+
+<script src="/js/next-boot.js"></script>
+
+
+
+
+  
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+  
+
+  
+      
+
+<script>
+  if (typeof MathJax === 'undefined') {
+    window.MathJax = {
+      loader: {
+        source: {
+          '[tex]/amsCd': '[tex]/amscd',
+          '[tex]/AMScd': '[tex]/amscd'
+        }
+      },
+      tex: {
+        inlineMath: {'[+]': [['$', '$']]},
+        tags: 'ams'
+      },
+      options: {
+        renderActions: {
+          findScript: [10, doc => {
+            document.querySelectorAll('script[type^="math/tex"]').forEach(node => {
+              const display = !!node.type.match(/; *mode=display/);
+              const math = new doc.options.MathItem(node.textContent, doc.inputJax[0], display);
+              const text = document.createTextNode('');
+              node.parentNode.replaceChild(text, node);
+              math.start = {node: text, delim: '', n: 0};
+              math.end = {node: text, delim: '', n: 0};
+              doc.math.push(math);
+            });
+          }, '', false],
+          insertedScript: [200, () => {
+            document.querySelectorAll('mjx-container').forEach(node => {
+              let target = node.parentNode;
+              if (target.nodeName.toLowerCase() === 'li') {
+                target.parentNode.classList.add('has-jax');
+              }
+            });
+          }, '', false]
+        }
+      }
+    };
+    (function () {
+      var script = document.createElement('script');
+      script.src = '//cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js';
+      script.defer = true;
+      document.head.appendChild(script);
+    })();
+  } else {
+    MathJax.startup.document.state(0);
+    MathJax.texReset();
+    MathJax.typeset();
+  }
+</script>
+
+    
+
+  
+
+<script>
+  function loadCount() {
+    var d = document, s = d.createElement('script');
+    s.src = 'https://qixinbo.disqus.com/count.js';
+    s.id = 'dsq-count-scr';
+    (d.head || d.body).appendChild(s);
+  }
+  // defer loading until the whole page loading is completed
+  window.addEventListener('load', loadCount, false);
+</script>
+<script>
+  var disqus_config = function() {
+    this.page.url = "http://qixinbo.github.io/2021/08/16/onebuttondl/";
+    this.page.identifier = "2021/08/16/onebuttondl/";
+    this.page.title = "一键深度学习：将常用深度学习算法集成在ImagePy软件";
+    };
+  NexT.utils.loadComments(document.querySelector('#disqus_thread'), () => {
+    if (window.DISQUS) {
+      DISQUS.reset({
+        reload: true,
+        config: disqus_config
+      });
+    } else {
+      var d = document, s = d.createElement('script');
+      s.src = 'https://qixinbo.disqus.com/embed.js';
+      s.setAttribute('data-timestamp', '' + +new Date());
+      (d.head || d.body).appendChild(s);
+    }
+  });
+</script>
+
+</body>
+</html>

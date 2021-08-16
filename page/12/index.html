@@ -184,6 +184,113 @@
   
   
   <article itemscope itemtype="http://schema.org/Article" class="post-block" lang="en">
+    <link itemprop="mainEntityOfPage" href="http://qixinbo.github.io/2016/04/26/mathematica-pic2transparent/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="image" content="/images/avatar.jpg">
+      <meta itemprop="name" content="Xin-Bo Qi(亓欣波)">
+      <meta itemprop="description" content="Digitize everything to realize Digitalization!">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="数字旗手">
+    </span>
+      <header class="post-header">
+        <h2 class="post-title" itemprop="name headline">
+          
+            <a href="/2016/04/26/mathematica-pic2transparent/" class="post-title-link" itemprop="url">用Mathematica将图片背底变成透明</a>
+        </h2>
+
+        <div class="post-meta">
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="far fa-calendar"></i>
+              </span>
+              <span class="post-meta-item-text">Posted on</span>
+
+              <time title="Created: 2016-04-26 00:00:00" itemprop="dateCreated datePublished" datetime="2016-04-26T00:00:00+08:00">2016-04-26</time>
+            </span>
+              <span class="post-meta-item">
+                <span class="post-meta-item-icon">
+                  <i class="far fa-calendar-check"></i>
+                </span>
+                <span class="post-meta-item-text">Edited on</span>
+                <time title="Modified: 2021-03-26 15:48:34" itemprop="dateModified" datetime="2021-03-26T15:48:34+08:00">2021-03-26</time>
+              </span>
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="far fa-folder"></i>
+              </span>
+              <span class="post-meta-item-text">In</span>
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+                  <a href="/categories/computer-vision/" itemprop="url" rel="index"><span itemprop="name">computer vision</span></a>
+                </span>
+            </span>
+
+          
+  
+  <span class="post-meta-item">
+    
+      <span class="post-meta-item-icon">
+        <i class="far fa-comment"></i>
+      </span>
+      <span class="post-meta-item-text">Disqus: </span>
+    
+    <a title="disqus" href="/2016/04/26/mathematica-pic2transparent/#disqus_thread" itemprop="discussionUrl">
+      <span class="post-comments-count disqus-comment-count" data-disqus-identifier="2016/04/26/mathematica-pic2transparent/" itemprop="commentCount"></span>
+    </a>
+  </span>
+  
+  
+
+        </div>
+      </header>
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+          2016-4-26更新：新增针对彩色图片的处理。
+
+有时候需要将图片的背底变成透明，从而适应各种不同背景(尤其不是白色背景)，使得图片能更融入到背景中去。专业中也遇到这样一个问题，需要将两个枝晶轮廓在一起比对看是否重合。将背底变为透明色，通常可以使用PowerPoint的”设置透明色”这一功能，但对于对比很明显的图片效果较好，对比不明显的图片则偏差很大，且不能人为操纵。这里采用Mathematica，仅用几行代码即可实现。
+
+对于黑白图片，或可以将图片转为黑白的情形：
+Mathematica源码为：
+1
+2
+3
+
+
+img1 = Binarize[img];
+img2 = ColorConve
+          <!--noindex-->
+            <div class="post-button">
+              <a class="btn" href="/2016/04/26/mathematica-pic2transparent/#more" rel="contents">
+                Read more &raquo;
+              </a>
+            </div>
+          <!--/noindex-->
+        
+      
+    </div>
+
+    
+    
+    
+      <footer class="post-footer">
+        <div class="post-eof"></div>
+      </footer>
+  </article>
+  
+  
+  
+
+      
+  
+  
+  <article itemscope itemtype="http://schema.org/Article" class="post-block" lang="en">
     <link itemprop="mainEntityOfPage" href="http://qixinbo.github.io/2016/04/24/mathematica-areaCalc/">
 
     <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
@@ -1159,110 +1266,6 @@ l,,,,  //list的缩写
   
   
 
-      
-  
-  
-  <article itemscope itemtype="http://schema.org/Article" class="post-block" lang="en">
-    <link itemprop="mainEntityOfPage" href="http://qixinbo.github.io/2016/03/01/phasetransform-chap1/">
-
-    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
-      <meta itemprop="image" content="/images/avatar.jpg">
-      <meta itemprop="name" content="Xin-Bo Qi(亓欣波)">
-      <meta itemprop="description" content="Digitize everything to realize Digitalization!">
-    </span>
-
-    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
-      <meta itemprop="name" content="数字旗手">
-    </span>
-      <header class="post-header">
-        <h2 class="post-title" itemprop="name headline">
-          
-            <a href="/2016/03/01/phasetransform-chap1/" class="post-title-link" itemprop="url">相变的一般特征</a>
-        </h2>
-
-        <div class="post-meta">
-            <span class="post-meta-item">
-              <span class="post-meta-item-icon">
-                <i class="far fa-calendar"></i>
-              </span>
-              <span class="post-meta-item-text">Posted on</span>
-
-              <time title="Created: 2016-03-01 00:00:00" itemprop="dateCreated datePublished" datetime="2016-03-01T00:00:00+08:00">2016-03-01</time>
-            </span>
-              <span class="post-meta-item">
-                <span class="post-meta-item-icon">
-                  <i class="far fa-calendar-check"></i>
-                </span>
-                <span class="post-meta-item-text">Edited on</span>
-                <time title="Modified: 2021-03-26 15:50:14" itemprop="dateModified" datetime="2021-03-26T15:50:14+08:00">2021-03-26</time>
-              </span>
-            <span class="post-meta-item">
-              <span class="post-meta-item-icon">
-                <i class="far fa-folder"></i>
-              </span>
-              <span class="post-meta-item-text">In</span>
-                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
-                  <a href="/categories/simulation/" itemprop="url" rel="index"><span itemprop="name">simulation</span></a>
-                </span>
-            </span>
-
-          
-  
-  <span class="post-meta-item">
-    
-      <span class="post-meta-item-icon">
-        <i class="far fa-comment"></i>
-      </span>
-      <span class="post-meta-item-text">Disqus: </span>
-    
-    <a title="disqus" href="/2016/03/01/phasetransform-chap1/#disqus_thread" itemprop="discussionUrl">
-      <span class="post-comments-count disqus-comment-count" data-disqus-identifier="2016/03/01/phasetransform-chap1/" itemprop="commentCount"></span>
-    </a>
-  </span>
-  
-  
-
-        </div>
-      </header>
-
-    
-    
-    
-    <div class="post-body" itemprop="articleBody">
-
-      
-          本文是对徐祖耀老师所著的《相变原理》(科学出版社2000年出版)第一章的读书笔记。
-
-相变的定义
-在均匀单相中，或在几个混合相中，出现了不同成分或不同结构(包括原子、离子或电子位置及位向的改变)、不同组织形态或不同性质的相，就称为相变。
-
-相变何时发生
-当母相失稳而新相具有较高的稳定性时，就会发生相变。
-母相失稳可以需要跨过一定的能垒(需要一定的形核驱动力，即先形核)，也可以连续失稳(没有能垒的连续型相变，不需要进行形核过程，如Spinodal分解)。
-在一些固态相变中，除温度因素外，压强和应变也引起母相的失稳。
-固态相变热循环时往往发生较大的热滞，即冷却时的相变温度不等于再次加热时的相变温度
-          <!--noindex-->
-            <div class="post-button">
-              <a class="btn" href="/2016/03/01/phasetransform-chap1/#more" rel="contents">
-                Read more &raquo;
-              </a>
-            </div>
-          <!--/noindex-->
-        
-      
-    </div>
-
-    
-    
-    
-      <footer class="post-footer">
-        <div class="post-eof"></div>
-      </footer>
-  </article>
-  
-  
-  
-
 
   
   <nav class="pagination">
@@ -1334,7 +1337,7 @@ l,,,,  //list的缩写
       <div class="site-state-item site-state-posts">
           <a href="/archives/">
         
-          <span class="site-state-item-count">127</span>
+          <span class="site-state-item-count">128</span>
           <span class="site-state-item-name">posts</span>
         </a>
       </div>
