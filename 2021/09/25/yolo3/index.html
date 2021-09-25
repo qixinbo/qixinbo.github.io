@@ -1,0 +1,650 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=2">
+<meta name="theme-color" content="#222">
+<meta name="generator" content="Hexo 5.4.0">
+  <link rel="apple-touch-icon" sizes="180x180" href="/images/apple-touch-icon-next.png">
+  <link rel="icon" type="image/png" sizes="32x32" href="/favicon.ico">
+  <link rel="icon" type="image/png" sizes="16x16" href="/favicon.ico">
+  <link rel="mask-icon" href="/images/logo.svg" color="#222">
+
+<link rel="stylesheet" href="/css/main.css">
+
+
+<link rel="stylesheet" href="/lib/font-awesome/css/all.min.css">
+
+<script id="hexo-configurations">
+    var NexT = window.NexT || {};
+    var CONFIG = {"hostname":"qixinbo.github.io","root":"/","scheme":"Gemini","version":"7.8.0","exturl":false,"sidebar":{"position":"left","display":"post","padding":18,"offset":12,"onmobile":false},"copycode":{"enable":false,"show_result":false,"style":null},"back2top":{"enable":true,"sidebar":false,"scrollpercent":false},"bookmark":{"enable":false,"color":"#222","save":"auto"},"fancybox":false,"mediumzoom":false,"lazyload":false,"pangu":false,"comments":{"style":"tabs","active":null,"storage":true,"lazyload":false,"nav":null},"algolia":{"hits":{"per_page":10},"labels":{"input_placeholder":"Search for Posts","hits_empty":"We didn't find any results for the search: ${query}","hits_stats":"${hits} results found in ${time} ms"}},"localsearch":{"enable":false,"trigger":"auto","top_n_per_article":1,"unescape":false,"preload":false},"motion":{"enable":true,"async":false,"transition":{"post_block":"fadeIn","post_header":"slideDownIn","post_body":"slideDownIn","coll_header":"slideLeftIn","sidebar":"slideUpIn"}}};
+  </script>
+
+  <meta name="description" content="介绍 物体检测的两个步骤可以概括为： 步骤一：检测目标位置（生成矩形框） 步骤二：对目标物体进行分类 物体检测主流的算法框架大致分为one-stage与two-stage。two-stage算法代表有R-CNN系列，one-stage算法代表有Yolo系列。two-stage算法将步骤一与步骤二分开执行，输入图像先经过候选框生成网络（例如faster rcnn中的RPN网络），再经过分类网络；on">
+<meta property="og:type" content="article">
+<meta property="og:title" content="YOLO系列算法原理及极简代码解析">
+<meta property="og:url" content="http://qixinbo.github.io/2021/09/25/yolo3/index.html">
+<meta property="og:site_name" content="数字旗手">
+<meta property="og:description" content="介绍 物体检测的两个步骤可以概括为： 步骤一：检测目标位置（生成矩形框） 步骤二：对目标物体进行分类 物体检测主流的算法框架大致分为one-stage与two-stage。two-stage算法代表有R-CNN系列，one-stage算法代表有Yolo系列。two-stage算法将步骤一与步骤二分开执行，输入图像先经过候选框生成网络（例如faster rcnn中的RPN网络），再经过分类网络；on">
+<meta property="og:locale" content="en_US">
+<meta property="og:image" content="https://user-images.githubusercontent.com/6218739/133874079-e9c89d7b-f8f3-4078-8d9a-30e9f0451df3.png">
+<meta property="og:image" content="https://user-images.githubusercontent.com/6218739/133877539-5d2fe916-a712-4676-9a5e-06a3657a27cf.png">
+<meta property="og:image" content="https://user-images.githubusercontent.com/6218739/133877787-e073a763-b371-4908-8456-60f6329974b7.png">
+<meta property="og:image" content="https://user-images.githubusercontent.com/6218739/133880395-2f580763-b4fc-4aea-b36e-2d745834a1da.png">
+<meta property="og:image" content="https://user-images.githubusercontent.com/6218739/133880487-984b7259-6b63-42e4-8d6a-7ae420fb4591.png">
+<meta property="og:image" content="https://user-images.githubusercontent.com/6218739/133882919-4d3ede76-ff3d-4435-a4c0-a577c181bd2d.png">
+<meta property="og:image" content="https://user-images.githubusercontent.com/6218739/133880395-2f580763-b4fc-4aea-b36e-2d745834a1da.png">
+<meta property="article:published_time" content="2021-09-24T16:00:00.000Z">
+<meta property="article:modified_time" content="2021-09-25T15:15:16.864Z">
+<meta property="article:author" content="Xin-Bo Qi(亓欣波)">
+<meta property="article:tag" content="YOLO">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:image" content="https://user-images.githubusercontent.com/6218739/133874079-e9c89d7b-f8f3-4078-8d9a-30e9f0451df3.png">
+
+<link rel="canonical" href="http://qixinbo.github.io/2021/09/25/yolo3/">
+
+
+<script id="page-configurations">
+  // https://hexo.io/docs/variables.html
+  CONFIG.page = {
+    sidebar: "",
+    isHome : false,
+    isPost : true,
+    lang   : 'en'
+  };
+</script>
+
+  <title>YOLO系列算法原理及极简代码解析 | 数字旗手</title>
+  
+
+
+
+
+
+
+  <noscript>
+  <style>
+  .use-motion .brand,
+  .use-motion .menu-item,
+  .sidebar-inner,
+  .use-motion .post-block,
+  .use-motion .pagination,
+  .use-motion .comments,
+  .use-motion .post-header,
+  .use-motion .post-body,
+  .use-motion .collection-header { opacity: initial; }
+
+  .use-motion .site-title,
+  .use-motion .site-subtitle {
+    opacity: initial;
+    top: initial;
+  }
+
+  .use-motion .logo-line-before i { left: initial; }
+  .use-motion .logo-line-after i { right: initial; }
+  </style>
+</noscript>
+
+<link rel="alternate" href="/atom.xml" title="数字旗手" type="application/atom+xml">
+</head>
+
+<body itemscope itemtype="http://schema.org/WebPage">
+  <div class="container use-motion">
+    <div class="headband"></div>
+
+    <header class="header" itemscope itemtype="http://schema.org/WPHeader">
+      <div class="header-inner"><div class="site-brand-container">
+  <div class="site-nav-toggle">
+    <div class="toggle" aria-label="Toggle navigation bar">
+      <span class="toggle-line toggle-line-first"></span>
+      <span class="toggle-line toggle-line-middle"></span>
+      <span class="toggle-line toggle-line-last"></span>
+    </div>
+  </div>
+
+  <div class="site-meta">
+
+    <a href="/" class="brand" rel="start">
+      <span class="logo-line-before"><i></i></span>
+      <h1 class="site-title">数字旗手</h1>
+      <span class="logo-line-after"><i></i></span>
+    </a>
+      <p class="site-subtitle" itemprop="description">电气化、自动化、数字化、智能化、智慧化</p>
+  </div>
+
+  <div class="site-nav-right">
+    <div class="toggle popup-trigger">
+    </div>
+  </div>
+</div>
+
+
+
+
+<nav class="site-nav">
+  <ul id="menu" class="main-menu menu">
+        <li class="menu-item menu-item-home">
+
+    <a href="/" rel="section"><i class="fa fa-home fa-fw"></i>Home</a>
+
+  </li>
+        <li class="menu-item menu-item-categories">
+
+    <a href="/categories/" rel="section"><i class="fa fa-th fa-fw"></i>Categories</a>
+
+  </li>
+        <li class="menu-item menu-item-archives">
+
+    <a href="/archives/" rel="section"><i class="fa fa-archive fa-fw"></i>Archives</a>
+
+  </li>
+        <li class="menu-item menu-item-tags">
+
+    <a href="/tags/" rel="section"><i class="fa fa-tags fa-fw"></i>Tags</a>
+
+  </li>
+        <li class="menu-item menu-item-scholar">
+
+    <a href="/scholar/" rel="section"><i class="fa fa-chart-bar fa-fw"></i>scholar</a>
+
+  </li>
+        <li class="menu-item menu-item-sources">
+
+    <a href="/sources/" rel="section"><i class="fa fa-rss fa-fw"></i>sources</a>
+
+  </li>
+        <li class="menu-item menu-item-gallery">
+
+    <a href="/gallery/" rel="section"><i class="fa fa-file-image fa-fw"></i>gallery</a>
+
+  </li>
+        <li class="menu-item menu-item-about">
+
+    <a href="/about/" rel="section"><i class="fa fa-user fa-fw"></i>About</a>
+
+  </li>
+        <li class="menu-item menu-item-commonweal">
+
+    <a href="/404.html" rel="section"><i class="fa fa-heartbeat fa-fw"></i>Commonweal 404</a>
+
+  </li>
+  </ul>
+</nav>
+
+
+
+
+</div>
+    </header>
+
+    
+  <div class="back-to-top">
+    <i class="fa fa-arrow-up"></i>
+    <span>0%</span>
+  </div>
+
+
+    <main class="main">
+      <div class="main-inner">
+        <div class="content-wrap">
+          
+
+          <div class="content post posts-expand">
+            
+
+    
+  
+  
+  <article itemscope itemtype="http://schema.org/Article" class="post-block" lang="en">
+    <link itemprop="mainEntityOfPage" href="http://qixinbo.github.io/2021/09/25/yolo3/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="image" content="/images/avatar.jpg">
+      <meta itemprop="name" content="Xin-Bo Qi(亓欣波)">
+      <meta itemprop="description" content="Digitize everything to realize Digitalization!">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="数字旗手">
+    </span>
+      <header class="post-header">
+        <h1 class="post-title" itemprop="name headline">
+          YOLO系列算法原理及极简代码解析
+        </h1>
+
+        <div class="post-meta">
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="far fa-calendar"></i>
+              </span>
+              <span class="post-meta-item-text">Posted on</span>
+              
+
+              <time title="Created: 2021-09-25 00:00:00 / Modified: 23:15:16" itemprop="dateCreated datePublished" datetime="2021-09-25T00:00:00+08:00">2021-09-25</time>
+            </span>
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="far fa-folder"></i>
+              </span>
+              <span class="post-meta-item-text">In</span>
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+                  <a href="/categories/machine-learning/" itemprop="url" rel="index"><span itemprop="name">machine learning</span></a>
+                </span>
+            </span>
+
+          
+  
+  <span class="post-meta-item">
+    
+      <span class="post-meta-item-icon">
+        <i class="far fa-comment"></i>
+      </span>
+      <span class="post-meta-item-text">Disqus: </span>
+    
+    <a title="disqus" href="/2021/09/25/yolo3/#disqus_thread" itemprop="discussionUrl">
+      <span class="post-comments-count disqus-comment-count" data-disqus-identifier="2021/09/25/yolo3/" itemprop="commentCount"></span>
+    </a>
+  </span>
+  
+  
+
+        </div>
+      </header>
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+        <h1 id="介绍"><a href="#介绍" class="headerlink" title="介绍"></a>介绍</h1><p>物体检测的两个步骤可以概括为：<br>步骤一：检测目标位置（生成矩形框）<br>步骤二：对目标物体进行分类<br>物体检测主流的算法框架大致分为one-stage与two-stage。two-stage算法代表有R-CNN系列，one-stage算法代表有Yolo系列。two-stage算法将步骤一与步骤二分开执行，输入图像先经过候选框生成网络（例如faster rcnn中的RPN网络），再经过分类网络；one-stage算法将步骤一与步骤二同时执行，输入图像只经过一个网络，生成的结果中同时包含位置与类别信息。two-stage与one-stage相比，精度高，但是计算量更大，所以运算较慢。</p>
+<h1 id="YOLO"><a href="#YOLO" class="headerlink" title="YOLO"></a>YOLO</h1><h2 id="YOLOv1"><a href="#YOLOv1" class="headerlink" title="YOLOv1"></a>YOLOv1</h2><p><a target="_blank" rel="noopener" href="https://zhuanlan.zhihu.com/p/70387154">【论文解读】Yolo三部曲解读——Yolov1</a><br>YOLOv1的网络架构如下图：<br><img src="https://user-images.githubusercontent.com/6218739/133874079-e9c89d7b-f8f3-4078-8d9a-30e9f0451df3.png" alt="yolov1"><br>直接上结构图，输入图像大小为448乘448，经过若干个卷积层与池化层，变为7乘7乘1024张量（图一中倒数第三个立方体），最后经过两层全连接层，输出张量维度为7乘7乘30，这就是Yolo v1的整个神经网络结构，和一般的卷积物体分类网络没有太多区别，最大的不同就是：分类网络最后的全连接层，一般连接于一个一维向量，向量的不同位代表不同类别，而这里的输出向量是一个三维的张量（7乘7乘30）。上图中Yolo的backbone网络结构，受启发于GoogLeNet，也是v2、v3中Darknet的先锋。本质上来说没有什么特别，没有使用BN层，用了一层Dropout。除了最后一层的输出使用了线性激活函数，其他层全部使用Leaky Relu激活函数。网络结构没有特别的东西，不再赘述。</p>
+<p>输出张量维度的意义：<br>（1）7乘7的含义<br>7乘7是指图片被分成了7乘7个格子，如下图：<br><img src="https://user-images.githubusercontent.com/6218739/133877539-5d2fe916-a712-4676-9a5e-06a3657a27cf.png" alt="grid-yolov1"><br>在Yolo中，如果一个物体的中心点，落在了某个格子中，那么这个格子将负责预测这个物体。而那些没有物体中心点落进来的格子，则不负责预测任何物体。这个设定就好比该网络在一开始，就将整个图片上的预测任务进行了分工，一共设定7乘7个按照方阵列队的检测人员，每个人员负责检测一个物体，大家的分工界线，就是看被检测物体的中心点落在谁的格子里。当然，是7乘7还是9乘9，是上图中的参数S，可以自己修改，精度和性能会随之有些变化。<br>（2）30的含义<br>刚才设定了49个检测人员，那么每个人员负责检测的内容，就是这里的30（注意，30是张量最后一维的长度）。在Yolo v1论文中，30是由$(4+1) \times 2 +20$得到的。其中$4+1$是矩形框的中心点坐标(x,y)、长宽(w,h)以及是否属于被检测物体的置信度c；2是一个格子共回归两个矩形框，每个矩形框分别产生5个预测值（每个格子预测矩形框个数，是可调超参数；论文中选择了2个框，当然也可以只预测1个框，具体预测几个矩形框，无非是在计算量和精度之间取一个权衡。如果只预测一个矩形框，计算量会小很多，但是如果训练数据都是小物体，那么网络学习到的框，也会普遍比较小，测试时如果物体较大，那么预测效果就会不理想；如果每个格子多预测几个矩形框，如上文中讲到的，每个矩形框的学习目标会有所分工，有些学习小物体特征，有些学习大物体特征等；在Yolov2、v3中，这个数目都有一定的调整。）；20代表预测20个类别。这里有几点需要注意：1. 每个方格（grid） 产生2个预测框，2也是参数，可以调，但是一旦设定为2以后，那么每个方格只产生两个矩形框，最后选定置信度更大的矩形框作为输出，也就是最终每个方格只输出一个预测矩形框。2. 每个方格只能预测一个物体。虽然可以通过调整参数，产生不同的矩形框，但这只能提高矩形框的精度。所以当有很多个物体的中心点落在了同一个格子里，该格子只能预测一个物体。也就是格子数为7乘7时，该网络最多预测49个物体。<br>如上述原文中提及，在强行施加了格点限制以后，每个格点只能输出一个预测结果，所以该算法最大的不足，就是对一些邻近小物体的识别效果不是太好，例如成群结队的小鸟。</p>
+<p>损失函数：<br><img src="https://user-images.githubusercontent.com/6218739/133877787-e073a763-b371-4908-8456-60f6329974b7.png" alt="loss-yolov1"><br>论文中Loss函数，密密麻麻的公式初看可能比较难懂。其实论文中给出了比较详细的解释。所有的损失都是使用平方和误差公式。<br>（1）预测框的中心点(x,y)。造成的损失是上图中的第一行。其中$\mathbb{I}_{ij}^{obj}$为控制函数，在标签中包含物体的那些格点处，该值为 1 ；若格点不含有物体，该值为 0。也就是只对那些有真实物体所属的格点进行损失计算，若该格点不包含物体，那么预测数值不对损失函数造成影响。（x,y）数值与标签用简单的平方和误差。<br>（2）预测框的宽高。造成的损失是上图的第二行。$\mathbb{I}_{ij}^{obj}$的含义一样，也是使得只有真实物体所属的格点才会造成损失。这里对在损失函数中的处理分别取了根号，原因在于，如果不取根号，损失函数往往更倾向于调整尺寸比较大的预测框。例如，20个像素点的偏差，对于800乘600的预测框几乎没有影响，此时的IOU数值还是很大，但是对于30乘40的预测框影响就很大。取根号是为了尽可能的消除大尺寸框与小尺寸框之间的差异。<br>（3）第三行与第四行，都是预测框的置信度C。当该格点不含有物体时，该置信度的标签为0；若含有物体时，该置信度的标签为预测框与真实物体框的IOU数值（IOU计算公式为：两个框交集的面积除以并集的面积）。<br>（4）第五行为物体类别概率P，对应的类别位置，该标签数值为1，其余位置为0，与分类网络相同。<br>此时再来看$\lambda_{coord}$与$\lambda_{noobj}$，Yolo面临的物体检测问题，是一个典型的类别数目不均衡的问题。其中49个格点，含有物体的格点往往只有3、4个，其余全是不含有物体的格点。此时如果不采取点措施，那么物体检测的mAP不会太高，因为模型更倾向于不含有物体的格点。$\lambda_{coord}$与$\lambda_{noobj}$的作用，就是让含有物体的格点，在损失函数中的权重更大，让模型更加“重视”含有物体的格点所造成的损失。在论文中， 取值分别为5与0.5。</p>
+<p>一些技巧：<br>（1）回归offset代替直接回归坐标<br>不直接回归中心点坐标数值，而是回归相对于格点左上角坐标的位移值。例如，第一个格点中物体坐标为$(2.3, 3.6)$，另一个格点中的物体坐标为$(5.4, 6.3)$，这四个数值让神经网络暴力回归，有一定难度。所以这里的offset是指，既然格点已知，那么物体中心点的坐标一定在格点正方形里，相对于格点左上角的位移值一定在区间$[0, 1)$中。让神经网络去预测$(0.3, 0.6)$与$(0.4, 0.3)$会更加容易，在使用时，加上格点左上角坐标$(2, 3)$、$(5, 6)$即可。</p>
+<p>（2）同一格点的不同预测框有不同作用<br>前文中提到，每个格点预测两个或多个矩形框。此时假设每个格点预测两个矩形框。那么在训练时，见到一个真实物体，我们是希望两个框都去逼近这个物体的真实矩形框，还是只用一个去逼近？或许通常来想，让两个人一起去做同一件事，比一个人做一件事成功率要高，所以可能会让两个框都去逼近这个真实物体。但是作者没有这样做，在损失函数计算中，只对和真实物体最接近的框计算损失，其余框不进行修正。这样操作之后作者发现，一个格点的两个框在尺寸、长宽比、或者某些类别上逐渐有所分工，总体的召回率有所提升<br>（3）使用非极大抑制生成预测框<br>通常来说，在预测的时候，格点与格点并不会冲突，但是在预测一些大物体或者邻近物体时，会有多个格点预测了同一个物体。此时采用非极大抑制技巧，过滤掉一些重叠的矩形框。不过此时mAP提升并没有像在RCNN或DPM中那样显著提升。<br>（4）推理时将类别预测最大值乘以预测框最大值作为输出置信度<br>在推理时，使用物体的类别预测最大值p乘以预测框的最大值c，作为输出预测物体的置信度。这样也可以过滤掉一些大部分重叠的矩形框。输出检测物体的置信度，同时考虑了矩形框与类别，满足阈值的输出更加可信。</p>
+<h2 id="YOLOv2"><a href="#YOLOv2" class="headerlink" title="YOLOv2"></a>YOLOv2</h2><p><a target="_blank" rel="noopener" href="https://zhuanlan.zhihu.com/p/74540100">【论文解读】Yolo三部曲解读——Yolov2</a><br>Yolov2论文标题就是更好，更快，更强。Yolov1发表之后，计算机视觉领域出现了很多trick，例如批归一化、多尺度训练，v2也尝试借鉴了R-CNN体系中的anchor box，所有的改进提升，下面逐一介绍。</p>
+<ol>
+<li>Batch Normalization（批归一化）<br>检测系列的网络结构中，BN逐渐变成了标配。在Yolo的每个卷积层中加入BN之后，mAP提升了2%，并且去除了Dropout。</li>
+<li>High Resolution Classifier（分类网络高分辨率预训练）<br>在Yolov1中，网络的backbone部分会在ImageNet数据集上进行预训练，训练时网络输入图像的分辨率为224乘224。在v2中，将分类网络在输入图片分辨率为448乘448的ImageNet数据集上训练10个epoch，再使用检测数据集（例如coco）进行微调。高分辨率预训练使mAP提高了大约4%。</li>
+<li>Convolutional With Anchor Boxes（Anchor Box替换全连接层）<br>第一篇解读v1时提到，每个格点预测两个矩形框，在计算loss时，只让与ground truth最接近的框产生loss数值，而另一个框不做修正。这样规定之后，作者发现两个框在物体的大小、长宽比、类别上逐渐有了分工。在v2中，神经网络不对预测矩形框的宽高的绝对值进行预测，而是预测与Anchor框的偏差（offset），每个格点指定n个Anchor框。在训练时，最接近ground truth的框产生loss，其余框不产生loss。在引入Anchor Box操作后，mAP由69.5下降至69.2，原因在于，每个格点预测的物体变多之后，召回率大幅上升，准确率有所下降，总体mAP略有下降。<br>v2中移除了v1最后的两层全连接层，全连接层计算量大，耗时久。文中没有详细描述全连接层的替换方案，这里笔者猜测是利用1乘1的卷积层代替（欢迎指正），具体的网络结构原文中没有提及，官方代码也被yolo v3替代了。v2主要是各种trick引入后的效果验证，建议不必纠结于v2的网络结构。</li>
+<li>Dimension Clusters（Anchor Box的宽高由聚类产生）<br>这里算是作者的一个创新点。Faster R-CNN中的九个Anchor Box的宽高是事先设定好的比例大小，一共设定三个面积大小的矩形框，每个矩形框有三个宽高比：1:1，2:1，1:2，总共九个框。而在v2中，Anchor Box的宽高不经过人为获得，而是将训练数据集中的矩形框全部拿出来，用kmeans聚类得到先验框的宽和高。例如使用5个Anchor Box, 那么kmeans聚类的类别中心个数设置为5。<br>加入了聚类操作之后，引入Anchor Box之后，mAP上升。<br>需要强调的是，聚类必须要定义聚类点（矩形框）之间的距离函数，文中使用（1-IOU）数值作为两个矩形框的的距离函数，这里的运用也是非常的巧妙。</li>
+<li>Direct location prediction（绝对位置预测）<br>Yolo中的位置预测方法很清晰，就是相对于左上角的格点坐标预测偏移量。这里的Direct具体含义，应该是和其他算法框架对比后得到的。比如其他流行的位置预测公式是先预测一个系数，系数又需要与先验框的宽高相乘才能得到相较于参考点的位置偏移，而在yolov2中，系数通过一个激活函数直接产生偏移位置数值，与矩形框的宽高独立开，变得更加直接。</li>
+<li>Fine-Grained Features（细粒度特征）<br>在26乘26的特征图，经过卷积层等，变为13乘13的特征图后，作者认为损失了很多细粒度的特征，导致小尺寸物体的识别效果不佳，所以在此加入了passthrough层。passthrough层就是将26乘26乘1的特征图，变成13乘13乘4的特征图，在这一次操作中不损失细粒度特征。</li>
+<li>Multi-Scale Training（多尺寸训练）<br>很关键的一点是，Yolo v2中只有卷积层与池化层，所以对于网络的输入大小，并没有限制，整个网络的降采样倍数为32，只要输入的特征图尺寸为32的倍数即可，如果网络中有全连接层，就不是这样了。所以Yolo v2可以使用不同尺寸的输入图片训练。<br>作者使用的训练方法是，在每10个batch之后，就将图片resize成{320, 352, …, 608}中的一种。不同的输入，最后产生的格点数不同，比如输入图片是320乘320，那么输出格点是10乘10，如果每个格点的先验框个数设置为5，那么总共输出500个预测结果；如果输入图片大小是608乘608，输出格点就是19乘19，共1805个预测结果。<br>在引入了多尺寸训练方法后，迫使卷积核学习不同比例大小尺寸的特征。当输入设置为544乘544甚至更大，Yolo v2的mAP已经超过了其他的物体检测算法。</li>
+</ol>
+<h2 id="YOLOv3"><a href="#YOLOv3" class="headerlink" title="YOLOv3"></a>YOLOv3</h2><p><a target="_blank" rel="noopener" href="https://zhuanlan.zhihu.com/p/76802514">【论文解读】Yolo三部曲解读——Yolov3</a><br><img src="https://user-images.githubusercontent.com/6218739/133880395-2f580763-b4fc-4aea-b36e-2d745834a1da.png" alt="yolov3"><br>Yolov3使用Darknet-53作为整个网络的分类骨干部分（见上图虚线部分）。<br>Darknet-53的架构如下图：<br><img src="https://user-images.githubusercontent.com/6218739/133880487-984b7259-6b63-42e4-8d6a-7ae420fb4591.png" alt="darknet53"><br>backbone部分由Yolov2时期的Darknet-19进化至Darknet-53，加深了网络层数，引入了Resnet中的跨层加和操作。Darknet-53处理速度每秒78张图，比Darknet-19慢不少，但是比同精度的ResNet快很多。Yolov3依然保持了高性能。</p>
+<p>网络结构解析：</p>
+<ol>
+<li>Yolov3中，只有卷积层，通过调节卷积步长控制输出特征图的尺寸。所以对于输入图片尺寸没有特别限制。</li>
+<li>Yolov3借鉴了金字塔特征图思想，小尺寸特征图用于检测大尺寸物体，而大尺寸特征图检测小尺寸物体。特征图的输出维度为$N \times N \times [3 \times (4+1+80)]$， $N \times N$为输出特征图格点数，一共3个Anchor框，每个框有4维预测框数值和1维预测框置信度，80维物体类别数。</li>
+<li>Yolov3总共输出3个特征图，第一个特征图下采样32倍，第二个特征图下采样16倍，第三个下采样8倍。输入图像经过Darknet-53（无全连接层），再经过Yoloblock生成的特征图被当作两用，第一用为经过3乘3卷积层、1乘1卷积之后生成特征图一，第二用为经过1乘1卷积层加上采样层，与Darnet-53网络的中间层输出结果进行拼接，产生特征图二。同样的循环之后产生特征图三。</li>
+<li>concat操作与加和操作的区别：加和操作来源于ResNet思想，将输入的特征图，与输出特征图对应维度进行相加，即$y=f(x)+x$；而concat操作源于DenseNet网络的设计思路，将特征图按照通道维度直接进行拼接，例如8乘8乘16的特征图与8乘8乘16的特征图拼接后生成8乘8乘32的特征图。</li>
+<li>上采样层(upsample)：作用是将小尺寸特征图通过插值等方法，生成大尺寸图像。例如使用最近邻插值算法，将8乘8的图像变换为16乘16。上采样层不改变特征图的通道数。</li>
+</ol>
+<p>Yolo的整个网络，吸取了Resnet、Densenet、FPN的精髓，可以说是融合了目标检测当前业界最有效的全部技巧。</p>
+<p>YOLOv3与YOLOv2和YOLOv1相比最大的改善就是对boundingbox进行了跨尺度预测(Prediction Across Scales)，提高YOLO模型对不同尺度对象的预测精度。<br><img src="https://user-images.githubusercontent.com/6218739/133882919-4d3ede76-ff3d-4435-a4c0-a577c181bd2d.png" alt="yolov3-output"><br><a target="_blank" rel="noopener" href="https://zhuanlan.zhihu.com/p/75811997">YOLO_v3论文解读</a></p>
+<p>结合上图看，卷积网络在79层后，经过下方几个黄色的卷积层得到一种尺度的检测结果。相比输入图像，这里用于检测的特征图有32倍的下采样。比如输入是416乘416的话，这里的特征图就是13乘13了。由于下采样倍数高，这里特征图的感受野比较大，因此适合检测图像中尺寸比较大的对象。<br>为了实现细粒度的检测，第79层的特征图又开始作上采样（从79层往右开始上采样卷积），然后与第61层特征图拼接（Concatenation），这样得到第91层较细粒度的特征图，同样经过几个卷积层后得到相对输入图像16倍下采样的特征图。它具有中等尺度的感受野，适合检测中等尺度的对象。<br>最后，第91层特征图再次上采样，并与第36层特征图拼接（Concatenation），最后得到相对输入图像8倍下采样的特征图。它的感受野最小，适合检测小尺寸的对象。<br>随着输出的特征图的数量和尺度的变化，先验框的尺寸也需要相应的调整。YOLO2已经开始采用K-means聚类得到先验框的尺寸，YOLO3延续了这种方法，为每种下采样尺度设定3种先验框，总共聚类出9种尺寸的先验框。在COCO数据集这9个先验框是：</p>
+<script type="math/tex; mode=display">
+(10 \times 13)，(16 \times 30)，(33 \times 23)，(30 \times 61)，(62 \times 45)，(59 \times 119)，(116 \times 90)，(156 \times 198)，(373 \times 326)</script><p>分配上，在最小的13乘13特征图上（有最大的感受野）应用较大的先验框$(116 \times 90)，(156 \times 198)，(373 \times 326)$，适合检测较大的对象。中等的26乘26特征图上（中等感受野）应用中等的先验框$(30 \times 61)，(62 \times 45)，(59 \times 119)$，适合检测中等大小的对象。较大的52乘52特征图上（较小的感受野）应用较小的先验框$(10 \times 13)，(16 \times 30)，(33 \times 23)$，适合检测较小的对象。</p>
+<p>YOLOv3前向解码过程：<br>根据不同的输入尺寸，会得到不同大小的输出特征图，以图二中输入图片$256 \times 256 \times 3$为例，输出的特征图为$8 \times 8 \times 255$、$16 \times 16 \times 255$、$32 \times 32 \times 255$。在Yolov3的设计中，每个特征图的每个格子中，都配置3个不同的先验框（就是下面的锚框），所以最后三个特征图，这里暂且reshape为$8 \times 8 \times 3 \times 85$、$16 \times 16 \times 3 \times 85$、$32 \times 32 \times 3 \times 85$，这样更容易理解，在代码中也是reshape成这样之后更容易操作。<br>三张特征图就是整个Yolo输出的检测结果，检测框位置（4维）、检测置信度（1维）、类别（80维）都在其中，加起来正好是85维。特征图最后的维度85，代表的就是这些信息，而特征图其他维度$N \times N \times 3$，$N \times N$代表了检测框的参考位置信息，3是3个不同尺度的先验框。</p>
+<p>三个特征图一共可以解码出 $8 × 8 × 3 + 16 × 16 × 3 + 32 × 32 × 3 = 4032$ 个box以及相应的类别、置信度。这4032个box，在训练和推理时，使用方法不一样：</p>
+<ol>
+<li>训练时4032个box全部送入打标签函数，进行后一步的标签以及损失函数的计算。</li>
+<li>推理时，选取一个置信度阈值，过滤掉低阈值box，再经过nms（非极大值抑制），就可以输出整个网络的预测结果了。</li>
+</ol>
+<p>YOLOv3训练策略（反向过程）：</p>
+<ol>
+<li>预测框一共分为三种情况：正例（positive）、负例（negative）、忽略样例（ignore）。</li>
+<li>正例：任取一个ground truth，与4032个框全部计算IOU，IOU最大的预测框，即为正例。并且一个预测框，只能分配给一个ground truth。例如第一个ground truth已经匹配了一个正例检测框，那么下一个ground truth，就在余下的4031个检测框中，寻找IOU最大的检测框作为正例。ground truth的先后顺序可忽略。正例产生置信度loss、检测框loss、类别loss。预测框为对应的ground truth box标签；类别标签对应类别为1，其余为0；置信度标签为1。</li>
+<li>忽略样例：正例除外，与任意一个ground truth的IOU大于阈值（论文中使用0.5），则为忽略样例。忽略样例不产生任何loss。</li>
+<li>负例：正例除外（与ground truth计算后IOU最大的检测框，但是IOU小于阈值，仍为正例），与全部ground truth的IOU都小于阈值（0.5），则为负例。负例只有置信度产生loss，置信度标签为0。</li>
+</ol>
+<h1 id="YOLOv3源码"><a href="#YOLOv3源码" class="headerlink" title="YOLOv3源码"></a>YOLOv3源码</h1><p>从头实现YOLOv3的源码见：<br><a target="_blank" rel="noopener" href="https://github.com/aladdinpersson/Machine-Learning-Collection/tree/master/ML/Pytorch/object_detection/YOLOv3">YOLOv3 in PyTorch</a><br>该源码的视频讲解见：<br><a target="_blank" rel="noopener" href="https://www.bilibili.com/video/BV1bo4y1X78v?spm_id_from=333.999.0.0">YOLOv3 from Scratch</a></p>
+<h2 id="模型架构"><a href="#模型架构" class="headerlink" title="模型架构"></a>模型架构</h2><p>整个YOLOv3的模型架构如下配置：<br><figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment"># 对于里面的元素</span></span><br><span class="line"><span class="comment"># 如果是元组，代表：(输出通道, 卷积核尺寸, 步长)</span></span><br><span class="line"><span class="comment"># YOLOv3中所有的卷积块（注意是卷积块，它由卷积层+批标准化层+LeakyReLU层构成）都是相同的，在下面的代码中用CNNBlock类实现</span></span><br><span class="line"><span class="comment"># 如果是列表，&quot;B&quot;代表残差块Residual Block，后面的次数代表重复次数，在下面用ResidualBlock类实现</span></span><br><span class="line"><span class="comment"># 如果是字符，那么&quot;S&quot;代表Scale不同尺度预测块，在此处计算损失，在下面用ScalePrediction类实现</span></span><br><span class="line"><span class="comment"># &quot;U&quot;代表Upsampling上采样，且与上一层进行连接，生成新的尺度预测</span></span><br><span class="line">config = [</span><br><span class="line">    (<span class="number">32</span>, <span class="number">3</span>, <span class="number">1</span>),</span><br><span class="line">    (<span class="number">64</span>, <span class="number">3</span>, <span class="number">2</span>),</span><br><span class="line">    [<span class="string">&quot;B&quot;</span>, <span class="number">1</span>],</span><br><span class="line">    (<span class="number">128</span>, <span class="number">3</span>, <span class="number">2</span>),</span><br><span class="line">    [<span class="string">&quot;B&quot;</span>, <span class="number">2</span>],</span><br><span class="line">    (<span class="number">256</span>, <span class="number">3</span>, <span class="number">2</span>),</span><br><span class="line">    [<span class="string">&quot;B&quot;</span>, <span class="number">8</span>],</span><br><span class="line">    (<span class="number">512</span>, <span class="number">3</span>, <span class="number">2</span>),</span><br><span class="line">    [<span class="string">&quot;B&quot;</span>, <span class="number">8</span>],</span><br><span class="line">    (<span class="number">1024</span>, <span class="number">3</span>, <span class="number">2</span>),</span><br><span class="line">    [<span class="string">&quot;B&quot;</span>, <span class="number">4</span>],  <span class="comment"># 到这里就是Darknet-53 backbone，53是全部卷积层的个数，它会在imagenet上进行预训练</span></span><br><span class="line">    (<span class="number">512</span>, <span class="number">1</span>, <span class="number">1</span>),</span><br><span class="line">    (<span class="number">1024</span>, <span class="number">3</span>, <span class="number">1</span>),</span><br><span class="line">    <span class="string">&quot;S&quot;</span>,</span><br><span class="line">    (<span class="number">256</span>, <span class="number">1</span>, <span class="number">1</span>),</span><br><span class="line">    <span class="string">&quot;U&quot;</span>,</span><br><span class="line">    (<span class="number">256</span>, <span class="number">1</span>, <span class="number">1</span>),</span><br><span class="line">    (<span class="number">512</span>, <span class="number">3</span>, <span class="number">1</span>),</span><br><span class="line">    <span class="string">&quot;S&quot;</span>,</span><br><span class="line">    (<span class="number">128</span>, <span class="number">1</span>, <span class="number">1</span>),</span><br><span class="line">    <span class="string">&quot;U&quot;</span>,</span><br><span class="line">    (<span class="number">128</span>, <span class="number">1</span>, <span class="number">1</span>),</span><br><span class="line">    (<span class="number">256</span>, <span class="number">3</span>, <span class="number">1</span>),</span><br><span class="line">    <span class="string">&quot;S&quot;</span>,</span><br><span class="line">]</span><br></pre></td></tr></table></figure><br>首先看一下CNN卷积块的实现：<br><figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br></pre></td><td class="code"><pre><span class="line"><span class="class"><span class="keyword">class</span> <span class="title">CNNBlock</span>(<span class="params">nn.Module</span>):</span></span><br><span class="line">    <span class="comment"># 此处会加上一个BN层的开关，如果关了BN层，就相当于是只有卷积层，而不是卷积块</span></span><br><span class="line">   <span class="comment"># 不加BN和ReLU层的纯卷积层是会在尺度预测的地方用到，即网络末端的卷积是纯卷积层</span></span><br><span class="line">   <span class="comment"># 同时使用kwargs参数接收其他参数，比如kerneal size，stride，padding等参数</span></span><br><span class="line">   <span class="comment"># 在整个网络中图像的宽高变化即维度压缩，是通过卷积块的stride参数来实现的</span></span><br><span class="line">   <span class="comment"># 由下面的分析可知，在残差块中图像宽高不变，但两个残差块中间的卷积块的stride为2，此时会对图像的宽高进行压缩减半</span></span><br><span class="line">   <span class="comment"># 整个网络中压缩最厉害的分支是一共压缩了5次，即压缩了32倍，另外两支分别压缩了16倍和8倍</span></span><br><span class="line">    <span class="function"><span class="keyword">def</span> <span class="title">__init__</span>(<span class="params">self, in_channels, out_channels, bn_act=<span class="literal">True</span>, **kwargs</span>):</span></span><br><span class="line">        <span class="built_in">super</span>().__init__()</span><br><span class="line">       <span class="comment"># 如果使用了BN，那么偏置这个参数就没必要了，所以此处会根据BN层的有无进行偏置bias参数的开关</span></span><br><span class="line">        self.conv = nn.Conv2d(in_channels, out_channels, bias=<span class="keyword">not</span> bn_act, **kwargs)</span><br><span class="line">        self.bn = nn.BatchNorm2d(out_channels)</span><br><span class="line">        self.leaky = nn.LeakyReLU(<span class="number">0.1</span>)</span><br><span class="line">        self.use_bn_act = bn_act</span><br><span class="line"></span><br><span class="line">    <span class="function"><span class="keyword">def</span> <span class="title">forward</span>(<span class="params">self, x</span>):</span></span><br><span class="line">        <span class="keyword">if</span> self.use_bn_act:</span><br><span class="line">            <span class="keyword">return</span> self.leaky(self.bn(self.conv(x)))</span><br><span class="line">        <span class="keyword">else</span>:</span><br><span class="line">            <span class="keyword">return</span> self.conv(x)</span><br></pre></td></tr></table></figure><br>再看一下残差块的实现：<br><figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br></pre></td><td class="code"><pre><span class="line"><span class="class"><span class="keyword">class</span> <span class="title">ResidualBlock</span>(<span class="params">nn.Module</span>):</span></span><br><span class="line">    <span class="comment"># 这里给出了是否使用残差连接的开关，在darknet-53部分都是打开残差连接，但到了尺度预测部分，该残差块是关闭了残差连接</span></span><br><span class="line">    <span class="function"><span class="keyword">def</span> <span class="title">__init__</span>(<span class="params">self, channels, use_residual=<span class="literal">True</span>, num_repeats=<span class="number">1</span></span>):</span></span><br><span class="line">        <span class="built_in">super</span>().__init__()</span><br><span class="line">        <span class="comment"># 整个残差块是一个ModuleList</span></span><br><span class="line">        self.layers = nn.ModuleList()</span><br><span class="line">       <span class="comment"># 根据重复次数进行循环</span></span><br><span class="line">        <span class="keyword">for</span> repeat <span class="keyword">in</span> <span class="built_in">range</span>(num_repeats):</span><br><span class="line">            self.layers += [</span><br><span class="line">                <span class="comment"># 每个残差块中的第一个卷积块都是通道数减半，卷积核尺寸为1，步长是默认的1，填充是默认的0，因此图像的输入和输出宽高不变</span></span><br><span class="line">            <span class="comment"># 第二个卷积块通道数变为两倍，卷积核尺寸为3，填充为1，步长仍是默认的1，因此图像的输入和输出宽高不变</span></span><br><span class="line">            <span class="comment"># 所以，总的来说，经过一个残差块后，图像的通道数、宽和高都不会变</span></span><br><span class="line">                nn.Sequential(</span><br><span class="line">                    CNNBlock(channels, channels // <span class="number">2</span>, kernel_size=<span class="number">1</span>),</span><br><span class="line">                    CNNBlock(channels // <span class="number">2</span>, channels, kernel_size=<span class="number">3</span>, padding=<span class="number">1</span>),</span><br><span class="line">                )</span><br><span class="line">            ]</span><br><span class="line"></span><br><span class="line">        self.use_residual = use_residual</span><br><span class="line">        self.num_repeats = num_repeats</span><br><span class="line"></span><br><span class="line">    <span class="function"><span class="keyword">def</span> <span class="title">forward</span>(<span class="params">self, x</span>):</span></span><br><span class="line">        <span class="keyword">for</span> layer <span class="keyword">in</span> self.layers:</span><br><span class="line">            <span class="comment"># 如果启用残差连接，那么就直接将x和经过处理后的x相加</span></span><br><span class="line">            <span class="keyword">if</span> self.use_residual:</span><br><span class="line">                x = x + layer(x)</span><br><span class="line">            <span class="comment"># 如果没有启用残差连接，那么就直接处理x，不管作为输入的x</span></span><br><span class="line">            <span class="keyword">else</span>:</span><br><span class="line">                x = layer(x)</span><br><span class="line"></span><br><span class="line">        <span class="keyword">return</span> x</span><br></pre></td></tr></table></figure></p>
+<p>再来看不同尺度预测的类实现：<br><figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br></pre></td><td class="code"><pre><span class="line"><span class="class"><span class="keyword">class</span> <span class="title">ScalePrediction</span>(<span class="params">nn.Module</span>):</span></span><br><span class="line">    <span class="function"><span class="keyword">def</span> <span class="title">__init__</span>(<span class="params">self, in_channels, num_classes</span>):</span></span><br><span class="line">        <span class="built_in">super</span>().__init__()</span><br><span class="line">        self.pred = nn.Sequential(</span><br><span class="line">            <span class="comment"># 在每个尺度预测块中，先用一个卷积块将通道数加倍，同时通过设置卷积核尺寸为3，填充为1，步长是默认的1，来保持宽高不变</span></span><br><span class="line">            CNNBlock(in_channels, <span class="number">2</span> * in_channels, kernel_size=<span class="number">3</span>, padding=<span class="number">1</span>),</span><br><span class="line">            <span class="comment"># 然后将得到的特征图通过一个卷积块转化为最终想要的向量的模样</span></span><br><span class="line">         <span class="comment"># 3指的是对于对于每一个grid cell，都有3个anchor boxes</span></span><br><span class="line">         <span class="comment"># 对于每一个anchor box，都需要有num_classes+5个元素，前面是类别数目，比如20，5是包含了x, y, w, h和置信度</span></span><br><span class="line">         <span class="comment"># 注意这里不使用BN层，同时卷积核为1，步长是默认的1，填充是默认的0，因此宽高不变</span></span><br><span class="line">            CNNBlock(</span><br><span class="line">                <span class="number">2</span> * in_channels, (num_classes + <span class="number">5</span>) * <span class="number">3</span>, bn_act=<span class="literal">False</span>, kernel_size=<span class="number">1</span></span><br><span class="line">            ),</span><br><span class="line">        )</span><br><span class="line">        self.num_classes = num_classes</span><br><span class="line"></span><br><span class="line">    <span class="function"><span class="keyword">def</span> <span class="title">forward</span>(<span class="params">self, x</span>):</span></span><br><span class="line">        <span class="keyword">return</span> (</span><br><span class="line">            self.pred(x)</span><br><span class="line">            <span class="comment"># 对x进行预测后，需要对结果进行reshape，形状依次为batch size、3、类别数+5、特征图宽度、特征图高度</span></span><br><span class="line">            .reshape(x.shape[<span class="number">0</span>], <span class="number">3</span>, self.num_classes + <span class="number">5</span>, x.shape[<span class="number">2</span>], x.shape[<span class="number">3</span>])</span><br><span class="line">            <span class="comment"># 再交换一下维度，把宽、高提到(类别数+5)的前面</span></span><br><span class="line">         <span class="comment"># 比如某一个尺度预测后，得到的向量形状为N x 3 x 13 x 13 x (5+num_classes)，grid cell就是13x13大小</span></span><br><span class="line">            .permute(<span class="number">0</span>, <span class="number">1</span>, <span class="number">3</span>, <span class="number">4</span>, <span class="number">2</span>)</span><br><span class="line">        )</span><br></pre></td></tr></table></figure></p>
+<p>最后看整个模型的架构，即将上面的组件组合起来：<br><figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br><span class="line">52</span><br><span class="line">53</span><br><span class="line">54</span><br><span class="line">55</span><br><span class="line">56</span><br><span class="line">57</span><br><span class="line">58</span><br><span class="line">59</span><br><span class="line">60</span><br><span class="line">61</span><br><span class="line">62</span><br><span class="line">63</span><br><span class="line">64</span><br><span class="line">65</span><br><span class="line">66</span><br><span class="line">67</span><br><span class="line">68</span><br><span class="line">69</span><br><span class="line">70</span><br><span class="line">71</span><br><span class="line">72</span><br><span class="line">73</span><br><span class="line">74</span><br><span class="line">75</span><br><span class="line">76</span><br><span class="line">77</span><br><span class="line">78</span><br><span class="line">79</span><br><span class="line">80</span><br><span class="line">81</span><br><span class="line">82</span><br><span class="line">83</span><br><span class="line">84</span><br><span class="line">85</span><br><span class="line">86</span><br><span class="line">87</span><br><span class="line">88</span><br><span class="line">89</span><br><span class="line">90</span><br><span class="line">91</span><br><span class="line">92</span><br><span class="line">93</span><br><span class="line">94</span><br><span class="line">95</span><br><span class="line">96</span><br><span class="line">97</span><br><span class="line">98</span><br><span class="line">99</span><br></pre></td><td class="code"><pre><span class="line"><span class="class"><span class="keyword">class</span> <span class="title">YOLOv3</span>(<span class="params">nn.Module</span>):</span></span><br><span class="line">    <span class="comment"># 输入通道默认为3， 类别数默认为80</span></span><br><span class="line">    <span class="function"><span class="keyword">def</span> <span class="title">__init__</span>(<span class="params">self, in_channels=<span class="number">3</span>, num_classes=<span class="number">80</span></span>):</span></span><br><span class="line">        <span class="built_in">super</span>().__init__()</span><br><span class="line">        self.num_classes = num_classes</span><br><span class="line">        self.in_channels = in_channels</span><br><span class="line">        self.layers = self._create_conv_layers()</span><br><span class="line"></span><br><span class="line">    <span class="function"><span class="keyword">def</span> <span class="title">_create_conv_layers</span>(<span class="params">self</span>):</span></span><br><span class="line">        <span class="comment"># 将所有模型组件都放在ModuleList中</span></span><br><span class="line">        layers = nn.ModuleList()</span><br><span class="line">        in_channels = self.in_channels</span><br><span class="line"></span><br><span class="line">      <span class="comment"># 开始解析上面的config配置</span></span><br><span class="line">        <span class="keyword">for</span> module <span class="keyword">in</span> config:</span><br><span class="line">            <span class="comment"># 如果元素是个元组，代表它是个卷积块</span></span><br><span class="line">            <span class="keyword">if</span> <span class="built_in">isinstance</span>(module, <span class="built_in">tuple</span>):</span><br><span class="line">                <span class="comment"># 取出卷积块的相应配置</span></span><br><span class="line">                out_channels, kernel_size, stride = module</span><br><span class="line">                <span class="comment"># 往整个网络里添加卷积块</span></span><br><span class="line">                layers.append(</span><br><span class="line">                    CNNBlock(</span><br><span class="line">                        in_channels,</span><br><span class="line">                        out_channels,</span><br><span class="line">                        kernel_size=kernel_size,</span><br><span class="line">                        stride=stride,</span><br><span class="line">                        <span class="comment"># 如果卷积核为3，则填充为1，否则就填充为0，这样是为了当卷积核为3、步长为2时，填充设为1，此时宽高减半</span></span><br><span class="line">                  <span class="comment"># Pytorch默认卷积层的尺寸计算是向下取整，即(k+2*1-3)/2+1=k/2+floor(-0.5)+1=k/2-1+1=k/2</span></span><br><span class="line">                        padding=<span class="number">1</span> <span class="keyword">if</span> kernel_size == <span class="number">3</span> <span class="keyword">else</span> <span class="number">0</span>,</span><br><span class="line">                    )</span><br><span class="line">                )</span><br><span class="line">                <span class="comment"># 更新通道数</span></span><br><span class="line">                in_channels = out_channels</span><br><span class="line"></span><br><span class="line">         <span class="comment"># 如果元素是个列表，代表是残差块</span></span><br><span class="line">            <span class="keyword">elif</span> <span class="built_in">isinstance</span>(module, <span class="built_in">list</span>):</span><br><span class="line">                <span class="comment"># 取出残差块的相应配置</span></span><br><span class="line">                num_repeats = module[<span class="number">1</span>]</span><br><span class="line">                <span class="comment"># 往整个网络里添加残差块</span></span><br><span class="line">                layers.append(ResidualBlock(in_channels, num_repeats=num_repeats,))</span><br><span class="line"></span><br><span class="line">         <span class="comment"># 如果元素是个字符，那么就进入尺度预测模块</span></span><br><span class="line">            <span class="keyword">elif</span> <span class="built_in">isinstance</span>(module, <span class="built_in">str</span>):</span><br><span class="line">                <span class="comment"># 如果是S，代表要进行在某一尺度上的预测了</span></span><br><span class="line">                <span class="keyword">if</span> module == <span class="string">&quot;S&quot;</span>:</span><br><span class="line">                    layers += [</span><br><span class="line">                        <span class="comment"># 下面这三块的网络架构参考下面那张YOLOv3的架构图</span></span><br><span class="line">                  <span class="comment"># 原码中残差块只重复了1次，为了与下面架构图中的YoloBlock相对应，这里改为重复2次，影响不大，因为在残差块中不改变图像大小</span></span><br><span class="line">                  <span class="comment"># 同时注意此时残差块关闭了残差连接</span></span><br><span class="line">                        ResidualBlock(in_channels, use_residual=<span class="literal">False</span>, num_repeats=<span class="number">2</span>),</span><br><span class="line">                        CNNBlock(in_channels, in_channels // <span class="number">2</span>, kernel_size=<span class="number">1</span>),</span><br><span class="line">                        ScalePrediction(in_channels // <span class="number">2</span>, num_classes=self.num_classes),</span><br><span class="line">                    ]</span><br><span class="line">                    <span class="comment"># 更新一下通道数</span></span><br><span class="line">                    in_channels = in_channels // <span class="number">2</span></span><br><span class="line"></span><br><span class="line">             <span class="comment"># 如果是U，则进入上采样</span></span><br><span class="line">                <span class="keyword">elif</span> module == <span class="string">&quot;U&quot;</span>:</span><br><span class="line">                    layers.append(nn.Upsample(scale_factor=<span class="number">2</span>),)</span><br><span class="line">                    <span class="comment"># 通道数变为3倍，原因是这个地方进行了通道连接concatenation操作</span></span><br><span class="line">               <span class="comment"># 特别注意的是，不要在这个地方推导图像在整个模型中的处理过程，因为此时会发现前后通道数是不符的，因为通道一下从256跳到了768</span></span><br><span class="line">               <span class="comment"># 这个地方不是forward函数，并不是真正的数据处理过程，可以理解成这个地方仅是模型架构定义</span></span><br><span class="line">                    in_channels = in_channels * <span class="number">3</span></span><br><span class="line"></span><br><span class="line">        <span class="keyword">return</span> layers</span><br><span class="line"></span><br><span class="line">    <span class="function"><span class="keyword">def</span> <span class="title">forward</span>(<span class="params">self, x</span>):</span></span><br><span class="line">        <span class="comment"># 每一个尺度下都有一个output，这里用一个列表来承载三个output</span></span><br><span class="line">        outputs = []</span><br><span class="line">        <span class="comment"># 存放进入不同预测分支的中间计算结果</span></span><br><span class="line">        route_connections = []</span><br><span class="line">        <span class="comment"># 对网络中的每一层进行遍历</span></span><br><span class="line">        <span class="keyword">for</span> layer <span class="keyword">in</span> self.layers:</span><br><span class="line">            <span class="comment"># 如果是尺度预测层，表示进入某一尺度的预测阶段，即进入某一个预测分支</span></span><br><span class="line">            <span class="keyword">if</span> <span class="built_in">isinstance</span>(layer, ScalePrediction):</span><br><span class="line">                <span class="comment"># 将预测结果添加进outputs中，注意这个地方是对x的一个分叉计算</span></span><br><span class="line">            <span class="comment"># 即x在这里走了两条路，一条路是进入尺度预测模块进行计算，另一条路是继续呆在主分支中，用于后续计算</span></span><br><span class="line">                outputs.append(layer(x))</span><br><span class="line">                <span class="comment"># 返回到主分支中</span></span><br><span class="line">                <span class="keyword">continue</span></span><br><span class="line"></span><br><span class="line">         <span class="comment"># 对常规的网络层进行计算，包含卷积块和重复次数不为8的残差块</span></span><br><span class="line">            x = layer(x)</span><br><span class="line"></span><br><span class="line">         <span class="comment"># 对于重复次数为8的残差块，由架构图可知，都是在这里进入不同的尺度预测分支</span></span><br><span class="line">            <span class="keyword">if</span> <span class="built_in">isinstance</span>(layer, ResidualBlock) <span class="keyword">and</span> layer.num_repeats == <span class="number">8</span>:</span><br><span class="line">                <span class="comment"># 将需要进入某分支的结果存放起来</span></span><br><span class="line">                route_connections.append(x)</span><br><span class="line"></span><br><span class="line">         <span class="comment"># 如果是遇到上采样模块</span></span><br><span class="line">            <span class="keyword">elif</span> <span class="built_in">isinstance</span>(layer, nn.Upsample):</span><br><span class="line">                <span class="comment"># 就会将当前x与存放中间结果的route中的最后一个中间结果进行连接concatenation</span></span><br><span class="line">            <span class="comment"># 这个地方会将通道数变为3倍，因为上采样后的图像为n_channel，原主分支中的图像为2*n_channel，连接后就变为3*n_channel</span></span><br><span class="line">                x = torch.cat([x, route_connections[-<span class="number">1</span>]], dim=<span class="number">1</span>)</span><br><span class="line">                <span class="comment"># 用完最后一个元素就把它丢了，这样就能在下一次取到上一个存储的中间结果</span></span><br><span class="line">                route_connections.pop()</span><br><span class="line"></span><br><span class="line">      <span class="comment"># 最终outputs里是存放了三个尺度的预测模型</span></span><br><span class="line">        <span class="keyword">return</span> outputs</span><br></pre></td></tr></table></figure><br>YOLOv3架构图重新贴一下：<br><img src="https://user-images.githubusercontent.com/6218739/133880395-2f580763-b4fc-4aea-b36e-2d745834a1da.png" alt="yolov3"></p>
+<h2 id="数据集"><a href="#数据集" class="headerlink" title="数据集"></a>数据集</h2><p>作者提供了YOLO格式的PASCAL VOC和MS COCO数据集的下载，分别在下面链接：<br><a target="_blank" rel="noopener" href="https://www.kaggle.com/aladdinpersson/pascal-voc-dataset-used-in-yolov3-video">Pascal voc dataset used in YOLOv3 video</a><br><a target="_blank" rel="noopener" href="https://www.kaggle.com/dataset/79abcc2659dc745fddfba1864438afb2fac3fabaa5f37daa8a51e36466db101e">MS-COCO-YOLOv3</a><br>关于数据集的格式可以参见下面的介绍：<br><a target="_blank" rel="noopener" href="https://github.com/ultralytics/yolov5/wiki/Train-Custom-Data">Train Custom Data</a></p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br><span class="line">52</span><br><span class="line">53</span><br><span class="line">54</span><br><span class="line">55</span><br><span class="line">56</span><br><span class="line">57</span><br><span class="line">58</span><br><span class="line">59</span><br><span class="line">60</span><br><span class="line">61</span><br><span class="line">62</span><br><span class="line">63</span><br><span class="line">64</span><br><span class="line">65</span><br><span class="line">66</span><br><span class="line">67</span><br><span class="line">68</span><br><span class="line">69</span><br><span class="line">70</span><br><span class="line">71</span><br><span class="line">72</span><br><span class="line">73</span><br><span class="line">74</span><br><span class="line">75</span><br><span class="line">76</span><br><span class="line">77</span><br><span class="line">78</span><br><span class="line">79</span><br><span class="line">80</span><br><span class="line">81</span><br><span class="line">82</span><br><span class="line">83</span><br><span class="line">84</span><br><span class="line">85</span><br><span class="line">86</span><br><span class="line">87</span><br><span class="line">88</span><br><span class="line">89</span><br><span class="line">90</span><br><span class="line">91</span><br><span class="line">92</span><br><span class="line">93</span><br><span class="line">94</span><br><span class="line">95</span><br><span class="line">96</span><br><span class="line">97</span><br><span class="line">98</span><br><span class="line">99</span><br><span class="line">100</span><br><span class="line">101</span><br><span class="line">102</span><br><span class="line">103</span><br><span class="line">104</span><br><span class="line">105</span><br><span class="line">106</span><br><span class="line">107</span><br><span class="line">108</span><br><span class="line">109</span><br><span class="line">110</span><br></pre></td><td class="code"><pre><span class="line"><span class="class"><span class="keyword">class</span> <span class="title">YOLODataset</span>(<span class="params">Dataset</span>):</span></span><br><span class="line">    <span class="function"><span class="keyword">def</span> <span class="title">__init__</span>(<span class="params"></span></span></span><br><span class="line"><span class="function"><span class="params">        self,</span></span></span><br><span class="line"><span class="function"><span class="params">        csv_file, <span class="comment"># csv文件路径</span></span></span></span><br><span class="line"><span class="function"><span class="params">        img_dir, <span class="comment"># 图像文件路径</span></span></span></span><br><span class="line"><span class="function"><span class="params">        label_dir, <span class="comment"># 标签文件路径</span></span></span></span><br><span class="line"><span class="function"><span class="params">        anchors, <span class="comment"># 九个锚框</span></span></span></span><br><span class="line"><span class="function"><span class="params">        image_size=<span class="number">416</span>, <span class="comment"># 图像尺寸</span></span></span></span><br><span class="line"><span class="function"><span class="params">        S=[<span class="number">13</span>, <span class="number">26</span>, <span class="number">52</span>], <span class="comment"># 三个特征图大小</span></span></span></span><br><span class="line"><span class="function"><span class="params">        C=<span class="number">20</span>, <span class="comment"># 类别数</span></span></span></span><br><span class="line"><span class="function"><span class="params">        transform=<span class="literal">None</span>, <span class="comment"># 图像变换</span></span></span></span><br><span class="line"><span class="function"><span class="params">    </span>):</span></span><br><span class="line">        self.annotations = pd.read_csv(csv_file) <span class="comment"># 图像和标签成对出现</span></span><br><span class="line">        self.img_dir = img_dir</span><br><span class="line">        self.label_dir = label_dir</span><br><span class="line">        self.image_size = image_size</span><br><span class="line">        self.transform = transform</span><br><span class="line">        self.S = S</span><br><span class="line">        self.anchors = torch.tensor(anchors[<span class="number">0</span>] + anchors[<span class="number">1</span>] + anchors[<span class="number">2</span>])  <span class="comment"># 将三个尺度下的三个锚框连起来，注意两个list相加就是join的效果</span></span><br><span class="line">        self.num_anchors = self.anchors.shape[<span class="number">0</span>]</span><br><span class="line">        self.num_anchors_per_scale = self.num_anchors // <span class="number">3</span></span><br><span class="line">        self.C = C</span><br><span class="line">        self.ignore_iou_thresh = <span class="number">0.5</span> <span class="comment"># 这个阈值用来区分忽略样例和负例，详见上面的解析</span></span><br><span class="line"></span><br><span class="line">    <span class="function"><span class="keyword">def</span> <span class="title">__len__</span>(<span class="params">self</span>):</span></span><br><span class="line">        <span class="keyword">return</span> <span class="built_in">len</span>(self.annotations)</span><br><span class="line"></span><br><span class="line">    <span class="function"><span class="keyword">def</span> <span class="title">__getitem__</span>(<span class="params">self, index</span>):</span></span><br><span class="line">        label_path = os.path.join(self.label_dir, self.annotations.iloc[index, <span class="number">1</span>]) <span class="comment"># 1就是代表第二列，即标签列</span></span><br><span class="line">        bboxes = np.roll(np.loadtxt(fname=label_path, delimiter=<span class="string">&quot; &quot;</span>, ndmin=<span class="number">2</span>), <span class="number">4</span>, axis=<span class="number">1</span>).tolist() <span class="comment"># 得到的边界框格式为(x, y, w, h, 类别)</span></span><br><span class="line"></span><br><span class="line">        <span class="comment"># 读入图像文件</span></span><br><span class="line">        img_path = os.path.join(self.img_dir, self.annotations.iloc[index, <span class="number">0</span>])</span><br><span class="line">        image = np.array(Image.<span class="built_in">open</span>(img_path).convert(<span class="string">&quot;RGB&quot;</span>))</span><br><span class="line"></span><br><span class="line">        <span class="comment"># 图像增强变换</span></span><br><span class="line">        <span class="keyword">if</span> self.transform:</span><br><span class="line">            augmentations = self.transform(image=image, bboxes=bboxes)</span><br><span class="line">            image = augmentations[<span class="string">&quot;image&quot;</span>]</span><br><span class="line">            bboxes = augmentations[<span class="string">&quot;bboxes&quot;</span>]</span><br><span class="line"></span><br><span class="line">        <span class="comment"># 最终目标是在三个特征图尺度上，每个尺度的每个格点上都有(self.num_anchors // 3)个预测框，每个预测框上都有6个分量，即[置信度标签, x, y, w, h, 类别]</span></span><br><span class="line">        <span class="comment"># 置信度标签为1，代表正例；标签为-1，代表忽略样例；标签为0，代表负例。</span></span><br><span class="line">        targets = [torch.zeros((self.num_anchors // <span class="number">3</span>, S, S, <span class="number">6</span>)) <span class="keyword">for</span> S <span class="keyword">in</span> self.S]</span><br><span class="line"></span><br><span class="line">        <span class="comment"># 对该图像中的所有的边界框进行循环，目的是为了确定哪个锚框、哪个格点与其对应</span></span><br><span class="line">        <span class="keyword">for</span> box <span class="keyword">in</span> bboxes: </span><br><span class="line">            <span class="comment"># 确定与边界框对应的锚框是通过计算两者之间的IoU</span></span><br><span class="line">            <span class="comment"># box的第2、3元素就是宽度和高度</span></span><br><span class="line">            <span class="comment"># 这里的IoU计算相当于将锚框和边界框的中心放在一块，然后根据它们的宽高来计算</span></span><br><span class="line">            <span class="comment"># 即为了确定哪一种形状的锚框与该边界框最相近</span></span><br><span class="line">            iou_anchors = iou(torch.tensor(box[<span class="number">2</span>:<span class="number">4</span>]), self.anchors)</span><br><span class="line">            <span class="comment"># 找出重合度最大的即最好的锚框</span></span><br><span class="line">            anchor_indices = iou_anchors.argsort(descending=<span class="literal">True</span>, dim=<span class="number">0</span>)</span><br><span class="line">            <span class="comment"># 取出该边界框的x, y, w, h</span></span><br><span class="line">            x, y, width, height, class_label = box</span><br><span class="line">            <span class="comment"># 下面这个列表初始化为False，但最终目的是变为True，即保证在每个尺度下该边界框都有对应的锚框</span></span><br><span class="line">            has_anchor = [<span class="literal">False</span>] * <span class="number">3</span>  <span class="comment"># each scale should have one anchor</span></span><br><span class="line"></span><br><span class="line">            <span class="comment"># 因为一共有9个锚框，但分布在3个尺度下，下面就是将具体的锚框与它所属的尺度对应起来，即找到在每个尺度下的最好的锚框是哪个，将其判断为正例，其他不好的锚框进一步判断为负例还是忽略样例</span></span><br><span class="line">            <span class="comment"># 即对所有的锚框都会做判断，正例的锚框就会计算置信度loss、检测框loss、类别loss，负例只会计算置信度loss，忽略样例则什么loss都不计算</span></span><br><span class="line">            <span class="comment"># 先从9个锚框中重合度最大的锚框开始进行循环</span></span><br><span class="line">            <span class="keyword">for</span> anchor_idx <span class="keyword">in</span> anchor_indices:</span><br><span class="line">                <span class="comment"># 根据锚框的索引和每个尺度下拥有的锚框数量，就可以确定锚框所在的尺度</span></span><br><span class="line">                <span class="comment"># 比如如果锚框索引为8，且每个尺度下有3个锚框，那么scale_idx就是2，即第3个尺度，因此scale_idx就是该锚框所属的尺度的索引</span></span><br><span class="line">                scale_idx = anchor_idx // self.num_anchors_per_scale</span><br><span class="line">                <span class="comment"># 上述锚框索引为8，指的是该锚框在所有锚框中的索引，下面就是计算该锚框在该尺度下的索引，即anchor_on_scale就是2，也就是该尺度下该锚框是第3个</span></span><br><span class="line">                anchor_on_scale = anchor_idx % self.num_anchors_per_scale</span><br><span class="line">                <span class="comment"># 获取该尺度下的grid cell的个数，即格点个数</span></span><br><span class="line">                S = self.S[scale_idx]</span><br><span class="line">                <span class="comment"># 提醒一下：边界框的x和y坐标是其中心相对于整张图像的位置</span></span><br><span class="line">                <span class="comment"># 下面就是计算边界框属于图像中的哪个格点</span></span><br><span class="line">                <span class="comment"># 比如假设整个图像宽为W，那么边界框绝对位置就在W*x，而每个格点的宽度为W/S，那么在哪个格点就是W*x/(W/S)=S*x</span></span><br><span class="line">                <span class="comment"># 这里需要注意的是x是宽，但在矩阵中是列，即j,</span></span><br><span class="line">                <span class="comment"># 而y是高，在矩阵中是行，即i</span></span><br><span class="line">                i, j = <span class="built_in">int</span>(S * y), <span class="built_in">int</span>(S * x)  <span class="comment"># which cell</span></span><br><span class="line">                <span class="comment"># 下面这一行就是对于这一边界框，取出某一尺度下的锚框、格点及置信度（0元素就是代表是一个物体的可能性即置信度）</span></span><br><span class="line">                <span class="comment"># 刚开始anchor_taken都是0，表明在该尺度的该锚框没有被取走或说没有被判断，非0的话又有两种，1是代表是正例，-1代表是忽略样例</span></span><br><span class="line">                anchor_taken = targets[scale_idx][anchor_on_scale, i, j, <span class="number">0</span>]</span><br><span class="line">                <span class="comment"># 如果该尺度下（或称该格点）的该锚框没有被判断，且该尺度上之前没有确定锚框（即还没有出现正例）</span></span><br><span class="line">                <span class="keyword">if</span> <span class="keyword">not</span> anchor_taken <span class="keyword">and</span> <span class="keyword">not</span> has_anchor[scale_idx]:</span><br><span class="line">                    <span class="comment"># 就把第0个元素，即是一个物体的置信度置为1</span></span><br><span class="line">                    targets[scale_idx][anchor_on_scale, i, j, <span class="number">0</span>] = <span class="number">1</span></span><br><span class="line">                    <span class="comment"># 计算边界框的中心在格点中的相对位置</span></span><br><span class="line">                    x_cell, y_cell = S * x - j, S * y - i  <span class="comment"># both between [0,1]</span></span><br><span class="line">                    <span class="comment"># 计算边界框的宽高相对于格点的大小</span></span><br><span class="line">                    <span class="comment"># 仍然假设整张图像宽为W，边界框的绝对宽度就是W*width，那么它相对于格点的大小就是W*width/(W/S)=width*S</span></span><br><span class="line">                    width_cell, height_cell = (</span><br><span class="line">                        width * S,</span><br><span class="line">                        height * S,</span><br><span class="line">                    )  <span class="comment"># can be greater than 1 since it&#x27;s relative to cell</span></span><br><span class="line">                    box_coordinates = torch.tensor(</span><br><span class="line">                        [x_cell, y_cell, width_cell, height_cell]</span><br><span class="line">                    )</span><br><span class="line">                    <span class="comment"># 然后把上面的边界框相对于格点的相对位置和相对大小信息都存储到targets相应元素中，与具体的尺度、锚框和格点进行匹配。</span></span><br><span class="line">                    targets[scale_idx][anchor_on_scale, i, j, <span class="number">1</span>:<span class="number">5</span>] = box_coordinates</span><br><span class="line">                    <span class="comment"># 将物体类别也存储到相应元素</span></span><br><span class="line">                    targets[scale_idx][anchor_on_scale, i, j, <span class="number">5</span>] = <span class="built_in">int</span>(class_label)</span><br><span class="line">                    <span class="comment"># 将该尺度下是否确定了锚框置为True，即该锚框为正例</span></span><br><span class="line">                    has_anchor[scale_idx] = <span class="literal">True</span></span><br><span class="line"></span><br><span class="line">                <span class="comment"># 如果已经出现了正例，但该锚框还没有被判断，即anchor_taken=0</span></span><br><span class="line">                <span class="comment"># 此时再判断该锚框与边界框的IoU是否大于阈值，如果大于阈值，且因为其不是正例，那么就将其置信度标签置为-1，即它为忽略样例，不参与损失计算</span></span><br><span class="line">                <span class="comment"># 这种情况出现在在该尺度上（或称在该格点上），有多个锚框都能与边界框吻合较好，但只取最好的那个</span></span><br><span class="line">                <span class="comment"># 但如果IoU小于阈值，那么其置信度标签仍为0，代表负例，会产生置信度loss，但不会产生其他类型的损失</span></span><br><span class="line">                <span class="keyword">elif</span> <span class="keyword">not</span> anchor_taken <span class="keyword">and</span> iou_anchors[anchor_idx] &gt; self.ignore_iou_thresh:</span><br><span class="line">                    targets[scale_idx][anchor_on_scale, i, j, <span class="number">0</span>] = -<span class="number">1</span>  <span class="comment"># ignore prediction</span></span><br><span class="line"></span><br><span class="line">        <span class="keyword">return</span> image, <span class="built_in">tuple</span>(targets)</span><br><span class="line"></span><br></pre></td></tr></table></figure>
+<h2 id="损失计算"><a href="#损失计算" class="headerlink" title="损失计算"></a>损失计算</h2><p>YOLOv3中的损失有三种，一种是xywh带来的误差，即检测框loss；一种是置信度带来的误差，即是否是个物体obj带来的loss，称为置信度loss；一种是类别带来的误差，称为类别loss。<br><figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br><span class="line">52</span><br><span class="line">53</span><br><span class="line">54</span><br><span class="line">55</span><br><span class="line">56</span><br><span class="line">57</span><br><span class="line">58</span><br><span class="line">59</span><br><span class="line">60</span><br><span class="line">61</span><br><span class="line">62</span><br><span class="line">63</span><br><span class="line">64</span><br><span class="line">65</span><br><span class="line">66</span><br><span class="line">67</span><br><span class="line">68</span><br><span class="line">69</span><br><span class="line">70</span><br><span class="line">71</span><br><span class="line">72</span><br><span class="line">73</span><br><span class="line">74</span><br><span class="line">75</span><br><span class="line">76</span><br><span class="line">77</span><br><span class="line">78</span><br><span class="line">79</span><br><span class="line">80</span><br><span class="line">81</span><br></pre></td><td class="code"><pre><span class="line"><span class="class"><span class="keyword">class</span> <span class="title">YoloLoss</span>(<span class="params">nn.Module</span>):</span></span><br><span class="line">    <span class="function"><span class="keyword">def</span> <span class="title">__init__</span>(<span class="params">self</span>):</span></span><br><span class="line">        <span class="built_in">super</span>().__init__()</span><br><span class="line">        self.mse = nn.MSELoss() <span class="comment"># 均方差损失计算</span></span><br><span class="line">        self.bce = nn.BCEWithLogitsLoss() <span class="comment"># 加了Sigmoid的二进制交叉熵损失</span></span><br><span class="line">        self.entropy = nn.CrossEntropyLoss() <span class="comment"># 交叉熵损失</span></span><br><span class="line">        self.sigmoid = nn.Sigmoid() </span><br><span class="line"></span><br><span class="line">        <span class="comment"># 确定损失函数中的各个权重常数，用来控制不同loss之间的比例</span></span><br><span class="line">        self.lambda_class = <span class="number">1</span> <span class="comment"># 类别损失权重常数</span></span><br><span class="line">        self.lambda_noobj = <span class="number">10</span> <span class="comment"># 负例损失权重常数</span></span><br><span class="line">        self.lambda_obj = <span class="number">1</span> <span class="comment"># 正例损失权重常数</span></span><br><span class="line">        self.lambda_box = <span class="number">10</span> <span class="comment"># 检测框损失权重常数</span></span><br><span class="line"></span><br><span class="line">    <span class="function"><span class="keyword">def</span> <span class="title">forward</span>(<span class="params">self, predictions, target, anchors</span>):</span></span><br><span class="line">        <span class="comment"># 判断每个尺度上的格点上是否是物体，即正例还是负例</span></span><br><span class="line">        <span class="comment"># 1为正例，0为负例，-1则为忽略样例</span></span><br><span class="line">        obj = target[..., <span class="number">0</span>] == <span class="number">1</span>  <span class="comment"># in paper this is Iobj_i</span></span><br><span class="line">        noobj = target[..., <span class="number">0</span>] == <span class="number">0</span>  <span class="comment"># in paper this is Inoobj_i</span></span><br><span class="line"></span><br><span class="line">        <span class="comment"># ======================= #</span></span><br><span class="line">        <span class="comment">#   负例造成的置信度损失    #</span></span><br><span class="line">        <span class="comment"># ======================= #</span></span><br><span class="line"></span><br><span class="line">        <span class="comment"># 使用二进制交叉熵计算损失</span></span><br><span class="line">        no_object_loss = self.bce(</span><br><span class="line">            <span class="comment"># 取出置信度数值，即第0个元素</span></span><br><span class="line">            <span class="comment"># 这里使用0:1的形式，而不是直接使用0来取得元素，是为了保持维度不变</span></span><br><span class="line">            <span class="comment"># [noobj] 是使用了numpy的布尔索引，从而取出那些负例</span></span><br><span class="line">            (predictions[..., <span class="number">0</span>:<span class="number">1</span>][noobj]), (target[..., <span class="number">0</span>:<span class="number">1</span>][noobj]),</span><br><span class="line">        )</span><br><span class="line"></span><br><span class="line">        <span class="comment"># ==================== #</span></span><br><span class="line">        <span class="comment">#   正例造成的置信度损失 #</span></span><br><span class="line">        <span class="comment"># ==================== #</span></span><br><span class="line"></span><br><span class="line">        <span class="comment"># 这个地方正例损失按上面的解析应该使用一个简单的bce即可，同时置信度标签在yolov3中是1和0二分类，而这里原作者使用的是IoU来作为置信度标签，即如下形式：</span></span><br><span class="line">        object_loss = self.bce(</span><br><span class="line">            (predictions[..., <span class="number">0</span>:<span class="number">1</span>][obj]), (target[..., <span class="number">0</span>:<span class="number">1</span>][obj]),</span><br><span class="line">        )</span><br><span class="line"></span><br><span class="line">        <span class="comment"># # 原来的代码中是如下形式，这里先不仔细研究异同了</span></span><br><span class="line">        <span class="comment"># anchors = anchors.reshape(1, 3, 1, 1, 2)</span></span><br><span class="line">        <span class="comment"># box_preds = torch.cat([self.sigmoid(predictions[..., 1:3]), torch.exp(predictions[..., 3:5]) * anchors], dim=-1)</span></span><br><span class="line">        <span class="comment"># ious = intersection_over_union(box_preds[obj], target[..., 1:5][obj]).detach()</span></span><br><span class="line">        <span class="comment"># object_loss = self.mse(self.sigmoid(predictions[..., 0:1][obj]), ious * target[..., 0:1][obj])</span></span><br><span class="line"></span><br><span class="line">        <span class="comment"># ======================== #</span></span><br><span class="line">        <span class="comment">#  检测框损失               #</span></span><br><span class="line">        <span class="comment"># ======================== #</span></span><br><span class="line"></span><br><span class="line">        <span class="comment"># 这个地方涉及检测框的解码部分</span></span><br><span class="line">        <span class="comment"># 注意只取出正例造成的损失</span></span><br><span class="line">        predictions[..., <span class="number">1</span>:<span class="number">3</span>] = self.sigmoid(predictions[..., <span class="number">1</span>:<span class="number">3</span>])  <span class="comment"># x, y坐标</span></span><br><span class="line">        target[..., <span class="number">3</span>:<span class="number">5</span>] = torch.log(</span><br><span class="line">            (<span class="number">1e-16</span> + target[..., <span class="number">3</span>:<span class="number">5</span>] / anchors)</span><br><span class="line">        )  <span class="comment"># width, height coordinates</span></span><br><span class="line">        box_loss = self.mse(predictions[..., <span class="number">1</span>:<span class="number">5</span>][obj], target[..., <span class="number">1</span>:<span class="number">5</span>][obj])</span><br><span class="line"></span><br><span class="line">        <span class="comment"># ================== #</span></span><br><span class="line">        <span class="comment">#   类别损失   #</span></span><br><span class="line">        <span class="comment"># ================== #</span></span><br><span class="line"></span><br><span class="line">        <span class="comment"># 计算交叉熵损失，注意只取出正例造成的损失</span></span><br><span class="line">        class_loss = self.entropy(</span><br><span class="line">            (predictions[..., <span class="number">5</span>:][obj]), (target[..., <span class="number">5</span>][obj].long()),</span><br><span class="line">        )</span><br><span class="line"></span><br><span class="line">        <span class="comment">#print(&quot;__________________________________&quot;)</span></span><br><span class="line">        <span class="comment">#print(self.lambda_box * box_loss)</span></span><br><span class="line">        <span class="comment">#print(self.lambda_obj * object_loss)</span></span><br><span class="line">        <span class="comment">#print(self.lambda_noobj * no_object_loss)</span></span><br><span class="line">        <span class="comment">#print(self.lambda_class * class_loss)</span></span><br><span class="line">        <span class="comment">#print(&quot;\n&quot;)</span></span><br><span class="line"></span><br><span class="line">        <span class="keyword">return</span> (</span><br><span class="line">            self.lambda_box * box_loss</span><br><span class="line">            + self.lambda_obj * object_loss</span><br><span class="line">            + self.lambda_noobj * no_object_loss</span><br><span class="line">            + self.lambda_class * class_loss</span><br><span class="line">        )</span><br></pre></td></tr></table></figure></p>
+<h2 id="超参数配置文件"><a href="#超参数配置文件" class="headerlink" title="超参数配置文件"></a>超参数配置文件</h2><p>此处就是将超参数配置都摘出来放在一个统一的配置文件中。<br><figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br></pre></td><td class="code"><pre><span class="line">DATASET = <span class="string">&#x27;PASCAL_VOC&#x27;</span></span><br><span class="line">DEVICE = <span class="string">&quot;cuda&quot;</span> <span class="keyword">if</span> torch.cuda.is_available() <span class="keyword">else</span> <span class="string">&quot;cpu&quot;</span></span><br><span class="line"><span class="comment"># seed_everything()  # If you want deterministic behavior</span></span><br><span class="line">NUM_WORKERS = <span class="number">4</span></span><br><span class="line">BATCH_SIZE = <span class="number">32</span></span><br><span class="line">IMAGE_SIZE = <span class="number">416</span></span><br><span class="line">NUM_CLASSES = <span class="number">20</span> <span class="comment">#类别数</span></span><br><span class="line">LEARNING_RATE = <span class="number">1e-5</span></span><br><span class="line">WEIGHT_DECAY = <span class="number">1e-4</span></span><br><span class="line">NUM_EPOCHS = <span class="number">100</span></span><br><span class="line">CONF_THRESHOLD = <span class="number">0.05</span></span><br><span class="line">MAP_IOU_THRESH = <span class="number">0.5</span></span><br><span class="line">NMS_IOU_THRESH = <span class="number">0.45</span></span><br><span class="line">S = [IMAGE_SIZE // <span class="number">32</span>, IMAGE_SIZE // <span class="number">16</span>, IMAGE_SIZE // <span class="number">8</span>]</span><br><span class="line">PIN_MEMORY = <span class="literal">True</span></span><br><span class="line">LOAD_MODEL = <span class="literal">True</span></span><br><span class="line">SAVE_MODEL = <span class="literal">True</span></span><br><span class="line">CHECKPOINT_FILE = <span class="string">&quot;checkpoint.pth.tar&quot;</span></span><br><span class="line">IMG_DIR = DATASET + <span class="string">&quot;/images/&quot;</span></span><br><span class="line">LABEL_DIR = DATASET + <span class="string">&quot;/labels/&quot;</span></span><br><span class="line"></span><br><span class="line"><span class="comment"># 通过在训练集上kmeans聚类得到的锚框的大小</span></span><br><span class="line">ANCHORS = [</span><br><span class="line">    [(<span class="number">0.28</span>, <span class="number">0.22</span>), (<span class="number">0.38</span>, <span class="number">0.48</span>), (<span class="number">0.9</span>, <span class="number">0.78</span>)],</span><br><span class="line">    [(<span class="number">0.07</span>, <span class="number">0.15</span>), (<span class="number">0.15</span>, <span class="number">0.11</span>), (<span class="number">0.14</span>, <span class="number">0.29</span>)],</span><br><span class="line">    [(<span class="number">0.02</span>, <span class="number">0.03</span>), (<span class="number">0.04</span>, <span class="number">0.07</span>), (<span class="number">0.08</span>, <span class="number">0.06</span>)],</span><br><span class="line">]  <span class="comment"># Note these have been rescaled to be between [0, 1]</span></span><br></pre></td></tr></table></figure></p>
+<h2 id="训练函数"><a href="#训练函数" class="headerlink" title="训练函数"></a>训练函数</h2><figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br><span class="line">52</span><br><span class="line">53</span><br><span class="line">54</span><br><span class="line">55</span><br><span class="line">56</span><br><span class="line">57</span><br><span class="line">58</span><br><span class="line">59</span><br><span class="line">60</span><br><span class="line">61</span><br><span class="line">62</span><br><span class="line">63</span><br><span class="line">64</span><br><span class="line">65</span><br><span class="line">66</span><br><span class="line">67</span><br><span class="line">68</span><br><span class="line">69</span><br><span class="line">70</span><br><span class="line">71</span><br><span class="line">72</span><br><span class="line">73</span><br><span class="line">74</span><br><span class="line">75</span><br><span class="line">76</span><br><span class="line">77</span><br><span class="line">78</span><br><span class="line">79</span><br><span class="line">80</span><br><span class="line">81</span><br><span class="line">82</span><br><span class="line">83</span><br><span class="line">84</span><br><span class="line">85</span><br><span class="line">86</span><br><span class="line">87</span><br><span class="line">88</span><br><span class="line">89</span><br><span class="line">90</span><br><span class="line">91</span><br><span class="line">92</span><br><span class="line">93</span><br><span class="line">94</span><br><span class="line">95</span><br><span class="line">96</span><br><span class="line">97</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="keyword">def</span> <span class="title">train_fn</span>(<span class="params">train_loader, model, optimizer, loss_fn, scaler, scaled_anchors</span>):</span></span><br><span class="line">    <span class="comment"># 显示进度条</span></span><br><span class="line">    loop = tqdm(train_loader, leave=<span class="literal">True</span>)</span><br><span class="line">    losses = []</span><br><span class="line"></span><br><span class="line">    <span class="keyword">for</span> batch_idx, (x, y) <span class="keyword">in</span> <span class="built_in">enumerate</span>(loop):</span><br><span class="line">        x = x.to(config.DEVICE)</span><br><span class="line">        <span class="comment"># 三个不同尺度下的目标</span></span><br><span class="line">        y0, y1, y2 = (</span><br><span class="line">            y[<span class="number">0</span>].to(config.DEVICE),</span><br><span class="line">            y[<span class="number">1</span>].to(config.DEVICE),</span><br><span class="line">            y[<span class="number">2</span>].to(config.DEVICE),</span><br><span class="line">        )</span><br><span class="line"></span><br><span class="line">        <span class="keyword">with</span> torch.cuda.amp.autocast():</span><br><span class="line">            out = model(x)</span><br><span class="line">            <span class="comment"># 前面的损失函数需要在三个尺度下都要计算一遍</span></span><br><span class="line">            loss = (</span><br><span class="line">                loss_fn(out[<span class="number">0</span>], y0, scaled_anchors[<span class="number">0</span>])</span><br><span class="line">                + loss_fn(out[<span class="number">1</span>], y1, scaled_anchors[<span class="number">1</span>])</span><br><span class="line">                + loss_fn(out[<span class="number">2</span>], y2, scaled_anchors[<span class="number">2</span>])</span><br><span class="line">            )</span><br><span class="line"></span><br><span class="line">        losses.append(loss.item())</span><br><span class="line">        optimizer.zero_grad()</span><br><span class="line">        scaler.scale(loss).backward()</span><br><span class="line">        scaler.step(optimizer)</span><br><span class="line">        scaler.update()</span><br><span class="line"></span><br><span class="line">        <span class="comment"># update progress bar</span></span><br><span class="line">        mean_loss = <span class="built_in">sum</span>(losses) / <span class="built_in">len</span>(losses)</span><br><span class="line">        loop.set_postfix(loss=mean_loss)</span><br><span class="line"></span><br><span class="line"></span><br><span class="line"></span><br><span class="line"><span class="function"><span class="keyword">def</span> <span class="title">main</span>():</span></span><br><span class="line">    <span class="comment"># 定义模型</span></span><br><span class="line">    model = YOLOv3(num_classes=config.NUM_CLASSES).to(config.DEVICE)</span><br><span class="line">    <span class="comment"># 优化器</span></span><br><span class="line">    optimizer = optim.Adam(</span><br><span class="line">        model.parameters(), lr=config.LEARNING_RATE, weight_decay=config.WEIGHT_DECAY</span><br><span class="line">    )</span><br><span class="line">    <span class="comment"># 损失函数</span></span><br><span class="line">    loss_fn = YoloLoss()</span><br><span class="line">    scaler = torch.cuda.amp.GradScaler()</span><br><span class="line"></span><br><span class="line">    <span class="comment"># 数据加载器</span></span><br><span class="line">    train_loader, test_loader, train_eval_loader = get_loaders(</span><br><span class="line">        train_csv_path=config.DATASET + <span class="string">&quot;/train.csv&quot;</span>, test_csv_path=config.DATASET + <span class="string">&quot;/test.csv&quot;</span></span><br><span class="line">    )</span><br><span class="line"></span><br><span class="line">    <span class="comment"># 可以加载已训练好的模型</span></span><br><span class="line">    <span class="keyword">if</span> config.LOAD_MODEL:</span><br><span class="line">        load_checkpoint(</span><br><span class="line">            config.CHECKPOINT_FILE, model, optimizer, config.LEARNING_RATE</span><br><span class="line">        )</span><br><span class="line"></span><br><span class="line">    scaled_anchors = (</span><br><span class="line">        torch.tensor(config.ANCHORS)</span><br><span class="line">        * torch.tensor(config.S).unsqueeze(<span class="number">1</span>).unsqueeze(<span class="number">1</span>).repeat(<span class="number">1</span>, <span class="number">3</span>, <span class="number">2</span>)</span><br><span class="line">    ).to(config.DEVICE)</span><br><span class="line"></span><br><span class="line">    <span class="comment"># 开始迭代训练</span></span><br><span class="line">    <span class="keyword">for</span> epoch <span class="keyword">in</span> <span class="built_in">range</span>(config.NUM_EPOCHS):</span><br><span class="line">        <span class="comment">#plot_couple_examples(model, test_loader, 0.6, 0.5, scaled_anchors)</span></span><br><span class="line">        train_fn(train_loader, model, optimizer, loss_fn, scaler, scaled_anchors)</span><br><span class="line"></span><br><span class="line">        <span class="comment">#if config.SAVE_MODEL:</span></span><br><span class="line">        <span class="comment">#    save_checkpoint(model, optimizer, filename=f&quot;checkpoint.pth.tar&quot;)</span></span><br><span class="line"></span><br><span class="line">        <span class="comment">#print(f&quot;Currently epoch &#123;epoch&#125;&quot;)</span></span><br><span class="line">        <span class="comment">#print(&quot;On Train Eval loader:&quot;)</span></span><br><span class="line">        <span class="comment">#print(&quot;On Train loader:&quot;)</span></span><br><span class="line">        <span class="comment">#check_class_accuracy(model, train_loader, threshold=config.CONF_THRESHOLD)</span></span><br><span class="line"></span><br><span class="line">        <span class="keyword">if</span> epoch &gt; <span class="number">0</span> <span class="keyword">and</span> epoch % <span class="number">3</span> == <span class="number">0</span>:</span><br><span class="line">            check_class_accuracy(model, test_loader, threshold=config.CONF_THRESHOLD)</span><br><span class="line"></span><br><span class="line">            <span class="comment"># 得到预测框和真实的边界框的对比</span></span><br><span class="line">            <span class="comment"># 因为对于一张图像，在三个尺度上会有多个预测框与之吻合挺好，这里使用了NMS非极大值抑制来选择出最好的一个预测框</span></span><br><span class="line">            pred_boxes, true_boxes = get_evaluation_bboxes(</span><br><span class="line">                test_loader,</span><br><span class="line">                model,</span><br><span class="line">                iou_threshold=config.NMS_IOU_THRESH,</span><br><span class="line">                anchors=config.ANCHORS,</span><br><span class="line">                threshold=config.CONF_THRESHOLD,</span><br><span class="line">            )</span><br><span class="line">            <span class="comment"># 计算mAP</span></span><br><span class="line">            mapval = mean_average_precision(</span><br><span class="line">                pred_boxes,</span><br><span class="line">                true_boxes,</span><br><span class="line">                iou_threshold=config.MAP_IOU_THRESH,</span><br><span class="line">                box_format=<span class="string">&quot;midpoint&quot;</span>,</span><br><span class="line">                num_classes=config.NUM_CLASSES,</span><br><span class="line">            )</span><br><span class="line">            <span class="built_in">print</span>(<span class="string">f&quot;MAP: <span class="subst">&#123;mapval.item()&#125;</span>&quot;</span>)</span><br><span class="line">            model.train()</span><br></pre></td></tr></table></figure>
+
+    </div>
+
+    
+    
+    
+        <div class="reward-container">
+  <div></div>
+  <button onclick="var qr = document.getElementById('qr'); qr.style.display = (qr.style.display === 'none') ? 'block' : 'none';">
+    Donate
+  </button>
+  <div id="qr" style="display: none;">
+      
+      <div style="display: inline-block;">
+        <img src="/images/wechat_reward.png" alt="Xin-Bo Qi(亓欣波) WeChat Pay">
+        <p>WeChat Pay</p>
+      </div>
+
+  </div>
+</div>
+
+
+      <footer class="post-footer">
+          <div class="post-tags">
+              <a href="/tags/YOLO/" rel="tag"># YOLO</a>
+          </div>
+
+        
+
+
+        
+    <div class="post-nav">
+      <div class="post-nav-item">
+    <a href="/2021/09/06/superset_dev/" rel="prev" title="顶级开源商业智能BI开发软件Superset————开发篇">
+      <i class="fa fa-chevron-left"></i> 顶级开源商业智能BI开发软件Superset————开发篇
+    </a></div>
+      <div class="post-nav-item"></div>
+    </div>
+      </footer>
+    
+  </article>
+  
+  
+  
+
+
+
+          </div>
+          
+    
+  <div class="comments">
+    <div id="disqus_thread">
+      <noscript>Please enable JavaScript to view the comments powered by Disqus.</noscript>
+    </div>
+  </div>
+  
+
+<script>
+  window.addEventListener('tabs:register', () => {
+    let { activeClass } = CONFIG.comments;
+    if (CONFIG.comments.storage) {
+      activeClass = localStorage.getItem('comments_active') || activeClass;
+    }
+    if (activeClass) {
+      let activeTab = document.querySelector(`a[href="#comment-${activeClass}"]`);
+      if (activeTab) {
+        activeTab.click();
+      }
+    }
+  });
+  if (CONFIG.comments.storage) {
+    window.addEventListener('tabs:click', event => {
+      if (!event.target.matches('.tabs-comment .tab-content .tab-pane')) return;
+      let commentClass = event.target.classList[1];
+      localStorage.setItem('comments_active', commentClass);
+    });
+  }
+</script>
+
+        </div>
+          
+  
+  <div class="toggle sidebar-toggle">
+    <span class="toggle-line toggle-line-first"></span>
+    <span class="toggle-line toggle-line-middle"></span>
+    <span class="toggle-line toggle-line-last"></span>
+  </div>
+
+  <aside class="sidebar">
+    <div class="sidebar-inner">
+
+      <ul class="sidebar-nav motion-element">
+        <li class="sidebar-nav-toc">
+          Table of Contents
+        </li>
+        <li class="sidebar-nav-overview">
+          Overview
+        </li>
+      </ul>
+
+      <!--noindex-->
+      <div class="post-toc-wrap sidebar-panel">
+          <div class="post-toc motion-element"><ol class="nav"><li class="nav-item nav-level-1"><a class="nav-link" href="#%E4%BB%8B%E7%BB%8D"><span class="nav-number">1.</span> <span class="nav-text">介绍</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#YOLO"><span class="nav-number">2.</span> <span class="nav-text">YOLO</span></a><ol class="nav-child"><li class="nav-item nav-level-2"><a class="nav-link" href="#YOLOv1"><span class="nav-number">2.1.</span> <span class="nav-text">YOLOv1</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#YOLOv2"><span class="nav-number">2.2.</span> <span class="nav-text">YOLOv2</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#YOLOv3"><span class="nav-number">2.3.</span> <span class="nav-text">YOLOv3</span></a></li></ol></li><li class="nav-item nav-level-1"><a class="nav-link" href="#YOLOv3%E6%BA%90%E7%A0%81"><span class="nav-number">3.</span> <span class="nav-text">YOLOv3源码</span></a><ol class="nav-child"><li class="nav-item nav-level-2"><a class="nav-link" href="#%E6%A8%A1%E5%9E%8B%E6%9E%B6%E6%9E%84"><span class="nav-number">3.1.</span> <span class="nav-text">模型架构</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E6%95%B0%E6%8D%AE%E9%9B%86"><span class="nav-number">3.2.</span> <span class="nav-text">数据集</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E6%8D%9F%E5%A4%B1%E8%AE%A1%E7%AE%97"><span class="nav-number">3.3.</span> <span class="nav-text">损失计算</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E8%B6%85%E5%8F%82%E6%95%B0%E9%85%8D%E7%BD%AE%E6%96%87%E4%BB%B6"><span class="nav-number">3.4.</span> <span class="nav-text">超参数配置文件</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E8%AE%AD%E7%BB%83%E5%87%BD%E6%95%B0"><span class="nav-number">3.5.</span> <span class="nav-text">训练函数</span></a></li></ol></li></ol></div>
+      </div>
+      <!--/noindex-->
+
+      <div class="site-overview-wrap sidebar-panel">
+        <div class="site-author motion-element" itemprop="author" itemscope itemtype="http://schema.org/Person">
+    <img class="site-author-image" itemprop="image" alt="Xin-Bo Qi(亓欣波)"
+      src="/images/avatar.jpg">
+  <p class="site-author-name" itemprop="name">Xin-Bo Qi(亓欣波)</p>
+  <div class="site-description" itemprop="description">Digitize everything to realize Digitalization!</div>
+</div>
+<div class="site-state-wrap motion-element">
+  <nav class="site-state">
+      <div class="site-state-item site-state-posts">
+          <a href="/archives/">
+        
+          <span class="site-state-item-count">131</span>
+          <span class="site-state-item-name">posts</span>
+        </a>
+      </div>
+      <div class="site-state-item site-state-categories">
+            <a href="/categories/">
+          
+        <span class="site-state-item-count">6</span>
+        <span class="site-state-item-name">categories</span></a>
+      </div>
+      <div class="site-state-item site-state-tags">
+            <a href="/tags/">
+          
+        <span class="site-state-item-count">45</span>
+        <span class="site-state-item-name">tags</span></a>
+      </div>
+  </nav>
+</div>
+  <div class="links-of-author motion-element">
+      <span class="links-of-author-item">
+        <a href="https://github.com/qixinbo" title="GitHub → https:&#x2F;&#x2F;github.com&#x2F;qixinbo" rel="noopener" target="_blank"><i class="github fa-fw"></i>GitHub</a>
+      </span>
+      <span class="links-of-author-item">
+        <a href="mailto:qixinbo@gmail.com" title="E-Mail → mailto:qixinbo@gmail.com" rel="noopener" target="_blank"><i class="envelope fa-fw"></i>E-Mail</a>
+      </span>
+      <span class="links-of-author-item">
+        <a href="https://twitter.com/qixinbo" title="Twitter → https:&#x2F;&#x2F;twitter.com&#x2F;qixinbo" rel="noopener" target="_blank"><i class="fab fa-twitter fa-fw"></i>Twitter</a>
+      </span>
+      <span class="links-of-author-item">
+        <a href="/atom.xml" title="RSS → &#x2F;atom.xml"><i class="fas fa-rss fa-fw"></i>RSS</a>
+      </span>
+  </div>
+
+
+  <div class="links-of-blogroll motion-element">
+    <div class="links-of-blogroll-title"><i class="fa fa-link fa-fw"></i>
+      Links
+    </div>
+    <ul class="links-of-blogroll-list">
+        <li class="links-of-blogroll-item">
+          <a href="https://www.tsinghua.edu.cn/" title="https:&#x2F;&#x2F;www.tsinghua.edu.cn" rel="noopener" target="_blank">THU</a>
+        </li>
+        <li class="links-of-blogroll-item">
+          <a href="http://www.imr.cas.cn/" title="http:&#x2F;&#x2F;www.imr.cas.cn" rel="noopener" target="_blank">IMR</a>
+        </li>
+        <li class="links-of-blogroll-item">
+          <a href="http://www.sdu.edu.cn/" title="http:&#x2F;&#x2F;www.sdu.edu.cn" rel="noopener" target="_blank">SDU</a>
+        </li>
+        <li class="links-of-blogroll-item">
+          <a href="http://liam0205.me/" title="http:&#x2F;&#x2F;liam0205.me&#x2F;" rel="noopener" target="_blank">黄晨成</a>
+        </li>
+    </ul>
+  </div>
+
+      </div>
+
+    </div>
+  </aside>
+  <div id="sidebar-dimmer"></div>
+
+
+      </div>
+    </main>
+
+    <footer class="footer">
+      <div class="footer-inner">
+        
+
+        
+
+<div class="copyright">
+  
+  &copy; 
+  <span itemprop="copyrightYear">2021</span>
+  <span class="with-love">
+    <i class="fa fa-heart"></i>
+  </span>
+  <span class="author" itemprop="copyrightHolder">Xin-Bo Qi(亓欣波)</span>
+</div>
+  <div class="powered-by">Powered by <a href="https://hexo.io/" class="theme-link" rel="noopener" target="_blank">Hexo</a> & <a href="https://theme-next.org/" class="theme-link" rel="noopener" target="_blank">NexT.Gemini</a>
+  </div>
+
+        
+
+
+
+
+
+
+
+
+      </div>
+    </footer>
+  </div>
+
+  
+  <script src="/lib/anime.min.js"></script>
+  <script src="/lib/velocity/velocity.min.js"></script>
+  <script src="/lib/velocity/velocity.ui.min.js"></script>
+
+<script src="/js/utils.js"></script>
+
+<script src="/js/motion.js"></script>
+
+
+<script src="/js/schemes/pisces.js"></script>
+
+
+<script src="/js/next-boot.js"></script>
+
+
+
+
+  
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+  
+
+  
+      
+
+<script>
+  if (typeof MathJax === 'undefined') {
+    window.MathJax = {
+      loader: {
+        source: {
+          '[tex]/amsCd': '[tex]/amscd',
+          '[tex]/AMScd': '[tex]/amscd'
+        }
+      },
+      tex: {
+        inlineMath: {'[+]': [['$', '$']]},
+        tags: 'ams'
+      },
+      options: {
+        renderActions: {
+          findScript: [10, doc => {
+            document.querySelectorAll('script[type^="math/tex"]').forEach(node => {
+              const display = !!node.type.match(/; *mode=display/);
+              const math = new doc.options.MathItem(node.textContent, doc.inputJax[0], display);
+              const text = document.createTextNode('');
+              node.parentNode.replaceChild(text, node);
+              math.start = {node: text, delim: '', n: 0};
+              math.end = {node: text, delim: '', n: 0};
+              doc.math.push(math);
+            });
+          }, '', false],
+          insertedScript: [200, () => {
+            document.querySelectorAll('mjx-container').forEach(node => {
+              let target = node.parentNode;
+              if (target.nodeName.toLowerCase() === 'li') {
+                target.parentNode.classList.add('has-jax');
+              }
+            });
+          }, '', false]
+        }
+      }
+    };
+    (function () {
+      var script = document.createElement('script');
+      script.src = '//cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js';
+      script.defer = true;
+      document.head.appendChild(script);
+    })();
+  } else {
+    MathJax.startup.document.state(0);
+    MathJax.texReset();
+    MathJax.typeset();
+  }
+</script>
+
+    
+
+  
+
+<script>
+  function loadCount() {
+    var d = document, s = d.createElement('script');
+    s.src = 'https://qixinbo.disqus.com/count.js';
+    s.id = 'dsq-count-scr';
+    (d.head || d.body).appendChild(s);
+  }
+  // defer loading until the whole page loading is completed
+  window.addEventListener('load', loadCount, false);
+</script>
+<script>
+  var disqus_config = function() {
+    this.page.url = "http://qixinbo.github.io/2021/09/25/yolo3/";
+    this.page.identifier = "2021/09/25/yolo3/";
+    this.page.title = "YOLO系列算法原理及极简代码解析";
+    };
+  NexT.utils.loadComments(document.querySelector('#disqus_thread'), () => {
+    if (window.DISQUS) {
+      DISQUS.reset({
+        reload: true,
+        config: disqus_config
+      });
+    } else {
+      var d = document, s = d.createElement('script');
+      s.src = 'https://qixinbo.disqus.com/embed.js';
+      s.setAttribute('data-timestamp', '' + +new Date());
+      (d.head || d.body).appendChild(s);
+    }
+  });
+</script>
+
+</body>
+</html>
