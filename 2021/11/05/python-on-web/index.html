@@ -1,0 +1,608 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=2">
+<meta name="theme-color" content="#222">
+<meta name="generator" content="Hexo 5.4.0">
+  <link rel="apple-touch-icon" sizes="180x180" href="/images/apple-touch-icon-next.png">
+  <link rel="icon" type="image/png" sizes="32x32" href="/favicon.ico">
+  <link rel="icon" type="image/png" sizes="16x16" href="/favicon.ico">
+  <link rel="mask-icon" href="/images/logo.svg" color="#222">
+
+<link rel="stylesheet" href="/css/main.css">
+
+
+<link rel="stylesheet" href="/lib/font-awesome/css/all.min.css">
+
+<script id="hexo-configurations">
+    var NexT = window.NexT || {};
+    var CONFIG = {"hostname":"qixinbo.github.io","root":"/","scheme":"Gemini","version":"7.8.0","exturl":false,"sidebar":{"position":"left","display":"post","padding":18,"offset":12,"onmobile":false},"copycode":{"enable":false,"show_result":false,"style":null},"back2top":{"enable":true,"sidebar":false,"scrollpercent":false},"bookmark":{"enable":false,"color":"#222","save":"auto"},"fancybox":false,"mediumzoom":false,"lazyload":false,"pangu":false,"comments":{"style":"tabs","active":null,"storage":true,"lazyload":false,"nav":null},"algolia":{"hits":{"per_page":10},"labels":{"input_placeholder":"Search for Posts","hits_empty":"We didn't find any results for the search: ${query}","hits_stats":"${hits} results found in ${time} ms"}},"localsearch":{"enable":false,"trigger":"auto","top_n_per_article":1,"unescape":false,"preload":false},"motion":{"enable":true,"async":false,"transition":{"post_block":"fadeIn","post_header":"slideDownIn","post_body":"slideDownIn","coll_header":"slideLeftIn","sidebar":"slideUpIn"}}};
+  </script>
+
+  <meta name="description" content="简介 一直以来，网页浏览器编程所用的编程语言主力就是JavaScript，浏览器就是一个JavaScript的原生解释器。 那么Python能不能直接运行在浏览器上呢，或者说Python能不能作为浏览器开发的编程语言？ 本文对这一问题做了详细的调研，结果可以用一句话总结：可以，但很鸡肋。  可用方案 调研过程中，发现了很多有趣的解决方案，总结起来可以有两类： （1）将Python语言编译成Java">
+<meta property="og:type" content="article">
+<meta property="og:title" content="Python爱浏览器，但浏览器不爱它：如何让Python运行在浏览器上">
+<meta property="og:url" content="http://qixinbo.github.io/2021/11/05/python-on-web/index.html">
+<meta property="og:site_name" content="数字旗手">
+<meta property="og:description" content="简介 一直以来，网页浏览器编程所用的编程语言主力就是JavaScript，浏览器就是一个JavaScript的原生解释器。 那么Python能不能直接运行在浏览器上呢，或者说Python能不能作为浏览器开发的编程语言？ 本文对这一问题做了详细的调研，结果可以用一句话总结：可以，但很鸡肋。  可用方案 调研过程中，发现了很多有趣的解决方案，总结起来可以有两类： （1）将Python语言编译成Java">
+<meta property="og:locale" content="en_US">
+<meta property="og:image" content="https://user-images.githubusercontent.com/6218739/140268286-c89f066f-72fc-4cc9-8709-c95fc6d98096.png">
+<meta property="og:image" content="https://user-images.githubusercontent.com/6218739/140268781-ab70c08a-1821-4a06-b7de-d65633d54b31.png">
+<meta property="og:image" content="https://user-images.githubusercontent.com/6218739/140269007-b21d4a82-4def-4581-8631-331f570917e4.gif">
+<meta property="article:published_time" content="2021-11-04T16:00:00.000Z">
+<meta property="article:modified_time" content="2021-11-05T08:37:11.546Z">
+<meta property="article:author" content="Xin-Bo Qi(亓欣波)">
+<meta property="article:tag" content="GUI">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:image" content="https://user-images.githubusercontent.com/6218739/140268286-c89f066f-72fc-4cc9-8709-c95fc6d98096.png">
+
+<link rel="canonical" href="http://qixinbo.github.io/2021/11/05/python-on-web/">
+
+
+<script id="page-configurations">
+  // https://hexo.io/docs/variables.html
+  CONFIG.page = {
+    sidebar: "",
+    isHome : false,
+    isPost : true,
+    lang   : 'en'
+  };
+</script>
+
+  <title>Python爱浏览器，但浏览器不爱它：如何让Python运行在浏览器上 | 数字旗手</title>
+  
+
+
+
+
+
+
+  <noscript>
+  <style>
+  .use-motion .brand,
+  .use-motion .menu-item,
+  .sidebar-inner,
+  .use-motion .post-block,
+  .use-motion .pagination,
+  .use-motion .comments,
+  .use-motion .post-header,
+  .use-motion .post-body,
+  .use-motion .collection-header { opacity: initial; }
+
+  .use-motion .site-title,
+  .use-motion .site-subtitle {
+    opacity: initial;
+    top: initial;
+  }
+
+  .use-motion .logo-line-before i { left: initial; }
+  .use-motion .logo-line-after i { right: initial; }
+  </style>
+</noscript>
+
+<link rel="alternate" href="/atom.xml" title="数字旗手" type="application/atom+xml">
+</head>
+
+<body itemscope itemtype="http://schema.org/WebPage">
+  <div class="container use-motion">
+    <div class="headband"></div>
+
+    <header class="header" itemscope itemtype="http://schema.org/WPHeader">
+      <div class="header-inner"><div class="site-brand-container">
+  <div class="site-nav-toggle">
+    <div class="toggle" aria-label="Toggle navigation bar">
+      <span class="toggle-line toggle-line-first"></span>
+      <span class="toggle-line toggle-line-middle"></span>
+      <span class="toggle-line toggle-line-last"></span>
+    </div>
+  </div>
+
+  <div class="site-meta">
+
+    <a href="/" class="brand" rel="start">
+      <span class="logo-line-before"><i></i></span>
+      <h1 class="site-title">数字旗手</h1>
+      <span class="logo-line-after"><i></i></span>
+    </a>
+      <p class="site-subtitle" itemprop="description">电气化、自动化、数字化、智能化、智慧化</p>
+  </div>
+
+  <div class="site-nav-right">
+    <div class="toggle popup-trigger">
+    </div>
+  </div>
+</div>
+
+
+
+
+<nav class="site-nav">
+  <ul id="menu" class="main-menu menu">
+        <li class="menu-item menu-item-home">
+
+    <a href="/" rel="section"><i class="fa fa-home fa-fw"></i>Home</a>
+
+  </li>
+        <li class="menu-item menu-item-categories">
+
+    <a href="/categories/" rel="section"><i class="fa fa-th fa-fw"></i>Categories</a>
+
+  </li>
+        <li class="menu-item menu-item-archives">
+
+    <a href="/archives/" rel="section"><i class="fa fa-archive fa-fw"></i>Archives</a>
+
+  </li>
+        <li class="menu-item menu-item-tags">
+
+    <a href="/tags/" rel="section"><i class="fa fa-tags fa-fw"></i>Tags</a>
+
+  </li>
+        <li class="menu-item menu-item-scholar">
+
+    <a href="/scholar/" rel="section"><i class="fa fa-chart-bar fa-fw"></i>scholar</a>
+
+  </li>
+        <li class="menu-item menu-item-sources">
+
+    <a href="/sources/" rel="section"><i class="fa fa-rss fa-fw"></i>sources</a>
+
+  </li>
+        <li class="menu-item menu-item-gallery">
+
+    <a href="/gallery/" rel="section"><i class="fa fa-file-image fa-fw"></i>gallery</a>
+
+  </li>
+        <li class="menu-item menu-item-about">
+
+    <a href="/about/" rel="section"><i class="fa fa-user fa-fw"></i>About</a>
+
+  </li>
+        <li class="menu-item menu-item-commonweal">
+
+    <a href="/404.html" rel="section"><i class="fa fa-heartbeat fa-fw"></i>Commonweal 404</a>
+
+  </li>
+  </ul>
+</nav>
+
+
+
+
+</div>
+    </header>
+
+    
+  <div class="back-to-top">
+    <i class="fa fa-arrow-up"></i>
+    <span>0%</span>
+  </div>
+
+
+    <main class="main">
+      <div class="main-inner">
+        <div class="content-wrap">
+          
+
+          <div class="content post posts-expand">
+            
+
+    
+  
+  
+  <article itemscope itemtype="http://schema.org/Article" class="post-block" lang="en">
+    <link itemprop="mainEntityOfPage" href="http://qixinbo.github.io/2021/11/05/python-on-web/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="image" content="/images/avatar.jpg">
+      <meta itemprop="name" content="Xin-Bo Qi(亓欣波)">
+      <meta itemprop="description" content="Digitize everything to realize Digitalization!">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="数字旗手">
+    </span>
+      <header class="post-header">
+        <h1 class="post-title" itemprop="name headline">
+          Python爱浏览器，但浏览器不爱它：如何让Python运行在浏览器上
+        </h1>
+
+        <div class="post-meta">
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="far fa-calendar"></i>
+              </span>
+              <span class="post-meta-item-text">Posted on</span>
+              
+
+              <time title="Created: 2021-11-05 00:00:00 / Modified: 16:37:11" itemprop="dateCreated datePublished" datetime="2021-11-05T00:00:00+08:00">2021-11-05</time>
+            </span>
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="far fa-folder"></i>
+              </span>
+              <span class="post-meta-item-text">In</span>
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+                  <a href="/categories/digitalization/" itemprop="url" rel="index"><span itemprop="name">digitalization</span></a>
+                </span>
+            </span>
+
+          
+  
+  <span class="post-meta-item">
+    
+      <span class="post-meta-item-icon">
+        <i class="far fa-comment"></i>
+      </span>
+      <span class="post-meta-item-text">Disqus: </span>
+    
+    <a title="disqus" href="/2021/11/05/python-on-web/#disqus_thread" itemprop="discussionUrl">
+      <span class="post-comments-count disqus-comment-count" data-disqus-identifier="2021/11/05/python-on-web/" itemprop="commentCount"></span>
+    </a>
+  </span>
+  
+  
+
+        </div>
+      </header>
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+        <h1 id="简介"><a href="#简介" class="headerlink" title="简介"></a>简介</h1><p>一直以来，网页浏览器编程所用的编程语言主力就是JavaScript，浏览器就是一个JavaScript的原生解释器。<br>那么Python能不能直接运行在浏览器上呢，或者说Python能不能作为浏览器开发的编程语言？<br>本文对这一问题做了详细的调研，结果可以用一句话总结：可以，但很鸡肋。</p>
+<h1 id="可用方案"><a href="#可用方案" class="headerlink" title="可用方案"></a>可用方案</h1><p>调研过程中，发现了很多有趣的解决方案，总结起来可以有两类：<br>（1）将Python语言编译成JavaScript<br>即将现成的Python语言翻译成JavaScript，然后在浏览器网页中运行，比如：<br><a target="_blank" rel="noopener" href="https://brython.info/index.html">Brython</a><br><a target="_blank" rel="noopener" href="https://skulpt.org/">Skulpt</a><br><a target="_blank" rel="noopener" href="https://www.transcrypt.org/">Transcrypt</a><br>（2）在浏览器中内置Python解释器<br>即将Python解释器放在浏览器中，这样就能直接运行Python代码，比如：<br><a target="_blank" rel="noopener" href="https://pyodide.org/en/stable/">Pyodide</a><br><a target="_blank" rel="noopener" href="https://pypyjs.org/">PyPy.js</a></p>
+<p>我觉得这两类各自的重点不一样：<br>第一种是为了用Python来代替JavaScript，即用Python操作网页DOM（Document Object Model）元素，让不熟悉JS的编程人员也能用Python来做一个简单的动态交互网页；<br>第二种，比如Pyodide，它的野心很大，即将Python的科学计算生态搬到浏览器中，比如numpy、scipy、matplotlib等科学计算常用的函数库直接放进浏览器中，而不是常见的比如作为浏览器服务器后端来调用。这样实现的效果就是不需要部署服务器，直接在浏览器中做复杂的函数计算，并反映到网页上。<br>下面详细介绍一下两类实现中的代表：Brython和Pyodide。</p>
+<h1 id="Brython"><a href="#Brython" class="headerlink" title="Brython"></a>Brython</h1><p>先看一下用Brython写的Hello World：<br><figure class="highlight"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br></pre></td><td class="code"><pre><span class="line">&lt;!DOCTYPE html&gt;</span><br><span class="line">&lt;html&gt;</span><br><span class="line">&lt;head&gt;</span><br><span class="line">&lt;meta name=<span class="string">&quot;description&quot;</span> content=<span class="string">&quot;Hello world demo written in Brython www.brython.info&quot;</span>&gt;</span><br><span class="line">&lt;meta name=<span class="string">&quot;keywords&quot;</span> content=<span class="string">&quot;Python,Brython&quot;</span>&gt;</span><br><span class="line">&lt;meta charset=<span class="string">&quot;iso-8859-1&quot;</span>&gt;</span><br><span class="line">&lt;title&gt;Hello world&lt;/title&gt;</span><br><span class="line">&lt;script type=&quot;text/javascript&quot; src=&quot;/src/brython.js&quot;&gt;&lt;/script&gt;</span><br><span class="line">&lt;script type=&quot;text/python&quot; src=&quot;show_source.py&quot;&gt;&lt;/script&gt;</span><br><span class="line">&lt;/head&gt;</span><br><span class="line"></span><br><span class="line">// ------------注意看这一块-------------</span><br><span class="line">&lt;body onload=<span class="string">&quot;brython(1)&quot;</span>&gt;</span><br><span class="line"></span><br><span class="line">&lt;script <span class="built_in">type</span>=<span class="string">&quot;text/python&quot;</span>&gt;</span><br><span class="line"><span class="keyword">from</span> browser <span class="keyword">import</span> document, alert</span><br><span class="line"><span class="keyword">from</span> browser.widgets.dialog <span class="keyword">import</span> InfoDialog</span><br><span class="line"></span><br><span class="line"><span class="function"><span class="keyword">def</span> <span class="title">echo</span>(<span class="params">ev</span>):</span></span><br><span class="line">    InfoDialog(<span class="string">&quot;Hello&quot;</span>, <span class="string">f&quot;Hello <span class="subst">&#123;document[<span class="string">&#x27;zone&#x27;</span>].value&#125;</span> !&quot;</span>)</span><br><span class="line"></span><br><span class="line">document[<span class="string">&quot;test&quot;</span>].bind(<span class="string">&quot;click&quot;</span>, echo)</span><br><span class="line">&lt;/script&gt;</span><br><span class="line">// ------------注意看结束-------------</span><br><span class="line"></span><br><span class="line">&lt;p&gt;Your name <span class="keyword">is</span> : &lt;<span class="built_in">input</span> <span class="built_in">id</span>=<span class="string">&quot;zone&quot;</span> autocomplete=<span class="string">&quot;off&quot;</span>&gt;</span><br><span class="line">&lt;button id=&quot;test&quot;&gt;click !&lt;/button&gt;</span><br><span class="line">&lt;/body&gt;</span><br><span class="line"></span><br><span class="line">&lt;/html&gt;</span><br></pre></td></tr></table></figure><br>从上面片段很显而易见，Brython就是用Python来替代JavaScript的写法，比如获取网页上的元素并改变其值。<br>如果想快速开发一个动态网页，同时不懂JavaScript，可以使用Brython来写。<br>但注意Brython没法使用Python的整个生态，只能使用部分标准库，比如sys。</p>
+<h1 id="Pyodide"><a href="#Pyodide" class="headerlink" title="Pyodide"></a>Pyodide</h1><p>简言之，Pyodide就是在浏览器中运行Python，且能调用Python的数值计算库。<br>Pyodide解决的痛点是无法在浏览器中进行科学计算：<br>（1）一方面，现在越来越多的软件都Web化、浏览器化。而浏览器的通用编程语言是JavaScript，但其没有成熟的数据科学处理库，也缺乏一些数值计算很有用的功能和数据结构。<br>（2）另一方面，Python具有成熟且活跃的科学计算生态，比如基本上所有函数库都依赖的numpy数据结构，但其无法在浏览器运行。<br>Pyodide 项目则是通过将现有的 CPython 解释器编译为 WebAssembly 并在浏览器的 JavaScript 环境中运行这个编译出来的二进制文件，这提供了一种在浏览器中运行 Python 的方法。</p>
+<p>Pyodide有一些非常炫的功能点：</p>
+<h2 id="在Python和JavaScript之间进行交互"><a href="#在Python和JavaScript之间进行交互" class="headerlink" title="在Python和JavaScript之间进行交互"></a>在Python和JavaScript之间进行交互</h2><p>如果所有Pyodide能做的就只是运行Python代码并写出到标准输出上，它将会增长成为一个不错的很酷的技巧，但是不会成为一个用于实际工作的实用工具。真正的力量源于它与浏览器API以及其它运行在浏览器中的JavaScript库交互的能力。由于我们已经将Python解释器编译为了WebAssembly，它也与JavaScript端具有深度的交互。<br>Pyodide会在许多Python与JavaScript之间的内建数据类型之间进行隐式转换。其中一些转换时很直接明显的，但如往常一样，那就是很有趣的极端情况。<br><img src="https://user-images.githubusercontent.com/6218739/140268286-c89f066f-72fc-4cc9-8709-c95fc6d98096.png" alt="data"></p>
+<h2 id="访问Web-API和DOM"><a href="#访问Web-API和DOM" class="headerlink" title="访问Web API和DOM"></a>访问Web API和DOM</h2><p>可以通过以下方式获得Web页面上的文档对象模型DOM：<br><figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">from</span> js <span class="keyword">import</span> document</span><br></pre></td></tr></table></figure><br>这会将document对象作为一个代理从JavaScript端导入到Python端。你可以开始从Python中对其调用方法:<br><figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">document.getElementById(<span class="string">&quot;myElement&quot;</span>)</span><br></pre></td></tr></table></figure></p>
+<h2 id="多维数组"><a href="#多维数组" class="headerlink" title="多维数组"></a>多维数组</h2><p>在Python中， NumPy 数组是最常用的多维数组的实现。JavaScript具有TypedArrays，其仅含有一个单一的数值类型，但是是一维的，因此需要在其之上构建多维索引。<br>由于实际上这些数组可能会非常大，我们不想在语言运行时间拷贝它们。那不仅仅会花相当长的时间，而且在内存中同时保留两个拷贝将会加重浏览器所具有的被限制的内存的负担。<br>幸运的是，我们可以不用拷贝来共享数据。多维数组通常是用少量用于描述值类型和数组形状及内存分布的元数据来实现的。数据本身是从元数据中通过指针访问的另一个内存区域。该内存处于一个叫作“WebAssembly堆”的区域，这带来一个优势，因为其可以从JavaScript和Python中同时访问。我们可以简单地在语言之间拷贝元数据(其本身非常小)，并保持指针指向WebAssembly堆中的数据。<br><img src="https://user-images.githubusercontent.com/6218739/140268781-ab70c08a-1821-4a06-b7de-d65633d54b31.png" alt="numpy"></p>
+<h2 id="实时交互可视化"><a href="#实时交互可视化" class="headerlink" title="实时交互可视化"></a>实时交互可视化</h2><p>在浏览器中进行数据科学计算相比于如Jupyter一样在远程内核中进行计算的一大优势就是，交互式可视化不用通过网络来传输数据并重新处理和展示这些数据。这很大程度地减少了延迟—用户移动鼠标的时刻与屏幕更新并显示图案的时刻之间的间隔时间。</p>
+<p>要使得其能工作需要上面描述到的所有的技术片段能够很好地协同工作。我们使用matplotlib来看一下用于展示正态分布如何工作的交互性示例。首先，通过Python的Numpy产生随机数据。接下来，Matplotlib接管该数据，并使用内建的软件渲染器来将其绘出。它使用Pyodide对零拷贝共享数组的支持来将像素回馈给JavaScript端，在这里数据最终被渲染为HTML的画布。然后浏览器接管工作，将像素显示到屏幕上。用来支持交互性操作的鼠标和键盘事件通过从Web浏览器到Python的回调函数的调用来处理。<br><img src="https://user-images.githubusercontent.com/6218739/140269007-b21d4a82-4def-4581-8631-331f570917e4.gif" alt="matplotlib-interacting-with-plots"></p>
+<p>但需要注意的是Pyodide有两个缺点：<br>（1）包体积巨大，在浏览器中第一次访问内含Pyodide的网页时，会下载相应的python包，最基础的pyodide也有22MB大小，更不用说如果有额外的包，比如matplotlib，会更加巨大，导致长时间加载不出来页面；<br>（2）对于Python日渐火热的深度学习生态，Pyodide也没法直接利用，毕竟那些函数库会更大。</p>
+<h1 id="总结"><a href="#总结" class="headerlink" title="总结"></a>总结</h1><p>JavaScript作为浏览器的原住民，其在基于网页的应用开发中的地位不可撼动，虽然Python能通过各种方式部分取代它的功能，但目前还很不成熟，开发简易功能尚可，但重度和高阶应用则基本不可能。期待以后的技术发展能将浏览器和Python结合得更加紧密。</p>
+<h1 id="参考文献"><a href="#参考文献" class="headerlink" title="参考文献"></a>参考文献</h1><p><a target="_blank" rel="noopener" href="https://python.freelycode.com/contribution/detail/1567">在浏览器中用Python做数据科学：Pyodide</a><br><a target="_blank" rel="noopener" href="https://jishuin.proginn.com/p/763bfbd5bd1e">LWN: Pyodide - 浏览器中的Python！</a><br><a target="_blank" rel="noopener" href="https://hacks.mozilla.org/2019/04/pyodide-bringing-the-scientific-python-stack-to-the-browser/">Pyodide: Bringing the scientific Python stack to the browser</a><br><a target="_blank" rel="noopener" href="https://www.bilibili.com/video/BV1X541187XK">把python装进浏览器，需要几个步骤？</a><br><a target="_blank" rel="noopener" href="https://www.youtube.com/watch?v=iUqVgykaF-k&amp;t=91s">Iodide and Pyodide: Bringing Data Science Computation to the Web Browser - Michael Droettboom</a></p>
+
+    </div>
+
+    
+    
+    
+        <div class="reward-container">
+  <div></div>
+  <button onclick="var qr = document.getElementById('qr'); qr.style.display = (qr.style.display === 'none') ? 'block' : 'none';">
+    Donate
+  </button>
+  <div id="qr" style="display: none;">
+      
+      <div style="display: inline-block;">
+        <img src="/images/wechat_reward.png" alt="Xin-Bo Qi(亓欣波) WeChat Pay">
+        <p>WeChat Pay</p>
+      </div>
+
+  </div>
+</div>
+
+
+      <footer class="post-footer">
+          <div class="post-tags">
+              <a href="/tags/GUI/" rel="tag"># GUI</a>
+          </div>
+
+        
+
+
+        
+    <div class="post-nav">
+      <div class="post-nav-item">
+    <a href="/2021/10/26/sift/" rel="prev" title="经典图像特征点提取SIFT算法详解">
+      <i class="fa fa-chevron-left"></i> 经典图像特征点提取SIFT算法详解
+    </a></div>
+      <div class="post-nav-item"></div>
+    </div>
+      </footer>
+    
+  </article>
+  
+  
+  
+
+
+
+          </div>
+          
+    
+  <div class="comments">
+    <div id="disqus_thread">
+      <noscript>Please enable JavaScript to view the comments powered by Disqus.</noscript>
+    </div>
+  </div>
+  
+
+<script>
+  window.addEventListener('tabs:register', () => {
+    let { activeClass } = CONFIG.comments;
+    if (CONFIG.comments.storage) {
+      activeClass = localStorage.getItem('comments_active') || activeClass;
+    }
+    if (activeClass) {
+      let activeTab = document.querySelector(`a[href="#comment-${activeClass}"]`);
+      if (activeTab) {
+        activeTab.click();
+      }
+    }
+  });
+  if (CONFIG.comments.storage) {
+    window.addEventListener('tabs:click', event => {
+      if (!event.target.matches('.tabs-comment .tab-content .tab-pane')) return;
+      let commentClass = event.target.classList[1];
+      localStorage.setItem('comments_active', commentClass);
+    });
+  }
+</script>
+
+        </div>
+          
+  
+  <div class="toggle sidebar-toggle">
+    <span class="toggle-line toggle-line-first"></span>
+    <span class="toggle-line toggle-line-middle"></span>
+    <span class="toggle-line toggle-line-last"></span>
+  </div>
+
+  <aside class="sidebar">
+    <div class="sidebar-inner">
+
+      <ul class="sidebar-nav motion-element">
+        <li class="sidebar-nav-toc">
+          Table of Contents
+        </li>
+        <li class="sidebar-nav-overview">
+          Overview
+        </li>
+      </ul>
+
+      <!--noindex-->
+      <div class="post-toc-wrap sidebar-panel">
+          <div class="post-toc motion-element"><ol class="nav"><li class="nav-item nav-level-1"><a class="nav-link" href="#%E7%AE%80%E4%BB%8B"><span class="nav-number">1.</span> <span class="nav-text">简介</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#%E5%8F%AF%E7%94%A8%E6%96%B9%E6%A1%88"><span class="nav-number">2.</span> <span class="nav-text">可用方案</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#Brython"><span class="nav-number">3.</span> <span class="nav-text">Brython</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#Pyodide"><span class="nav-number">4.</span> <span class="nav-text">Pyodide</span></a><ol class="nav-child"><li class="nav-item nav-level-2"><a class="nav-link" href="#%E5%9C%A8Python%E5%92%8CJavaScript%E4%B9%8B%E9%97%B4%E8%BF%9B%E8%A1%8C%E4%BA%A4%E4%BA%92"><span class="nav-number">4.1.</span> <span class="nav-text">在Python和JavaScript之间进行交互</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E8%AE%BF%E9%97%AEWeb-API%E5%92%8CDOM"><span class="nav-number">4.2.</span> <span class="nav-text">访问Web API和DOM</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E5%A4%9A%E7%BB%B4%E6%95%B0%E7%BB%84"><span class="nav-number">4.3.</span> <span class="nav-text">多维数组</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E5%AE%9E%E6%97%B6%E4%BA%A4%E4%BA%92%E5%8F%AF%E8%A7%86%E5%8C%96"><span class="nav-number">4.4.</span> <span class="nav-text">实时交互可视化</span></a></li></ol></li><li class="nav-item nav-level-1"><a class="nav-link" href="#%E6%80%BB%E7%BB%93"><span class="nav-number">5.</span> <span class="nav-text">总结</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#%E5%8F%82%E8%80%83%E6%96%87%E7%8C%AE"><span class="nav-number">6.</span> <span class="nav-text">参考文献</span></a></li></ol></div>
+      </div>
+      <!--/noindex-->
+
+      <div class="site-overview-wrap sidebar-panel">
+        <div class="site-author motion-element" itemprop="author" itemscope itemtype="http://schema.org/Person">
+    <img class="site-author-image" itemprop="image" alt="Xin-Bo Qi(亓欣波)"
+      src="/images/avatar.jpg">
+  <p class="site-author-name" itemprop="name">Xin-Bo Qi(亓欣波)</p>
+  <div class="site-description" itemprop="description">Digitize everything to realize Digitalization!</div>
+</div>
+<div class="site-state-wrap motion-element">
+  <nav class="site-state">
+      <div class="site-state-item site-state-posts">
+          <a href="/archives/">
+        
+          <span class="site-state-item-count">133</span>
+          <span class="site-state-item-name">posts</span>
+        </a>
+      </div>
+      <div class="site-state-item site-state-categories">
+            <a href="/categories/">
+          
+        <span class="site-state-item-count">6</span>
+        <span class="site-state-item-name">categories</span></a>
+      </div>
+      <div class="site-state-item site-state-tags">
+            <a href="/tags/">
+          
+        <span class="site-state-item-count">46</span>
+        <span class="site-state-item-name">tags</span></a>
+      </div>
+  </nav>
+</div>
+  <div class="links-of-author motion-element">
+      <span class="links-of-author-item">
+        <a href="https://github.com/qixinbo" title="GitHub → https:&#x2F;&#x2F;github.com&#x2F;qixinbo" rel="noopener" target="_blank"><i class="github fa-fw"></i>GitHub</a>
+      </span>
+      <span class="links-of-author-item">
+        <a href="mailto:qixinbo@gmail.com" title="E-Mail → mailto:qixinbo@gmail.com" rel="noopener" target="_blank"><i class="envelope fa-fw"></i>E-Mail</a>
+      </span>
+      <span class="links-of-author-item">
+        <a href="https://twitter.com/qixinbo" title="Twitter → https:&#x2F;&#x2F;twitter.com&#x2F;qixinbo" rel="noopener" target="_blank"><i class="fab fa-twitter fa-fw"></i>Twitter</a>
+      </span>
+      <span class="links-of-author-item">
+        <a href="/atom.xml" title="RSS → &#x2F;atom.xml"><i class="fas fa-rss fa-fw"></i>RSS</a>
+      </span>
+  </div>
+
+
+  <div class="links-of-blogroll motion-element">
+    <div class="links-of-blogroll-title"><i class="fa fa-link fa-fw"></i>
+      Links
+    </div>
+    <ul class="links-of-blogroll-list">
+        <li class="links-of-blogroll-item">
+          <a href="https://www.tsinghua.edu.cn/" title="https:&#x2F;&#x2F;www.tsinghua.edu.cn" rel="noopener" target="_blank">THU</a>
+        </li>
+        <li class="links-of-blogroll-item">
+          <a href="http://www.imr.cas.cn/" title="http:&#x2F;&#x2F;www.imr.cas.cn" rel="noopener" target="_blank">IMR</a>
+        </li>
+        <li class="links-of-blogroll-item">
+          <a href="http://www.sdu.edu.cn/" title="http:&#x2F;&#x2F;www.sdu.edu.cn" rel="noopener" target="_blank">SDU</a>
+        </li>
+        <li class="links-of-blogroll-item">
+          <a href="http://liam0205.me/" title="http:&#x2F;&#x2F;liam0205.me&#x2F;" rel="noopener" target="_blank">黄晨成</a>
+        </li>
+    </ul>
+  </div>
+
+      </div>
+
+    </div>
+  </aside>
+  <div id="sidebar-dimmer"></div>
+
+
+      </div>
+    </main>
+
+    <footer class="footer">
+      <div class="footer-inner">
+        
+
+        
+
+<div class="copyright">
+  
+  &copy; 
+  <span itemprop="copyrightYear">2021</span>
+  <span class="with-love">
+    <i class="fa fa-heart"></i>
+  </span>
+  <span class="author" itemprop="copyrightHolder">Xin-Bo Qi(亓欣波)</span>
+</div>
+  <div class="powered-by">Powered by <a href="https://hexo.io/" class="theme-link" rel="noopener" target="_blank">Hexo</a> & <a href="https://theme-next.org/" class="theme-link" rel="noopener" target="_blank">NexT.Gemini</a>
+  </div>
+
+        
+
+
+
+
+
+
+
+
+      </div>
+    </footer>
+  </div>
+
+  
+  <script src="/lib/anime.min.js"></script>
+  <script src="/lib/velocity/velocity.min.js"></script>
+  <script src="/lib/velocity/velocity.ui.min.js"></script>
+
+<script src="/js/utils.js"></script>
+
+<script src="/js/motion.js"></script>
+
+
+<script src="/js/schemes/pisces.js"></script>
+
+
+<script src="/js/next-boot.js"></script>
+
+
+
+
+  
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+  
+
+  
+      
+
+<script>
+  if (typeof MathJax === 'undefined') {
+    window.MathJax = {
+      loader: {
+        source: {
+          '[tex]/amsCd': '[tex]/amscd',
+          '[tex]/AMScd': '[tex]/amscd'
+        }
+      },
+      tex: {
+        inlineMath: {'[+]': [['$', '$']]},
+        tags: 'ams'
+      },
+      options: {
+        renderActions: {
+          findScript: [10, doc => {
+            document.querySelectorAll('script[type^="math/tex"]').forEach(node => {
+              const display = !!node.type.match(/; *mode=display/);
+              const math = new doc.options.MathItem(node.textContent, doc.inputJax[0], display);
+              const text = document.createTextNode('');
+              node.parentNode.replaceChild(text, node);
+              math.start = {node: text, delim: '', n: 0};
+              math.end = {node: text, delim: '', n: 0};
+              doc.math.push(math);
+            });
+          }, '', false],
+          insertedScript: [200, () => {
+            document.querySelectorAll('mjx-container').forEach(node => {
+              let target = node.parentNode;
+              if (target.nodeName.toLowerCase() === 'li') {
+                target.parentNode.classList.add('has-jax');
+              }
+            });
+          }, '', false]
+        }
+      }
+    };
+    (function () {
+      var script = document.createElement('script');
+      script.src = '//cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js';
+      script.defer = true;
+      document.head.appendChild(script);
+    })();
+  } else {
+    MathJax.startup.document.state(0);
+    MathJax.texReset();
+    MathJax.typeset();
+  }
+</script>
+
+    
+
+  
+
+<script>
+  function loadCount() {
+    var d = document, s = d.createElement('script');
+    s.src = 'https://qixinbo.disqus.com/count.js';
+    s.id = 'dsq-count-scr';
+    (d.head || d.body).appendChild(s);
+  }
+  // defer loading until the whole page loading is completed
+  window.addEventListener('load', loadCount, false);
+</script>
+<script>
+  var disqus_config = function() {
+    this.page.url = "http://qixinbo.github.io/2021/11/05/python-on-web/";
+    this.page.identifier = "2021/11/05/python-on-web/";
+    this.page.title = "Python爱浏览器，但浏览器不爱它：如何让Python运行在浏览器上";
+    };
+  NexT.utils.loadComments(document.querySelector('#disqus_thread'), () => {
+    if (window.DISQUS) {
+      DISQUS.reset({
+        reload: true,
+        config: disqus_config
+      });
+    } else {
+      var d = document, s = d.createElement('script');
+      s.src = 'https://qixinbo.disqus.com/embed.js';
+      s.setAttribute('data-timestamp', '' + +new Date());
+      (d.head || d.body).appendChild(s);
+    }
+  });
+</script>
+
+</body>
+</html>
