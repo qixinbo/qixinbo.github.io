@@ -1,0 +1,602 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=2">
+<meta name="theme-color" content="#222">
+<meta name="generator" content="Hexo 5.4.0">
+  <link rel="apple-touch-icon" sizes="180x180" href="/images/apple-touch-icon-next.png">
+  <link rel="icon" type="image/png" sizes="32x32" href="/favicon.ico">
+  <link rel="icon" type="image/png" sizes="16x16" href="/favicon.ico">
+  <link rel="mask-icon" href="/images/logo.svg" color="#222">
+
+<link rel="stylesheet" href="/css/main.css">
+
+
+<link rel="stylesheet" href="/lib/font-awesome/css/all.min.css">
+
+<script id="hexo-configurations">
+    var NexT = window.NexT || {};
+    var CONFIG = {"hostname":"qixinbo.github.io","root":"/","scheme":"Gemini","version":"7.8.0","exturl":false,"sidebar":{"position":"left","display":"post","padding":18,"offset":12,"onmobile":false},"copycode":{"enable":false,"show_result":false,"style":null},"back2top":{"enable":true,"sidebar":false,"scrollpercent":false},"bookmark":{"enable":false,"color":"#222","save":"auto"},"fancybox":false,"mediumzoom":false,"lazyload":false,"pangu":false,"comments":{"style":"tabs","active":null,"storage":true,"lazyload":false,"nav":null},"algolia":{"hits":{"per_page":10},"labels":{"input_placeholder":"Search for Posts","hits_empty":"We didn't find any results for the search: ${query}","hits_stats":"${hits} results found in ${time} ms"}},"localsearch":{"enable":false,"trigger":"auto","top_n_per_article":1,"unescape":false,"preload":false},"motion":{"enable":true,"async":false,"transition":{"post_block":"fadeIn","post_header":"slideDownIn","post_body":"slideDownIn","coll_header":"slideLeftIn","sidebar":"slideUpIn"}}};
+  </script>
+
+  <meta name="description" content="本文解析一下ImagePy的三维画布。 以如下例子入手：  首先，原始图像是一个5乘5的方形图像，其中间是4乘4的白色，周围是一圈黑色。 由这张原始图根据距离变换得到右上角的高程图，继而对该高程图做三维可视化。  渲染插件 二维平面的三维可视化插件是这样写的： 1 2 3 4 5 6 7 8 9 10 11 12 13 14   class Surface2D(Simple):     title">
+<meta property="og:type" content="article">
+<meta property="og:title" content="ImagePy解析： 28 -- 三维可视化">
+<meta property="og:url" content="http://qixinbo.github.io/2021/11/18/ImagePy_28/index.html">
+<meta property="og:site_name" content="数字旗手">
+<meta property="og:description" content="本文解析一下ImagePy的三维画布。 以如下例子入手：  首先，原始图像是一个5乘5的方形图像，其中间是4乘4的白色，周围是一圈黑色。 由这张原始图根据距离变换得到右上角的高程图，继而对该高程图做三维可视化。  渲染插件 二维平面的三维可视化插件是这样写的： 1 2 3 4 5 6 7 8 9 10 11 12 13 14   class Surface2D(Simple):     title">
+<meta property="og:locale" content="en_US">
+<meta property="og:image" content="https://user-images.githubusercontent.com/6218739/141955577-f4a7c5c5-0a9a-409b-9fde-399a92f0c1d8.png">
+<meta property="og:image" content="https://user-images.githubusercontent.com/6218739/141955719-7c81041c-9c56-4f10-ba0c-1d5d68643f20.png">
+<meta property="article:published_time" content="2021-11-17T16:00:00.000Z">
+<meta property="article:modified_time" content="2021-11-18T08:22:51.670Z">
+<meta property="article:author" content="Xin-Bo Qi(亓欣波)">
+<meta property="article:tag" content="ImagePy">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:image" content="https://user-images.githubusercontent.com/6218739/141955577-f4a7c5c5-0a9a-409b-9fde-399a92f0c1d8.png">
+
+<link rel="canonical" href="http://qixinbo.github.io/2021/11/18/ImagePy_28/">
+
+
+<script id="page-configurations">
+  // https://hexo.io/docs/variables.html
+  CONFIG.page = {
+    sidebar: "",
+    isHome : false,
+    isPost : true,
+    lang   : 'en'
+  };
+</script>
+
+  <title>ImagePy解析： 28 -- 三维可视化 | 数字旗手</title>
+  
+
+
+
+
+
+
+  <noscript>
+  <style>
+  .use-motion .brand,
+  .use-motion .menu-item,
+  .sidebar-inner,
+  .use-motion .post-block,
+  .use-motion .pagination,
+  .use-motion .comments,
+  .use-motion .post-header,
+  .use-motion .post-body,
+  .use-motion .collection-header { opacity: initial; }
+
+  .use-motion .site-title,
+  .use-motion .site-subtitle {
+    opacity: initial;
+    top: initial;
+  }
+
+  .use-motion .logo-line-before i { left: initial; }
+  .use-motion .logo-line-after i { right: initial; }
+  </style>
+</noscript>
+
+<link rel="alternate" href="/atom.xml" title="数字旗手" type="application/atom+xml">
+</head>
+
+<body itemscope itemtype="http://schema.org/WebPage">
+  <div class="container use-motion">
+    <div class="headband"></div>
+
+    <header class="header" itemscope itemtype="http://schema.org/WPHeader">
+      <div class="header-inner"><div class="site-brand-container">
+  <div class="site-nav-toggle">
+    <div class="toggle" aria-label="Toggle navigation bar">
+      <span class="toggle-line toggle-line-first"></span>
+      <span class="toggle-line toggle-line-middle"></span>
+      <span class="toggle-line toggle-line-last"></span>
+    </div>
+  </div>
+
+  <div class="site-meta">
+
+    <a href="/" class="brand" rel="start">
+      <span class="logo-line-before"><i></i></span>
+      <h1 class="site-title">数字旗手</h1>
+      <span class="logo-line-after"><i></i></span>
+    </a>
+      <p class="site-subtitle" itemprop="description">电气化、自动化、数字化、智能化、智慧化</p>
+  </div>
+
+  <div class="site-nav-right">
+    <div class="toggle popup-trigger">
+    </div>
+  </div>
+</div>
+
+
+
+
+<nav class="site-nav">
+  <ul id="menu" class="main-menu menu">
+        <li class="menu-item menu-item-home">
+
+    <a href="/" rel="section"><i class="fa fa-home fa-fw"></i>Home</a>
+
+  </li>
+        <li class="menu-item menu-item-categories">
+
+    <a href="/categories/" rel="section"><i class="fa fa-th fa-fw"></i>Categories</a>
+
+  </li>
+        <li class="menu-item menu-item-archives">
+
+    <a href="/archives/" rel="section"><i class="fa fa-archive fa-fw"></i>Archives</a>
+
+  </li>
+        <li class="menu-item menu-item-tags">
+
+    <a href="/tags/" rel="section"><i class="fa fa-tags fa-fw"></i>Tags</a>
+
+  </li>
+        <li class="menu-item menu-item-scholar">
+
+    <a href="/scholar/" rel="section"><i class="fa fa-chart-bar fa-fw"></i>scholar</a>
+
+  </li>
+        <li class="menu-item menu-item-sources">
+
+    <a href="/sources/" rel="section"><i class="fa fa-rss fa-fw"></i>sources</a>
+
+  </li>
+        <li class="menu-item menu-item-gallery">
+
+    <a href="/gallery/" rel="section"><i class="fa fa-file-image fa-fw"></i>gallery</a>
+
+  </li>
+        <li class="menu-item menu-item-about">
+
+    <a href="/about/" rel="section"><i class="fa fa-user fa-fw"></i>About</a>
+
+  </li>
+        <li class="menu-item menu-item-commonweal">
+
+    <a href="/404.html" rel="section"><i class="fa fa-heartbeat fa-fw"></i>Commonweal 404</a>
+
+  </li>
+  </ul>
+</nav>
+
+
+
+
+</div>
+    </header>
+
+    
+  <div class="back-to-top">
+    <i class="fa fa-arrow-up"></i>
+    <span>0%</span>
+  </div>
+
+
+    <main class="main">
+      <div class="main-inner">
+        <div class="content-wrap">
+          
+
+          <div class="content post posts-expand">
+            
+
+    
+  
+  
+  <article itemscope itemtype="http://schema.org/Article" class="post-block" lang="en">
+    <link itemprop="mainEntityOfPage" href="http://qixinbo.github.io/2021/11/18/ImagePy_28/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="image" content="/images/avatar.jpg">
+      <meta itemprop="name" content="Xin-Bo Qi(亓欣波)">
+      <meta itemprop="description" content="Digitize everything to realize Digitalization!">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="数字旗手">
+    </span>
+      <header class="post-header">
+        <h1 class="post-title" itemprop="name headline">
+          ImagePy解析： 28 -- 三维可视化
+        </h1>
+
+        <div class="post-meta">
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="far fa-calendar"></i>
+              </span>
+              <span class="post-meta-item-text">Posted on</span>
+              
+
+              <time title="Created: 2021-11-18 00:00:00 / Modified: 16:22:51" itemprop="dateCreated datePublished" datetime="2021-11-18T00:00:00+08:00">2021-11-18</time>
+            </span>
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="far fa-folder"></i>
+              </span>
+              <span class="post-meta-item-text">In</span>
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+                  <a href="/categories/computer-vision/" itemprop="url" rel="index"><span itemprop="name">computer vision</span></a>
+                </span>
+            </span>
+
+          
+  
+  <span class="post-meta-item">
+    
+      <span class="post-meta-item-icon">
+        <i class="far fa-comment"></i>
+      </span>
+      <span class="post-meta-item-text">Disqus: </span>
+    
+    <a title="disqus" href="/2021/11/18/ImagePy_28/#disqus_thread" itemprop="discussionUrl">
+      <span class="post-comments-count disqus-comment-count" data-disqus-identifier="2021/11/18/ImagePy_28/" itemprop="commentCount"></span>
+    </a>
+  </span>
+  
+  
+
+        </div>
+      </header>
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+        <p>本文解析一下ImagePy的三维画布。<br>以如下例子入手：<br><img src="https://user-images.githubusercontent.com/6218739/141955577-f4a7c5c5-0a9a-409b-9fde-399a92f0c1d8.png" alt="demo"><br>首先，原始图像是一个5乘5的方形图像，其中间是4乘4的白色，周围是一圈黑色。<br>由这张原始图根据距离变换得到右上角的高程图，继而对该高程图做三维可视化。</p>
+<h1 id="渲染插件"><a href="#渲染插件" class="headerlink" title="渲染插件"></a>渲染插件</h1><p>二维平面的三维可视化插件是这样写的：<br><figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br></pre></td><td class="code"><pre><span class="line"><span class="class"><span class="keyword">class</span> <span class="title">Surface2D</span>(<span class="params">Simple</span>):</span></span><br><span class="line">    title = <span class="string">&#x27;2D Surface&#x27;</span></span><br><span class="line">    note = [<span class="string">&#x27;8-bit&#x27;</span>, <span class="string">&#x27;16-bit&#x27;</span>, <span class="string">&#x27;float&#x27;</span>]</span><br><span class="line">    para = &#123;<span class="string">&#x27;name&#x27;</span>:<span class="string">&#x27;undifine&#x27;</span>, <span class="string">&#x27;sample&#x27;</span>:<span class="number">2</span>, <span class="string">&#x27;sigma&#x27;</span>:<span class="number">2</span>,<span class="string">&#x27;h&#x27;</span>:<span class="number">0.3</span>, <span class="string">&#x27;cm&#x27;</span>:<span class="string">&#x27;gray&#x27;</span>&#125;</span><br><span class="line">    view = [(<span class="built_in">str</span>, <span class="string">&#x27;name&#x27;</span>, <span class="string">&#x27;Name&#x27;</span>, <span class="string">&#x27;&#x27;</span>),</span><br><span class="line">            (<span class="built_in">int</span>, <span class="string">&#x27;sample&#x27;</span>, (<span class="number">1</span>,<span class="number">10</span>), <span class="number">0</span>, <span class="string">&#x27;down sample&#x27;</span>, <span class="string">&#x27;pix&#x27;</span>),</span><br><span class="line">            (<span class="built_in">int</span>, <span class="string">&#x27;sigma&#x27;</span>, (<span class="number">0</span>,<span class="number">30</span>), <span class="number">0</span>, <span class="string">&#x27;sigma&#x27;</span>, <span class="string">&#x27;&#x27;</span>),</span><br><span class="line">            (<span class="built_in">float</span>, <span class="string">&#x27;h&#x27;</span>, (<span class="number">0.1</span>,<span class="number">10</span>), <span class="number">1</span>, <span class="string">&#x27;scale z&#x27;</span>, <span class="string">&#x27;&#x27;</span>),</span><br><span class="line">            (<span class="string">&#x27;cmap&#x27;</span>, <span class="string">&#x27;cm&#x27;</span>, <span class="string">&#x27;color map&#x27;</span>)]</span><br><span class="line"></span><br><span class="line">    <span class="function"><span class="keyword">def</span> <span class="title">run</span>(<span class="params">self, ips, imgs, para = <span class="literal">None</span></span>):</span></span><br><span class="line">        ds, sigma, cm = para[<span class="string">&#x27;sample&#x27;</span>], para[<span class="string">&#x27;sigma&#x27;</span>], ColorManager.get(para[<span class="string">&#x27;cm&#x27;</span>])</span><br><span class="line">        mesh = Surface2d(ips.img, sample=ds, sigma=sigma, k=para[<span class="string">&#x27;h&#x27;</span>], cmap=cm)</span><br><span class="line">        self.app.show_mesh(mesh, para[<span class="string">&#x27;name&#x27;</span>])</span><br></pre></td></tr></table></figure><br>其界面为：<br><img src="https://user-images.githubusercontent.com/6218739/141955719-7c81041c-9c56-4f10-ba0c-1d5d68643f20.png" alt="interface"><br>即设定名字、下采样率、平滑率和z轴伸缩率，以及渲染所用的colormap。(在该demo中，就按如图中的参数进行设置)<br>然后将这些参数传给Surface2d这个ImagePy定义的Mesh对象。<br>最后调用show_mesh方法将其呈现出来。<br>下面是一步步分析这个Mesh对象及其绘制方法。</p>
+<h1 id="Mesh对象"><a href="#Mesh对象" class="headerlink" title="Mesh对象"></a>Mesh对象</h1><p>如前所述，二维高程图传给了Surface2d这一类，具体看一下其代码实现：<br><figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br></pre></td><td class="code"><pre><span class="line"><span class="class"><span class="keyword">class</span> <span class="title">Surface2d</span>(<span class="params">Mesh</span>):</span></span><br><span class="line">	<span class="function"><span class="keyword">def</span> <span class="title">__init__</span>(<span class="params">self, img=<span class="literal">None</span>, sample=<span class="number">1</span>, sigma=<span class="number">0</span>, k=<span class="number">0.3</span>, **key</span>):</span></span><br><span class="line">		self.img, self.sample, self.sigma, self.k = img, sample, sigma, k</span><br><span class="line">		Mesh.__init__(self, **key)</span><br><span class="line">		self.set_data(img, sample, sigma, k)</span><br><span class="line"></span><br><span class="line">	<span class="function"><span class="keyword">def</span> <span class="title">set_data</span>(<span class="params">self, img=<span class="literal">None</span>, sample=<span class="literal">None</span>, sigma=<span class="literal">None</span>, k=<span class="literal">None</span>, **key</span>):</span></span><br><span class="line">		<span class="keyword">if</span> <span class="keyword">not</span> img <span class="keyword">is</span> <span class="literal">None</span>: self.img = img</span><br><span class="line">		<span class="keyword">if</span> <span class="keyword">not</span> sample <span class="keyword">is</span> <span class="literal">None</span>: self.sample = sample</span><br><span class="line">		<span class="keyword">if</span> <span class="keyword">not</span> sigma <span class="keyword">is</span> <span class="literal">None</span>: self.sigma = sigma</span><br><span class="line">		<span class="keyword">if</span> <span class="keyword">not</span> k <span class="keyword">is</span> <span class="literal">None</span>: self.k = k</span><br><span class="line">		<span class="keyword">if</span> <span class="built_in">sum</span>([<span class="keyword">not</span> i <span class="keyword">is</span> <span class="literal">None</span> <span class="keyword">for</span> i <span class="keyword">in</span> (img, sample, sigma, k)])&gt;<span class="number">0</span>:</span><br><span class="line">			<span class="keyword">from</span> ..util <span class="keyword">import</span> meshutil</span><br><span class="line">			vert, fs = meshutil.create_surface2d(self.img, self.sample, self.sigma, self.k)</span><br><span class="line">			Mesh.set_data(self, verts=vert, faces=fs.astype(np.uint32), colors=vert[:,<span class="number">2</span>], **key)</span><br><span class="line">		<span class="keyword">else</span>: Mesh.set_data(self, **key)</span><br></pre></td></tr></table></figure><br>可以看到，在它的初始化函数中调用了set_data方法。进一步地，在该方法中有两个核心方法：将图像转化为顶点和面，然后再转为Mesh对象。</p>
+<h2 id="位图提取格点坐标和像素值"><a href="#位图提取格点坐标和像素值" class="headerlink" title="位图提取格点坐标和像素值"></a>位图提取格点坐标和像素值</h2><p>即如下方法：<br><figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">vert, fs = meshutil.create_surface2d(self.img, self.sample, self.sigma, self.k)</span><br></pre></td></tr></table></figure><br>源码及注释为：<br><figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="keyword">def</span> <span class="title">create_surface2d</span>(<span class="params">img, sample=<span class="number">1</span>, sigma=<span class="number">0</span>, k=<span class="number">0.3</span></span>):</span></span><br><span class="line">    <span class="keyword">from</span> scipy.ndimage <span class="keyword">import</span> gaussian_filter</span><br><span class="line">    <span class="comment">#start = time()</span></span><br><span class="line">    <span class="comment"># 以采样率为步长进行图像的重新提取</span></span><br><span class="line">    img = img[::sample, ::sample].astype(np.float32)</span><br><span class="line">    <span class="comment"># 如果指定了平滑率，则使用高斯滤波进行平滑</span></span><br><span class="line">    <span class="keyword">if</span> sigma&gt;<span class="number">0</span>: img = gaussian_filter(img, sigma)</span><br><span class="line">    <span class="comment"># 根据采样后的图像形状生成网格格点</span></span><br><span class="line">    xs, ys = np.mgrid[:img.shape[<span class="number">0</span>],:img.shape[<span class="number">1</span>]]</span><br><span class="line">    <span class="comment"># 根据采样率，将格点范围伸缩到之前的大小</span></span><br><span class="line">    xs *= sample; ys *= sample</span><br><span class="line">    <span class="comment"># 将图像像素值乘以伸缩大小，作为z轴的值，与格点坐标xy传入下面的方法</span></span><br><span class="line">    <span class="keyword">return</span> create_grid_mesh(xs, ys, img*k)</span><br></pre></td></tr></table></figure><br>在此例中，依照上面的参数，来看一下各个中间结果：<br>首先高程图在降采样后，图像矩阵为：<br><figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">[[<span class="number">0.</span> <span class="number">0.</span> <span class="number">0.</span>]</span><br><span class="line"> [<span class="number">0.</span> <span class="number">2.</span> <span class="number">0.</span>]</span><br><span class="line"> [<span class="number">0.</span> <span class="number">0.</span> <span class="number">0.</span>]]</span><br></pre></td></tr></table></figure><br>然后在$\sigma=1$的高斯滤波后，图像矩阵为：<br><figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">[[<span class="number">0.17534617</span> <span class="number">0.2415005</span>  <span class="number">0.17534617</span>]</span><br><span class="line"> [<span class="number">0.2415005</span>  <span class="number">0.3326134</span>  <span class="number">0.2415005</span> ]</span><br><span class="line"> [<span class="number">0.17534617</span> <span class="number">0.2415005</span>  <span class="number">0.17534617</span>]]</span><br></pre></td></tr></table></figure><br>其再经过k倍的伸缩，变为：<br><figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">[[<span class="number">0.8767308</span> <span class="number">1.2075025</span> <span class="number">0.8767308</span>]</span><br><span class="line"> [<span class="number">1.2075025</span> <span class="number">1.6630671</span> <span class="number">1.2075025</span>]</span><br><span class="line"> [<span class="number">0.8767308</span> <span class="number">1.2075025</span> <span class="number">0.8767308</span>]]</span><br></pre></td></tr></table></figure><br>同时xs和ys即网格格点坐标，也经过了降采样，以及范围伸缩，变为：<br><figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">[[<span class="number">0</span> <span class="number">0</span> <span class="number">0</span>]</span><br><span class="line"> [<span class="number">2</span> <span class="number">2</span> <span class="number">2</span>]</span><br><span class="line"> [<span class="number">4</span> <span class="number">4</span> <span class="number">4</span>]]</span><br></pre></td></tr></table></figure></p>
+<h2 id="获取格点和面的信息"><a href="#获取格点和面的信息" class="headerlink" title="获取格点和面的信息"></a>获取格点和面的信息</h2><figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="keyword">def</span> <span class="title">create_grid_mesh</span>(<span class="params">xs, ys, zs</span>):</span></span><br><span class="line">    h, w = xs.shape</span><br><span class="line">    <span class="comment"># 将xy坐标位置和z值合并起来</span></span><br><span class="line">    vts = np.array([xs, ys, zs], dtype=np.float32)</span><br><span class="line">    <span class="comment"># 这一步是定义以某格点为参考点的坐标系下它与哪些点形成面</span></span><br><span class="line">    <span class="comment"># 在局部坐标系下，参考点索引为0，那么它所构成的面有两个</span></span><br><span class="line">    <span class="comment"># 分别与(1, 1+w)这两个点构成一个面，与(1+w, w)这两个点构成一个面</span></span><br><span class="line">    <span class="comment"># 比如在此例下，did的值就是[[0 1 4 0 4 3]]</span></span><br><span class="line">    did = np.array([[<span class="number">0</span>, <span class="number">1</span>, <span class="number">1</span>+w, <span class="number">0</span>, <span class="number">1</span>+w, w]], dtype=np.uint32)</span><br><span class="line">    <span class="comment"># rcs由两部分构成</span></span><br><span class="line">    <span class="comment"># 第一部分是获取全局坐标系下每一排的第一个元素的索引，所以是以w为步长</span></span><br><span class="line">    <span class="comment"># 注意排除最后一排，即是w*h还要减去w，因为最后一排元素所参与的面可以通过倒数第二排来获得</span></span><br><span class="line">    <span class="comment"># 对于此例，就是[[0], [3]]，注意这里使用None来增加一个维度</span></span><br><span class="line">    <span class="comment"># 第二部分是获取全局坐标系下每一列的索引，所以是以1为步长</span></span><br><span class="line">    <span class="comment"># 注意是排除最后一列，即w要减去1，这也是因为最后一列参与的面可以通过前一列得到</span></span><br><span class="line">    <span class="comment"># 对于此例，就是[0, 1]</span></span><br><span class="line">    <span class="comment"># 最终rcs就是numpy数组的[[0],[3]]+[0, 1]</span></span><br><span class="line">    <span class="comment"># 这里用到了numpy的广播： https://qixinbo.info/2019/10/20/python-indexing/</span></span><br><span class="line">    <span class="comment"># [[0, 0],[3, 3]] + [[0, 1], [0, 1]] = [[0, 1], [3, 4]]</span></span><br><span class="line">    <span class="comment"># 代表的意思就是在全局坐标系中，第一排取索引为0和1的格点，在第二排取索引为3和4的格点</span></span><br><span class="line">    rcs = np.arange(<span class="number">0</span>,w*h-w,w)[:,<span class="literal">None</span>] + np.arange(<span class="number">0</span>,w-<span class="number">1</span>,<span class="number">1</span>)</span><br><span class="line">    <span class="comment"># 接下来就是根据上面取得的格点，得到每个格点上所形成的面</span></span><br><span class="line">    <span class="comment"># 首先第一部分是将rcs拉直为[[0], [1], [3], [4]]，即这四个格点索引拉平到一个维度上</span></span><br><span class="line">    <span class="comment"># 然后加上上面的局部坐标系下形成面的格点索引[[0 1 4 0 4 3]]</span></span><br><span class="line">    <span class="comment"># 同样根据广播原则，就得到了每个格点与相邻点所形成的面</span></span><br><span class="line">    <span class="comment"># 结果为：[[0 1 4 0 4 3], [1 2 5 1 5 4], [3 4 7 3 7 6], [4 5 8 4 8 7]] </span></span><br><span class="line">    <span class="comment"># 即每个格点上都参与形成两个面，具体每一个面的格点组成看上面的序列</span></span><br><span class="line">    faces = rcs.reshape(-<span class="number">1</span>,<span class="number">1</span>) + did</span><br><span class="line">    <span class="comment"># 返回值是两个</span></span><br><span class="line">    <span class="comment"># 第一个就是格点坐标及其上面的值，并按这三个值合并起来算一个重新改变形状</span></span><br><span class="line">    <span class="comment"># 第二个就是由格点所形成的面的信息</span></span><br><span class="line">    <span class="keyword">return</span> vts.reshape(<span class="number">3</span>,-<span class="number">1</span>).T.copy(), faces.reshape(-<span class="number">1</span>,<span class="number">3</span>)</span><br></pre></td></tr></table></figure>
+<p>具体的解析过程见上面源码。<br>最后说一下最终返回的格点信息和面信息，分别是：<br><figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br></pre></td><td class="code"><pre><span class="line">[[<span class="number">0.</span>        <span class="number">0.</span>        <span class="number">0.8767308</span>]</span><br><span class="line"> [<span class="number">0.</span>        <span class="number">2.</span>        <span class="number">1.2075025</span>]</span><br><span class="line"> [<span class="number">0.</span>        <span class="number">4.</span>        <span class="number">0.8767308</span>]</span><br><span class="line"> [<span class="number">2.</span>        <span class="number">0.</span>        <span class="number">1.2075025</span>]</span><br><span class="line"> [<span class="number">2.</span>        <span class="number">2.</span>        <span class="number">1.6630671</span>]</span><br><span class="line"> [<span class="number">2.</span>        <span class="number">4.</span>        <span class="number">1.2075025</span>]</span><br><span class="line"> [<span class="number">4.</span>        <span class="number">0.</span>        <span class="number">0.8767308</span>]</span><br><span class="line"> [<span class="number">4.</span>        <span class="number">2.</span>        <span class="number">1.2075025</span>]</span><br><span class="line"> [<span class="number">4.</span>        <span class="number">4.</span>        <span class="number">0.8767308</span>]]</span><br></pre></td></tr></table></figure><br>以第一个格点为例，它是在(0, 0)坐标，同时上面的值是0.8767308。<br>以及面信息：<br><figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><span class="line">[[<span class="number">0</span> <span class="number">1</span> <span class="number">4</span>]</span><br><span class="line"> [<span class="number">0</span> <span class="number">4</span> <span class="number">3</span>]</span><br><span class="line"> [<span class="number">1</span> <span class="number">2</span> <span class="number">5</span>]</span><br><span class="line"> [<span class="number">1</span> <span class="number">5</span> <span class="number">4</span>]</span><br><span class="line"> [<span class="number">3</span> <span class="number">4</span> <span class="number">7</span>]</span><br><span class="line"> [<span class="number">3</span> <span class="number">7</span> <span class="number">6</span>]</span><br><span class="line"> [<span class="number">4</span> <span class="number">5</span> <span class="number">8</span>]</span><br><span class="line"> [<span class="number">4</span> <span class="number">8</span> <span class="number">7</span>]]</span><br></pre></td></tr></table></figure><br>以第一个面为例，它由(0, 1, 4)号格点组成。</p>
+<h2 id="构建Mesh对象"><a href="#构建Mesh对象" class="headerlink" title="构建Mesh对象"></a>构建Mesh对象</h2><figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment"># 传入上面的格点、面、颜色（这里取的是格点上的z值）以及cmap</span></span><br><span class="line">Mesh.set_data(self, verts=vert, faces=fs.astype(np.uint32), colors=vert[:,<span class="number">2</span>], **key)</span><br></pre></td></tr></table></figure>
+<p>上述代码是调用了Mesh对象的set_data方法。<br><figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br></pre></td><td class="code"><pre><span class="line"><span class="class"><span class="keyword">class</span> <span class="title">Mesh</span>:</span></span><br><span class="line">	<span class="comment"># 在初始化函数中传入一个Mesh对象所需要的信息</span></span><br><span class="line">	<span class="function"><span class="keyword">def</span> <span class="title">__init__</span>(<span class="params">self, verts=<span class="literal">None</span>, faces=<span class="literal">None</span>, colors=<span class="literal">None</span>, cmap=<span class="literal">None</span>, **key</span>):</span></span><br><span class="line">		<span class="comment"># 如果有格点信息，但没有面信息</span></span><br><span class="line">		<span class="keyword">if</span> faces <span class="keyword">is</span> <span class="literal">None</span> <span class="keyword">and</span> <span class="keyword">not</span> verts <span class="keyword">is</span> <span class="literal">None</span>: </span><br><span class="line">			<span class="comment"># 则直接按格点个数-1生成面，即两个相邻格点相连，就成为面</span></span><br><span class="line">			faces = np.arange(<span class="built_in">len</span>(verts), dtype=np.uint32)</span><br><span class="line">		<span class="comment"># 传入格点信息</span></span><br><span class="line">		self.verts = verts.astype(np.float32, copy=<span class="literal">False</span>) <span class="keyword">if</span> <span class="keyword">not</span> verts <span class="keyword">is</span> <span class="literal">None</span> <span class="keyword">else</span> <span class="literal">None</span></span><br><span class="line">		<span class="comment"># 传入面信息</span></span><br><span class="line">		self.faces = faces.astype(np.uint32, copy=<span class="literal">False</span>) <span class="keyword">if</span> <span class="keyword">not</span> faces <span class="keyword">is</span> <span class="literal">None</span> <span class="keyword">else</span> <span class="literal">None</span></span><br><span class="line">		<span class="comment"># 传入颜色信息</span></span><br><span class="line">		self.colors = colors</span><br><span class="line">		<span class="comment"># 设置模式、可见性和dirty属性等</span></span><br><span class="line">		self.mode, self.visible, self.dirty = <span class="string">&#x27;mesh&#x27;</span>, <span class="literal">True</span>, <span class="string">&#x27;geom&#x27;</span></span><br><span class="line">		<span class="comment"># 设置alpha透明度和边信息</span></span><br><span class="line">		self.alpha = <span class="number">1</span>; self.edges = <span class="literal">None</span></span><br><span class="line">		<span class="comment"># 设置高光、colormap</span></span><br><span class="line">		self.high_light = <span class="literal">False</span>; self.cmap = <span class="string">&#x27;gray&#x27;</span> <span class="keyword">if</span> cmap <span class="keyword">is</span> <span class="literal">None</span> <span class="keyword">else</span> cmap</span><br><span class="line">		<span class="comment"># 调用set_data方法</span></span><br><span class="line">		self.set_data(**key)</span><br><span class="line"></span><br><span class="line">	<span class="function"><span class="keyword">def</span> <span class="title">set_data</span>(<span class="params">self, verts=<span class="literal">None</span>, faces=<span class="literal">None</span>, colors=<span class="literal">None</span>, **key</span>):</span></span><br><span class="line">		<span class="comment"># 同上面的初始化功能近似，区别是可以直接调用它来配置信息</span></span><br><span class="line">		<span class="keyword">if</span> faces <span class="keyword">is</span> <span class="literal">None</span> <span class="keyword">and</span> <span class="keyword">not</span> verts <span class="keyword">is</span> <span class="literal">None</span>: </span><br><span class="line">			faces = np.arange(<span class="built_in">len</span>(verts), dtype=np.uint32)</span><br><span class="line">		<span class="keyword">if</span> <span class="keyword">not</span> verts <span class="keyword">is</span> <span class="literal">None</span>: self.verts = verts.astype(np.float32, copy=<span class="literal">False</span>)</span><br><span class="line">		<span class="keyword">if</span> <span class="keyword">not</span> faces <span class="keyword">is</span> <span class="literal">None</span>: self.faces = faces.astype(np.uint32, copy=<span class="literal">False</span>)</span><br><span class="line">		<span class="keyword">if</span> <span class="keyword">not</span> colors <span class="keyword">is</span> <span class="literal">None</span>: self.colors = colors</span><br><span class="line">		<span class="keyword">if</span> <span class="keyword">not</span> faces <span class="keyword">is</span> <span class="literal">None</span>: self.edge = <span class="literal">None</span></span><br><span class="line">		<span class="keyword">if</span> <span class="built_in">sum</span>([i <span class="keyword">is</span> <span class="literal">None</span> <span class="keyword">for</span> i <span class="keyword">in</span> [verts, faces, colors]])&lt;<span class="number">3</span>: self.dirty = <span class="string">&#x27;geom&#x27;</span></span><br><span class="line">		<span class="keyword">if</span> <span class="keyword">not</span> self.faces <span class="keyword">is</span> <span class="literal">None</span> <span class="keyword">and</span> self.faces.ndim==<span class="number">1</span>: key[<span class="string">&#x27;mode&#x27;</span>] = <span class="string">&#x27;points&#x27;</span></span><br><span class="line">		<span class="keyword">elif</span> <span class="keyword">not</span> self.faces <span class="keyword">is</span> <span class="literal">None</span> <span class="keyword">and</span> self.faces.shape[<span class="number">1</span>]==<span class="number">2</span>: </span><br><span class="line">			<span class="keyword">if</span> key.get(<span class="string">&#x27;mode&#x27;</span>, self.mode)==<span class="string">&#x27;mesh&#x27;</span>: key[<span class="string">&#x27;mode&#x27;</span>] = <span class="string">&#x27;grid&#x27;</span></span><br><span class="line">		<span class="keyword">if</span> key.get(<span class="string">&#x27;mode&#x27;</span>, self.mode) != self.mode: self.dirty = <span class="string">&#x27;geom&#x27;</span></span><br><span class="line">		self.mode = key.get(<span class="string">&#x27;mode&#x27;</span>, self.mode)</span><br><span class="line">		self.visible = key.get(<span class="string">&#x27;visible&#x27;</span>, self.visible)</span><br><span class="line">		self.alpha = key.get(<span class="string">&#x27;alpha&#x27;</span>, self.alpha)</span><br><span class="line">		self.high_light = key.get(<span class="string">&#x27;high_light&#x27;</span>, <span class="literal">False</span>)</span><br><span class="line">		self.cmap = key.get(<span class="string">&#x27;cmap&#x27;</span>, self.cmap)</span><br><span class="line">		self.dirty = self.dirty <span class="keyword">or</span> <span class="literal">True</span></span><br></pre></td></tr></table></figure></p>
+<h1 id="可视化Mesh"><a href="#可视化Mesh" class="headerlink" title="可视化Mesh"></a>可视化Mesh</h1><p>即将Mesh对象通过三维画布展示出来：<br><figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">self.app.show_mesh(mesh, para[<span class="string">&#x27;name&#x27;</span>])</span><br></pre></td></tr></table></figure><br>这里就是调用了app的show_mesh方法。<br>ImagePy的三维画布是基于VisPy的，同时又进行了封装，最底层的是如下这个类：<br><figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br></pre></td><td class="code"><pre><span class="line"><span class="class"><span class="keyword">class</span> <span class="title">Canvas3D</span>(<span class="params">scene.SceneCanvas</span>):</span></span><br><span class="line">    <span class="function"><span class="keyword">def</span> <span class="title">__new__</span>(<span class="params">cls, parent, scene3d=<span class="literal">None</span></span>):</span></span><br><span class="line">        self = <span class="built_in">super</span>().__new__(cls)</span><br><span class="line">        scene.SceneCanvas.__init__(self, app=<span class="string">&quot;wx&quot;</span>, parent=parent, keys=<span class="string">&#x27;interactive&#x27;</span>, show=<span class="literal">True</span>, dpi=<span class="number">150</span>)</span><br><span class="line">        canvas = parent.GetChildren()[-<span class="number">1</span>]</span><br><span class="line">        self.unfreeze()</span><br><span class="line">        self.canvas = weakref.ref(canvas)</span><br><span class="line">        self.view = self.central_widget.add_view()</span><br><span class="line">        self.set_scene(scene3d <span class="keyword">or</span> Scene())</span><br><span class="line">        self.visuals = &#123;&#125;</span><br><span class="line">        self.curobj = <span class="literal">None</span></span><br><span class="line">        self.freeze()</span><br><span class="line">        canvas.Bind(wx.EVT_IDLE, self.on_idle)</span><br><span class="line">        canvas.tool = <span class="literal">None</span></span><br><span class="line">        canvas.camera = scene.cameras.TurntableCamera(parent=self.view.scene, fov=<span class="number">45</span>, name=<span class="string">&#x27;Turntable&#x27;</span>)</span><br><span class="line">        canvas.set_camera = self.set_camera</span><br><span class="line">        canvas.fit = <span class="keyword">lambda</span> : self.set_camera(auto=<span class="literal">True</span>)</span><br><span class="line">        canvas.at = self.at</span><br><span class="line">        self.view.camera = canvas.camera</span><br><span class="line">        <span class="keyword">return</span> canvas</span><br></pre></td></tr></table></figure><br>VisPy的教程略微有点少，留坑待填。</p>
+
+    </div>
+
+    
+    
+    
+        <div class="reward-container">
+  <div></div>
+  <button onclick="var qr = document.getElementById('qr'); qr.style.display = (qr.style.display === 'none') ? 'block' : 'none';">
+    Donate
+  </button>
+  <div id="qr" style="display: none;">
+      
+      <div style="display: inline-block;">
+        <img src="/images/wechat_reward.png" alt="Xin-Bo Qi(亓欣波) WeChat Pay">
+        <p>WeChat Pay</p>
+      </div>
+
+  </div>
+</div>
+
+
+      <footer class="post-footer">
+          <div class="post-tags">
+              <a href="/tags/ImagePy/" rel="tag"># ImagePy</a>
+          </div>
+
+        
+
+
+        
+    <div class="post-nav">
+      <div class="post-nav-item">
+    <a href="/2021/11/15/electron/" rel="prev" title="Electron初探：基于Web的跨平台桌面应用开发">
+      <i class="fa fa-chevron-left"></i> Electron初探：基于Web的跨平台桌面应用开发
+    </a></div>
+      <div class="post-nav-item"></div>
+    </div>
+      </footer>
+    
+  </article>
+  
+  
+  
+
+
+
+          </div>
+          
+    
+  <div class="comments">
+    <div id="disqus_thread">
+      <noscript>Please enable JavaScript to view the comments powered by Disqus.</noscript>
+    </div>
+  </div>
+  
+
+<script>
+  window.addEventListener('tabs:register', () => {
+    let { activeClass } = CONFIG.comments;
+    if (CONFIG.comments.storage) {
+      activeClass = localStorage.getItem('comments_active') || activeClass;
+    }
+    if (activeClass) {
+      let activeTab = document.querySelector(`a[href="#comment-${activeClass}"]`);
+      if (activeTab) {
+        activeTab.click();
+      }
+    }
+  });
+  if (CONFIG.comments.storage) {
+    window.addEventListener('tabs:click', event => {
+      if (!event.target.matches('.tabs-comment .tab-content .tab-pane')) return;
+      let commentClass = event.target.classList[1];
+      localStorage.setItem('comments_active', commentClass);
+    });
+  }
+</script>
+
+        </div>
+          
+  
+  <div class="toggle sidebar-toggle">
+    <span class="toggle-line toggle-line-first"></span>
+    <span class="toggle-line toggle-line-middle"></span>
+    <span class="toggle-line toggle-line-last"></span>
+  </div>
+
+  <aside class="sidebar">
+    <div class="sidebar-inner">
+
+      <ul class="sidebar-nav motion-element">
+        <li class="sidebar-nav-toc">
+          Table of Contents
+        </li>
+        <li class="sidebar-nav-overview">
+          Overview
+        </li>
+      </ul>
+
+      <!--noindex-->
+      <div class="post-toc-wrap sidebar-panel">
+          <div class="post-toc motion-element"><ol class="nav"><li class="nav-item nav-level-1"><a class="nav-link" href="#%E6%B8%B2%E6%9F%93%E6%8F%92%E4%BB%B6"><span class="nav-number">1.</span> <span class="nav-text">渲染插件</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#Mesh%E5%AF%B9%E8%B1%A1"><span class="nav-number">2.</span> <span class="nav-text">Mesh对象</span></a><ol class="nav-child"><li class="nav-item nav-level-2"><a class="nav-link" href="#%E4%BD%8D%E5%9B%BE%E6%8F%90%E5%8F%96%E6%A0%BC%E7%82%B9%E5%9D%90%E6%A0%87%E5%92%8C%E5%83%8F%E7%B4%A0%E5%80%BC"><span class="nav-number">2.1.</span> <span class="nav-text">位图提取格点坐标和像素值</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E8%8E%B7%E5%8F%96%E6%A0%BC%E7%82%B9%E5%92%8C%E9%9D%A2%E7%9A%84%E4%BF%A1%E6%81%AF"><span class="nav-number">2.2.</span> <span class="nav-text">获取格点和面的信息</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E6%9E%84%E5%BB%BAMesh%E5%AF%B9%E8%B1%A1"><span class="nav-number">2.3.</span> <span class="nav-text">构建Mesh对象</span></a></li></ol></li><li class="nav-item nav-level-1"><a class="nav-link" href="#%E5%8F%AF%E8%A7%86%E5%8C%96Mesh"><span class="nav-number">3.</span> <span class="nav-text">可视化Mesh</span></a></li></ol></div>
+      </div>
+      <!--/noindex-->
+
+      <div class="site-overview-wrap sidebar-panel">
+        <div class="site-author motion-element" itemprop="author" itemscope itemtype="http://schema.org/Person">
+    <img class="site-author-image" itemprop="image" alt="Xin-Bo Qi(亓欣波)"
+      src="/images/avatar.jpg">
+  <p class="site-author-name" itemprop="name">Xin-Bo Qi(亓欣波)</p>
+  <div class="site-description" itemprop="description">Digitize everything to realize Digitalization!</div>
+</div>
+<div class="site-state-wrap motion-element">
+  <nav class="site-state">
+      <div class="site-state-item site-state-posts">
+          <a href="/archives/">
+        
+          <span class="site-state-item-count">136</span>
+          <span class="site-state-item-name">posts</span>
+        </a>
+      </div>
+      <div class="site-state-item site-state-categories">
+            <a href="/categories/">
+          
+        <span class="site-state-item-count">6</span>
+        <span class="site-state-item-name">categories</span></a>
+      </div>
+      <div class="site-state-item site-state-tags">
+            <a href="/tags/">
+          
+        <span class="site-state-item-count">47</span>
+        <span class="site-state-item-name">tags</span></a>
+      </div>
+  </nav>
+</div>
+  <div class="links-of-author motion-element">
+      <span class="links-of-author-item">
+        <a href="https://github.com/qixinbo" title="GitHub → https:&#x2F;&#x2F;github.com&#x2F;qixinbo" rel="noopener" target="_blank"><i class="github fa-fw"></i>GitHub</a>
+      </span>
+      <span class="links-of-author-item">
+        <a href="mailto:qixinbo@gmail.com" title="E-Mail → mailto:qixinbo@gmail.com" rel="noopener" target="_blank"><i class="envelope fa-fw"></i>E-Mail</a>
+      </span>
+      <span class="links-of-author-item">
+        <a href="https://twitter.com/qixinbo" title="Twitter → https:&#x2F;&#x2F;twitter.com&#x2F;qixinbo" rel="noopener" target="_blank"><i class="fab fa-twitter fa-fw"></i>Twitter</a>
+      </span>
+      <span class="links-of-author-item">
+        <a href="/atom.xml" title="RSS → &#x2F;atom.xml"><i class="fas fa-rss fa-fw"></i>RSS</a>
+      </span>
+  </div>
+
+
+  <div class="links-of-blogroll motion-element">
+    <div class="links-of-blogroll-title"><i class="fa fa-link fa-fw"></i>
+      Links
+    </div>
+    <ul class="links-of-blogroll-list">
+        <li class="links-of-blogroll-item">
+          <a href="https://www.tsinghua.edu.cn/" title="https:&#x2F;&#x2F;www.tsinghua.edu.cn" rel="noopener" target="_blank">THU</a>
+        </li>
+        <li class="links-of-blogroll-item">
+          <a href="http://www.imr.cas.cn/" title="http:&#x2F;&#x2F;www.imr.cas.cn" rel="noopener" target="_blank">IMR</a>
+        </li>
+        <li class="links-of-blogroll-item">
+          <a href="http://www.sdu.edu.cn/" title="http:&#x2F;&#x2F;www.sdu.edu.cn" rel="noopener" target="_blank">SDU</a>
+        </li>
+        <li class="links-of-blogroll-item">
+          <a href="http://liam0205.me/" title="http:&#x2F;&#x2F;liam0205.me&#x2F;" rel="noopener" target="_blank">黄晨成</a>
+        </li>
+    </ul>
+  </div>
+
+      </div>
+
+    </div>
+  </aside>
+  <div id="sidebar-dimmer"></div>
+
+
+      </div>
+    </main>
+
+    <footer class="footer">
+      <div class="footer-inner">
+        
+
+        
+
+<div class="copyright">
+  
+  &copy; 
+  <span itemprop="copyrightYear">2021</span>
+  <span class="with-love">
+    <i class="fa fa-heart"></i>
+  </span>
+  <span class="author" itemprop="copyrightHolder">Xin-Bo Qi(亓欣波)</span>
+</div>
+  <div class="powered-by">Powered by <a href="https://hexo.io/" class="theme-link" rel="noopener" target="_blank">Hexo</a> & <a href="https://theme-next.org/" class="theme-link" rel="noopener" target="_blank">NexT.Gemini</a>
+  </div>
+
+        
+
+
+
+
+
+
+
+
+      </div>
+    </footer>
+  </div>
+
+  
+  <script src="/lib/anime.min.js"></script>
+  <script src="/lib/velocity/velocity.min.js"></script>
+  <script src="/lib/velocity/velocity.ui.min.js"></script>
+
+<script src="/js/utils.js"></script>
+
+<script src="/js/motion.js"></script>
+
+
+<script src="/js/schemes/pisces.js"></script>
+
+
+<script src="/js/next-boot.js"></script>
+
+
+
+
+  
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+  
+
+  
+      
+
+<script>
+  if (typeof MathJax === 'undefined') {
+    window.MathJax = {
+      loader: {
+        source: {
+          '[tex]/amsCd': '[tex]/amscd',
+          '[tex]/AMScd': '[tex]/amscd'
+        }
+      },
+      tex: {
+        inlineMath: {'[+]': [['$', '$']]},
+        tags: 'ams'
+      },
+      options: {
+        renderActions: {
+          findScript: [10, doc => {
+            document.querySelectorAll('script[type^="math/tex"]').forEach(node => {
+              const display = !!node.type.match(/; *mode=display/);
+              const math = new doc.options.MathItem(node.textContent, doc.inputJax[0], display);
+              const text = document.createTextNode('');
+              node.parentNode.replaceChild(text, node);
+              math.start = {node: text, delim: '', n: 0};
+              math.end = {node: text, delim: '', n: 0};
+              doc.math.push(math);
+            });
+          }, '', false],
+          insertedScript: [200, () => {
+            document.querySelectorAll('mjx-container').forEach(node => {
+              let target = node.parentNode;
+              if (target.nodeName.toLowerCase() === 'li') {
+                target.parentNode.classList.add('has-jax');
+              }
+            });
+          }, '', false]
+        }
+      }
+    };
+    (function () {
+      var script = document.createElement('script');
+      script.src = '//cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js';
+      script.defer = true;
+      document.head.appendChild(script);
+    })();
+  } else {
+    MathJax.startup.document.state(0);
+    MathJax.texReset();
+    MathJax.typeset();
+  }
+</script>
+
+    
+
+  
+
+<script>
+  function loadCount() {
+    var d = document, s = d.createElement('script');
+    s.src = 'https://qixinbo.disqus.com/count.js';
+    s.id = 'dsq-count-scr';
+    (d.head || d.body).appendChild(s);
+  }
+  // defer loading until the whole page loading is completed
+  window.addEventListener('load', loadCount, false);
+</script>
+<script>
+  var disqus_config = function() {
+    this.page.url = "http://qixinbo.github.io/2021/11/18/ImagePy_28/";
+    this.page.identifier = "2021/11/18/ImagePy_28/";
+    this.page.title = "ImagePy解析： 28 -- 三维可视化";
+    };
+  NexT.utils.loadComments(document.querySelector('#disqus_thread'), () => {
+    if (window.DISQUS) {
+      DISQUS.reset({
+        reload: true,
+        config: disqus_config
+      });
+    } else {
+      var d = document, s = d.createElement('script');
+      s.src = 'https://qixinbo.disqus.com/embed.js';
+      s.setAttribute('data-timestamp', '' + +new Date());
+      (d.head || d.body).appendChild(s);
+    }
+  });
+</script>
+
+</body>
+</html>
