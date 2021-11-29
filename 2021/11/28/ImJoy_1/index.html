@@ -1,0 +1,633 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=2">
+<meta name="theme-color" content="#222">
+<meta name="generator" content="Hexo 5.4.0">
+  <link rel="apple-touch-icon" sizes="180x180" href="/images/apple-touch-icon-next.png">
+  <link rel="icon" type="image/png" sizes="32x32" href="/favicon.ico">
+  <link rel="icon" type="image/png" sizes="16x16" href="/favicon.ico">
+  <link rel="mask-icon" href="/images/logo.svg" color="#222">
+
+<link rel="stylesheet" href="/css/main.css">
+
+
+<link rel="stylesheet" href="/lib/font-awesome/css/all.min.css">
+
+<script id="hexo-configurations">
+    var NexT = window.NexT || {};
+    var CONFIG = {"hostname":"qixinbo.github.io","root":"/","scheme":"Gemini","version":"7.8.0","exturl":false,"sidebar":{"position":"left","display":"post","padding":18,"offset":12,"onmobile":false},"copycode":{"enable":false,"show_result":false,"style":null},"back2top":{"enable":true,"sidebar":false,"scrollpercent":false},"bookmark":{"enable":false,"color":"#222","save":"auto"},"fancybox":false,"mediumzoom":false,"lazyload":false,"pangu":false,"comments":{"style":"tabs","active":null,"storage":true,"lazyload":false,"nav":null},"algolia":{"hits":{"per_page":10},"labels":{"input_placeholder":"Search for Posts","hits_empty":"We didn't find any results for the search: ${query}","hits_stats":"${hits} results found in ${time} ms"}},"localsearch":{"enable":false,"trigger":"auto","top_n_per_article":1,"unescape":false,"preload":false},"motion":{"enable":true,"async":false,"transition":{"post_block":"fadeIn","post_header":"slideDownIn","post_body":"slideDownIn","coll_header":"slideLeftIn","sidebar":"slideUpIn"}}};
+  </script>
+
+  <meta name="description" content="从该博文开始，将会对ImJoy这一开源深度学习计算平台做一详细解析。  简介 （这部分是对官方文档（在这里）的翻译理解） ImJoy是一个由插件驱动的混合计算平台，用于部署深度学习应用程序，例如高级图像分析工具。 ImJoy可以运行在跨操作系统的移动和桌面环境中，其中的插件可以运行在浏览器、本地主机、远程和云服务器中。 借助 ImJoy，凭借其灵活的插件系统和可共享的插件 URL，可以非常简单地向">
+<meta property="og:type" content="article">
+<meta property="og:title" content="开源深度学习计算平台ImJoy解析：1 -- 介绍">
+<meta property="og:url" content="http://qixinbo.github.io/2021/11/28/ImJoy_1/index.html">
+<meta property="og:site_name" content="数字旗手">
+<meta property="og:description" content="从该博文开始，将会对ImJoy这一开源深度学习计算平台做一详细解析。  简介 （这部分是对官方文档（在这里）的翻译理解） ImJoy是一个由插件驱动的混合计算平台，用于部署深度学习应用程序，例如高级图像分析工具。 ImJoy可以运行在跨操作系统的移动和桌面环境中，其中的插件可以运行在浏览器、本地主机、远程和云服务器中。 借助 ImJoy，凭借其灵活的插件系统和可共享的插件 URL，可以非常简单地向">
+<meta property="og:locale" content="en_US">
+<meta property="og:image" content="https://user-images.githubusercontent.com/6218739/143673530-061125ed-4f2c-4bbd-8cef-b8ea12921c92.png">
+<meta property="og:image" content="https://user-images.githubusercontent.com/6218739/143677962-526c570c-e61e-423e-8092-e78a013ef231.png">
+<meta property="og:image" content="https://user-images.githubusercontent.com/6218739/143802507-b85944e6-4a5d-49d6-82d8-fcceb76991a3.png">
+<meta property="og:image" content="https://user-images.githubusercontent.com/6218739/143830446-897d525c-c84e-4e85-a689-8d1fcab75b0e.jpg">
+<meta property="article:published_time" content="2021-11-27T16:00:00.000Z">
+<meta property="article:modified_time" content="2021-11-29T08:38:33.670Z">
+<meta property="article:author" content="Xin-Bo Qi(亓欣波)">
+<meta property="article:tag" content="ImJoy">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:image" content="https://user-images.githubusercontent.com/6218739/143673530-061125ed-4f2c-4bbd-8cef-b8ea12921c92.png">
+
+<link rel="canonical" href="http://qixinbo.github.io/2021/11/28/ImJoy_1/">
+
+
+<script id="page-configurations">
+  // https://hexo.io/docs/variables.html
+  CONFIG.page = {
+    sidebar: "",
+    isHome : false,
+    isPost : true,
+    lang   : 'en'
+  };
+</script>
+
+  <title>开源深度学习计算平台ImJoy解析：1 -- 介绍 | 数字旗手</title>
+  
+
+
+
+
+
+
+  <noscript>
+  <style>
+  .use-motion .brand,
+  .use-motion .menu-item,
+  .sidebar-inner,
+  .use-motion .post-block,
+  .use-motion .pagination,
+  .use-motion .comments,
+  .use-motion .post-header,
+  .use-motion .post-body,
+  .use-motion .collection-header { opacity: initial; }
+
+  .use-motion .site-title,
+  .use-motion .site-subtitle {
+    opacity: initial;
+    top: initial;
+  }
+
+  .use-motion .logo-line-before i { left: initial; }
+  .use-motion .logo-line-after i { right: initial; }
+  </style>
+</noscript>
+
+<link rel="alternate" href="/atom.xml" title="数字旗手" type="application/atom+xml">
+</head>
+
+<body itemscope itemtype="http://schema.org/WebPage">
+  <div class="container use-motion">
+    <div class="headband"></div>
+
+    <header class="header" itemscope itemtype="http://schema.org/WPHeader">
+      <div class="header-inner"><div class="site-brand-container">
+  <div class="site-nav-toggle">
+    <div class="toggle" aria-label="Toggle navigation bar">
+      <span class="toggle-line toggle-line-first"></span>
+      <span class="toggle-line toggle-line-middle"></span>
+      <span class="toggle-line toggle-line-last"></span>
+    </div>
+  </div>
+
+  <div class="site-meta">
+
+    <a href="/" class="brand" rel="start">
+      <span class="logo-line-before"><i></i></span>
+      <h1 class="site-title">数字旗手</h1>
+      <span class="logo-line-after"><i></i></span>
+    </a>
+      <p class="site-subtitle" itemprop="description">电气化、自动化、数字化、智能化、智慧化</p>
+  </div>
+
+  <div class="site-nav-right">
+    <div class="toggle popup-trigger">
+    </div>
+  </div>
+</div>
+
+
+
+
+<nav class="site-nav">
+  <ul id="menu" class="main-menu menu">
+        <li class="menu-item menu-item-home">
+
+    <a href="/" rel="section"><i class="fa fa-home fa-fw"></i>Home</a>
+
+  </li>
+        <li class="menu-item menu-item-categories">
+
+    <a href="/categories/" rel="section"><i class="fa fa-th fa-fw"></i>Categories</a>
+
+  </li>
+        <li class="menu-item menu-item-archives">
+
+    <a href="/archives/" rel="section"><i class="fa fa-archive fa-fw"></i>Archives</a>
+
+  </li>
+        <li class="menu-item menu-item-tags">
+
+    <a href="/tags/" rel="section"><i class="fa fa-tags fa-fw"></i>Tags</a>
+
+  </li>
+        <li class="menu-item menu-item-scholar">
+
+    <a href="/scholar/" rel="section"><i class="fa fa-chart-bar fa-fw"></i>scholar</a>
+
+  </li>
+        <li class="menu-item menu-item-sources">
+
+    <a href="/sources/" rel="section"><i class="fa fa-rss fa-fw"></i>sources</a>
+
+  </li>
+        <li class="menu-item menu-item-gallery">
+
+    <a href="/gallery/" rel="section"><i class="fa fa-file-image fa-fw"></i>gallery</a>
+
+  </li>
+        <li class="menu-item menu-item-about">
+
+    <a href="/about/" rel="section"><i class="fa fa-user fa-fw"></i>About</a>
+
+  </li>
+        <li class="menu-item menu-item-commonweal">
+
+    <a href="/404.html" rel="section"><i class="fa fa-heartbeat fa-fw"></i>Commonweal 404</a>
+
+  </li>
+  </ul>
+</nav>
+
+
+
+
+</div>
+    </header>
+
+    
+  <div class="back-to-top">
+    <i class="fa fa-arrow-up"></i>
+    <span>0%</span>
+  </div>
+
+
+    <main class="main">
+      <div class="main-inner">
+        <div class="content-wrap">
+          
+
+          <div class="content post posts-expand">
+            
+
+    
+  
+  
+  <article itemscope itemtype="http://schema.org/Article" class="post-block" lang="en">
+    <link itemprop="mainEntityOfPage" href="http://qixinbo.github.io/2021/11/28/ImJoy_1/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="image" content="/images/avatar.jpg">
+      <meta itemprop="name" content="Xin-Bo Qi(亓欣波)">
+      <meta itemprop="description" content="Digitize everything to realize Digitalization!">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="数字旗手">
+    </span>
+      <header class="post-header">
+        <h1 class="post-title" itemprop="name headline">
+          开源深度学习计算平台ImJoy解析：1 -- 介绍
+        </h1>
+
+        <div class="post-meta">
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="far fa-calendar"></i>
+              </span>
+              <span class="post-meta-item-text">Posted on</span>
+
+              <time title="Created: 2021-11-28 00:00:00" itemprop="dateCreated datePublished" datetime="2021-11-28T00:00:00+08:00">2021-11-28</time>
+            </span>
+              <span class="post-meta-item">
+                <span class="post-meta-item-icon">
+                  <i class="far fa-calendar-check"></i>
+                </span>
+                <span class="post-meta-item-text">Edited on</span>
+                <time title="Modified: 2021-11-29 16:38:33" itemprop="dateModified" datetime="2021-11-29T16:38:33+08:00">2021-11-29</time>
+              </span>
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="far fa-folder"></i>
+              </span>
+              <span class="post-meta-item-text">In</span>
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+                  <a href="/categories/computer-vision/" itemprop="url" rel="index"><span itemprop="name">computer vision</span></a>
+                </span>
+            </span>
+
+          
+  
+  <span class="post-meta-item">
+    
+      <span class="post-meta-item-icon">
+        <i class="far fa-comment"></i>
+      </span>
+      <span class="post-meta-item-text">Disqus: </span>
+    
+    <a title="disqus" href="/2021/11/28/ImJoy_1/#disqus_thread" itemprop="discussionUrl">
+      <span class="post-comments-count disqus-comment-count" data-disqus-identifier="2021/11/28/ImJoy_1/" itemprop="commentCount"></span>
+    </a>
+  </span>
+  
+  
+
+        </div>
+      </header>
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+        <p>从该博文开始，将会对ImJoy这一开源深度学习计算平台做一详细解析。</p>
+<h1 id="简介"><a href="#简介" class="headerlink" title="简介"></a>简介</h1><p>（这部分是对官方文档（在<a target="_blank" rel="noopener" href="https://imjoy.io/docs/#/">这里</a>）的翻译理解）<br>ImJoy是一个由插件驱动的混合计算平台，用于部署深度学习应用程序，例如高级图像分析工具。<br>ImJoy可以运行在跨操作系统的移动和桌面环境中，其中的插件可以运行在浏览器、本地主机、远程和云服务器中。<br>借助 ImJoy，凭借其灵活的插件系统和可共享的插件 URL，可以非常简单地向最终用户提供深度学习工具，免去了用户自己配置深度学习环境、安装应用程序的繁琐和痛苦。对于开发人员来说，也可以轻松地对自己现有的Python代码添加丰富的交互式 Web 界面，从而让自己的程序更加“触手可及”。<br>下面是ImJoy的整体架构图：<br><img src="https://user-images.githubusercontent.com/6218739/143673530-061125ed-4f2c-4bbd-8cef-b8ea12921c92.png" alt="arch"><br>可以看出，ImJoy系统非常灵活，体现在以下几个方面：<br>（1）跨平台获取：因为ImJoy是基于web的，所以只要是有浏览器的地方，ImJoy就可以使用，比如桌面端、移动端调用等；<br>（2）插件形式灵活：可以使用JavaScript、Python等编程语言；<br>（3）插件运行环境多样：对于不同量级的插件，可以选择其应用环境，比如一个简单的插件，可以直接在浏览器中运行；如果是一个重型的深度学习应用，可以在本地工作站中运行，也可以在远程服务器或者云服务器中运行。</p>
+<h1 id="ImJoy特点"><a href="#ImJoy特点" class="headerlink" title="ImJoy特点"></a>ImJoy特点</h1><p>（1）小巧且灵活的插件驱动的 Web 应用程序<br>（2）具有离线支持的无服务器渐进式 Web 应用程序（PWA技术）<br>（3）支持移动设备<br>（4）基于Web的丰富的交互式用户界面：可以使用任何现有的网页设计库、使用 webGL、Three.js 等以 3D 形式呈现多维数据。<br>（5）易于使用的工作流组合<br>（6）用于分组插件的独立工作区<br>（7）方便的插件原型设计和开发：内置代码编辑器，开发不需要额外的IDE<br>（8）强大且可扩展的计算后端，可用于浏览器内计算、本地计算和云计算</p>
+<ul>
+<li>支持 Javascript、原生 Python 和 web Python（即直接在网页中运行Python程序，底层技术是Pyodide）</li>
+<li>通过异步编程并发插件执行</li>
+<li>使用 Webassembly 在浏览器中运行 Python 插件</li>
+<li>浏览器插件与安全沙箱隔离</li>
+<li>支持Python3 和 Javascript 的async/await语法</li>
+<li>支持 Python 的 Conda 虚拟环境和 pip 包</li>
+<li>支持托管在 Github 或 CDN 上的 JavaScript 库</li>
+<li>通过 GitHub 或 Gist 轻松部署和共享插件</li>
+<li>将开发者自己的插件仓库部署到 Github</li>
+<li>原生支持 n 维数组和张量</li>
+<li>支持 Numpy 的 ndarrays 用于数据交换</li>
+</ul>
+<p>ImJoy 大大加快了新工具的开发和传播。开发者可以在 ImJoy 中开发插件，将插件文件部署到 Github，并通过社交网络分享插件 URL。用户可以通过多种方式使用这些插件，比如在手机上单击一下即可调用。<br><img src="https://user-images.githubusercontent.com/6218739/143677962-526c570c-e61e-423e-8092-e78a013ef231.png" alt="deploy"></p>
+<h1 id="依赖库"><a href="#依赖库" class="headerlink" title="依赖库"></a>依赖库</h1><p>ImJoy主要使用的开源库有：</p>
+<ul>
+<li>Joy.js（这就是ImJoy的名字由来！）</li>
+<li>Jailed（用于隔离插件）</li>
+<li>Vue.js（主要的前端UI使用 Vue.js 编写）</li>
+<li>vue-grid-layout（用于窗口管理）</li>
+<li>python-socketio（使得插件引擎可以与 ImJoy主程序进行通信）</li>
+<li>pyodide（使用 WebAssembly 启用 web python 模式）</li>
+<li>conda（插件引擎使用 Conda 来管理虚拟环境和包）</li>
+<li>docsify（ImJoy 文档是用 docsify 创建的）</li>
+</ul>
+<h1 id="发表论文"><a href="#发表论文" class="headerlink" title="发表论文"></a>发表论文</h1><p>ImJoy的研究工作也发表在了Nature子刊 Nature Methods上，大佬就是大佬。<br>文章链接见：<a target="_blank" rel="noopener" href="https://www.nature.com/articles/s41592-019-0627-0">ImJoy: an open-source computational platform for the deep learning era</a><br>也可以通过<a target="_blank" rel="noopener" href="https://rdcu.be/bYbGO">这个链接</a>免费获取该论文。</p>
+<h1 id="快速上手"><a href="#快速上手" class="headerlink" title="快速上手"></a>快速上手</h1><h2 id="前端界面"><a href="#前端界面" class="headerlink" title="前端界面"></a>前端界面</h2><p>可以直接在浏览器中使用ImJoy，网站在<a target="_blank" rel="noopener" href="https://imjoy.io/#/app">这里</a>。<br>（也可以自己托管ImJoy，即使用GitHub上的<a target="_blank" rel="noopener" href="https://github.com/imjoy-team/ImJoy">这个仓库</a>）<br>整个应用的前端界面如下：<br><img src="https://user-images.githubusercontent.com/6218739/143802507-b85944e6-4a5d-49d6-82d8-fcceb76991a3.png" alt="UI"><br>包括了插件管理区、工作区、状态栏、工具栏、插件窗口等多个部分。</p>
+<h2 id="上手体验"><a href="#上手体验" class="headerlink" title="上手体验"></a>上手体验</h2><p>官方提供的一个demo是使用一个预训练的神经网络来进行图像识别。<br>这个插件可以通过在<a target="_blank" rel="noopener" href="https://imjoy.io/repo/">插件库</a>中安装插件Image Recognition来获得，<br>也可以直接点击<a target="_blank" rel="noopener" href="https://imjoy.io/#/app?plugin=imjoy-team/imjoy-plugins:Image%20Recognition&amp;w=getting-started">该链接</a>来使用。<br>安装插件后，它将出现在左侧的插件对话框中。然后单击其名称启动插件。这将打开一个窗口并加载训练好的网络。<br>然后就可以通过上传文件来预测图像中的物体。<br>注意，如果是在电脑上使用该插件，则是上传电脑中的文件，如果是在手机上使用该插件，则调用摄像头来获取图像。<br>如下是我在手机上试用的截图：<br><img src="https://user-images.githubusercontent.com/6218739/143830446-897d525c-c84e-4e85-a689-8d1fcab75b0e.jpg" alt="test"></p>
+<p>通过此例也可以看出，ImJoy提供了一种非常方便地获取最新深度学习技术的方式，能极大地降低技术的应用门槛。</p>
+
+    </div>
+
+    
+    
+    
+        <div class="reward-container">
+  <div></div>
+  <button onclick="var qr = document.getElementById('qr'); qr.style.display = (qr.style.display === 'none') ? 'block' : 'none';">
+    Donate
+  </button>
+  <div id="qr" style="display: none;">
+      
+      <div style="display: inline-block;">
+        <img src="/images/wechat_reward.png" alt="Xin-Bo Qi(亓欣波) WeChat Pay">
+        <p>WeChat Pay</p>
+      </div>
+
+  </div>
+</div>
+
+
+      <footer class="post-footer">
+          <div class="post-tags">
+              <a href="/tags/ImJoy/" rel="tag"># ImJoy</a>
+          </div>
+
+        
+
+
+        
+    <div class="post-nav">
+      <div class="post-nav-item">
+    <a href="/2021/11/24/gnn/" rel="prev" title="图神经网络入门详解">
+      <i class="fa fa-chevron-left"></i> 图神经网络入门详解
+    </a></div>
+      <div class="post-nav-item"></div>
+    </div>
+      </footer>
+    
+  </article>
+  
+  
+  
+
+
+
+          </div>
+          
+    
+  <div class="comments">
+    <div id="disqus_thread">
+      <noscript>Please enable JavaScript to view the comments powered by Disqus.</noscript>
+    </div>
+  </div>
+  
+
+<script>
+  window.addEventListener('tabs:register', () => {
+    let { activeClass } = CONFIG.comments;
+    if (CONFIG.comments.storage) {
+      activeClass = localStorage.getItem('comments_active') || activeClass;
+    }
+    if (activeClass) {
+      let activeTab = document.querySelector(`a[href="#comment-${activeClass}"]`);
+      if (activeTab) {
+        activeTab.click();
+      }
+    }
+  });
+  if (CONFIG.comments.storage) {
+    window.addEventListener('tabs:click', event => {
+      if (!event.target.matches('.tabs-comment .tab-content .tab-pane')) return;
+      let commentClass = event.target.classList[1];
+      localStorage.setItem('comments_active', commentClass);
+    });
+  }
+</script>
+
+        </div>
+          
+  
+  <div class="toggle sidebar-toggle">
+    <span class="toggle-line toggle-line-first"></span>
+    <span class="toggle-line toggle-line-middle"></span>
+    <span class="toggle-line toggle-line-last"></span>
+  </div>
+
+  <aside class="sidebar">
+    <div class="sidebar-inner">
+
+      <ul class="sidebar-nav motion-element">
+        <li class="sidebar-nav-toc">
+          Table of Contents
+        </li>
+        <li class="sidebar-nav-overview">
+          Overview
+        </li>
+      </ul>
+
+      <!--noindex-->
+      <div class="post-toc-wrap sidebar-panel">
+          <div class="post-toc motion-element"><ol class="nav"><li class="nav-item nav-level-1"><a class="nav-link" href="#%E7%AE%80%E4%BB%8B"><span class="nav-number">1.</span> <span class="nav-text">简介</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#ImJoy%E7%89%B9%E7%82%B9"><span class="nav-number">2.</span> <span class="nav-text">ImJoy特点</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#%E4%BE%9D%E8%B5%96%E5%BA%93"><span class="nav-number">3.</span> <span class="nav-text">依赖库</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#%E5%8F%91%E8%A1%A8%E8%AE%BA%E6%96%87"><span class="nav-number">4.</span> <span class="nav-text">发表论文</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#%E5%BF%AB%E9%80%9F%E4%B8%8A%E6%89%8B"><span class="nav-number">5.</span> <span class="nav-text">快速上手</span></a><ol class="nav-child"><li class="nav-item nav-level-2"><a class="nav-link" href="#%E5%89%8D%E7%AB%AF%E7%95%8C%E9%9D%A2"><span class="nav-number">5.1.</span> <span class="nav-text">前端界面</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E4%B8%8A%E6%89%8B%E4%BD%93%E9%AA%8C"><span class="nav-number">5.2.</span> <span class="nav-text">上手体验</span></a></li></ol></li></ol></div>
+      </div>
+      <!--/noindex-->
+
+      <div class="site-overview-wrap sidebar-panel">
+        <div class="site-author motion-element" itemprop="author" itemscope itemtype="http://schema.org/Person">
+    <img class="site-author-image" itemprop="image" alt="Xin-Bo Qi(亓欣波)"
+      src="/images/avatar.jpg">
+  <p class="site-author-name" itemprop="name">Xin-Bo Qi(亓欣波)</p>
+  <div class="site-description" itemprop="description">Digitize everything to realize Digitalization!</div>
+</div>
+<div class="site-state-wrap motion-element">
+  <nav class="site-state">
+      <div class="site-state-item site-state-posts">
+          <a href="/archives/">
+        
+          <span class="site-state-item-count">138</span>
+          <span class="site-state-item-name">posts</span>
+        </a>
+      </div>
+      <div class="site-state-item site-state-categories">
+            <a href="/categories/">
+          
+        <span class="site-state-item-count">6</span>
+        <span class="site-state-item-name">categories</span></a>
+      </div>
+      <div class="site-state-item site-state-tags">
+            <a href="/tags/">
+          
+        <span class="site-state-item-count">49</span>
+        <span class="site-state-item-name">tags</span></a>
+      </div>
+  </nav>
+</div>
+  <div class="links-of-author motion-element">
+      <span class="links-of-author-item">
+        <a href="https://github.com/qixinbo" title="GitHub → https:&#x2F;&#x2F;github.com&#x2F;qixinbo" rel="noopener" target="_blank"><i class="github fa-fw"></i>GitHub</a>
+      </span>
+      <span class="links-of-author-item">
+        <a href="mailto:qixinbo@gmail.com" title="E-Mail → mailto:qixinbo@gmail.com" rel="noopener" target="_blank"><i class="envelope fa-fw"></i>E-Mail</a>
+      </span>
+      <span class="links-of-author-item">
+        <a href="https://twitter.com/qixinbo" title="Twitter → https:&#x2F;&#x2F;twitter.com&#x2F;qixinbo" rel="noopener" target="_blank"><i class="fab fa-twitter fa-fw"></i>Twitter</a>
+      </span>
+      <span class="links-of-author-item">
+        <a href="/atom.xml" title="RSS → &#x2F;atom.xml"><i class="fas fa-rss fa-fw"></i>RSS</a>
+      </span>
+  </div>
+
+
+  <div class="links-of-blogroll motion-element">
+    <div class="links-of-blogroll-title"><i class="fa fa-link fa-fw"></i>
+      Links
+    </div>
+    <ul class="links-of-blogroll-list">
+        <li class="links-of-blogroll-item">
+          <a href="https://www.tsinghua.edu.cn/" title="https:&#x2F;&#x2F;www.tsinghua.edu.cn" rel="noopener" target="_blank">THU</a>
+        </li>
+        <li class="links-of-blogroll-item">
+          <a href="http://www.imr.cas.cn/" title="http:&#x2F;&#x2F;www.imr.cas.cn" rel="noopener" target="_blank">IMR</a>
+        </li>
+        <li class="links-of-blogroll-item">
+          <a href="http://www.sdu.edu.cn/" title="http:&#x2F;&#x2F;www.sdu.edu.cn" rel="noopener" target="_blank">SDU</a>
+        </li>
+        <li class="links-of-blogroll-item">
+          <a href="http://liam0205.me/" title="http:&#x2F;&#x2F;liam0205.me&#x2F;" rel="noopener" target="_blank">黄晨成</a>
+        </li>
+    </ul>
+  </div>
+
+      </div>
+
+    </div>
+  </aside>
+  <div id="sidebar-dimmer"></div>
+
+
+      </div>
+    </main>
+
+    <footer class="footer">
+      <div class="footer-inner">
+        
+
+        
+
+<div class="copyright">
+  
+  &copy; 
+  <span itemprop="copyrightYear">2021</span>
+  <span class="with-love">
+    <i class="fa fa-heart"></i>
+  </span>
+  <span class="author" itemprop="copyrightHolder">Xin-Bo Qi(亓欣波)</span>
+</div>
+  <div class="powered-by">Powered by <a href="https://hexo.io/" class="theme-link" rel="noopener" target="_blank">Hexo</a> & <a href="https://theme-next.org/" class="theme-link" rel="noopener" target="_blank">NexT.Gemini</a>
+  </div>
+
+        
+
+
+
+
+
+
+
+
+      </div>
+    </footer>
+  </div>
+
+  
+  <script src="/lib/anime.min.js"></script>
+  <script src="/lib/velocity/velocity.min.js"></script>
+  <script src="/lib/velocity/velocity.ui.min.js"></script>
+
+<script src="/js/utils.js"></script>
+
+<script src="/js/motion.js"></script>
+
+
+<script src="/js/schemes/pisces.js"></script>
+
+
+<script src="/js/next-boot.js"></script>
+
+
+
+
+  
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+  
+
+  
+      
+
+<script>
+  if (typeof MathJax === 'undefined') {
+    window.MathJax = {
+      loader: {
+        source: {
+          '[tex]/amsCd': '[tex]/amscd',
+          '[tex]/AMScd': '[tex]/amscd'
+        }
+      },
+      tex: {
+        inlineMath: {'[+]': [['$', '$']]},
+        tags: 'ams'
+      },
+      options: {
+        renderActions: {
+          findScript: [10, doc => {
+            document.querySelectorAll('script[type^="math/tex"]').forEach(node => {
+              const display = !!node.type.match(/; *mode=display/);
+              const math = new doc.options.MathItem(node.textContent, doc.inputJax[0], display);
+              const text = document.createTextNode('');
+              node.parentNode.replaceChild(text, node);
+              math.start = {node: text, delim: '', n: 0};
+              math.end = {node: text, delim: '', n: 0};
+              doc.math.push(math);
+            });
+          }, '', false],
+          insertedScript: [200, () => {
+            document.querySelectorAll('mjx-container').forEach(node => {
+              let target = node.parentNode;
+              if (target.nodeName.toLowerCase() === 'li') {
+                target.parentNode.classList.add('has-jax');
+              }
+            });
+          }, '', false]
+        }
+      }
+    };
+    (function () {
+      var script = document.createElement('script');
+      script.src = '//cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js';
+      script.defer = true;
+      document.head.appendChild(script);
+    })();
+  } else {
+    MathJax.startup.document.state(0);
+    MathJax.texReset();
+    MathJax.typeset();
+  }
+</script>
+
+    
+
+  
+
+<script>
+  function loadCount() {
+    var d = document, s = d.createElement('script');
+    s.src = 'https://qixinbo.disqus.com/count.js';
+    s.id = 'dsq-count-scr';
+    (d.head || d.body).appendChild(s);
+  }
+  // defer loading until the whole page loading is completed
+  window.addEventListener('load', loadCount, false);
+</script>
+<script>
+  var disqus_config = function() {
+    this.page.url = "http://qixinbo.github.io/2021/11/28/ImJoy_1/";
+    this.page.identifier = "2021/11/28/ImJoy_1/";
+    this.page.title = "开源深度学习计算平台ImJoy解析：1 -- 介绍";
+    };
+  NexT.utils.loadComments(document.querySelector('#disqus_thread'), () => {
+    if (window.DISQUS) {
+      DISQUS.reset({
+        reload: true,
+        config: disqus_config
+      });
+    } else {
+      var d = document, s = d.createElement('script');
+      s.src = 'https://qixinbo.disqus.com/embed.js';
+      s.setAttribute('data-timestamp', '' + +new Date());
+      (d.head || d.body).appendChild(s);
+    }
+  });
+</script>
+
+</body>
+</html>
