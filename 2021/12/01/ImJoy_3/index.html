@@ -1,0 +1,643 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=2">
+<meta name="theme-color" content="#222">
+<meta name="generator" content="Hexo 5.4.0">
+  <link rel="apple-touch-icon" sizes="180x180" href="/images/apple-touch-icon-next.png">
+  <link rel="icon" type="image/png" sizes="32x32" href="/favicon.ico">
+  <link rel="icon" type="image/png" sizes="16x16" href="/favicon.ico">
+  <link rel="mask-icon" href="/images/logo.svg" color="#222">
+
+<link rel="stylesheet" href="/css/main.css">
+
+
+<link rel="stylesheet" href="/lib/font-awesome/css/all.min.css">
+
+<script id="hexo-configurations">
+    var NexT = window.NexT || {};
+    var CONFIG = {"hostname":"qixinbo.github.io","root":"/","scheme":"Gemini","version":"7.8.0","exturl":false,"sidebar":{"position":"left","display":"post","padding":18,"offset":12,"onmobile":false},"copycode":{"enable":false,"show_result":false,"style":null},"back2top":{"enable":true,"sidebar":false,"scrollpercent":false},"bookmark":{"enable":false,"color":"#222","save":"auto"},"fancybox":false,"mediumzoom":false,"lazyload":false,"pangu":false,"comments":{"style":"tabs","active":null,"storage":true,"lazyload":false,"nav":null},"algolia":{"hits":{"per_page":10},"labels":{"input_placeholder":"Search for Posts","hits_empty":"We didn't find any results for the search: ${query}","hits_stats":"${hits} results found in ${time} ms"}},"localsearch":{"enable":false,"trigger":"auto","top_n_per_article":1,"unescape":false,"preload":false},"motion":{"enable":true,"async":false,"transition":{"post_block":"fadeIn","post_header":"slideDownIn","post_body":"slideDownIn","coll_header":"slideLeftIn","sidebar":"slideUpIn"}}};
+  </script>
+
+  <meta name="description" content="参考文献 I2K Workshop Tutorial Developing Plugins for ImJoy  概述 开发ImJoy插件既简单又快速，可直接使用运行在web上的内置的代码编辑器，而不需要额外的 IDE 或编译器。 ImJoy 插件系统的主要功能有： （1）支持 Python 和 JavaScript   * JavaScript 插件与安全沙箱隔离  * Python 插件在自己">
+<meta property="og:type" content="article">
+<meta property="og:title" content="开源深度学习计算平台ImJoy解析：3 -- 插件原理及上手">
+<meta property="og:url" content="http://qixinbo.github.io/2021/12/01/ImJoy_3/index.html">
+<meta property="og:site_name" content="数字旗手">
+<meta property="og:description" content="参考文献 I2K Workshop Tutorial Developing Plugins for ImJoy  概述 开发ImJoy插件既简单又快速，可直接使用运行在web上的内置的代码编辑器，而不需要额外的 IDE 或编译器。 ImJoy 插件系统的主要功能有： （1）支持 Python 和 JavaScript   * JavaScript 插件与安全沙箱隔离  * Python 插件在自己">
+<meta property="og:locale" content="en_US">
+<meta property="og:image" content="https://user-images.githubusercontent.com/6218739/144013956-2be625bd-3a30-4c10-be13-c138513d25be.png">
+<meta property="og:image" content="https://user-images.githubusercontent.com/6218739/144052196-ace51e31-757c-4519-988d-904bb3a1d89a.png">
+<meta property="og:image" content="https://user-images.githubusercontent.com/6218739/144053608-0dd72e3b-752f-4f66-98e7-52ac4ade46c5.png">
+<meta property="og:image" content="https://user-images.githubusercontent.com/6218739/144052725-44768110-a754-4cce-a9fb-8f70a2bcbfc7.png">
+<meta property="og:image" content="https://user-images.githubusercontent.com/6218739/144055127-ffd19736-bcde-4f58-9c15-e7a976bb82ae.png">
+<meta property="article:published_time" content="2021-11-30T16:00:00.000Z">
+<meta property="article:modified_time" content="2021-11-30T14:15:23.030Z">
+<meta property="article:author" content="Xin-Bo Qi(亓欣波)">
+<meta property="article:tag" content="ImJoy">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:image" content="https://user-images.githubusercontent.com/6218739/144013956-2be625bd-3a30-4c10-be13-c138513d25be.png">
+
+<link rel="canonical" href="http://qixinbo.github.io/2021/12/01/ImJoy_3/">
+
+
+<script id="page-configurations">
+  // https://hexo.io/docs/variables.html
+  CONFIG.page = {
+    sidebar: "",
+    isHome : false,
+    isPost : true,
+    lang   : 'en'
+  };
+</script>
+
+  <title>开源深度学习计算平台ImJoy解析：3 -- 插件原理及上手 | 数字旗手</title>
+  
+
+
+
+
+
+
+  <noscript>
+  <style>
+  .use-motion .brand,
+  .use-motion .menu-item,
+  .sidebar-inner,
+  .use-motion .post-block,
+  .use-motion .pagination,
+  .use-motion .comments,
+  .use-motion .post-header,
+  .use-motion .post-body,
+  .use-motion .collection-header { opacity: initial; }
+
+  .use-motion .site-title,
+  .use-motion .site-subtitle {
+    opacity: initial;
+    top: initial;
+  }
+
+  .use-motion .logo-line-before i { left: initial; }
+  .use-motion .logo-line-after i { right: initial; }
+  </style>
+</noscript>
+
+<link rel="alternate" href="/atom.xml" title="数字旗手" type="application/atom+xml">
+</head>
+
+<body itemscope itemtype="http://schema.org/WebPage">
+  <div class="container use-motion">
+    <div class="headband"></div>
+
+    <header class="header" itemscope itemtype="http://schema.org/WPHeader">
+      <div class="header-inner"><div class="site-brand-container">
+  <div class="site-nav-toggle">
+    <div class="toggle" aria-label="Toggle navigation bar">
+      <span class="toggle-line toggle-line-first"></span>
+      <span class="toggle-line toggle-line-middle"></span>
+      <span class="toggle-line toggle-line-last"></span>
+    </div>
+  </div>
+
+  <div class="site-meta">
+
+    <a href="/" class="brand" rel="start">
+      <span class="logo-line-before"><i></i></span>
+      <h1 class="site-title">数字旗手</h1>
+      <span class="logo-line-after"><i></i></span>
+    </a>
+      <p class="site-subtitle" itemprop="description">电气化、自动化、数字化、智能化、智慧化</p>
+  </div>
+
+  <div class="site-nav-right">
+    <div class="toggle popup-trigger">
+    </div>
+  </div>
+</div>
+
+
+
+
+<nav class="site-nav">
+  <ul id="menu" class="main-menu menu">
+        <li class="menu-item menu-item-home">
+
+    <a href="/" rel="section"><i class="fa fa-home fa-fw"></i>Home</a>
+
+  </li>
+        <li class="menu-item menu-item-categories">
+
+    <a href="/categories/" rel="section"><i class="fa fa-th fa-fw"></i>Categories</a>
+
+  </li>
+        <li class="menu-item menu-item-archives">
+
+    <a href="/archives/" rel="section"><i class="fa fa-archive fa-fw"></i>Archives</a>
+
+  </li>
+        <li class="menu-item menu-item-tags">
+
+    <a href="/tags/" rel="section"><i class="fa fa-tags fa-fw"></i>Tags</a>
+
+  </li>
+        <li class="menu-item menu-item-scholar">
+
+    <a href="/scholar/" rel="section"><i class="fa fa-chart-bar fa-fw"></i>scholar</a>
+
+  </li>
+        <li class="menu-item menu-item-sources">
+
+    <a href="/sources/" rel="section"><i class="fa fa-rss fa-fw"></i>sources</a>
+
+  </li>
+        <li class="menu-item menu-item-gallery">
+
+    <a href="/gallery/" rel="section"><i class="fa fa-file-image fa-fw"></i>gallery</a>
+
+  </li>
+        <li class="menu-item menu-item-about">
+
+    <a href="/about/" rel="section"><i class="fa fa-user fa-fw"></i>About</a>
+
+  </li>
+        <li class="menu-item menu-item-commonweal">
+
+    <a href="/404.html" rel="section"><i class="fa fa-heartbeat fa-fw"></i>Commonweal 404</a>
+
+  </li>
+  </ul>
+</nav>
+
+
+
+
+</div>
+    </header>
+
+    
+  <div class="back-to-top">
+    <i class="fa fa-arrow-up"></i>
+    <span>0%</span>
+  </div>
+
+
+    <main class="main">
+      <div class="main-inner">
+        <div class="content-wrap">
+          
+
+          <div class="content post posts-expand">
+            
+
+    
+  
+  
+  <article itemscope itemtype="http://schema.org/Article" class="post-block" lang="en">
+    <link itemprop="mainEntityOfPage" href="http://qixinbo.github.io/2021/12/01/ImJoy_3/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="image" content="/images/avatar.jpg">
+      <meta itemprop="name" content="Xin-Bo Qi(亓欣波)">
+      <meta itemprop="description" content="Digitize everything to realize Digitalization!">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="数字旗手">
+    </span>
+      <header class="post-header">
+        <h1 class="post-title" itemprop="name headline">
+          开源深度学习计算平台ImJoy解析：3 -- 插件原理及上手
+        </h1>
+
+        <div class="post-meta">
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="far fa-calendar"></i>
+              </span>
+              <span class="post-meta-item-text">Posted on</span>
+
+              <time title="Created: 2021-12-01 00:00:00" itemprop="dateCreated datePublished" datetime="2021-12-01T00:00:00+08:00">2021-12-01</time>
+            </span>
+              <span class="post-meta-item">
+                <span class="post-meta-item-icon">
+                  <i class="far fa-calendar-check"></i>
+                </span>
+                <span class="post-meta-item-text">Edited on</span>
+                <time title="Modified: 2021-11-30 22:15:23" itemprop="dateModified" datetime="2021-11-30T22:15:23+08:00">2021-11-30</time>
+              </span>
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="far fa-folder"></i>
+              </span>
+              <span class="post-meta-item-text">In</span>
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+                  <a href="/categories/computer-vision/" itemprop="url" rel="index"><span itemprop="name">computer vision</span></a>
+                </span>
+            </span>
+
+          
+  
+  <span class="post-meta-item">
+    
+      <span class="post-meta-item-icon">
+        <i class="far fa-comment"></i>
+      </span>
+      <span class="post-meta-item-text">Disqus: </span>
+    
+    <a title="disqus" href="/2021/12/01/ImJoy_3/#disqus_thread" itemprop="discussionUrl">
+      <span class="post-comments-count disqus-comment-count" data-disqus-identifier="2021/12/01/ImJoy_3/" itemprop="commentCount"></span>
+    </a>
+  </span>
+  
+  
+
+        </div>
+      </header>
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+        <h1 id="参考文献"><a href="#参考文献" class="headerlink" title="参考文献"></a>参考文献</h1><p><a target="_blank" rel="noopener" href="https://imjoy.io/docs/#/i2k_tutorial?id=_2-make-your-first-imjoy-plugin">I2K Workshop Tutorial</a><br><a target="_blank" rel="noopener" href="https://imjoy.io/docs/#/development">Developing Plugins for ImJoy</a></p>
+<h1 id="概述"><a href="#概述" class="headerlink" title="概述"></a>概述</h1><p>开发ImJoy插件既简单又快速，可直接使用运行在web上的内置的代码编辑器，而不需要额外的 IDE 或编译器。<br>ImJoy 插件系统的主要功能有：<br>（1）支持 Python 和 JavaScript</p>
+<ul>
+<li>JavaScript 插件与安全沙箱隔离</li>
+<li>Python 插件在自己的进程中运行</li>
+<li>使用 <code>async/await</code> 语法支持并发 API 调用</li>
+<li>支持 Python 的虚拟环境和 pip 包</li>
+<li>支持托管在 GitHub 或 CDN 上的 JavaScript 库</li>
+</ul>
+<p>（2）原生支持 n 维数组和张量</p>
+<ul>
+<li>支持来自 Numpy 或 Numjs 的 ndarrays 进行数据交换</li>
+<li>支持用于深度学习的 Tensorflow.js 和原生 Tensorflow、PyTorch、MxNet等深度学习库</li>
+</ul>
+<p>（3）使用 webGL、Three.js 等3D库渲染多维数据<br>（4）使用 GitHub 部署自定义的插件</p>
+<h1 id="ImJoy架构"><a href="#ImJoy架构" class="headerlink" title="ImJoy架构"></a>ImJoy架构</h1><p>Imjoy 包含<strong>两个主要组件</strong>：<br>（1）<strong>ImJoy Web App</strong>：这是ImJoy 的核心部分，它是一个web应用，所以可在不同操作系统和设备的浏览器中运行。它提供了一个灵活的插件系统，具有工作流和窗口管理功能。插件可以用不同的编程语言开发，包括 JavaScript 和 Python。插件及其源代码可以组织到工作区中并存储在浏览器数据库中。 Web 插件在 <code>iframe</code> 或 <code>webworker</code> 中运行，因此开发者原则上可以为每个插件独立使用任何前端框架或 javascript 库。<br>（2）<strong>Plugin Engine</strong>：这是一个可选项，其用于在 CPython 中运行计算任务，以利用本机硬件（例如 GPU）和Python软件库（例如：numpy、Tensorflow、PyTorch 等）的强大功能。实际上，该插件引擎是一个在后台运行并通过 websocket 连接到 ImJoy Web App 的 Python 包 (<a target="_blank" rel="noopener" href="https://github.com/imjoy-team/imjoy-engine">GitHub</a>)。它使用 <a target="_blank" rel="noopener" href="https://conda.io/">conda</a> 来管理软件包（不仅是 Python，还有 C++、Java 等）和虚拟环境。然后开发者可以将具体的<code>conda</code> 或 <code>pypi</code> 包作为需求添加到插件中，它们可以由插件引擎自动解析。同样，开发人员可以在 Python 插件中使用任何 Python 库甚至非 Python 库。<br><img src="https://user-images.githubusercontent.com/6218739/144013956-2be625bd-3a30-4c10-be13-c138513d25be.png" alt="full-arch"></p>
+<p>Plugin Engine 通过 websockets 与 ImJoy Web App 连接， 并与一个基于 <a target="_blank" rel="noopener" href="https://github.com/miguelgrinberg/python-socketio">socket.io</a> 定制化的RPC（remote procedure calls）进行通信。</p>
+<h1 id="什么是ImJoy插件"><a href="#什么是ImJoy插件" class="headerlink" title="什么是ImJoy插件"></a>什么是ImJoy插件</h1><p>简而言之，ImJoy插件是一个脚本，它生成一组可以被ImJoy内核或其他插件调用的服务函数（又名插件 API 函数）。<br>在加载插件时，一个包含所有 ImJoy API 函数的 <code>api</code> 对象将被传递给插件，然后插件可以构建服务函数并通过调用 <code>api.export(...)</code> 函数来注册它们。<br>目前有 4 种常见的插件类型：<code>window</code>、<code>web-worker</code>、<code>web-python</code>、<code>native-python</code>。<br>（1）Web 插件直接在浏览器中运行，支持如下三种类型：</p>
+<ul>
+<li>Window (HTML/CSS/JS)(<code>type=window</code>) 插件，用于使用 HTML5/CSS 和 JavaScript 构建丰富的交互式用户界面；</li>
+<li>Web Worker (JS)(type=<code>web-worker</code>) 插件，用于使用 JavaScript 或 WebAssembly 执行计算任务；</li>
+<li>Web Python(type=<code>web-python</code>) 插件，用于在浏览器中通过 WebAssembly 和 <a target="_blank" rel="noopener" href="https://github.com/iodide-project/pyodide">pyodide</a> 使用 Python 执行计算任务。这样的插件用小蛇🐍图标表示。这处于开发阶段，目前仅支持选定数量的 Python 库。</li>
+</ul>
+<p>（2）Native插件在插件引擎中运行，目前支持：</p>
+<ul>
+<li>Native Python(type=<code>native-python</code>) 插件，可使用 Python 及其大量库函数来执行繁重计算任务，不过这需要额外安装插件引擎。这些插件用火箭🚀图标表示。</li>
+</ul>
+<h2 id="Window插件"><a href="#Window插件" class="headerlink" title="Window插件"></a>Window插件</h2><p>Window 插件用于创建一个包含 HTML/CSS 和 JavaScript 的新 Web 界面。其是在<code>iframe</code>模式下创建的，将显示为一个窗口。 <code>&lt;window&gt;</code> 和 <code>&lt;style&gt;</code>块（见以后插件文件格式的详细解析）可用于定义窗口的实际内容。<br>不同于其他插件会在 ImJoy 启动时加载和初始化，只有在使用<code>api.createWindow</code>创建实际插件或用户在菜单中单击时，才会加载<code>window</code>插件。在<code>api.createWindow</code>执行过程中，<code>setup</code>和<code>run</code>会被首先调用，并返回一个窗口api对象（包含窗口的所有api函数，包括<code>setup</code>、<code>run</code>和其他功能（如果已定义））。然后就可以使用这个window api 对象来访问所有的函数，例如通过<code>win_obj.run(&#123;&#39;data&#39;: ... &#125;)</code> 来更新窗口的内容。</p>
+<h2 id="Web-Worker插件"><a href="#Web-Worker插件" class="headerlink" title="Web Worker插件"></a>Web Worker插件</h2><p>Web Worker插件用于在另一个线程中执行计算任务，具体途径是使用一个名为 <a target="_blank" rel="noopener" href="https://en.wikipedia.org/wiki/Web_worker">web worker</a> 的新元素。<br>它没有接口，是在一个新线程中运行，并且在运行过程中不会挂起主线程。它基本上是 JavaScript 实现多线程的一种方式。<br>由于 Web Worker 旨在执行计算任务，它们无权访问 <a target="_blank" rel="noopener" href="https://www.w3schools.com/whatis/whatis_htmldom.asp">html dom</a>，但是开发者可以使用<code>ImJoy API</code>来与ImJoy的图形界面或其他可以触发用户界面更改的插件进行交互。</p>
+<h2 id="Web-Python插件"><a href="#Web-Python插件" class="headerlink" title="Web Python插件"></a>Web Python插件</h2><p>Web Python插件可以完全在浏览器中运行 python 代码和科学库。ImJoy 使用 <a target="_blank" rel="noopener" href="https://github.com/iodide-project/pyodide/">pyodide</a> 来运行 python 插件，它支持通过 WebAssembly 运行带有科学库（包括 numpy、scipy、scikit-learn 等）的 Python3 代码。</p>
+<h2 id="Native-Python插件"><a href="#Native-Python插件" class="headerlink" title="Native Python插件"></a>Native Python插件</h2><p>Native Python插件用于运行原生 Python 代码以完全访问电脑硬件（例如 GPU、NVLINK）和软件（例如 CUDA 和 CUDNN）环境。这需要在使用插件之前安装并启动<strong>Python Plugin Engine</strong>。<br>与 Web Worker 插件类似，Native Python 插件无法访问 html dom，但可以使用 <code>ImJoy API</code> 与 ​​ImJoy 的图形界面或其他可以触发用户界面更改的插件进行交互。</p>
+<p>插件类型可以通过插件进一步扩展。例如，作者新创建一个新的插件类型来执行Fiji/Scijava脚本，参见 <a target="_blank" rel="noopener" href="https://forum.image.sc/t/making-imjoy-plugins-with-fiji-scripts-for-running-remotely/39503">这篇文章</a>。</p>
+<p>大多数插件至少会暴露两个特殊函数：<code>setup</code>（用于初始化）和<code>run</code>（当用户点击插件菜单按钮时调用）。<br>比如以下插件中定义了 3 个 API 函数：一个空的 <code>setup</code> 函数，一个 <code>choosePokemon</code> 函数，以及一个可供调用的 <code>run</code> 函数（由 ImJoy内核调用或用户点击插件菜单时）：<br><figure class="highlight js"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br></pre></td><td class="code"><pre><span class="line"><span class="class"><span class="keyword">class</span> <span class="title">ImJoyPlugin</span></span>&#123;</span><br><span class="line">    <span class="keyword">async</span> <span class="function"><span class="title">setup</span>(<span class="params"></span>)</span>&#123;</span><br><span class="line">    &#125;</span><br><span class="line">    <span class="keyword">async</span> <span class="function"><span class="title">choosePokemon</span>(<span class="params"></span>)</span>&#123;</span><br><span class="line">        <span class="keyword">const</span> pokemon = <span class="keyword">await</span> api.prompt(<span class="string">&quot;What is your favorite Pokémon?&quot;</span>, <span class="string">&quot;Pikachu&quot;</span>)</span><br><span class="line">        <span class="keyword">await</span> api.showMessage(<span class="string">&quot;Your have chose &quot;</span> + pokemon + <span class="string">&quot; as your Pokémon.&quot;</span>)</span><br><span class="line">    &#125;</span><br><span class="line">    <span class="keyword">async</span> <span class="function"><span class="title">run</span>(<span class="params">ctx</span>)</span>&#123;</span><br><span class="line">        <span class="keyword">await</span> <span class="built_in">this</span>.choosePokemon()</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br><span class="line">api.export(<span class="keyword">new</span> ImJoyPlugin())</span><br></pre></td></tr></table></figure></p>
+<h2 id="ImJoy-App和Plugin-Engine"><a href="#ImJoy-App和Plugin-Engine" class="headerlink" title="ImJoy App和Plugin Engine"></a>ImJoy App和Plugin Engine</h2><p>使用 ImJoy App 的推荐方式是通过 <a target="_blank" rel="noopener" href="https://imjoy.io">https://imjoy.io</a>。现代浏览器（例如 Google Chrome）越来越支持运行和使用称为渐进式 Web 应用 (PWA) 的 Web 应用程序的新方法。<br>例如，在 Chrome 中，用户可以将 ImJoy 安装到 <a href="chrome://apps/">chrome://apps/</a> 并从 ImJoy App 仪表板启动。一旦安装，ImJoy 就可以在独立的浏览器窗口中运行（没有地址栏）。 ImJoy 的内核部分也支持离线，但插件目前还不支持（作者说后面将支持）。<br>可以使用 ImJoy App 运行所有web插件（<code>web-worker</code>、<code>window</code>、<code>web-python</code>），但是，对于本机插件（<code>native-python</code>），需要连接到插件引擎在本地或远程运行。<br>以下是安装插件引擎的两个选项：<br>如需使用插件引擎运行插件，请下载并安装 Anaconda 或 Miniconda with Python3，然后运行<code>pip install imjoy</code>。然后可以通过 <code>imjoy --jupyter</code> 命令启动插件引擎。更多详细信息可在 <a target="_blank" rel="noopener" href="https://github.com/imjoy-team/imjoy-engine/">此处</a> 获得。</p>
+<h1 id="ImJoy代码编辑器和开发人员工具"><a href="#ImJoy代码编辑器和开发人员工具" class="headerlink" title="ImJoy代码编辑器和开发人员工具"></a>ImJoy代码编辑器和开发人员工具</h1><p>ImJoy提供了一个内置的代码编辑器供编写插件。结合浏览器提供的调试工具（例如：Google Chrome 开发者工具），不需要额外的 IDE 或工具。<br>可以通过单击插件菜单（插件名称旁边的图标）中的“Edit”来查看和修改任何现有插件的插件代码。<br><img src="https://user-images.githubusercontent.com/6218739/144052196-ace51e31-757c-4519-988d-904bb3a1d89a.png" alt="editor"></p>
+<p><a target="_blank" rel="noopener" href="https://developers.google.com/web/tools/chrome-devtools">Chrome 开发者工具</a> 提供了不同的调试HTML/CSS/Javascript、网络等的工具。建议使用它来调试Web插件。例如，可以像正常JavaScript开发那样在JavaScript中使用 <code>console.log()</code>、<code>console.error()</code>等，然后在浏览器控制台中检查日志和错误。在Python插件中，错误追溯也会转发到浏览器控制台。<br><img src="https://user-images.githubusercontent.com/6218739/144053608-0dd72e3b-752f-4f66-98e7-52ac4ade46c5.png" alt="chrome"><br>除此之外，还可以使用ImJoy API函数，包括 <code>api.log()</code>、<code>api.error()</code>、<code>api.alert()</code>、<code>api.showMessage()</code> 等来向ImJoy应用程序显示消息。<br>特别地，对于Python插件，<code>print()</code>只会在启动插件引擎的终端中看到，因此建议开发Python插件时使用这些API函数来辅助debug。</p>
+<h1 id="ImJoy插件文件格式"><a href="#ImJoy插件文件格式" class="headerlink" title="ImJoy插件文件格式"></a>ImJoy插件文件格式</h1><p>ImJoy插件通常是一个扩展名为<code>*.imjoy.html</code>的文本文件。其中使用HTML/XML标签，例如 <code>&lt;config&gt;</code>、<code>&lt;script&gt;</code>、<code>&lt;window&gt;</code> 来存储代码块。<br>大多数插件类型至少需要两个代码块：<code>&lt;config&gt;</code> 和<code>&lt;script&gt;</code>，例如<code>web-worker</code>、<code>web-python</code> 和<code>native-python</code>。对于<code>window</code> 插件，代码中需要额外一个<code>&lt;window&gt;</code> 块，以及一个可选<code>&lt;style&gt;</code> 块用于CSS定义。关于 ImJoy 插件文件的详细说明可以在这里找到：<a target="_blank" rel="noopener" href="https://imjoy.io/docs/#/development?id=plugin-file-format">插件文件格式</a>。</p>
+<h1 id="ImJoy的Hello-World插件"><a href="#ImJoy的Hello-World插件" class="headerlink" title="ImJoy的Hello World插件"></a>ImJoy的Hello World插件</h1><p>要制作第一个 ImJoy 插件，即ImJoy的Hello World，可以单击<code>+ PLUGINS</code>，然后从<code>+ CREATE A NEW PLUGIN</code>下拉菜单中选择默认模板<code>Default template</code>。<br><img src="https://user-images.githubusercontent.com/6218739/144052725-44768110-a754-4cce-a9fb-8f70a2bcbfc7.png" alt="helloworld"><br>生成的插件代码为：<br><figure class="highlight js"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br></pre></td><td class="code"><pre><span class="line">&lt;docs&gt;</span><br><span class="line">[TODO: write documentation <span class="keyword">for</span> <span class="built_in">this</span> plugin.]</span><br><span class="line">&lt;/docs&gt;</span><br><span class="line">&lt;config lang=<span class="string">&quot;json&quot;</span>&gt;</span><br><span class="line">&#123;</span><br><span class="line">  <span class="string">&quot;name&quot;</span>: <span class="string">&quot;Untitled Plugin&quot;</span>,</span><br><span class="line">  <span class="string">&quot;type&quot;</span>: <span class="string">&quot;web-worker&quot;</span>,</span><br><span class="line">  <span class="string">&quot;tags&quot;</span>: [],</span><br><span class="line">  <span class="string">&quot;ui&quot;</span>: <span class="string">&quot;&quot;</span>,</span><br><span class="line">  <span class="string">&quot;version&quot;</span>: <span class="string">&quot;0.1.0&quot;</span>,</span><br><span class="line">  <span class="string">&quot;cover&quot;</span>: <span class="string">&quot;&quot;</span>,</span><br><span class="line">  <span class="string">&quot;description&quot;</span>: <span class="string">&quot;[TODO: describe this plugin with one sentence.]&quot;</span>,</span><br><span class="line">  <span class="string">&quot;icon&quot;</span>: <span class="string">&quot;extension&quot;</span>,</span><br><span class="line">  <span class="string">&quot;inputs&quot;</span>: <span class="literal">null</span>,</span><br><span class="line">  <span class="string">&quot;outputs&quot;</span>: <span class="literal">null</span>,</span><br><span class="line">  <span class="string">&quot;api_version&quot;</span>: <span class="string">&quot;0.1.8&quot;</span>,</span><br><span class="line">  <span class="string">&quot;env&quot;</span>: <span class="string">&quot;&quot;</span>,</span><br><span class="line">  <span class="string">&quot;permissions&quot;</span>: [],</span><br><span class="line">  <span class="string">&quot;requirements&quot;</span>: [],</span><br><span class="line">  <span class="string">&quot;dependencies&quot;</span>: []</span><br><span class="line">&#125;</span><br><span class="line">&lt;/config&gt;</span><br><span class="line">&lt;script lang=<span class="string">&quot;javascript&quot;</span>&gt;</span><br><span class="line"><span class="class"><span class="keyword">class</span> <span class="title">ImJoyPlugin</span> </span>&#123;</span><br><span class="line">  <span class="keyword">async</span> <span class="function"><span class="title">setup</span>(<span class="params"></span>)</span> &#123;</span><br><span class="line">    api.log(<span class="string">&#x27;initialized&#x27;</span>)</span><br><span class="line">  &#125;</span><br><span class="line">  <span class="keyword">async</span> <span class="function"><span class="title">run</span>(<span class="params">ctx</span>)</span> &#123;</span><br><span class="line">    api.alert(<span class="string">&#x27;hello world.&#x27;</span>)</span><br><span class="line">  &#125;</span><br><span class="line">&#125;</span><br><span class="line">api.export(<span class="keyword">new</span> ImJoyPlugin())</span><br><span class="line">&lt;/script&gt;</span><br></pre></td></tr></table></figure><br>上述代码的具体语法会在后面具体详述。<br>在不更改代码的情况下，可以通过单击保存图标来保存它，此时会在插件菜单中添加一个名为“Untitled Plugin”的新条目。<br>要运行这个插件，可以单击“Untitled Plugin”按钮。此时将看到一个带有“Hello World”的弹出对话框。<br><img src="https://user-images.githubusercontent.com/6218739/144055127-ffd19736-bcde-4f58-9c15-e7a976bb82ae.png" alt="hello"></p>
+<p>如果是在本地电脑编辑的ImJoy插件文件（扩展名为 <code>*.imjoy.html</code>），那么可通过下面操作加载到ImJoy Web App中：<br>1) 转到 <a target="_blank" rel="noopener" href="https://imjoy.io/#/app">https://imjoy.io/#/app</a><br>2) 将该文件拖放到浏览器中即可。</p>
+<p>对于 Python 开发，可以使用 <a target="_blank" rel="noopener" href="https://github.com/imjoy-team/imjoy-jupyter-extension">jupyter notebook 扩展</a>。该部分会在以后详细解析。</p>
+<h1 id="部署和共享插件"><a href="#部署和共享插件" class="headerlink" title="部署和共享插件"></a>部署和共享插件</h1><p>如果你想与他人分享你的插件，可以直接发送插件文件，或者将插件上传到 Github/Gist。建议使用后者，因为它会更大范围地分发插件。<br>以下步骤可以帮助编写及部署插件：<br>（1）在 Github 上 <a target="_blank" rel="noopener" href="https://github.com/imjoy-team/imjoy-starter/fork">fork imjoy-starter repo</a>（或者，如果你愿意，可以创建一个空的）。imjoy-starter仓库包含一个<a target="_blank" rel="noopener" href="https://github.com/imjoy-team/imjoy-starter/tree/master/docs">docs 文件夹</a>，开发者可以在 Markdown 中做笔记，它将渲染为像这样的<a target="_blank" rel="noopener" href="https://imjoy-team.github.io/imjoy-starter/">交互式的网站</a>。有关更多信息，请参阅<a target="_blank" rel="noopener" href="https://docsify.js.org/#/"><strong>此处</strong></a>。可以在Markdown中添加带有一些特殊标记的插件代码，然后就可以看到<strong>Run</strong>和<strong>Edit</strong>按钮。<br>（2）然后可以将自己的插件命名为，例如，<code>hello.imjoy.html</code> 并使用 git 命令将其上传到你所fork的仓库的 <code>plugins</code> 文件夹或直接上传到仓库。<br>（3）然后单击插件文件并复制地址栏中的url，它应该类似于：<code>https://github.com/&lt;YOUR-GITHUB-USERNAME&gt;/imjoy-starter/blob/master/plugins/hello.imjoy.html</code><br>此路径可用于在ImJoy中安装插件。<br>（4）单击<strong>Run</strong>打开ImJoy Web App。要安装插件，单击<code>+PLUGINS</code>并将URL粘贴到<code>Install from URL</code>输入框中，然后按 Enter。<br>（5）现在可以构建一个URL与他人共享，只需在 <code>https://imjoy.io/#/app?plugin=</code> 后面添加 URL 即可，比如这样：<code>https://imjoy.io/#/app?plugin=https://github.com/&lt;YOUR-GITHUB-USERNAME&gt;/imjoy-starter/blob/master/plugins/hello.imjoy.html</code>。<br>如果用户单击这个插件URL，它将直接在ImJoy中打开插件并提示用户安装它。</p>
+
+    </div>
+
+    
+    
+    
+        <div class="reward-container">
+  <div></div>
+  <button onclick="var qr = document.getElementById('qr'); qr.style.display = (qr.style.display === 'none') ? 'block' : 'none';">
+    Donate
+  </button>
+  <div id="qr" style="display: none;">
+      
+      <div style="display: inline-block;">
+        <img src="/images/wechat_reward.png" alt="Xin-Bo Qi(亓欣波) WeChat Pay">
+        <p>WeChat Pay</p>
+      </div>
+
+  </div>
+</div>
+
+
+      <footer class="post-footer">
+          <div class="post-tags">
+              <a href="/tags/ImJoy/" rel="tag"># ImJoy</a>
+          </div>
+
+        
+
+
+        
+    <div class="post-nav">
+      <div class="post-nav-item">
+    <a href="/2021/11/30/ImJoy_2/" rel="prev" title="开源深度学习计算平台ImJoy解析：2 -- 核心概念">
+      <i class="fa fa-chevron-left"></i> 开源深度学习计算平台ImJoy解析：2 -- 核心概念
+    </a></div>
+      <div class="post-nav-item"></div>
+    </div>
+      </footer>
+    
+  </article>
+  
+  
+  
+
+
+
+          </div>
+          
+    
+  <div class="comments">
+    <div id="disqus_thread">
+      <noscript>Please enable JavaScript to view the comments powered by Disqus.</noscript>
+    </div>
+  </div>
+  
+
+<script>
+  window.addEventListener('tabs:register', () => {
+    let { activeClass } = CONFIG.comments;
+    if (CONFIG.comments.storage) {
+      activeClass = localStorage.getItem('comments_active') || activeClass;
+    }
+    if (activeClass) {
+      let activeTab = document.querySelector(`a[href="#comment-${activeClass}"]`);
+      if (activeTab) {
+        activeTab.click();
+      }
+    }
+  });
+  if (CONFIG.comments.storage) {
+    window.addEventListener('tabs:click', event => {
+      if (!event.target.matches('.tabs-comment .tab-content .tab-pane')) return;
+      let commentClass = event.target.classList[1];
+      localStorage.setItem('comments_active', commentClass);
+    });
+  }
+</script>
+
+        </div>
+          
+  
+  <div class="toggle sidebar-toggle">
+    <span class="toggle-line toggle-line-first"></span>
+    <span class="toggle-line toggle-line-middle"></span>
+    <span class="toggle-line toggle-line-last"></span>
+  </div>
+
+  <aside class="sidebar">
+    <div class="sidebar-inner">
+
+      <ul class="sidebar-nav motion-element">
+        <li class="sidebar-nav-toc">
+          Table of Contents
+        </li>
+        <li class="sidebar-nav-overview">
+          Overview
+        </li>
+      </ul>
+
+      <!--noindex-->
+      <div class="post-toc-wrap sidebar-panel">
+          <div class="post-toc motion-element"><ol class="nav"><li class="nav-item nav-level-1"><a class="nav-link" href="#%E5%8F%82%E8%80%83%E6%96%87%E7%8C%AE"><span class="nav-number">1.</span> <span class="nav-text">参考文献</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#%E6%A6%82%E8%BF%B0"><span class="nav-number">2.</span> <span class="nav-text">概述</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#ImJoy%E6%9E%B6%E6%9E%84"><span class="nav-number">3.</span> <span class="nav-text">ImJoy架构</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#%E4%BB%80%E4%B9%88%E6%98%AFImJoy%E6%8F%92%E4%BB%B6"><span class="nav-number">4.</span> <span class="nav-text">什么是ImJoy插件</span></a><ol class="nav-child"><li class="nav-item nav-level-2"><a class="nav-link" href="#Window%E6%8F%92%E4%BB%B6"><span class="nav-number">4.1.</span> <span class="nav-text">Window插件</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#Web-Worker%E6%8F%92%E4%BB%B6"><span class="nav-number">4.2.</span> <span class="nav-text">Web Worker插件</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#Web-Python%E6%8F%92%E4%BB%B6"><span class="nav-number">4.3.</span> <span class="nav-text">Web Python插件</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#Native-Python%E6%8F%92%E4%BB%B6"><span class="nav-number">4.4.</span> <span class="nav-text">Native Python插件</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#ImJoy-App%E5%92%8CPlugin-Engine"><span class="nav-number">4.5.</span> <span class="nav-text">ImJoy App和Plugin Engine</span></a></li></ol></li><li class="nav-item nav-level-1"><a class="nav-link" href="#ImJoy%E4%BB%A3%E7%A0%81%E7%BC%96%E8%BE%91%E5%99%A8%E5%92%8C%E5%BC%80%E5%8F%91%E4%BA%BA%E5%91%98%E5%B7%A5%E5%85%B7"><span class="nav-number">5.</span> <span class="nav-text">ImJoy代码编辑器和开发人员工具</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#ImJoy%E6%8F%92%E4%BB%B6%E6%96%87%E4%BB%B6%E6%A0%BC%E5%BC%8F"><span class="nav-number">6.</span> <span class="nav-text">ImJoy插件文件格式</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#ImJoy%E7%9A%84Hello-World%E6%8F%92%E4%BB%B6"><span class="nav-number">7.</span> <span class="nav-text">ImJoy的Hello World插件</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#%E9%83%A8%E7%BD%B2%E5%92%8C%E5%85%B1%E4%BA%AB%E6%8F%92%E4%BB%B6"><span class="nav-number">8.</span> <span class="nav-text">部署和共享插件</span></a></li></ol></div>
+      </div>
+      <!--/noindex-->
+
+      <div class="site-overview-wrap sidebar-panel">
+        <div class="site-author motion-element" itemprop="author" itemscope itemtype="http://schema.org/Person">
+    <img class="site-author-image" itemprop="image" alt="Xin-Bo Qi(亓欣波)"
+      src="/images/avatar.jpg">
+  <p class="site-author-name" itemprop="name">Xin-Bo Qi(亓欣波)</p>
+  <div class="site-description" itemprop="description">Digitize everything to realize Digitalization!</div>
+</div>
+<div class="site-state-wrap motion-element">
+  <nav class="site-state">
+      <div class="site-state-item site-state-posts">
+          <a href="/archives/">
+        
+          <span class="site-state-item-count">140</span>
+          <span class="site-state-item-name">posts</span>
+        </a>
+      </div>
+      <div class="site-state-item site-state-categories">
+            <a href="/categories/">
+          
+        <span class="site-state-item-count">6</span>
+        <span class="site-state-item-name">categories</span></a>
+      </div>
+      <div class="site-state-item site-state-tags">
+            <a href="/tags/">
+          
+        <span class="site-state-item-count">49</span>
+        <span class="site-state-item-name">tags</span></a>
+      </div>
+  </nav>
+</div>
+  <div class="links-of-author motion-element">
+      <span class="links-of-author-item">
+        <a href="https://github.com/qixinbo" title="GitHub → https:&#x2F;&#x2F;github.com&#x2F;qixinbo" rel="noopener" target="_blank"><i class="github fa-fw"></i>GitHub</a>
+      </span>
+      <span class="links-of-author-item">
+        <a href="mailto:qixinbo@gmail.com" title="E-Mail → mailto:qixinbo@gmail.com" rel="noopener" target="_blank"><i class="envelope fa-fw"></i>E-Mail</a>
+      </span>
+      <span class="links-of-author-item">
+        <a href="https://twitter.com/qixinbo" title="Twitter → https:&#x2F;&#x2F;twitter.com&#x2F;qixinbo" rel="noopener" target="_blank"><i class="fab fa-twitter fa-fw"></i>Twitter</a>
+      </span>
+      <span class="links-of-author-item">
+        <a href="/atom.xml" title="RSS → &#x2F;atom.xml"><i class="fas fa-rss fa-fw"></i>RSS</a>
+      </span>
+  </div>
+
+
+  <div class="links-of-blogroll motion-element">
+    <div class="links-of-blogroll-title"><i class="fa fa-link fa-fw"></i>
+      Links
+    </div>
+    <ul class="links-of-blogroll-list">
+        <li class="links-of-blogroll-item">
+          <a href="https://www.tsinghua.edu.cn/" title="https:&#x2F;&#x2F;www.tsinghua.edu.cn" rel="noopener" target="_blank">THU</a>
+        </li>
+        <li class="links-of-blogroll-item">
+          <a href="http://www.imr.cas.cn/" title="http:&#x2F;&#x2F;www.imr.cas.cn" rel="noopener" target="_blank">IMR</a>
+        </li>
+        <li class="links-of-blogroll-item">
+          <a href="http://www.sdu.edu.cn/" title="http:&#x2F;&#x2F;www.sdu.edu.cn" rel="noopener" target="_blank">SDU</a>
+        </li>
+        <li class="links-of-blogroll-item">
+          <a href="http://liam0205.me/" title="http:&#x2F;&#x2F;liam0205.me&#x2F;" rel="noopener" target="_blank">黄晨成</a>
+        </li>
+    </ul>
+  </div>
+
+      </div>
+
+    </div>
+  </aside>
+  <div id="sidebar-dimmer"></div>
+
+
+      </div>
+    </main>
+
+    <footer class="footer">
+      <div class="footer-inner">
+        
+
+        
+
+<div class="copyright">
+  
+  &copy; 
+  <span itemprop="copyrightYear">2021</span>
+  <span class="with-love">
+    <i class="fa fa-heart"></i>
+  </span>
+  <span class="author" itemprop="copyrightHolder">Xin-Bo Qi(亓欣波)</span>
+</div>
+  <div class="powered-by">Powered by <a href="https://hexo.io/" class="theme-link" rel="noopener" target="_blank">Hexo</a> & <a href="https://theme-next.org/" class="theme-link" rel="noopener" target="_blank">NexT.Gemini</a>
+  </div>
+
+        
+
+
+
+
+
+
+
+
+      </div>
+    </footer>
+  </div>
+
+  
+  <script src="/lib/anime.min.js"></script>
+  <script src="/lib/velocity/velocity.min.js"></script>
+  <script src="/lib/velocity/velocity.ui.min.js"></script>
+
+<script src="/js/utils.js"></script>
+
+<script src="/js/motion.js"></script>
+
+
+<script src="/js/schemes/pisces.js"></script>
+
+
+<script src="/js/next-boot.js"></script>
+
+
+
+
+  
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+  
+
+  
+      
+
+<script>
+  if (typeof MathJax === 'undefined') {
+    window.MathJax = {
+      loader: {
+        source: {
+          '[tex]/amsCd': '[tex]/amscd',
+          '[tex]/AMScd': '[tex]/amscd'
+        }
+      },
+      tex: {
+        inlineMath: {'[+]': [['$', '$']]},
+        tags: 'ams'
+      },
+      options: {
+        renderActions: {
+          findScript: [10, doc => {
+            document.querySelectorAll('script[type^="math/tex"]').forEach(node => {
+              const display = !!node.type.match(/; *mode=display/);
+              const math = new doc.options.MathItem(node.textContent, doc.inputJax[0], display);
+              const text = document.createTextNode('');
+              node.parentNode.replaceChild(text, node);
+              math.start = {node: text, delim: '', n: 0};
+              math.end = {node: text, delim: '', n: 0};
+              doc.math.push(math);
+            });
+          }, '', false],
+          insertedScript: [200, () => {
+            document.querySelectorAll('mjx-container').forEach(node => {
+              let target = node.parentNode;
+              if (target.nodeName.toLowerCase() === 'li') {
+                target.parentNode.classList.add('has-jax');
+              }
+            });
+          }, '', false]
+        }
+      }
+    };
+    (function () {
+      var script = document.createElement('script');
+      script.src = '//cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js';
+      script.defer = true;
+      document.head.appendChild(script);
+    })();
+  } else {
+    MathJax.startup.document.state(0);
+    MathJax.texReset();
+    MathJax.typeset();
+  }
+</script>
+
+    
+
+  
+
+<script>
+  function loadCount() {
+    var d = document, s = d.createElement('script');
+    s.src = 'https://qixinbo.disqus.com/count.js';
+    s.id = 'dsq-count-scr';
+    (d.head || d.body).appendChild(s);
+  }
+  // defer loading until the whole page loading is completed
+  window.addEventListener('load', loadCount, false);
+</script>
+<script>
+  var disqus_config = function() {
+    this.page.url = "http://qixinbo.github.io/2021/12/01/ImJoy_3/";
+    this.page.identifier = "2021/12/01/ImJoy_3/";
+    this.page.title = "开源深度学习计算平台ImJoy解析：3 -- 插件原理及上手";
+    };
+  NexT.utils.loadComments(document.querySelector('#disqus_thread'), () => {
+    if (window.DISQUS) {
+      DISQUS.reset({
+        reload: true,
+        config: disqus_config
+      });
+    } else {
+      var d = document, s = d.createElement('script');
+      s.src = 'https://qixinbo.disqus.com/embed.js';
+      s.setAttribute('data-timestamp', '' + +new Date());
+      (d.head || d.body).appendChild(s);
+    }
+  });
+</script>
+
+</body>
+</html>
