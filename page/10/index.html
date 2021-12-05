@@ -184,6 +184,135 @@
   
   
   <article itemscope itemtype="http://schema.org/Article" class="post-block" lang="en">
+    <link itemprop="mainEntityOfPage" href="http://qixinbo.github.io/2017/07/28/moose-run-details/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="image" content="/images/avatar.jpg">
+      <meta itemprop="name" content="Xin-Bo Qi(亓欣波)">
+      <meta itemprop="description" content="Digitize everything to realize Digitalization!">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="数字旗手">
+    </span>
+      <header class="post-header">
+        <h2 class="post-title" itemprop="name headline">
+          
+            <a href="/2017/07/28/moose-run-details/" class="post-title-link" itemprop="url">MOOSE运行过程再分析</a>
+        </h2>
+
+        <div class="post-meta">
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="far fa-calendar"></i>
+              </span>
+              <span class="post-meta-item-text">Posted on</span>
+
+              <time title="Created: 2017-07-28 00:00:00" itemprop="dateCreated datePublished" datetime="2017-07-28T00:00:00+08:00">2017-07-28</time>
+            </span>
+              <span class="post-meta-item">
+                <span class="post-meta-item-icon">
+                  <i class="far fa-calendar-check"></i>
+                </span>
+                <span class="post-meta-item-text">Edited on</span>
+                <time title="Modified: 2021-03-26 15:49:11" itemprop="dateModified" datetime="2021-03-26T15:49:11+08:00">2021-03-26</time>
+              </span>
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="far fa-folder"></i>
+              </span>
+              <span class="post-meta-item-text">In</span>
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+                  <a href="/categories/simulation/" itemprop="url" rel="index"><span itemprop="name">simulation</span></a>
+                </span>
+            </span>
+
+          
+  
+  <span class="post-meta-item">
+    
+      <span class="post-meta-item-icon">
+        <i class="far fa-comment"></i>
+      </span>
+      <span class="post-meta-item-text">Disqus: </span>
+    
+    <a title="disqus" href="/2017/07/28/moose-run-details/#disqus_thread" itemprop="discussionUrl">
+      <span class="post-comments-count disqus-comment-count" data-disqus-identifier="2017/07/28/moose-run-details/" itemprop="commentCount"></span>
+    </a>
+  </span>
+  
+  
+
+        </div>
+      </header>
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+          本文是对前文的一个再次探索。
+MOOSE项目太宏大，一点点来，这次先以解析怎样输入为主，还未涉及运行和求解，以后再不定期更新。
+
+头文件
+1
+
+
+#include "ExampleApp.h"
+
+
+声明具体问题类。
+1
+
+
+#include "MooseApp.h"
+
+
+
+用于创建和存储各种对象。
+1
+
+
+#include "AppFactory.h"
+
+
+
+声明AppFactory类，用于创建各种对象。里面有一个很隐藏的宏定义：
+1
+
+
+#define registerApp(name) AppFactory::instance().reg<name>(#name)
+
+
+
+在ExampleA
+          <!--noindex-->
+            <div class="post-button">
+              <a class="btn" href="/2017/07/28/moose-run-details/#more" rel="contents">
+                Read more &raquo;
+              </a>
+            </div>
+          <!--/noindex-->
+        
+      
+    </div>
+
+    
+    
+    
+      <footer class="post-footer">
+        <div class="post-eof"></div>
+      </footer>
+  </article>
+  
+  
+  
+
+      
+  
+  
+  <article itemscope itemtype="http://schema.org/Article" class="post-block" lang="en">
     <link itemprop="mainEntityOfPage" href="http://qixinbo.github.io/2017/07/11/cplusplus-construction/">
 
     <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
@@ -1183,117 +1312,6 @@ include/fields.h
   
   
 
-      
-  
-  
-  <article itemscope itemtype="http://schema.org/Article" class="post-block" lang="en">
-    <link itemprop="mainEntityOfPage" href="http://qixinbo.github.io/2016/12/16/prisms-pf-dendrite/">
-
-    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
-      <meta itemprop="image" content="/images/avatar.jpg">
-      <meta itemprop="name" content="Xin-Bo Qi(亓欣波)">
-      <meta itemprop="description" content="Digitize everything to realize Digitalization!">
-    </span>
-
-    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
-      <meta itemprop="name" content="数字旗手">
-    </span>
-      <header class="post-header">
-        <h2 class="post-title" itemprop="name headline">
-          
-            <a href="/2016/12/16/prisms-pf-dendrite/" class="post-title-link" itemprop="url">使用PRISMS-PF模拟二维和三维枝晶生长</a>
-        </h2>
-
-        <div class="post-meta">
-            <span class="post-meta-item">
-              <span class="post-meta-item-icon">
-                <i class="far fa-calendar"></i>
-              </span>
-              <span class="post-meta-item-text">Posted on</span>
-
-              <time title="Created: 2016-12-16 00:00:00" itemprop="dateCreated datePublished" datetime="2016-12-16T00:00:00+08:00">2016-12-16</time>
-            </span>
-              <span class="post-meta-item">
-                <span class="post-meta-item-icon">
-                  <i class="far fa-calendar-check"></i>
-                </span>
-                <span class="post-meta-item-text">Edited on</span>
-                <time title="Modified: 2021-03-26 15:50:22" itemprop="dateModified" datetime="2021-03-26T15:50:22+08:00">2021-03-26</time>
-              </span>
-            <span class="post-meta-item">
-              <span class="post-meta-item-icon">
-                <i class="far fa-folder"></i>
-              </span>
-              <span class="post-meta-item-text">In</span>
-                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
-                  <a href="/categories/simulation/" itemprop="url" rel="index"><span itemprop="name">simulation</span></a>
-                </span>
-            </span>
-
-          
-  
-  <span class="post-meta-item">
-    
-      <span class="post-meta-item-icon">
-        <i class="far fa-comment"></i>
-      </span>
-      <span class="post-meta-item-text">Disqus: </span>
-    
-    <a title="disqus" href="/2016/12/16/prisms-pf-dendrite/#disqus_thread" itemprop="discussionUrl">
-      <span class="post-comments-count disqus-comment-count" data-disqus-identifier="2016/12/16/prisms-pf-dendrite/" itemprop="commentCount"></span>
-    </a>
-  </span>
-  
-  
-
-        </div>
-      </header>
-
-    
-    
-    
-    <div class="post-body" itemprop="articleBody">
-
-      
-          引子
-本例将使用PRISMS-PF模拟凝固过程中的枝晶生长。因为原先的PRISMS-PF架构中在构建右端项时只有接收一步解，而枝晶的浓度场控制方程与相场参量的变化率相关，即需要用到相场的前后两步解，所以需要扩展PRISMS-PF的原先架构，本例也主要是说明怎样对原程序进行扩展。
-
-获得源码
-源码在这里
-
-扩展过程
-定义要使用解的个数
-在parameter.h中新增宏定义numSolution，其决定方程中用到几步解，比如在枝晶生长的模拟中用到两步解，其就等于2，之前的所有模拟中都等于1。
-1
-
-
-#define numSolution 2
-
-
-
-这里涉及头文件的包含顺序，放在后面定义的话，会不
-          <!--noindex-->
-            <div class="post-button">
-              <a class="btn" href="/2016/12/16/prisms-pf-dendrite/#more" rel="contents">
-                Read more &raquo;
-              </a>
-            </div>
-          <!--/noindex-->
-        
-      
-    </div>
-
-    
-    
-    
-      <footer class="post-footer">
-        <div class="post-eof"></div>
-      </footer>
-  </article>
-  
-  
-  
-
 
   
   <nav class="pagination">
@@ -1365,7 +1383,7 @@ include/fields.h
       <div class="site-state-item site-state-posts">
           <a href="/archives/">
         
-          <span class="site-state-item-count">141</span>
+          <span class="site-state-item-count">142</span>
           <span class="site-state-item-name">posts</span>
         </a>
       </div>
