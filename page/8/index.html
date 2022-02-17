@@ -184,6 +184,104 @@
   
   
   <article itemscope itemtype="http://schema.org/Article" class="post-block" lang="en">
+    <link itemprop="mainEntityOfPage" href="http://qixinbo.github.io/2018/10/06/imagej-plugins/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="image" content="/images/avatar.jpg">
+      <meta itemprop="name" content="Xin-Bo Qi(亓欣波)">
+      <meta itemprop="description" content="Digitize everything to realize Digitalization!">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="数字旗手">
+    </span>
+      <header class="post-header">
+        <h2 class="post-title" itemprop="name headline">
+          
+            <a href="/2018/10/06/imagej-plugins/" class="post-title-link" itemprop="url">ImageJ的插件开发</a>
+        </h2>
+
+        <div class="post-meta">
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="far fa-calendar"></i>
+              </span>
+              <span class="post-meta-item-text">Posted on</span>
+
+              <time title="Created: 2018-10-06 00:00:00" itemprop="dateCreated datePublished" datetime="2018-10-06T00:00:00+08:00">2018-10-06</time>
+            </span>
+              <span class="post-meta-item">
+                <span class="post-meta-item-icon">
+                  <i class="far fa-calendar-check"></i>
+                </span>
+                <span class="post-meta-item-text">Edited on</span>
+                <time title="Modified: 2021-03-26 15:42:55" itemprop="dateModified" datetime="2021-03-26T15:42:55+08:00">2021-03-26</time>
+              </span>
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="far fa-folder"></i>
+              </span>
+              <span class="post-meta-item-text">In</span>
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+                  <a href="/categories/computer-vision/" itemprop="url" rel="index"><span itemprop="name">computer vision</span></a>
+                </span>
+            </span>
+
+          
+  
+  <span class="post-meta-item">
+    
+      <span class="post-meta-item-icon">
+        <i class="far fa-comment"></i>
+      </span>
+      <span class="post-meta-item-text">Disqus: </span>
+    
+    <a title="disqus" href="/2018/10/06/imagej-plugins/#disqus_thread" itemprop="discussionUrl">
+      <span class="post-comments-count disqus-comment-count" data-disqus-identifier="2018/10/06/imagej-plugins/" itemprop="commentCount"></span>
+    </a>
+  </span>
+  
+  
+
+        </div>
+      </header>
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+          开篇说明
+前面介绍过开发ImageJ的Python脚本的过程（在这里），这里介绍怎样开发ImageJ的插件。
+插件相对于脚本来说，一方面，它的功能更加强大，可以认为是寄生在ImageJ上面的一个完备的小程序；另一方面，它使用Java开发，格式可以采用编译好的class文件，有利于保护代码不被泄露。
+ImageJ由于历史原因，存在着ImageJ1和ImageJ2两个版本，且两者的API是迥然不同的，底层架构更是不同，导致两者的开发套路有很大差别。在写这篇tutorial时，深感两者在网上的文档资源相互交叉，论坛里的答案在不同版本间有时不适用。所以这里尝试从零开始一步步地记录ImageJ2的插件开
+          <!--noindex-->
+            <div class="post-button">
+              <a class="btn" href="/2018/10/06/imagej-plugins/#more" rel="contents">
+                Read more &raquo;
+              </a>
+            </div>
+          <!--/noindex-->
+        
+      
+    </div>
+
+    
+    
+    
+      <footer class="post-footer">
+        <div class="post-eof"></div>
+      </footer>
+  </article>
+  
+  
+  
+
+      
+  
+  
+  <article itemscope itemtype="http://schema.org/Article" class="post-block" lang="en">
     <link itemprop="mainEntityOfPage" href="http://qixinbo.github.io/2018/09/18/skopt/">
 
     <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
@@ -1171,112 +1269,6 @@ New新
   
   
 
-      
-  
-  
-  <article itemscope itemtype="http://schema.org/Article" class="post-block" lang="en">
-    <link itemprop="mainEntityOfPage" href="http://qixinbo.github.io/2018/09/03/imagej-ui/">
-
-    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
-      <meta itemprop="image" content="/images/avatar.jpg">
-      <meta itemprop="name" content="Xin-Bo Qi(亓欣波)">
-      <meta itemprop="description" content="Digitize everything to realize Digitalization!">
-    </span>
-
-    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
-      <meta itemprop="name" content="数字旗手">
-    </span>
-      <header class="post-header">
-        <h2 class="post-title" itemprop="name headline">
-          
-            <a href="/2018/09/03/imagej-ui/" class="post-title-link" itemprop="url">ImageJ 用户指南 -- 4. 用户界面：状态栏和工具栏</a>
-        </h2>
-
-        <div class="post-meta">
-            <span class="post-meta-item">
-              <span class="post-meta-item-icon">
-                <i class="far fa-calendar"></i>
-              </span>
-              <span class="post-meta-item-text">Posted on</span>
-
-              <time title="Created: 2018-09-03 00:00:00" itemprop="dateCreated datePublished" datetime="2018-09-03T00:00:00+08:00">2018-09-03</time>
-            </span>
-              <span class="post-meta-item">
-                <span class="post-meta-item-icon">
-                  <i class="far fa-calendar-check"></i>
-                </span>
-                <span class="post-meta-item-text">Edited on</span>
-                <time title="Modified: 2021-03-26 15:43:26" itemprop="dateModified" datetime="2021-03-26T15:43:26+08:00">2021-03-26</time>
-              </span>
-            <span class="post-meta-item">
-              <span class="post-meta-item-icon">
-                <i class="far fa-folder"></i>
-              </span>
-              <span class="post-meta-item-text">In</span>
-                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
-                  <a href="/categories/computer-vision/" itemprop="url" rel="index"><span itemprop="name">computer vision</span></a>
-                </span>
-            </span>
-
-          
-  
-  <span class="post-meta-item">
-    
-      <span class="post-meta-item-icon">
-        <i class="far fa-comment"></i>
-      </span>
-      <span class="post-meta-item-text">Disqus: </span>
-    
-    <a title="disqus" href="/2018/09/03/imagej-ui/#disqus_thread" itemprop="discussionUrl">
-      <span class="post-comments-count disqus-comment-count" data-disqus-identifier="2018/09/03/imagej-ui/" itemprop="commentCount"></span>
-    </a>
-  </span>
-  
-  
-
-        </div>
-      </header>
-
-    
-    
-    
-    <div class="post-body" itemprop="articleBody">
-
-      
-          本章说明
-ImageJ的用户界面非常简单，包含菜单栏、工具栏、状态栏和工具条。
-下面就对这些栏目进行详析。
-
-日志窗口
-日志窗口用来显示关于一系列操作的有用信息，可以常用来显示插件和宏所传递的信息。
-使用Edit-Options-Misc然后，然后勾选Debug mode，就可以显示该窗口。如果该窗口关闭了，那么ImageJ自动退出debug模式。
-
-状态栏
-当箭头放在图片上时，状态栏上会显示像素强度和坐标。
-当运行filter后，也会显示事件和处理速率。
-当点击状态栏时，Java的版本、已用内存、可用内存、已用内存百分比都将显示。除此以外，每次点击状态栏时，都会强迫Java垃圾回收器运行，这
-          <!--noindex-->
-            <div class="post-button">
-              <a class="btn" href="/2018/09/03/imagej-ui/#more" rel="contents">
-                Read more &raquo;
-              </a>
-            </div>
-          <!--/noindex-->
-        
-      
-    </div>
-
-    
-    
-    
-      <footer class="post-footer">
-        <div class="post-eof"></div>
-      </footer>
-  </article>
-  
-  
-  
-
 
   
   <nav class="pagination">
@@ -1348,7 +1340,7 @@ ImageJ的用户界面非常简单，包含菜单栏、工具栏、状态栏和�
       <div class="site-state-item site-state-posts">
           <a href="/archives/">
         
-          <span class="site-state-item-count">145</span>
+          <span class="site-state-item-count">146</span>
           <span class="site-state-item-name">posts</span>
         </a>
       </div>
