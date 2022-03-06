@@ -1,0 +1,603 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=2">
+<meta name="theme-color" content="#222">
+<meta name="generator" content="Hexo 5.4.0">
+  <link rel="apple-touch-icon" sizes="180x180" href="/images/apple-touch-icon-next.png">
+  <link rel="icon" type="image/png" sizes="32x32" href="/favicon.ico">
+  <link rel="icon" type="image/png" sizes="16x16" href="/favicon.ico">
+  <link rel="mask-icon" href="/images/logo.svg" color="#222">
+
+<link rel="stylesheet" href="/css/main.css">
+
+
+<link rel="stylesheet" href="/lib/font-awesome/css/all.min.css">
+
+<script id="hexo-configurations">
+    var NexT = window.NexT || {};
+    var CONFIG = {"hostname":"qixinbo.github.io","root":"/","scheme":"Gemini","version":"7.8.0","exturl":false,"sidebar":{"position":"left","display":"post","padding":18,"offset":12,"onmobile":false},"copycode":{"enable":false,"show_result":false,"style":null},"back2top":{"enable":true,"sidebar":false,"scrollpercent":false},"bookmark":{"enable":false,"color":"#222","save":"auto"},"fancybox":false,"mediumzoom":false,"lazyload":false,"pangu":false,"comments":{"style":"tabs","active":null,"storage":true,"lazyload":false,"nav":null},"algolia":{"hits":{"per_page":10},"labels":{"input_placeholder":"Search for Posts","hits_empty":"We didn't find any results for the search: ${query}","hits_stats":"${hits} results found in ${time} ms"}},"localsearch":{"enable":false,"trigger":"auto","top_n_per_article":1,"unescape":false,"preload":false},"motion":{"enable":true,"async":false,"transition":{"post_block":"fadeIn","post_header":"slideDownIn","post_body":"slideDownIn","coll_header":"slideLeftIn","sidebar":"slideUpIn"}}};
+  </script>
+
+  <meta name="description" content="简介 前面讲了ImJoy主站的入口文件main.js，这一篇解析一下该主站的ImJoy组件，它也是整个app的“门面担当”，起到了统筹整个网站的作用。  为了便于分析，将很多高阶的暂时用不到的组件（比如工具栏、窗口管理、文件上传、连接后台Engine等）都删掉，留下最基本的能运行最小化imjoy插件的功能，截图如下：   这样便于分析整个组件的宏观结构和运行逻辑。 下面是对于该极小化组件的逐行代码">
+<meta property="og:type" content="article">
+<meta property="og:title" content="开源深度学习计算平台ImJoy解析：11 -- ImJoy主站之主组件">
+<meta property="og:url" content="http://qixinbo.github.io/2022/02/28/ImJoy_11/index.html">
+<meta property="og:site_name" content="数字旗手">
+<meta property="og:description" content="简介 前面讲了ImJoy主站的入口文件main.js，这一篇解析一下该主站的ImJoy组件，它也是整个app的“门面担当”，起到了统筹整个网站的作用。  为了便于分析，将很多高阶的暂时用不到的组件（比如工具栏、窗口管理、文件上传、连接后台Engine等）都删掉，留下最基本的能运行最小化imjoy插件的功能，截图如下：   这样便于分析整个组件的宏观结构和运行逻辑。 下面是对于该极小化组件的逐行代码">
+<meta property="og:locale" content="en_US">
+<meta property="og:image" content="https://user-images.githubusercontent.com/6218739/156502647-18321726-6c25-4631-bcc4-b632eef39f23.png">
+<meta property="article:published_time" content="2022-02-27T16:00:00.000Z">
+<meta property="article:modified_time" content="2022-03-04T07:19:56.137Z">
+<meta property="article:author" content="Xin-Bo Qi(亓欣波)">
+<meta property="article:tag" content="ImJoy">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:image" content="https://user-images.githubusercontent.com/6218739/156502647-18321726-6c25-4631-bcc4-b632eef39f23.png">
+
+<link rel="canonical" href="http://qixinbo.github.io/2022/02/28/ImJoy_11/">
+
+
+<script id="page-configurations">
+  // https://hexo.io/docs/variables.html
+  CONFIG.page = {
+    sidebar: "",
+    isHome : false,
+    isPost : true,
+    lang   : 'en'
+  };
+</script>
+
+  <title>开源深度学习计算平台ImJoy解析：11 -- ImJoy主站之主组件 | 数字旗手</title>
+  
+
+
+
+
+
+
+  <noscript>
+  <style>
+  .use-motion .brand,
+  .use-motion .menu-item,
+  .sidebar-inner,
+  .use-motion .post-block,
+  .use-motion .pagination,
+  .use-motion .comments,
+  .use-motion .post-header,
+  .use-motion .post-body,
+  .use-motion .collection-header { opacity: initial; }
+
+  .use-motion .site-title,
+  .use-motion .site-subtitle {
+    opacity: initial;
+    top: initial;
+  }
+
+  .use-motion .logo-line-before i { left: initial; }
+  .use-motion .logo-line-after i { right: initial; }
+  </style>
+</noscript>
+
+<link rel="alternate" href="/atom.xml" title="数字旗手" type="application/atom+xml">
+</head>
+
+<body itemscope itemtype="http://schema.org/WebPage">
+  <div class="container use-motion">
+    <div class="headband"></div>
+
+    <header class="header" itemscope itemtype="http://schema.org/WPHeader">
+      <div class="header-inner"><div class="site-brand-container">
+  <div class="site-nav-toggle">
+    <div class="toggle" aria-label="Toggle navigation bar">
+      <span class="toggle-line toggle-line-first"></span>
+      <span class="toggle-line toggle-line-middle"></span>
+      <span class="toggle-line toggle-line-last"></span>
+    </div>
+  </div>
+
+  <div class="site-meta">
+
+    <a href="/" class="brand" rel="start">
+      <span class="logo-line-before"><i></i></span>
+      <h1 class="site-title">数字旗手</h1>
+      <span class="logo-line-after"><i></i></span>
+    </a>
+      <p class="site-subtitle" itemprop="description">电气化、自动化、数字化、智能化、智慧化</p>
+  </div>
+
+  <div class="site-nav-right">
+    <div class="toggle popup-trigger">
+    </div>
+  </div>
+</div>
+
+
+
+
+<nav class="site-nav">
+  <ul id="menu" class="main-menu menu">
+        <li class="menu-item menu-item-home">
+
+    <a href="/" rel="section"><i class="fa fa-home fa-fw"></i>Home</a>
+
+  </li>
+        <li class="menu-item menu-item-categories">
+
+    <a href="/categories/" rel="section"><i class="fa fa-th fa-fw"></i>Categories</a>
+
+  </li>
+        <li class="menu-item menu-item-archives">
+
+    <a href="/archives/" rel="section"><i class="fa fa-archive fa-fw"></i>Archives</a>
+
+  </li>
+        <li class="menu-item menu-item-tags">
+
+    <a href="/tags/" rel="section"><i class="fa fa-tags fa-fw"></i>Tags</a>
+
+  </li>
+        <li class="menu-item menu-item-scholar">
+
+    <a href="/scholar/" rel="section"><i class="fa fa-chart-bar fa-fw"></i>scholar</a>
+
+  </li>
+        <li class="menu-item menu-item-sources">
+
+    <a href="/sources/" rel="section"><i class="fa fa-rss fa-fw"></i>sources</a>
+
+  </li>
+        <li class="menu-item menu-item-gallery">
+
+    <a href="/gallery/" rel="section"><i class="fa fa-file-image fa-fw"></i>gallery</a>
+
+  </li>
+        <li class="menu-item menu-item-about">
+
+    <a href="/about/" rel="section"><i class="fa fa-user fa-fw"></i>About</a>
+
+  </li>
+        <li class="menu-item menu-item-commonweal">
+
+    <a href="/404.html" rel="section"><i class="fa fa-heartbeat fa-fw"></i>Commonweal 404</a>
+
+  </li>
+  </ul>
+</nav>
+
+
+
+
+</div>
+    </header>
+
+    
+  <div class="back-to-top">
+    <i class="fa fa-arrow-up"></i>
+    <span>0%</span>
+  </div>
+
+
+    <main class="main">
+      <div class="main-inner">
+        <div class="content-wrap">
+          
+
+          <div class="content post posts-expand">
+            
+
+    
+  
+  
+  <article itemscope itemtype="http://schema.org/Article" class="post-block" lang="en">
+    <link itemprop="mainEntityOfPage" href="http://qixinbo.github.io/2022/02/28/ImJoy_11/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="image" content="/images/avatar.jpg">
+      <meta itemprop="name" content="Xin-Bo Qi(亓欣波)">
+      <meta itemprop="description" content="Digitize everything to realize Digitalization!">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="数字旗手">
+    </span>
+      <header class="post-header">
+        <h1 class="post-title" itemprop="name headline">
+          开源深度学习计算平台ImJoy解析：11 -- ImJoy主站之主组件
+        </h1>
+
+        <div class="post-meta">
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="far fa-calendar"></i>
+              </span>
+              <span class="post-meta-item-text">Posted on</span>
+
+              <time title="Created: 2022-02-28 00:00:00" itemprop="dateCreated datePublished" datetime="2022-02-28T00:00:00+08:00">2022-02-28</time>
+            </span>
+              <span class="post-meta-item">
+                <span class="post-meta-item-icon">
+                  <i class="far fa-calendar-check"></i>
+                </span>
+                <span class="post-meta-item-text">Edited on</span>
+                <time title="Modified: 2022-03-04 15:19:56" itemprop="dateModified" datetime="2022-03-04T15:19:56+08:00">2022-03-04</time>
+              </span>
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="far fa-folder"></i>
+              </span>
+              <span class="post-meta-item-text">In</span>
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+                  <a href="/categories/computer-vision/" itemprop="url" rel="index"><span itemprop="name">computer vision</span></a>
+                </span>
+            </span>
+
+          
+  
+  <span class="post-meta-item">
+    
+      <span class="post-meta-item-icon">
+        <i class="far fa-comment"></i>
+      </span>
+      <span class="post-meta-item-text">Disqus: </span>
+    
+    <a title="disqus" href="/2022/02/28/ImJoy_11/#disqus_thread" itemprop="discussionUrl">
+      <span class="post-comments-count disqus-comment-count" data-disqus-identifier="2022/02/28/ImJoy_11/" itemprop="commentCount"></span>
+    </a>
+  </span>
+  
+  
+
+        </div>
+      </header>
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+        <h1 id="简介"><a href="#简介" class="headerlink" title="简介"></a>简介</h1><p>前面讲了<a target="_blank" rel="noopener" href="https://imjoy.io">ImJoy主站</a>的入口文件<code>main.js</code>，这一篇解析一下该主站的ImJoy组件，它也是整个app的“门面担当”，起到了统筹整个网站的作用。</p>
+<p>为了便于分析，将很多高阶的暂时用不到的组件（比如工具栏、窗口管理、文件上传、连接后台Engine等）都删掉，留下最基本的能运行最小化imjoy插件的功能，截图如下：<br><img src="https://user-images.githubusercontent.com/6218739/156502647-18321726-6c25-4631-bcc4-b632eef39f23.png" alt="mini-imjoy"></p>
+<p>这样便于分析整个组件的宏观结构和运行逻辑。<br>下面是对于该极小化组件的逐行代码分析。</p>
+<h1 id="template代码"><a href="#template代码" class="headerlink" title="template代码"></a>template代码</h1><figure class="highlight js"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br><span class="line">52</span><br><span class="line">53</span><br><span class="line">54</span><br><span class="line">55</span><br><span class="line">56</span><br><span class="line">57</span><br><span class="line">58</span><br><span class="line">59</span><br><span class="line">60</span><br><span class="line">61</span><br><span class="line">62</span><br><span class="line">63</span><br><span class="line">64</span><br><span class="line">65</span><br><span class="line">66</span><br><span class="line">67</span><br><span class="line">68</span><br><span class="line">69</span><br><span class="line">70</span><br><span class="line">71</span><br><span class="line">72</span><br><span class="line">73</span><br><span class="line">74</span><br><span class="line">75</span><br><span class="line">76</span><br><span class="line">77</span><br><span class="line">78</span><br><span class="line">79</span><br><span class="line">80</span><br><span class="line">81</span><br><span class="line">82</span><br><span class="line">83</span><br><span class="line">84</span><br><span class="line">85</span><br><span class="line">86</span><br><span class="line">87</span><br><span class="line">88</span><br><span class="line">89</span><br><span class="line">90</span><br><span class="line">91</span><br><span class="line">92</span><br><span class="line">93</span><br><span class="line">94</span><br><span class="line">95</span><br><span class="line">96</span><br><span class="line">97</span><br><span class="line">98</span><br><span class="line">99</span><br><span class="line">100</span><br><span class="line">101</span><br><span class="line">102</span><br><span class="line">103</span><br><span class="line">104</span><br><span class="line">105</span><br><span class="line">106</span><br><span class="line">107</span><br><span class="line">108</span><br><span class="line">109</span><br><span class="line">110</span><br><span class="line">111</span><br><span class="line">112</span><br><span class="line">113</span><br><span class="line">114</span><br><span class="line">115</span><br><span class="line">116</span><br><span class="line">117</span><br><span class="line">118</span><br><span class="line">119</span><br><span class="line">120</span><br><span class="line">121</span><br><span class="line">122</span><br><span class="line">123</span><br><span class="line">124</span><br><span class="line">125</span><br><span class="line">126</span><br><span class="line">127</span><br><span class="line">128</span><br><span class="line">129</span><br><span class="line">130</span><br><span class="line">131</span><br><span class="line">132</span><br><span class="line">133</span><br><span class="line">134</span><br><span class="line">135</span><br><span class="line">136</span><br><span class="line">137</span><br><span class="line">138</span><br><span class="line">139</span><br><span class="line">140</span><br><span class="line">141</span><br><span class="line">142</span><br><span class="line">143</span><br><span class="line">144</span><br><span class="line">145</span><br><span class="line">146</span><br><span class="line">147</span><br><span class="line">148</span><br><span class="line">149</span><br><span class="line">150</span><br><span class="line">151</span><br><span class="line">152</span><br><span class="line">153</span><br><span class="line">154</span><br><span class="line">155</span><br><span class="line">156</span><br><span class="line">157</span><br><span class="line">158</span><br><span class="line">159</span><br><span class="line">160</span><br><span class="line">161</span><br><span class="line">162</span><br><span class="line">163</span><br><span class="line">164</span><br><span class="line">165</span><br><span class="line">166</span><br><span class="line">167</span><br><span class="line">168</span><br><span class="line">169</span><br><span class="line">170</span><br><span class="line">171</span><br><span class="line">172</span><br><span class="line">173</span><br><span class="line">174</span><br><span class="line">175</span><br><span class="line">176</span><br><span class="line">177</span><br><span class="line">178</span><br><span class="line">179</span><br><span class="line">180</span><br><span class="line">181</span><br><span class="line">182</span><br><span class="line">183</span><br><span class="line">184</span><br><span class="line">185</span><br><span class="line">186</span><br><span class="line">187</span><br><span class="line">188</span><br><span class="line">189</span><br><span class="line">190</span><br><span class="line">191</span><br><span class="line">192</span><br><span class="line">193</span><br><span class="line">194</span><br><span class="line">195</span><br><span class="line">196</span><br><span class="line">197</span><br><span class="line">198</span><br><span class="line">199</span><br><span class="line">200</span><br><span class="line">201</span><br><span class="line">202</span><br><span class="line">203</span><br><span class="line">204</span><br><span class="line">205</span><br><span class="line">206</span><br><span class="line">207</span><br><span class="line">208</span><br><span class="line">209</span><br><span class="line">210</span><br><span class="line">211</span><br><span class="line">212</span><br><span class="line">213</span><br><span class="line">214</span><br><span class="line">215</span><br><span class="line">216</span><br><span class="line">217</span><br><span class="line">218</span><br><span class="line">219</span><br><span class="line">220</span><br><span class="line">221</span><br><span class="line">222</span><br><span class="line">223</span><br><span class="line">224</span><br><span class="line">225</span><br><span class="line">226</span><br><span class="line">227</span><br><span class="line">228</span><br><span class="line">229</span><br><span class="line">230</span><br><span class="line">231</span><br><span class="line">232</span><br><span class="line">233</span><br><span class="line">234</span><br><span class="line">235</span><br><span class="line">236</span><br><span class="line">237</span><br><span class="line">238</span><br><span class="line">239</span><br><span class="line">240</span><br><span class="line">241</span><br><span class="line">242</span><br><span class="line">243</span><br><span class="line">244</span><br><span class="line">245</span><br><span class="line">246</span><br><span class="line">247</span><br><span class="line">248</span><br><span class="line">249</span><br><span class="line">250</span><br><span class="line">251</span><br><span class="line">252</span><br><span class="line">253</span><br><span class="line">254</span><br><span class="line">255</span><br><span class="line">256</span><br><span class="line">257</span><br><span class="line">258</span><br><span class="line">259</span><br><span class="line">260</span><br><span class="line">261</span><br><span class="line">262</span><br><span class="line">263</span><br><span class="line">264</span><br><span class="line">265</span><br><span class="line">266</span><br><span class="line">267</span><br><span class="line">268</span><br><span class="line">269</span><br><span class="line">270</span><br><span class="line">271</span><br><span class="line">272</span><br><span class="line">273</span><br><span class="line">274</span><br><span class="line">275</span><br></pre></td><td class="code"><pre><span class="line">&lt;template&gt;</span><br><span class="line">  &lt;div <span class="class"><span class="keyword">class</span></span>=<span class="string">&quot;imjoy noselect&quot;</span>&gt;</span><br><span class="line">    &lt;!-- 整个imjoy页面框架是通过vue material这个组件库的md-app进行组织的 --&gt;</span><br><span class="line">    &lt;!-- 它包括了md-app-toolbar工具栏、 md-app-drawer菜单栏和md-app-content内容区三部分 --&gt;</span><br><span class="line">    &lt;!-- 相关教程见：https:<span class="comment">//www.creative-tim.com/vuematerial/components/app --&gt;</span></span><br><span class="line">    &lt;md-app&gt;</span><br><span class="line">      &lt;!-- 工具栏就是最上面的横条，里面的内容直接全部删除了，仅保留架子 --&gt;</span><br><span class="line">      &lt;md-app-toolbar <span class="class"><span class="keyword">class</span></span>=<span class="string">&quot;md-dense app-toolbar&quot;</span> md-elevation=<span class="string">&quot;0&quot;</span>&gt;</span><br><span class="line">      &lt;/md-app-toolbar&gt;</span><br><span class="line"></span><br><span class="line">      &lt;!-- 接下来就是左侧的菜单栏 --&gt;</span><br><span class="line">      &lt;!-- drawer的属性设置见：https:<span class="comment">//www.creative-tim.com/vuematerial/components/drawer# --&gt;</span></span><br><span class="line">      &lt;!-- 具体地： --&gt;</span><br><span class="line">      &lt;!-- (<span class="number">1</span>)菜单栏是否可见是通过md-active属性控制，其通过v-bind绑定到了menuVisible这个变量上 --&gt;</span><br><span class="line">      &lt;!-- (<span class="number">2</span>)菜单栏关闭和打开两个事件都通过v-on绑定到了wm.resizeAll()函数上 --&gt;</span><br><span class="line">      &lt;!-- (<span class="number">3</span>)菜单栏是否常驻md-persistent和菜单栏是否支持触屏下的swipe绑定到了screenWidth这个变量上 --&gt;</span><br><span class="line">      &lt;md-app-drawer</span><br><span class="line">        :md-active.sync=<span class="string">&quot;menuVisible&quot;</span></span><br><span class="line">        @md-closed=<span class="string">&quot;wm.resizeAll()&quot;</span></span><br><span class="line">        @md-opened=<span class="string">&quot;wm.resizeAll()&quot;</span></span><br><span class="line">        :md-persistent=<span class="string">&quot;screenWidth &gt; 800 ? &#x27;full&#x27; : null&quot;</span></span><br><span class="line">        :md-swipeable=<span class="string">&quot;screenWidth &gt; 600 ? false : true&quot;</span></span><br><span class="line">      &gt;</span><br><span class="line">        &lt;!-- 接下来是将上传文件,添加工作流,添加插件和插件列表都放在了一个card中 --&gt;</span><br><span class="line">        &lt;!-- 这个card的显示有两个判断语句,一个是用v-show判断plugin_loaded这个变量是否为<span class="literal">true</span> --&gt;</span><br><span class="line">        &lt;!-- 另一个是用v-<span class="keyword">if</span>判断pm这个变量是否为<span class="literal">true</span>, --&gt;</span><br><span class="line">        &lt;!-- v-<span class="keyword">if</span>和v-show看起来差不多,但有区别,见:https:<span class="comment">//cn.vuejs.org/v2/guide/conditional.html --&gt;</span></span><br><span class="line">        &lt;md-card id=<span class="string">&quot;plugin-menu&quot;</span> v-show=<span class="string">&quot;plugin_loaded&quot;</span> v-<span class="keyword">if</span>=<span class="string">&quot;pm&quot;</span>&gt;</span><br><span class="line">          &lt;!-- 将files,workflow和plugins都放在了card的header中, --&gt;</span><br><span class="line">          &lt;!-- 这里我们将files和workflow都删掉了,仅留plugins的代码 --&gt;</span><br><span class="line">          &lt;md-card-header&gt;</span><br><span class="line">            &lt;!-- 添加plugins就是一个按钮,其<span class="class"><span class="keyword">class</span>也是由<span class="title">v</span>-<span class="title">bind</span>绑定并判断 --&gt;</span></span><br><span class="line"><span class="class">            &lt;!-- 该按钮的点击时间用<span class="title">v</span>-<span class="title">on</span>绑定到了<span class="title">showPluginManagement</span>()函数上 --&gt;</span></span><br><span class="line">            &lt;!-- 当点击该按钮后, 从而执行该函数,其中有一个非常重要的变量:--&gt;</span><br><span class="line">            &lt;!-- <span class="built_in">this</span>.showAddPluginDialog会设为<span class="literal">true</span> --&gt;</span><br><span class="line">            &lt;!-- 从而会引发如下对话框的弹出:</span><br><span class="line">            &lt;md-dialog</span><br><span class="line">              <span class="class"><span class="keyword">class</span></span>=<span class="string">&quot;plugin-dialog&quot;</span></span><br><span class="line">              :md-active.sync=<span class="string">&quot;showAddPluginDialog&quot;</span></span><br><span class="line">              :md-click-outside-to-close=<span class="string">&quot;true&quot;</span></span><br><span class="line">            &gt; --&gt;</span><br><span class="line">            &lt;md-button</span><br><span class="line">              ref=<span class="string">&quot;add_plugin_button&quot;</span></span><br><span class="line">              :<span class="class"><span class="keyword">class</span></span>=<span class="string">&quot;pm.installed_plugins.length &gt; 0 ? &#x27;&#x27; : &#x27;md-primary&#x27;&quot;</span></span><br><span class="line">              @click=<span class="string">&quot;showPluginManagement()&quot;</span></span><br><span class="line">            &gt;</span><br><span class="line">              &lt;md-icon&gt;add&lt;/md-icon&gt;Plugins</span><br><span class="line">            &lt;/md-button&gt;</span><br><span class="line">          &lt;/md-card-header&gt;</span><br><span class="line"></span><br><span class="line">          &lt;!-- 接下来就是将插件列表放在card的content区域 --&gt;</span><br><span class="line">          &lt;md-card-content&gt;</span><br><span class="line">            &lt;!-- 使用v-<span class="keyword">for</span>来循环插件列表,并对每一项提供了key的身份 --&gt;</span><br><span class="line">            &lt;!-- v-<span class="keyword">for</span>的教程见:https:<span class="comment">//cn.vuejs.org/v2/guide/list.html --&gt;</span></span><br><span class="line">            &lt;div v-<span class="keyword">for</span>=<span class="string">&quot;plugin in sortedRunnablePlugins()&quot;</span> :key=<span class="string">&quot;plugin.name&quot;</span>&gt;</span><br><span class="line">              &lt;!-- 增加一个分割线 --&gt;</span><br><span class="line">              &lt;md-divider&gt;&lt;/md-divider&gt;</span><br><span class="line">              &lt;div style=<span class="string">&quot;display: flex;&quot;</span>&gt;</span><br><span class="line">                &lt;!-- 这里对每一个插件会包装一个badge徽章,用途是判断它需不需要升级 --&gt;</span><br><span class="line">                &lt;!-- 如果需要升级,会出现一个NEW的角标 --&gt;</span><br><span class="line">                &lt;md-badge</span><br><span class="line">                  :<span class="class"><span class="keyword">class</span></span>=<span class="string">&quot;plugin.update_available ? &#x27;&#x27; : &#x27;hide-badge&#x27;&quot;</span></span><br><span class="line">                  <span class="class"><span class="keyword">class</span></span>=<span class="string">&quot;md-square md-primary&quot;</span></span><br><span class="line">                  md-dense</span><br><span class="line">                  md-content=<span class="string">&quot;NEW&quot;</span></span><br><span class="line">                &gt;</span><br><span class="line">                  &lt;!-- 这里是对插件的icon按钮点击后会出现的菜单进行定义 --&gt;</span><br><span class="line">                  &lt;md-menu md-size=<span class="string">&quot;medium&quot;</span>&gt;</span><br><span class="line">                    &lt;!-- 触发菜单的icon按钮定义 --&gt;</span><br><span class="line">                    &lt;md-button</span><br><span class="line">                      <span class="class"><span class="keyword">class</span></span>=<span class="string">&quot;md-icon-button&quot;</span></span><br><span class="line">                      :<span class="class"><span class="keyword">class</span></span>=<span class="string">&quot;plugin.running ? &#x27;md-accent&#x27; : &#x27;&#x27;&quot;</span></span><br><span class="line">                      md-menu-trigger</span><br><span class="line">                    &gt;</span><br><span class="line">                      &lt;!-- 插件的加载状态 --&gt;</span><br><span class="line">                      &lt;md-progress-spinner</span><br><span class="line">                        v-<span class="keyword">if</span>=<span class="string">&quot;plugin.initializing || plugin.terminating&quot;</span></span><br><span class="line">                        <span class="class"><span class="keyword">class</span></span>=<span class="string">&quot;md-accent&quot;</span></span><br><span class="line">                        :md-diameter=<span class="string">&quot;20&quot;</span></span><br><span class="line">                        md-mode=<span class="string">&quot;indeterminate&quot;</span></span><br><span class="line">                      &gt;&lt;/md-progress-spinner&gt;</span><br><span class="line">                      &lt;!-- icon会判断该插件有没有提供自定义的图标,如果没有,则使用默认的extension图标 --&gt;</span><br><span class="line">                      &lt;!-- 这个地方调用的就是之前入口文件所全局注册的PluginIcon组件 --&gt;</span><br><span class="line">                      &lt;plugin-icon</span><br><span class="line">                        v-<span class="keyword">else</span></span><br><span class="line">                        :icon=<span class="string">&quot;plugin.config.icon&quot;</span></span><br><span class="line">                      &gt;&lt;/plugin-icon&gt;</span><br><span class="line">                      &lt;!-- 按钮的工具提示信息 --&gt;</span><br><span class="line">                      &lt;md-tooltip v-<span class="keyword">if</span>=<span class="string">&quot;screenWidth &gt; 500&quot;</span>&gt;&#123;&#123;</span><br><span class="line">                        plugin.name + <span class="string">&quot;: &quot;</span> + plugin.config.description</span><br><span class="line">                      &#125;&#125;&lt;/md-tooltip&gt;</span><br><span class="line">                    &lt;/md-button&gt;</span><br><span class="line"></span><br><span class="line">                    &lt;!-- 点击icon按钮后弹出的菜单选项 --&gt;</span><br><span class="line">                    &lt;md-menu-content&gt;</span><br><span class="line">                      &lt;!-- Docs选项,绑定了showDoc方法 --&gt;</span><br><span class="line">                      &lt;md-menu-item @click=<span class="string">&quot;showDoc(plugin.id)&quot;</span>&gt;</span><br><span class="line">                        &lt;md-icon&gt;description&lt;/md-icon&gt;Docs</span><br><span class="line">                      &lt;/md-menu-item&gt;</span><br><span class="line">                      &lt;!-- Share选项,不一定会显示,有一个v-<span class="keyword">if</span>条件渲染 --&gt;</span><br><span class="line">                      &lt;md-menu-item</span><br><span class="line">                        v-<span class="keyword">if</span>=<span class="string">&quot;plugin.config.origin&quot;</span></span><br><span class="line">                        @click=<span class="string">&quot;sharePlugin(plugin.id)&quot;</span></span><br><span class="line">                      &gt;</span><br><span class="line">                        &lt;md-icon&gt;share&lt;/md-icon&gt;Share</span><br><span class="line">                      &lt;/md-menu-item&gt;</span><br><span class="line">                      &lt;!-- Export选项,绑定了downloadPlugin --&gt;</span><br><span class="line">                      &lt;md-menu-item @click=<span class="string">&quot;downloadPlugin(plugin.id)&quot;</span>&gt;</span><br><span class="line">                        &lt;md-icon&gt;cloud_download&lt;/md-icon&gt;Export</span><br><span class="line">                      &lt;/md-menu-item&gt;</span><br><span class="line">                      &lt;!-- Edit选项,绑定了editPlugin --&gt;</span><br><span class="line">                      &lt;md-menu-item @click=<span class="string">&quot;editPlugin(plugin.id)&quot;</span>&gt;</span><br><span class="line">                        &lt;md-icon&gt;edit&lt;/md-icon&gt;Edit</span><br><span class="line">                      &lt;/md-menu-item&gt;</span><br><span class="line">                      &lt;!-- Reload选项,绑定了reloadPlugin --&gt;</span><br><span class="line">                      &lt;md-menu-item @click=<span class="string">&quot;reloadPlugin(plugin.config)&quot;</span>&gt;</span><br><span class="line">                        &lt;md-icon&gt;autorenew&lt;/md-icon&gt;Reload</span><br><span class="line">                      &lt;/md-menu-item&gt;</span><br><span class="line">                      &lt;!-- Terminate选项,绑定了unloadPlugin --&gt;</span><br><span class="line">                      &lt;md-menu-item @click=<span class="string">&quot;unloadPlugin(plugin)&quot;</span>&gt;</span><br><span class="line">                        &lt;md-icon&gt;clear&lt;/md-icon&gt;Terminate</span><br><span class="line">                      &lt;/md-menu-item&gt;</span><br><span class="line">                      &lt;!-- Remove选项,绑定了removePlugin --&gt;</span><br><span class="line">                      &lt;md-menu-item</span><br><span class="line">                        <span class="class"><span class="keyword">class</span></span>=<span class="string">&quot;md-accent&quot;</span></span><br><span class="line">                        @click=<span class="string">&quot;removePlugin(plugin)&quot;</span></span><br><span class="line">                      &gt;</span><br><span class="line">                        &lt;md-icon&gt;delete_forever&lt;/md-icon&gt;Remove</span><br><span class="line">                      &lt;/md-menu-item&gt;</span><br><span class="line"></span><br><span class="line">                    &lt;/md-menu-content&gt;</span><br><span class="line">                  &lt;/md-menu&gt;</span><br><span class="line">                &lt;/md-badge&gt;</span><br><span class="line"></span><br><span class="line">                &lt;!-- 接下来就是由插件的名称所形成的按钮 --&gt;</span><br><span class="line">                &lt;!-- 对于需要链接到engine的插件,还会检测其状态,如果没有链接到engine上,就会disable该按钮,从而无法运行. --&gt;</span><br><span class="line">                &lt;!-- 对于鼠标操作,也附加了鼠标按钮修饰符,防止误操作,教程见:https:<span class="comment">//cn.vuejs.org/v2/guide/events.html --&gt;</span></span><br><span class="line">                &lt;!-- 点击该按钮后就会运行runOp方法 --&gt;</span><br><span class="line">                &lt;md-button</span><br><span class="line">                  <span class="class"><span class="keyword">class</span></span>=<span class="string">&quot;joy-run-button&quot;</span></span><br><span class="line">                  :<span class="class"><span class="keyword">class</span></span>=<span class="string">&quot;</span></span><br><span class="line"><span class="string">                    plugin.running</span></span><br><span class="line"><span class="string">                      ? &#x27;busy-plugin&#x27;</span></span><br><span class="line"><span class="string">                      : plugin._disconnected &amp;&amp; plugin.engine</span></span><br><span class="line"><span class="string">                      ? &#x27;md-accent&#x27;</span></span><br><span class="line"><span class="string">                      : &#x27;md-primary&#x27;</span></span><br><span class="line"><span class="string">                  &quot;</span></span><br><span class="line">                  :disabled=<span class="string">&quot;plugin._disconnected &amp;&amp; !plugin.engine&quot;</span></span><br><span class="line">                  @click.exact=<span class="string">&quot;</span></span><br><span class="line"><span class="string">                    plugin._disconnected</span></span><br><span class="line"><span class="string">                      ? connectPlugin(plugin)</span></span><br><span class="line"><span class="string">                      : runOp(plugin.ops[plugin.name])</span></span><br><span class="line"><span class="string">                  &quot;</span></span><br><span class="line">                  @click.right.exact=<span class="string">&quot;logPlugin(plugin)&quot;</span></span><br><span class="line">                &gt;</span><br><span class="line">                  &#123;&#123; plugin.config.name + <span class="string">&quot; &quot;</span> + plugin.config.badges &#125;&#125;</span><br><span class="line">                &lt;/md-button&gt;</span><br><span class="line"></span><br><span class="line">              &lt;/div&gt;</span><br><span class="line"></span><br><span class="line">              &lt;!-- 这个地方是ImJoy的核心!! --&gt;</span><br><span class="line">              &lt;!-- 此处也是ImJoy的名称的来源,即ImJoy来自于joy.js这个库 --&gt;</span><br><span class="line">              &lt;!-- 这个地方需要后面仔细研究机理 --&gt;</span><br><span class="line">              &lt;div</span><br><span class="line">                v-<span class="keyword">for</span>=<span class="string">&quot;op in plugin.ops&quot;</span></span><br><span class="line">                :key=<span class="string">&quot;op.plugin_id + op.name&quot;</span></span><br><span class="line">                v-show=<span class="string">&quot;true&quot;</span></span><br><span class="line">              &gt;</span><br><span class="line">                &lt;joy :config=<span class="string">&quot;op&quot;</span> :show=<span class="string">&quot;true&quot;</span>&gt;&lt;/joy&gt;</span><br><span class="line">              &lt;/div&gt;</span><br><span class="line">              &lt;md-divider&gt;&lt;/md-divider&gt;</span><br><span class="line">            &lt;/div&gt;</span><br><span class="line">            &lt;md-divider&gt;&lt;/md-divider&gt;</span><br><span class="line">          &lt;/md-card-content&gt;</span><br><span class="line">        &lt;/md-card&gt;</span><br><span class="line">      &lt;/md-app-drawer&gt;</span><br><span class="line"></span><br><span class="line">      &lt;!-- 接下来就是整个界面的第三部分,即内容区 --&gt;</span><br><span class="line">      &lt;md-app-content</span><br><span class="line">        :<span class="class"><span class="keyword">class</span></span>=<span class="string">&quot;workspace_dropping ? &#x27;file-dropping&#x27; : &#x27;&#x27;&quot;</span></span><br><span class="line">        <span class="class"><span class="keyword">class</span></span>=<span class="string">&quot;whiteboard-content&quot;</span></span><br><span class="line">      &gt;</span><br><span class="line">        &lt;!-- 就是引用了whiteboard这个组件 --&gt;</span><br><span class="line">        &lt;whiteboard</span><br><span class="line">          v-<span class="keyword">if</span>=<span class="string">&quot;wm&quot;</span></span><br><span class="line">          id=<span class="string">&quot;whiteboard&quot;</span></span><br><span class="line">          @create=<span class="string">&quot;createWindow($event)&quot;</span></span><br><span class="line">          :mode=<span class="string">&quot;wm.window_mode&quot;</span></span><br><span class="line">          :<span class="built_in">window</span>-manager=<span class="string">&quot;wm&quot;</span></span><br><span class="line">        &gt;&lt;/whiteboard&gt;</span><br><span class="line">      &lt;/md-app-content&gt;</span><br><span class="line"></span><br><span class="line">    &lt;!-- 以上就是整个界面的布局 --&gt;</span><br><span class="line">    &lt;/md-app&gt;</span><br><span class="line"></span><br><span class="line">    &lt;!-- 这个是消息提醒对话框，当某处调用showAlert()函数时会触发，比如api.alert时--&gt;</span><br><span class="line">    &lt;md-dialog-alert</span><br><span class="line">      <span class="class"><span class="keyword">class</span></span>=<span class="string">&quot;api-dialog&quot;</span></span><br><span class="line">      :md-active.sync=<span class="string">&quot;alert_config.show&quot;</span></span><br><span class="line">      :md-title=<span class="string">&quot;alert_config.title&quot;</span></span><br><span class="line">      :md-content=<span class="string">&quot;alert_config.content&quot;</span></span><br><span class="line">      :md-confirm-text=<span class="string">&quot;alert_config.confirm_text&quot;</span></span><br><span class="line">    /&gt;</span><br><span class="line"></span><br><span class="line">    &lt;!-- 这个是消息确认对话框，当某处调用showConfirm()函数时会触发，比如删除插件时 --&gt;</span><br><span class="line">    &lt;md-dialog-confirm</span><br><span class="line">      <span class="class"><span class="keyword">class</span></span>=<span class="string">&quot;api-dialog&quot;</span></span><br><span class="line">      :md-active.sync=<span class="string">&quot;confirm_config.show&quot;</span></span><br><span class="line">      :md-title=<span class="string">&quot;confirm_config.title&quot;</span></span><br><span class="line">      :md-content=<span class="string">&quot;confirm_config.content&quot;</span></span><br><span class="line">      :md-confirm-text=<span class="string">&quot;confirm_config.confirm_text&quot;</span></span><br><span class="line">      :md-cancel-text=<span class="string">&quot;confirm_config.canel_text&quot;</span></span><br><span class="line">      @md-confirm=<span class="string">&quot;confirm_config.confirm&quot;</span></span><br><span class="line">      @md-cancel=<span class="string">&quot;confirm_config.cancel&quot;</span></span><br><span class="line">    /&gt;</span><br><span class="line"></span><br><span class="line">    &lt;!-- 前面已分析到，点击添加Plugins后会触发如下插件对话框的弹出 --&gt;</span><br><span class="line">    &lt;md-dialog</span><br><span class="line">      <span class="class"><span class="keyword">class</span></span>=<span class="string">&quot;plugin-dialog&quot;</span></span><br><span class="line">      :md-active.sync=<span class="string">&quot;showAddPluginDialog&quot;</span></span><br><span class="line">      :md-click-outside-to-close=<span class="string">&quot;true&quot;</span></span><br><span class="line">    &gt;</span><br><span class="line">      &lt;!-- 设置该对话框的标题 --&gt;</span><br><span class="line">      &lt;md-dialog-title</span><br><span class="line">        &gt;&#123;&#123;</span><br><span class="line">          plugin4install ? <span class="string">&quot;Plugin Installation&quot;</span> : <span class="string">&quot;ImJoy Plugin Management&quot;</span></span><br><span class="line">        &#125;&#125;</span><br><span class="line">        &lt;!-- 在标题栏添加一个关闭按钮 --&gt;</span><br><span class="line">        &lt;md-button</span><br><span class="line">          <span class="class"><span class="keyword">class</span></span>=<span class="string">&quot;md-accent&quot;</span></span><br><span class="line">          style=<span class="string">&quot;position:absolute; top:8px; right:5px;&quot;</span></span><br><span class="line">          @click=<span class="string">&quot;</span></span><br><span class="line"><span class="string">            showAddPluginDialog = false;</span></span><br><span class="line"><span class="string">            clearPluginUrl();</span></span><br><span class="line"><span class="string">          &quot;</span></span><br><span class="line">          &gt;<span class="xml"><span class="tag">&lt;<span class="name">md-icon</span>&gt;</span>clear<span class="tag">&lt;/<span class="name">md-icon</span>&gt;</span></span>&lt;/md-button</span><br><span class="line">        &gt;&lt;/md-dialog-title</span><br><span class="line">      &gt;</span><br><span class="line">      &lt;!-- 以下是对话框的内容部分 --&gt;</span><br><span class="line">      &lt;!-- 原来的插件对话框有三种添加插件的方式：（<span class="number">1</span>）通过插件模板template编写插件（<span class="number">2</span>）输入插件url地址安装（<span class="number">3</span>）通过插件商店store安装 --&gt;</span><br><span class="line">      &lt;!-- 这里我们为了代码精简，只保留了第一种，保证能运行一个最简单的插件即可 --&gt;</span><br><span class="line">      &lt;md-dialog-content&gt;</span><br><span class="line">        &lt;template v-<span class="keyword">if</span>=<span class="string">&quot;show_plugin_templates&quot;</span>&gt;</span><br><span class="line">          &lt;md-menu&gt;</span><br><span class="line">            &lt;!-- 通过模板template添加插件的按钮 --&gt;</span><br><span class="line">            &lt;md-button <span class="class"><span class="keyword">class</span></span>=<span class="string">&quot;md-primary md-raised&quot;</span> md-menu-trigger&gt;</span><br><span class="line">              &lt;md-icon&gt;add&lt;/md-icon&gt;Create a <span class="keyword">new</span> plugin</span><br><span class="line">              &lt;md-tooltip&gt;Create a <span class="keyword">new</span> plugin&lt;/md-tooltip&gt;</span><br><span class="line">            &lt;/md-button&gt;</span><br><span class="line">            &lt;!-- 点击上面按钮后弹出的菜单 --&gt;</span><br><span class="line">            &lt;md-menu-content&gt;</span><br><span class="line">              &lt;!-- 菜单项会对所有的模板进行遍历展示 --&gt;</span><br><span class="line">              &lt;!-- 每个菜单项也都会将鼠标点击事件绑定到newPlugin方法上 --&gt;</span><br><span class="line">              &lt;!-- 该方法会通过createWindow创建plugin-editor类型的窗口，即代码编辑器 --&gt;</span><br><span class="line">              &lt;md-menu-item</span><br><span class="line">                @click=<span class="string">&quot;</span></span><br><span class="line"><span class="string">                  newPlugin(template.code);</span></span><br><span class="line"><span class="string">                  showAddPluginDialog = false;</span></span><br><span class="line"><span class="string">                &quot;</span></span><br><span class="line">                v-<span class="keyword">for</span>=<span class="string">&quot;template in plugin_templates&quot;</span></span><br><span class="line">                :key=<span class="string">&quot;template.name&quot;</span></span><br><span class="line">              &gt;</span><br><span class="line">                &lt;md-icon&gt;&#123;&#123; template.icon &#125;&#125;&lt;/md-icon</span><br><span class="line">                &gt;&#123;&#123; template.name &#125;&#125;</span><br><span class="line">              &lt;/md-menu-item&gt;</span><br><span class="line">            &lt;/md-menu-content&gt;</span><br><span class="line">          &lt;/md-menu&gt;</span><br><span class="line">          &lt;br /&gt;</span><br><span class="line">          &lt;br /&gt;</span><br><span class="line">        &lt;/template&gt;</span><br><span class="line"></span><br><span class="line">      &lt;/md-dialog-content&gt;</span><br><span class="line">    &lt;/md-dialog&gt;</span><br><span class="line">  &lt;/div&gt;</span><br><span class="line">&lt;/template&gt;</span><br></pre></td></tr></table></figure>
+<h1 id="script代码"><a href="#script代码" class="headerlink" title="script代码"></a>script代码</h1><p>通过上述template文件的解析，发现插件被点击运行时执行的函数是runOp方法。<br>该代码解析留坑待填。</p>
+
+    </div>
+
+    
+    
+    
+        <div class="reward-container">
+  <div></div>
+  <button onclick="var qr = document.getElementById('qr'); qr.style.display = (qr.style.display === 'none') ? 'block' : 'none';">
+    Donate
+  </button>
+  <div id="qr" style="display: none;">
+      
+      <div style="display: inline-block;">
+        <img src="/images/wechat_reward.png" alt="Xin-Bo Qi(亓欣波) WeChat Pay">
+        <p>WeChat Pay</p>
+      </div>
+
+  </div>
+</div>
+
+
+      <footer class="post-footer">
+          <div class="post-tags">
+              <a href="/tags/ImJoy/" rel="tag"># ImJoy</a>
+          </div>
+
+        
+
+
+        
+    <div class="post-nav">
+      <div class="post-nav-item">
+    <a href="/2022/02/27/ImJoy_10/" rel="prev" title="开源深度学习计算平台ImJoy解析：10 -- ImJoy主站之入口文件">
+      <i class="fa fa-chevron-left"></i> 开源深度学习计算平台ImJoy解析：10 -- ImJoy主站之入口文件
+    </a></div>
+      <div class="post-nav-item"></div>
+    </div>
+      </footer>
+    
+  </article>
+  
+  
+  
+
+
+
+          </div>
+          
+    
+  <div class="comments">
+    <div id="disqus_thread">
+      <noscript>Please enable JavaScript to view the comments powered by Disqus.</noscript>
+    </div>
+  </div>
+  
+
+<script>
+  window.addEventListener('tabs:register', () => {
+    let { activeClass } = CONFIG.comments;
+    if (CONFIG.comments.storage) {
+      activeClass = localStorage.getItem('comments_active') || activeClass;
+    }
+    if (activeClass) {
+      let activeTab = document.querySelector(`a[href="#comment-${activeClass}"]`);
+      if (activeTab) {
+        activeTab.click();
+      }
+    }
+  });
+  if (CONFIG.comments.storage) {
+    window.addEventListener('tabs:click', event => {
+      if (!event.target.matches('.tabs-comment .tab-content .tab-pane')) return;
+      let commentClass = event.target.classList[1];
+      localStorage.setItem('comments_active', commentClass);
+    });
+  }
+</script>
+
+        </div>
+          
+  
+  <div class="toggle sidebar-toggle">
+    <span class="toggle-line toggle-line-first"></span>
+    <span class="toggle-line toggle-line-middle"></span>
+    <span class="toggle-line toggle-line-last"></span>
+  </div>
+
+  <aside class="sidebar">
+    <div class="sidebar-inner">
+
+      <ul class="sidebar-nav motion-element">
+        <li class="sidebar-nav-toc">
+          Table of Contents
+        </li>
+        <li class="sidebar-nav-overview">
+          Overview
+        </li>
+      </ul>
+
+      <!--noindex-->
+      <div class="post-toc-wrap sidebar-panel">
+          <div class="post-toc motion-element"><ol class="nav"><li class="nav-item nav-level-1"><a class="nav-link" href="#%E7%AE%80%E4%BB%8B"><span class="nav-number">1.</span> <span class="nav-text">简介</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#template%E4%BB%A3%E7%A0%81"><span class="nav-number">2.</span> <span class="nav-text">template代码</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#script%E4%BB%A3%E7%A0%81"><span class="nav-number">3.</span> <span class="nav-text">script代码</span></a></li></ol></div>
+      </div>
+      <!--/noindex-->
+
+      <div class="site-overview-wrap sidebar-panel">
+        <div class="site-author motion-element" itemprop="author" itemscope itemtype="http://schema.org/Person">
+    <img class="site-author-image" itemprop="image" alt="Xin-Bo Qi(亓欣波)"
+      src="/images/avatar.jpg">
+  <p class="site-author-name" itemprop="name">Xin-Bo Qi(亓欣波)</p>
+  <div class="site-description" itemprop="description">Digitize everything to realize Digitalization!</div>
+</div>
+<div class="site-state-wrap motion-element">
+  <nav class="site-state">
+      <div class="site-state-item site-state-posts">
+          <a href="/archives/">
+        
+          <span class="site-state-item-count">148</span>
+          <span class="site-state-item-name">posts</span>
+        </a>
+      </div>
+      <div class="site-state-item site-state-categories">
+            <a href="/categories/">
+          
+        <span class="site-state-item-count">6</span>
+        <span class="site-state-item-name">categories</span></a>
+      </div>
+      <div class="site-state-item site-state-tags">
+            <a href="/tags/">
+          
+        <span class="site-state-item-count">49</span>
+        <span class="site-state-item-name">tags</span></a>
+      </div>
+  </nav>
+</div>
+  <div class="links-of-author motion-element">
+      <span class="links-of-author-item">
+        <a href="https://github.com/qixinbo" title="GitHub → https:&#x2F;&#x2F;github.com&#x2F;qixinbo" rel="noopener" target="_blank"><i class="github fa-fw"></i>GitHub</a>
+      </span>
+      <span class="links-of-author-item">
+        <a href="mailto:qixinbo@gmail.com" title="E-Mail → mailto:qixinbo@gmail.com" rel="noopener" target="_blank"><i class="envelope fa-fw"></i>E-Mail</a>
+      </span>
+      <span class="links-of-author-item">
+        <a href="https://twitter.com/qixinbo" title="Twitter → https:&#x2F;&#x2F;twitter.com&#x2F;qixinbo" rel="noopener" target="_blank"><i class="fab fa-twitter fa-fw"></i>Twitter</a>
+      </span>
+      <span class="links-of-author-item">
+        <a href="/atom.xml" title="RSS → &#x2F;atom.xml"><i class="fas fa-rss fa-fw"></i>RSS</a>
+      </span>
+  </div>
+
+
+  <div class="links-of-blogroll motion-element">
+    <div class="links-of-blogroll-title"><i class="fa fa-link fa-fw"></i>
+      Links
+    </div>
+    <ul class="links-of-blogroll-list">
+        <li class="links-of-blogroll-item">
+          <a href="https://www.tsinghua.edu.cn/" title="https:&#x2F;&#x2F;www.tsinghua.edu.cn" rel="noopener" target="_blank">THU</a>
+        </li>
+        <li class="links-of-blogroll-item">
+          <a href="http://www.imr.cas.cn/" title="http:&#x2F;&#x2F;www.imr.cas.cn" rel="noopener" target="_blank">IMR</a>
+        </li>
+        <li class="links-of-blogroll-item">
+          <a href="http://www.sdu.edu.cn/" title="http:&#x2F;&#x2F;www.sdu.edu.cn" rel="noopener" target="_blank">SDU</a>
+        </li>
+        <li class="links-of-blogroll-item">
+          <a href="http://liam0205.me/" title="http:&#x2F;&#x2F;liam0205.me&#x2F;" rel="noopener" target="_blank">黄晨成</a>
+        </li>
+    </ul>
+  </div>
+
+      </div>
+
+    </div>
+  </aside>
+  <div id="sidebar-dimmer"></div>
+
+
+      </div>
+    </main>
+
+    <footer class="footer">
+      <div class="footer-inner">
+        
+
+        
+
+<div class="copyright">
+  
+  &copy; 
+  <span itemprop="copyrightYear">2022</span>
+  <span class="with-love">
+    <i class="fa fa-heart"></i>
+  </span>
+  <span class="author" itemprop="copyrightHolder">Xin-Bo Qi(亓欣波)</span>
+</div>
+  <div class="powered-by">Powered by <a href="https://hexo.io/" class="theme-link" rel="noopener" target="_blank">Hexo</a> & <a href="https://theme-next.org/" class="theme-link" rel="noopener" target="_blank">NexT.Gemini</a>
+  </div>
+
+        
+
+
+
+
+
+
+
+
+      </div>
+    </footer>
+  </div>
+
+  
+  <script src="/lib/anime.min.js"></script>
+  <script src="/lib/velocity/velocity.min.js"></script>
+  <script src="/lib/velocity/velocity.ui.min.js"></script>
+
+<script src="/js/utils.js"></script>
+
+<script src="/js/motion.js"></script>
+
+
+<script src="/js/schemes/pisces.js"></script>
+
+
+<script src="/js/next-boot.js"></script>
+
+
+
+
+  
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+  
+
+  
+      
+
+<script>
+  if (typeof MathJax === 'undefined') {
+    window.MathJax = {
+      loader: {
+        source: {
+          '[tex]/amsCd': '[tex]/amscd',
+          '[tex]/AMScd': '[tex]/amscd'
+        }
+      },
+      tex: {
+        inlineMath: {'[+]': [['$', '$']]},
+        tags: 'ams'
+      },
+      options: {
+        renderActions: {
+          findScript: [10, doc => {
+            document.querySelectorAll('script[type^="math/tex"]').forEach(node => {
+              const display = !!node.type.match(/; *mode=display/);
+              const math = new doc.options.MathItem(node.textContent, doc.inputJax[0], display);
+              const text = document.createTextNode('');
+              node.parentNode.replaceChild(text, node);
+              math.start = {node: text, delim: '', n: 0};
+              math.end = {node: text, delim: '', n: 0};
+              doc.math.push(math);
+            });
+          }, '', false],
+          insertedScript: [200, () => {
+            document.querySelectorAll('mjx-container').forEach(node => {
+              let target = node.parentNode;
+              if (target.nodeName.toLowerCase() === 'li') {
+                target.parentNode.classList.add('has-jax');
+              }
+            });
+          }, '', false]
+        }
+      }
+    };
+    (function () {
+      var script = document.createElement('script');
+      script.src = '//cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js';
+      script.defer = true;
+      document.head.appendChild(script);
+    })();
+  } else {
+    MathJax.startup.document.state(0);
+    MathJax.texReset();
+    MathJax.typeset();
+  }
+</script>
+
+    
+
+  
+
+<script>
+  function loadCount() {
+    var d = document, s = d.createElement('script');
+    s.src = 'https://qixinbo.disqus.com/count.js';
+    s.id = 'dsq-count-scr';
+    (d.head || d.body).appendChild(s);
+  }
+  // defer loading until the whole page loading is completed
+  window.addEventListener('load', loadCount, false);
+</script>
+<script>
+  var disqus_config = function() {
+    this.page.url = "http://qixinbo.github.io/2022/02/28/ImJoy_11/";
+    this.page.identifier = "2022/02/28/ImJoy_11/";
+    this.page.title = "开源深度学习计算平台ImJoy解析：11 -- ImJoy主站之主组件";
+    };
+  NexT.utils.loadComments(document.querySelector('#disqus_thread'), () => {
+    if (window.DISQUS) {
+      DISQUS.reset({
+        reload: true,
+        config: disqus_config
+      });
+    } else {
+      var d = document, s = d.createElement('script');
+      s.src = 'https://qixinbo.disqus.com/embed.js';
+      s.setAttribute('data-timestamp', '' + +new Date());
+      (d.head || d.body).appendChild(s);
+    }
+  });
+</script>
+
+</body>
+</html>

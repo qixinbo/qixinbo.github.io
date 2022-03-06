@@ -184,6 +184,232 @@
   
   
   <article itemscope itemtype="http://schema.org/Article" class="post-block" lang="en">
+    <link itemprop="mainEntityOfPage" href="http://qixinbo.github.io/2019/11/17/ImagePy_14/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="image" content="/images/avatar.jpg">
+      <meta itemprop="name" content="Xin-Bo Qi(亓欣波)">
+      <meta itemprop="description" content="Digitize everything to realize Digitalization!">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="数字旗手">
+    </span>
+      <header class="post-header">
+        <h2 class="post-title" itemprop="name headline">
+          
+            <a href="/2019/11/17/ImagePy_14/" class="post-title-link" itemprop="url">ImagePy解析：14 -- 寻找局部极值（Find Maximum和Find Minimum）</a>
+        </h2>
+
+        <div class="post-meta">
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="far fa-calendar"></i>
+              </span>
+              <span class="post-meta-item-text">Posted on</span>
+
+              <time title="Created: 2019-11-17 00:00:00" itemprop="dateCreated datePublished" datetime="2019-11-17T00:00:00+08:00">2019-11-17</time>
+            </span>
+              <span class="post-meta-item">
+                <span class="post-meta-item-icon">
+                  <i class="far fa-calendar-check"></i>
+                </span>
+                <span class="post-meta-item-text">Edited on</span>
+                <time title="Modified: 2021-03-26 15:43:58" itemprop="dateModified" datetime="2021-03-26T15:43:58+08:00">2021-03-26</time>
+              </span>
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="far fa-folder"></i>
+              </span>
+              <span class="post-meta-item-text">In</span>
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+                  <a href="/categories/computer-vision/" itemprop="url" rel="index"><span itemprop="name">computer vision</span></a>
+                </span>
+            </span>
+
+          
+  
+  <span class="post-meta-item">
+    
+      <span class="post-meta-item-icon">
+        <i class="far fa-comment"></i>
+      </span>
+      <span class="post-meta-item-text">Disqus: </span>
+    
+    <a title="disqus" href="/2019/11/17/ImagePy_14/#disqus_thread" itemprop="discussionUrl">
+      <span class="post-comments-count disqus-comment-count" data-disqus-identifier="2019/11/17/ImagePy_14/" itemprop="commentCount"></span>
+    </a>
+  </span>
+  
+  
+
+        </div>
+      </header>
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+          源码在：这里
+还有一篇参考文献：局部极值提取算法
+
+图像准备
+首先创建一张10 pixels乘以10 pixels的背底黑色、中间白色的图像，如下图所示（下图仅是为了显示，实际图像是100个像素的面积大小，这样是为了后面显示像素矩阵时更方便）：
+
+然后上面这张图像不能直接传入findmax脚本中，实际用到的是它的距离变换图（注意将这张图的显示范围调整为0-3，因为面积很小，所以距离很近，如果正常0-255显示则就是一片黑色）：
+
+这张图像的像素矩阵就是：
+1
+2
+3
+4
+5
+6
+7
+8
+9
+10
+
+
+[[0 0 0 0 0 0 0 0 0 0]
+ [0 0 0 0 0 0 0 0 0 0]
+ 
+          <!--noindex-->
+            <div class="post-button">
+              <a class="btn" href="/2019/11/17/ImagePy_14/#more" rel="contents">
+                Read more &raquo;
+              </a>
+            </div>
+          <!--/noindex-->
+        
+      
+    </div>
+
+    
+    
+    
+      <footer class="post-footer">
+        <div class="post-eof"></div>
+      </footer>
+  </article>
+  
+  
+  
+
+      
+  
+  
+  <article itemscope itemtype="http://schema.org/Article" class="post-block" lang="en">
+    <link itemprop="mainEntityOfPage" href="http://qixinbo.github.io/2019/11/04/ImagePy_13/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="image" content="/images/avatar.jpg">
+      <meta itemprop="name" content="Xin-Bo Qi(亓欣波)">
+      <meta itemprop="description" content="Digitize everything to realize Digitalization!">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="数字旗手">
+    </span>
+      <header class="post-header">
+        <h2 class="post-title" itemprop="name headline">
+          
+            <a href="/2019/11/04/ImagePy_13/" class="post-title-link" itemprop="url">ImagePy解析：13 -- Macros引擎及宏录制</a>
+        </h2>
+
+        <div class="post-meta">
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="far fa-calendar"></i>
+              </span>
+              <span class="post-meta-item-text">Posted on</span>
+
+              <time title="Created: 2019-11-04 00:00:00" itemprop="dateCreated datePublished" datetime="2019-11-04T00:00:00+08:00">2019-11-04</time>
+            </span>
+              <span class="post-meta-item">
+                <span class="post-meta-item-icon">
+                  <i class="far fa-calendar-check"></i>
+                </span>
+                <span class="post-meta-item-text">Edited on</span>
+                <time title="Modified: 2021-03-26 15:43:55" itemprop="dateModified" datetime="2021-03-26T15:43:55+08:00">2021-03-26</time>
+              </span>
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="far fa-folder"></i>
+              </span>
+              <span class="post-meta-item-text">In</span>
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+                  <a href="/categories/computer-vision/" itemprop="url" rel="index"><span itemprop="name">computer vision</span></a>
+                </span>
+            </span>
+
+          
+  
+  <span class="post-meta-item">
+    
+      <span class="post-meta-item-icon">
+        <i class="far fa-comment"></i>
+      </span>
+      <span class="post-meta-item-text">Disqus: </span>
+    
+    <a title="disqus" href="/2019/11/04/ImagePy_13/#disqus_thread" itemprop="discussionUrl">
+      <span class="post-comments-count disqus-comment-count" data-disqus-identifier="2019/11/04/ImagePy_13/" itemprop="commentCount"></span>
+    </a>
+  </span>
+  
+  
+
+        </div>
+      </header>
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+          参考文献：
+ImagePy开发文档 —— 宏引擎
+Macros 插件
+
+Macros 是一个宏执行器引擎，它负责将一串 ImagePy 命令依次执行。 事实上我们几乎不会去继承 Macros，它仅仅是 ImagePy 为了实现宏功能，并统一为一种引擎接口而设计的辅助类。
+因此，Macros引擎常见的用法是：首先通过宏录制器来完成记录，宏录制器在Plugins > Macros> Macros Recorder， 然后将录制的命令保存到menus或其子文件夹里，以mc作为后缀，重启即可加载到对应位置。（语出上面的参考文献）
+
+Macros引擎
+先来看一下Macros类的全貌：
+1
+2
+3
+4
+5
+          <!--noindex-->
+            <div class="post-button">
+              <a class="btn" href="/2019/11/04/ImagePy_13/#more" rel="contents">
+                Read more &raquo;
+              </a>
+            </div>
+          <!--/noindex-->
+        
+      
+    </div>
+
+    
+    
+    
+      <footer class="post-footer">
+        <div class="post-eof"></div>
+      </footer>
+  </article>
+  
+  
+  
+
+      
+  
+  
+  <article itemscope itemtype="http://schema.org/Article" class="post-block" lang="en">
     <link itemprop="mainEntityOfPage" href="http://qixinbo.github.io/2019/10/29/ImagePy_12/">
 
     <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
@@ -1069,210 +1295,6 @@ class Plugin(Free):
   
   
 
-      
-  
-  
-  <article itemscope itemtype="http://schema.org/Article" class="post-block" lang="en">
-    <link itemprop="mainEntityOfPage" href="http://qixinbo.github.io/2019/09/30/ImagePy_7/">
-
-    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
-      <meta itemprop="image" content="/images/avatar.jpg">
-      <meta itemprop="name" content="Xin-Bo Qi(亓欣波)">
-      <meta itemprop="description" content="Digitize everything to realize Digitalization!">
-    </span>
-
-    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
-      <meta itemprop="name" content="数字旗手">
-    </span>
-      <header class="post-header">
-        <h2 class="post-title" itemprop="name headline">
-          
-            <a href="/2019/09/30/ImagePy_7/" class="post-title-link" itemprop="url">ImagePy解析：7 -- ImagePy插件运行解析</a>
-        </h2>
-
-        <div class="post-meta">
-            <span class="post-meta-item">
-              <span class="post-meta-item-icon">
-                <i class="far fa-calendar"></i>
-              </span>
-              <span class="post-meta-item-text">Posted on</span>
-
-              <time title="Created: 2019-09-30 00:00:00" itemprop="dateCreated datePublished" datetime="2019-09-30T00:00:00+08:00">2019-09-30</time>
-            </span>
-              <span class="post-meta-item">
-                <span class="post-meta-item-icon">
-                  <i class="far fa-calendar-check"></i>
-                </span>
-                <span class="post-meta-item-text">Edited on</span>
-                <time title="Modified: 2021-03-26 15:45:06" itemprop="dateModified" datetime="2021-03-26T15:45:06+08:00">2021-03-26</time>
-              </span>
-            <span class="post-meta-item">
-              <span class="post-meta-item-icon">
-                <i class="far fa-folder"></i>
-              </span>
-              <span class="post-meta-item-text">In</span>
-                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
-                  <a href="/categories/computer-vision/" itemprop="url" rel="index"><span itemprop="name">computer vision</span></a>
-                </span>
-            </span>
-
-          
-  
-  <span class="post-meta-item">
-    
-      <span class="post-meta-item-icon">
-        <i class="far fa-comment"></i>
-      </span>
-      <span class="post-meta-item-text">Disqus: </span>
-    
-    <a title="disqus" href="/2019/09/30/ImagePy_7/#disqus_thread" itemprop="discussionUrl">
-      <span class="post-comments-count disqus-comment-count" data-disqus-identifier="2019/09/30/ImagePy_7/" itemprop="commentCount"></span>
-    </a>
-  </span>
-  
-  
-
-        </div>
-      </header>
-
-    
-    
-    
-    <div class="post-body" itemprop="articleBody">
-
-      
-          %%%%%%%%%%%% 更新日志 %%%%%%%%%%%%%
-2019-10-13 更新：修正之前关于自定义控件的Bind()函数的解释、增加对GUI界面绘制的理解
-2019-10-4 更新：增加参数对话框ParaDiglog部分的解析
-%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-
-参考文献：
-Demo Plugin
-ImagePy开发文档 —— 自由引擎
-
-这一篇解析ImagePy的插件的编写规则、运行机理。
-
-ImagePy的自由引擎Free engine解析
-在第一篇解析中已提到，ImagePy提前定义了多种引擎，来作为插件的基类，如Filter类作为滤波器基类。这里
-          <!--noindex-->
-            <div class="post-button">
-              <a class="btn" href="/2019/09/30/ImagePy_7/#more" rel="contents">
-                Read more &raquo;
-              </a>
-            </div>
-          <!--/noindex-->
-        
-      
-    </div>
-
-    
-    
-    
-      <footer class="post-footer">
-        <div class="post-eof"></div>
-      </footer>
-  </article>
-  
-  
-  
-
-      
-  
-  
-  <article itemscope itemtype="http://schema.org/Article" class="post-block" lang="en">
-    <link itemprop="mainEntityOfPage" href="http://qixinbo.github.io/2019/09/07/ImagePy_6/">
-
-    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
-      <meta itemprop="image" content="/images/avatar.jpg">
-      <meta itemprop="name" content="Xin-Bo Qi(亓欣波)">
-      <meta itemprop="description" content="Digitize everything to realize Digitalization!">
-    </span>
-
-    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
-      <meta itemprop="name" content="数字旗手">
-    </span>
-      <header class="post-header">
-        <h2 class="post-title" itemprop="name headline">
-          
-            <a href="/2019/09/07/ImagePy_6/" class="post-title-link" itemprop="url">ImagePy解析：6 -- wxPython GDI绘图和FloatCanvas</a>
-        </h2>
-
-        <div class="post-meta">
-            <span class="post-meta-item">
-              <span class="post-meta-item-icon">
-                <i class="far fa-calendar"></i>
-              </span>
-              <span class="post-meta-item-text">Posted on</span>
-
-              <time title="Created: 2019-09-07 00:00:00" itemprop="dateCreated datePublished" datetime="2019-09-07T00:00:00+08:00">2019-09-07</time>
-            </span>
-              <span class="post-meta-item">
-                <span class="post-meta-item-icon">
-                  <i class="far fa-calendar-check"></i>
-                </span>
-                <span class="post-meta-item-text">Edited on</span>
-                <time title="Modified: 2021-03-26 15:45:02" itemprop="dateModified" datetime="2021-03-26T15:45:02+08:00">2021-03-26</time>
-              </span>
-            <span class="post-meta-item">
-              <span class="post-meta-item-icon">
-                <i class="far fa-folder"></i>
-              </span>
-              <span class="post-meta-item-text">In</span>
-                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
-                  <a href="/categories/computer-vision/" itemprop="url" rel="index"><span itemprop="name">computer vision</span></a>
-                </span>
-            </span>
-
-          
-  
-  <span class="post-meta-item">
-    
-      <span class="post-meta-item-icon">
-        <i class="far fa-comment"></i>
-      </span>
-      <span class="post-meta-item-text">Disqus: </span>
-    
-    <a title="disqus" href="/2019/09/07/ImagePy_6/#disqus_thread" itemprop="discussionUrl">
-      <span class="post-comments-count disqus-comment-count" data-disqus-identifier="2019/09/07/ImagePy_6/" itemprop="commentCount"></span>
-    </a>
-  </span>
-  
-  
-
-        </div>
-      </header>
-
-    
-    
-    
-    <div class="post-body" itemprop="articleBody">
-
-      
-          序言：
-本文的成文与ImagePy没有直接关系，但有相当大的间接关系。起因是我在自己的程序中想集成一个可以自由缩放且绘点的画布工具，发现ImagePy的canvas能够很好地满足需求，但无奈ImagePy的源码看不懂，自己想抽离这个canvas也没抽离出来。后经霄龙提醒，发现wxPython的FloatCanvas也有这些基本功能，所以就有了对FloatCanvas和wxPython GDI绘图进行学习的本文。
-更让人欣喜的是，在我弄懂了FloatCanvas的用法、且实现一个基础demo之际，霄龙将ImagePy中的canvas迅速剥离了出来，可以单独调用，同时提供了掩膜模式，可以更好地进行
-          <!--noindex-->
-            <div class="post-button">
-              <a class="btn" href="/2019/09/07/ImagePy_6/#more" rel="contents">
-                Read more &raquo;
-              </a>
-            </div>
-          <!--/noindex-->
-        
-      
-    </div>
-
-    
-    
-    
-      <footer class="post-footer">
-        <div class="post-eof"></div>
-      </footer>
-  </article>
-  
-  
-  
-
 
   
   <nav class="pagination">
@@ -1344,7 +1366,7 @@ ImagePy的自由引擎Free engine解析
       <div class="site-state-item site-state-posts">
           <a href="/archives/">
         
-          <span class="site-state-item-count">146</span>
+          <span class="site-state-item-count">148</span>
           <span class="site-state-item-name">posts</span>
         </a>
       </div>
