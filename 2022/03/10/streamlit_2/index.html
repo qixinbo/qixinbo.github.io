@@ -1,0 +1,607 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=2">
+<meta name="theme-color" content="#222">
+<meta name="generator" content="Hexo 5.4.0">
+  <link rel="apple-touch-icon" sizes="180x180" href="/images/apple-touch-icon-next.png">
+  <link rel="icon" type="image/png" sizes="32x32" href="/favicon.ico">
+  <link rel="icon" type="image/png" sizes="16x16" href="/favicon.ico">
+  <link rel="mask-icon" href="/images/logo.svg" color="#222">
+
+<link rel="stylesheet" href="/css/main.css">
+
+
+<link rel="stylesheet" href="/lib/font-awesome/css/all.min.css">
+
+<script id="hexo-configurations">
+    var NexT = window.NexT || {};
+    var CONFIG = {"hostname":"qixinbo.github.io","root":"/","scheme":"Gemini","version":"7.8.0","exturl":false,"sidebar":{"position":"left","display":"post","padding":18,"offset":12,"onmobile":false},"copycode":{"enable":false,"show_result":false,"style":null},"back2top":{"enable":true,"sidebar":false,"scrollpercent":false},"bookmark":{"enable":false,"color":"#222","save":"auto"},"fancybox":false,"mediumzoom":false,"lazyload":false,"pangu":false,"comments":{"style":"tabs","active":null,"storage":true,"lazyload":false,"nav":null},"algolia":{"hits":{"per_page":10},"labels":{"input_placeholder":"Search for Posts","hits_empty":"We didn't find any results for the search: ${query}","hits_stats":"${hits} results found in ${time} ms"}},"localsearch":{"enable":false,"trigger":"auto","top_n_per_article":1,"unescape":false,"preload":false},"motion":{"enable":true,"async":false,"transition":{"post_block":"fadeIn","post_header":"slideDownIn","post_body":"slideDownIn","coll_header":"slideLeftIn","sidebar":"slideUpIn"}}};
+  </script>
+
+  <meta name="description" content="简介 在Streamlit中，与一个部件widget的交互会触发“重新运行”rerun，这样一来每次运行后代码中的变量都会被重新初始化。这可能会带来很麻烦的问题，比如实现一个简单的“累加计数按钮”，每次点击后都会清零，无法实现累加功能。 为了解决类似问题，Streamlit引入了一种新的特性：会话状态Session State，它是一种可以在rerun之间保存变量状态、配合使用回调函数处理部件上的">
+<meta property="og:type" content="article">
+<meta property="og:title" content="用Python开发web应用——Streamlit框架解析：2 -- 会话状态">
+<meta property="og:url" content="http://qixinbo.github.io/2022/03/10/streamlit_2/index.html">
+<meta property="og:site_name" content="数字旗手">
+<meta property="og:description" content="简介 在Streamlit中，与一个部件widget的交互会触发“重新运行”rerun，这样一来每次运行后代码中的变量都会被重新初始化。这可能会带来很麻烦的问题，比如实现一个简单的“累加计数按钮”，每次点击后都会清零，无法实现累加功能。 为了解决类似问题，Streamlit引入了一种新的特性：会话状态Session State，它是一种可以在rerun之间保存变量状态、配合使用回调函数处理部件上的">
+<meta property="og:locale" content="en_US">
+<meta property="og:image" content="https://user-images.githubusercontent.com/6218739/157572549-24b73b56-bd8d-4f5b-8825-c66eb25e0449.svg">
+<meta property="article:published_time" content="2022-03-09T16:00:00.000Z">
+<meta property="article:modified_time" content="2022-03-10T06:31:51.426Z">
+<meta property="article:author" content="Xin-Bo Qi(亓欣波)">
+<meta property="article:tag" content="Streamlit">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:image" content="https://user-images.githubusercontent.com/6218739/157572549-24b73b56-bd8d-4f5b-8825-c66eb25e0449.svg">
+
+<link rel="canonical" href="http://qixinbo.github.io/2022/03/10/streamlit_2/">
+
+
+<script id="page-configurations">
+  // https://hexo.io/docs/variables.html
+  CONFIG.page = {
+    sidebar: "",
+    isHome : false,
+    isPost : true,
+    lang   : 'en'
+  };
+</script>
+
+  <title>用Python开发web应用——Streamlit框架解析：2 -- 会话状态 | 数字旗手</title>
+  
+
+
+
+
+
+
+  <noscript>
+  <style>
+  .use-motion .brand,
+  .use-motion .menu-item,
+  .sidebar-inner,
+  .use-motion .post-block,
+  .use-motion .pagination,
+  .use-motion .comments,
+  .use-motion .post-header,
+  .use-motion .post-body,
+  .use-motion .collection-header { opacity: initial; }
+
+  .use-motion .site-title,
+  .use-motion .site-subtitle {
+    opacity: initial;
+    top: initial;
+  }
+
+  .use-motion .logo-line-before i { left: initial; }
+  .use-motion .logo-line-after i { right: initial; }
+  </style>
+</noscript>
+
+<link rel="alternate" href="/atom.xml" title="数字旗手" type="application/atom+xml">
+</head>
+
+<body itemscope itemtype="http://schema.org/WebPage">
+  <div class="container use-motion">
+    <div class="headband"></div>
+
+    <header class="header" itemscope itemtype="http://schema.org/WPHeader">
+      <div class="header-inner"><div class="site-brand-container">
+  <div class="site-nav-toggle">
+    <div class="toggle" aria-label="Toggle navigation bar">
+      <span class="toggle-line toggle-line-first"></span>
+      <span class="toggle-line toggle-line-middle"></span>
+      <span class="toggle-line toggle-line-last"></span>
+    </div>
+  </div>
+
+  <div class="site-meta">
+
+    <a href="/" class="brand" rel="start">
+      <span class="logo-line-before"><i></i></span>
+      <h1 class="site-title">数字旗手</h1>
+      <span class="logo-line-after"><i></i></span>
+    </a>
+      <p class="site-subtitle" itemprop="description">电气化、自动化、数字化、智能化、智慧化</p>
+  </div>
+
+  <div class="site-nav-right">
+    <div class="toggle popup-trigger">
+    </div>
+  </div>
+</div>
+
+
+
+
+<nav class="site-nav">
+  <ul id="menu" class="main-menu menu">
+        <li class="menu-item menu-item-home">
+
+    <a href="/" rel="section"><i class="fa fa-home fa-fw"></i>Home</a>
+
+  </li>
+        <li class="menu-item menu-item-categories">
+
+    <a href="/categories/" rel="section"><i class="fa fa-th fa-fw"></i>Categories</a>
+
+  </li>
+        <li class="menu-item menu-item-archives">
+
+    <a href="/archives/" rel="section"><i class="fa fa-archive fa-fw"></i>Archives</a>
+
+  </li>
+        <li class="menu-item menu-item-tags">
+
+    <a href="/tags/" rel="section"><i class="fa fa-tags fa-fw"></i>Tags</a>
+
+  </li>
+        <li class="menu-item menu-item-scholar">
+
+    <a href="/scholar/" rel="section"><i class="fa fa-chart-bar fa-fw"></i>scholar</a>
+
+  </li>
+        <li class="menu-item menu-item-sources">
+
+    <a href="/sources/" rel="section"><i class="fa fa-rss fa-fw"></i>sources</a>
+
+  </li>
+        <li class="menu-item menu-item-gallery">
+
+    <a href="/gallery/" rel="section"><i class="fa fa-file-image fa-fw"></i>gallery</a>
+
+  </li>
+        <li class="menu-item menu-item-about">
+
+    <a href="/about/" rel="section"><i class="fa fa-user fa-fw"></i>About</a>
+
+  </li>
+        <li class="menu-item menu-item-commonweal">
+
+    <a href="/404.html" rel="section"><i class="fa fa-heartbeat fa-fw"></i>Commonweal 404</a>
+
+  </li>
+  </ul>
+</nav>
+
+
+
+
+</div>
+    </header>
+
+    
+  <div class="back-to-top">
+    <i class="fa fa-arrow-up"></i>
+    <span>0%</span>
+  </div>
+
+
+    <main class="main">
+      <div class="main-inner">
+        <div class="content-wrap">
+          
+
+          <div class="content post posts-expand">
+            
+
+    
+  
+  
+  <article itemscope itemtype="http://schema.org/Article" class="post-block" lang="en">
+    <link itemprop="mainEntityOfPage" href="http://qixinbo.github.io/2022/03/10/streamlit_2/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="image" content="/images/avatar.jpg">
+      <meta itemprop="name" content="Xin-Bo Qi(亓欣波)">
+      <meta itemprop="description" content="Digitize everything to realize Digitalization!">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="数字旗手">
+    </span>
+      <header class="post-header">
+        <h1 class="post-title" itemprop="name headline">
+          用Python开发web应用——Streamlit框架解析：2 -- 会话状态
+        </h1>
+
+        <div class="post-meta">
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="far fa-calendar"></i>
+              </span>
+              <span class="post-meta-item-text">Posted on</span>
+              
+
+              <time title="Created: 2022-03-10 00:00:00 / Modified: 14:31:51" itemprop="dateCreated datePublished" datetime="2022-03-10T00:00:00+08:00">2022-03-10</time>
+            </span>
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="far fa-folder"></i>
+              </span>
+              <span class="post-meta-item-text">In</span>
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+                  <a href="/categories/digitalization/" itemprop="url" rel="index"><span itemprop="name">digitalization</span></a>
+                </span>
+            </span>
+
+          
+  
+  <span class="post-meta-item">
+    
+      <span class="post-meta-item-icon">
+        <i class="far fa-comment"></i>
+      </span>
+      <span class="post-meta-item-text">Disqus: </span>
+    
+    <a title="disqus" href="/2022/03/10/streamlit_2/#disqus_thread" itemprop="discussionUrl">
+      <span class="post-comments-count disqus-comment-count" data-disqus-identifier="2022/03/10/streamlit_2/" itemprop="commentCount"></span>
+    </a>
+  </span>
+  
+  
+
+        </div>
+      </header>
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+        <h1 id="简介"><a href="#简介" class="headerlink" title="简介"></a>简介</h1><p>在Streamlit中，与一个部件widget的交互会触发“重新运行”rerun，这样一来每次运行后代码中的变量都会被重新初始化。这可能会带来很麻烦的问题，比如实现一个简单的“累加计数按钮”，每次点击后都会清零，无法实现累加功能。<br>为了解决类似问题，Streamlit引入了一种新的特性：会话状态Session State，它是一种可以在rerun之间保存变量状态、配合使用回调函数处理部件上的事件、动态改变部件状态等等的功能（注意，这些功能发生在一个session中，一个session可以简单理解为用户通过浏览器的一个标签页来访问Streamlit）。其可以用在如下场景中：<br>（1）数据或图像标注<a target="_blank" rel="noopener" href="https://github.com/streamlit/release-demos/blob/0.84/0.84/demos/labelling.py">code</a>；<br>（2）创建分页<a target="_blank" rel="noopener" href="https://github.com/streamlit/release-demos/blob/0.84/0.84/demos/pagination.py">code</a>；<br>（3）基于其他部件来添加部件；<br>（4）创建简单的基于状态的小游戏，如井字棋<a target="_blank" rel="noopener" href="https://github.com/streamlit/release-demos/blob/0.84/0.84/demos/tic_tac_toe.py">code</a>；<br>（5）待办事项清单<a target="_blank" rel="noopener" href="https://github.com/streamlit/release-demos/blob/0.84/0.84/demos/todo_list.py">code</a>。</p>
+<h1 id="累加计数例子"><a href="#累加计数例子" class="headerlink" title="累加计数例子"></a>累加计数例子</h1><p>比如最开头提到的“累加计数按钮”的实现，如下：<br><figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">import</span> streamlit <span class="keyword">as</span> st</span><br><span class="line"></span><br><span class="line">st.title(<span class="string">&#x27;Counter Example&#x27;</span>)</span><br><span class="line"></span><br><span class="line"><span class="comment"># Streamlit runs from top to bottom on every iteraction so</span></span><br><span class="line"><span class="comment"># we check if `count` has already been initialized in st.session_state.</span></span><br><span class="line"></span><br><span class="line"><span class="comment"># If no, then initialize count to 0</span></span><br><span class="line"><span class="comment"># If count is already initialized, don&#x27;t do anything</span></span><br><span class="line"><span class="keyword">if</span> <span class="string">&#x27;count&#x27;</span> <span class="keyword">not</span> <span class="keyword">in</span> st.session_state:</span><br><span class="line">    st.session_state.count = <span class="number">0</span></span><br><span class="line"></span><br><span class="line"><span class="comment"># Create a button which will increment the counter</span></span><br><span class="line">increment = st.button(<span class="string">&#x27;Increment&#x27;</span>)</span><br><span class="line"><span class="keyword">if</span> increment:</span><br><span class="line">    st.session_state.count += <span class="number">1</span></span><br><span class="line"></span><br><span class="line"><span class="comment"># A button to decrement the counter</span></span><br><span class="line">decrement = st.button(<span class="string">&#x27;Decrement&#x27;</span>)</span><br><span class="line"><span class="keyword">if</span> decrement:</span><br><span class="line">    st.session_state.count -= <span class="number">1</span></span><br><span class="line"></span><br><span class="line">st.write(<span class="string">&#x27;Count = &#x27;</span>, st.session_state.count)</span><br></pre></td></tr></table></figure></p>
+<h1 id="配合回调函数更新会话状态"><a href="#配合回调函数更新会话状态" class="headerlink" title="配合回调函数更新会话状态"></a>配合回调函数更新会话状态</h1><p>首先看一下什么是回调函数，援引维基百科上的一张图：<br><img src="https://user-images.githubusercontent.com/6218739/157572549-24b73b56-bd8d-4f5b-8825-c66eb25e0449.svg" alt="Callback-notitle"><br>这张图说明了几个事情：<br>（1）底层有一个库函数，它被其他程序（这里是Main program这个程序）所调用<br>（2）这个库函数有脾气，它不能被简单调用，需要给它提前传一个函数（即回调函数），这样才能在合适的时候执行该函数<br>（3）这个回调函数与main program处于同一层级，是由main program来指定的。<br>可以这样记忆回调函数：从库函数的视角，你先给我这个函数，我回头再调用你。<br><a target="_blank" rel="noopener" href="https://www.zhihu.com/question/19801131/answer/27459821">回调函数（callback）是什么？ - no.body的回答 - 知乎</a>挺好。</p>
+<h2 id="使用回调函数更新会话状态"><a href="#使用回调函数更新会话状态" class="headerlink" title="使用回调函数更新会话状态"></a>使用回调函数更新会话状态</h2><figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">import</span> streamlit <span class="keyword">as</span> st</span><br><span class="line"></span><br><span class="line">st.title(<span class="string">&#x27;Counter Example using Callbacks&#x27;</span>)</span><br><span class="line"><span class="keyword">if</span> <span class="string">&#x27;count&#x27;</span> <span class="keyword">not</span> <span class="keyword">in</span> st.session_state:</span><br><span class="line">    st.session_state.count = <span class="number">0</span></span><br><span class="line"></span><br><span class="line"><span class="function"><span class="keyword">def</span> <span class="title">increment_counter</span>():</span></span><br><span class="line">    st.session_state.count += <span class="number">1</span></span><br><span class="line"></span><br><span class="line">st.button(<span class="string">&#x27;Increment&#x27;</span>, on_click=increment_counter)</span><br><span class="line"></span><br><span class="line">st.write(<span class="string">&#x27;Count = &#x27;</span>, st.session_state.count)</span><br></pre></td></tr></table></figure>
+<p>即可以在输入部件（比如按钮、滑块、文本框等）的<code>on_change</code>或<code>on_click</code>的事件上绑定回调函数。</p>
+<h2 id="在回调函数中使用args和kwargs"><a href="#在回调函数中使用args和kwargs" class="headerlink" title="在回调函数中使用args和kwargs"></a>在回调函数中使用args和kwargs</h2><p>可以在回调函数中传入参数：<br><figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">import</span> streamlit <span class="keyword">as</span> st</span><br><span class="line"></span><br><span class="line">st.title(<span class="string">&#x27;Counter Example using Callbacks with args&#x27;</span>)</span><br><span class="line"><span class="keyword">if</span> <span class="string">&#x27;count&#x27;</span> <span class="keyword">not</span> <span class="keyword">in</span> st.session_state:</span><br><span class="line">    st.session_state.count = <span class="number">0</span></span><br><span class="line"></span><br><span class="line">increment_value = st.number_input(<span class="string">&#x27;Enter a value&#x27;</span>, value=<span class="number">0</span>, step=<span class="number">1</span>)</span><br><span class="line"></span><br><span class="line"><span class="function"><span class="keyword">def</span> <span class="title">increment_counter</span>(<span class="params">increment_value</span>):</span></span><br><span class="line">    st.session_state.count += increment_value</span><br><span class="line"></span><br><span class="line">increment = st.button(<span class="string">&#x27;Increment&#x27;</span>, on_click=increment_counter,</span><br><span class="line">    args=(increment_value, ))</span><br><span class="line"></span><br><span class="line">st.write(<span class="string">&#x27;Count = &#x27;</span>, st.session_state.count)</span><br></pre></td></tr></table></figure><br>也可以传入字典类型的命名参数：<br><figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">import</span> streamlit <span class="keyword">as</span> st</span><br><span class="line"></span><br><span class="line">st.title(<span class="string">&#x27;Counter Example using Callbacks with kwargs&#x27;</span>)</span><br><span class="line"><span class="keyword">if</span> <span class="string">&#x27;count&#x27;</span> <span class="keyword">not</span> <span class="keyword">in</span> st.session_state:</span><br><span class="line">    st.session_state.count = <span class="number">0</span></span><br><span class="line"></span><br><span class="line"><span class="function"><span class="keyword">def</span> <span class="title">increment_counter</span>(<span class="params">increment_value=<span class="number">0</span></span>):</span></span><br><span class="line">    st.session_state.count += increment_value</span><br><span class="line"></span><br><span class="line"><span class="function"><span class="keyword">def</span> <span class="title">decrement_counter</span>(<span class="params">decrement_value=<span class="number">0</span></span>):</span></span><br><span class="line">    st.session_state.count -= decrement_value</span><br><span class="line"></span><br><span class="line">st.button(<span class="string">&#x27;Increment&#x27;</span>, on_click=increment_counter,</span><br><span class="line">    kwargs=<span class="built_in">dict</span>(increment_value=<span class="number">5</span>))</span><br><span class="line"></span><br><span class="line">st.button(<span class="string">&#x27;Decrement&#x27;</span>, on_click=decrement_counter,</span><br><span class="line">    kwargs=<span class="built_in">dict</span>(decrement_value=<span class="number">1</span>))</span><br><span class="line"></span><br><span class="line">st.write(<span class="string">&#x27;Count = &#x27;</span>, st.session_state.count)</span><br></pre></td></tr></table></figure></p>
+<h2 id="在表单上绑定回调函数"><a href="#在表单上绑定回调函数" class="headerlink" title="在表单上绑定回调函数"></a>在表单上绑定回调函数</h2><figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">import</span> streamlit <span class="keyword">as</span> st</span><br><span class="line"><span class="keyword">import</span> datetime</span><br><span class="line"></span><br><span class="line">st.title(<span class="string">&#x27;Counter Example&#x27;</span>)</span><br><span class="line"><span class="keyword">if</span> <span class="string">&#x27;count&#x27;</span> <span class="keyword">not</span> <span class="keyword">in</span> st.session_state:</span><br><span class="line">    st.session_state.count = <span class="number">0</span></span><br><span class="line">    st.session_state.last_updated = datetime.time(<span class="number">0</span>,<span class="number">0</span>)</span><br><span class="line"></span><br><span class="line"><span class="function"><span class="keyword">def</span> <span class="title">update_counter</span>():</span></span><br><span class="line">    st.session_state.count += st.session_state.increment_value</span><br><span class="line">    st.session_state.last_updated = st.session_state.update_time</span><br><span class="line"></span><br><span class="line"><span class="keyword">with</span> st.form(key=<span class="string">&#x27;my_form&#x27;</span>):</span><br><span class="line">    st.time_input(label=<span class="string">&#x27;Enter the time&#x27;</span>, value=datetime.datetime.now().time(), key=<span class="string">&#x27;update_time&#x27;</span>)</span><br><span class="line">    st.number_input(<span class="string">&#x27;Enter a value&#x27;</span>, value=<span class="number">0</span>, step=<span class="number">1</span>, key=<span class="string">&#x27;increment_value&#x27;</span>)</span><br><span class="line">    submit = st.form_submit_button(label=<span class="string">&#x27;Update&#x27;</span>, on_click=update_counter)</span><br><span class="line"></span><br><span class="line">st.write(<span class="string">&#x27;Current Count = &#x27;</span>, st.session_state.count)</span><br><span class="line">st.write(<span class="string">&#x27;Last Updated = &#x27;</span>, st.session_state.last_updated)</span><br></pre></td></tr></table></figure>
+<p>在form中仅有<code>st.form_submit_button</code>可以设置回调函数，其他在form中的部件不允许有回调函数。</p>
+<h1 id="变量状态和部件状态的关联"><a href="#变量状态和部件状态的关联" class="headerlink" title="变量状态和部件状态的关联"></a>变量状态和部件状态的关联</h1><p>Session State存储了变量的值，而部件widgets的状态也可以存储在Session State中，变量的状态与部件的状态就可以实现梦幻联动了，方法就是将变量名设置为部件的key值。<br>比如：<br><figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">import</span> streamlit <span class="keyword">as</span> st</span><br><span class="line"></span><br><span class="line"><span class="keyword">if</span> <span class="string">&quot;celsius&quot;</span> <span class="keyword">not</span> <span class="keyword">in</span> st.session_state:</span><br><span class="line">    <span class="comment"># set the initial default value of the slider widget</span></span><br><span class="line">    st.session_state.celsius = <span class="number">50.0</span></span><br><span class="line"></span><br><span class="line">st.slider(</span><br><span class="line">    <span class="string">&quot;Temperature in Celsius&quot;</span>,</span><br><span class="line">    min_value=-<span class="number">100.0</span>,</span><br><span class="line">    max_value=<span class="number">100.0</span>,</span><br><span class="line">    key=<span class="string">&quot;celsius&quot;</span></span><br><span class="line">)</span><br><span class="line"></span><br><span class="line"><span class="comment"># This will get the value of the slider widget</span></span><br><span class="line">st.write(st.session_state.celsius)</span><br></pre></td></tr></table></figure><br>但是，有两个例外，不能通过Session State的API来改变<code>st.button</code>、<code>st.download_button</code>和<code>st.file_uploader</code>部件的状态。<br>还需要注意的是Session State变量和部件初始化的顺序，如果先初始化了部件，再通过Session State的API来更改它的状态，此时就会报错，抛出<code>StreamlitAPIException</code>的错误。<br>所以，一定注意先在Session State中定义好变量。</p>
+<h1 id="API"><a href="#API" class="headerlink" title="API"></a>API</h1><h2 id="初始化状态"><a href="#初始化状态" class="headerlink" title="初始化状态"></a>初始化状态</h2><figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment"># Initialization</span></span><br><span class="line"><span class="keyword">if</span> <span class="string">&#x27;key&#x27;</span> <span class="keyword">not</span> <span class="keyword">in</span> st.session_state:</span><br><span class="line">    st.session_state[<span class="string">&#x27;key&#x27;</span>] = <span class="string">&#x27;value&#x27;</span></span><br><span class="line"></span><br><span class="line"><span class="comment"># Session State also supports attribute based syntax</span></span><br><span class="line"><span class="keyword">if</span> <span class="string">&#x27;key&#x27;</span> <span class="keyword">not</span> <span class="keyword">in</span> st.session_state:</span><br><span class="line">    st.session_state.key = <span class="string">&#x27;value&#x27;</span></span><br></pre></td></tr></table></figure>
+<h2 id="读取和更新"><a href="#读取和更新" class="headerlink" title="读取和更新"></a>读取和更新</h2><p>读取Session State：<br><figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment"># 读取某一个状态</span></span><br><span class="line">st.write(st.session_state.key)</span><br><span class="line"></span><br><span class="line"><span class="comment"># 读取所有状态</span></span><br><span class="line">st.write(st.session_state)</span><br><span class="line"></span><br><span class="line"><span class="comment"># With magic:</span></span><br><span class="line">st.session_state</span><br></pre></td></tr></table></figure><br>更新状态（有两种方式）：<br><figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">st.session_state.key = <span class="string">&#x27;value2&#x27;</span>     <span class="comment"># Attribute API</span></span><br><span class="line">st.session_state[<span class="string">&#x27;key&#x27;</span>] = <span class="string">&#x27;value2&#x27;</span>  <span class="comment"># Dictionary like API</span></span><br></pre></td></tr></table></figure></p>
+<h2 id="删除"><a href="#删除" class="headerlink" title="删除"></a>删除</h2><figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment"># Delete a single key-value pair</span></span><br><span class="line"><span class="keyword">del</span> st.session_state[key]</span><br><span class="line"></span><br><span class="line"><span class="comment"># Delete all the items in Session state</span></span><br><span class="line"><span class="keyword">for</span> key <span class="keyword">in</span> st.session_state.keys():</span><br><span class="line">    <span class="keyword">del</span> st.session_state[key]</span><br></pre></td></tr></table></figure>
+<p>也可以通过在Settings中<code>Clear Cache</code>来删除，并rerun整个app。</p>
+<h1 id="注意点"><a href="#注意点" class="headerlink" title="注意点"></a>注意点</h1><p>使用Session State时需要注意以下几点：<br>（1）Session State的生命周期存在于浏览器的标签页打开且连接到server期间。一旦关闭标签页后，Session State中存储的东西都会丢失。<br>（2）Session State也不能持久化，一旦server关闭，其存储的东西也会被擦除。</p>
+<h1 id="参考资料"><a href="#参考资料" class="headerlink" title="参考资料"></a>参考资料</h1><p><a target="_blank" rel="noopener" href="https://blog.streamlit.io/session-state-for-streamlit/">Session State for Streamlit</a><br><a target="_blank" rel="noopener" href="https://docs.streamlit.io/library/advanced-features/session-state">Add statefulness to apps</a><br><a target="_blank" rel="noopener" href="https://docs.streamlit.io/library/api-reference/session-state">Session State</a></p>
+
+    </div>
+
+    
+    
+    
+        <div class="reward-container">
+  <div></div>
+  <button onclick="var qr = document.getElementById('qr'); qr.style.display = (qr.style.display === 'none') ? 'block' : 'none';">
+    Donate
+  </button>
+  <div id="qr" style="display: none;">
+      
+      <div style="display: inline-block;">
+        <img src="/images/wechat_reward.png" alt="Xin-Bo Qi(亓欣波) WeChat Pay">
+        <p>WeChat Pay</p>
+      </div>
+
+  </div>
+</div>
+
+
+      <footer class="post-footer">
+          <div class="post-tags">
+              <a href="/tags/Streamlit/" rel="tag"># Streamlit</a>
+          </div>
+
+        
+
+
+        
+    <div class="post-nav">
+      <div class="post-nav-item">
+    <a href="/2022/03/08/streamlit_1/" rel="prev" title="用Python开发web应用——Streamlit框架解析：1 -- 上手">
+      <i class="fa fa-chevron-left"></i> 用Python开发web应用——Streamlit框架解析：1 -- 上手
+    </a></div>
+      <div class="post-nav-item"></div>
+    </div>
+      </footer>
+    
+  </article>
+  
+  
+  
+
+
+
+          </div>
+          
+    
+  <div class="comments">
+    <div id="disqus_thread">
+      <noscript>Please enable JavaScript to view the comments powered by Disqus.</noscript>
+    </div>
+  </div>
+  
+
+<script>
+  window.addEventListener('tabs:register', () => {
+    let { activeClass } = CONFIG.comments;
+    if (CONFIG.comments.storage) {
+      activeClass = localStorage.getItem('comments_active') || activeClass;
+    }
+    if (activeClass) {
+      let activeTab = document.querySelector(`a[href="#comment-${activeClass}"]`);
+      if (activeTab) {
+        activeTab.click();
+      }
+    }
+  });
+  if (CONFIG.comments.storage) {
+    window.addEventListener('tabs:click', event => {
+      if (!event.target.matches('.tabs-comment .tab-content .tab-pane')) return;
+      let commentClass = event.target.classList[1];
+      localStorage.setItem('comments_active', commentClass);
+    });
+  }
+</script>
+
+        </div>
+          
+  
+  <div class="toggle sidebar-toggle">
+    <span class="toggle-line toggle-line-first"></span>
+    <span class="toggle-line toggle-line-middle"></span>
+    <span class="toggle-line toggle-line-last"></span>
+  </div>
+
+  <aside class="sidebar">
+    <div class="sidebar-inner">
+
+      <ul class="sidebar-nav motion-element">
+        <li class="sidebar-nav-toc">
+          Table of Contents
+        </li>
+        <li class="sidebar-nav-overview">
+          Overview
+        </li>
+      </ul>
+
+      <!--noindex-->
+      <div class="post-toc-wrap sidebar-panel">
+          <div class="post-toc motion-element"><ol class="nav"><li class="nav-item nav-level-1"><a class="nav-link" href="#%E7%AE%80%E4%BB%8B"><span class="nav-number">1.</span> <span class="nav-text">简介</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#%E7%B4%AF%E5%8A%A0%E8%AE%A1%E6%95%B0%E4%BE%8B%E5%AD%90"><span class="nav-number">2.</span> <span class="nav-text">累加计数例子</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#%E9%85%8D%E5%90%88%E5%9B%9E%E8%B0%83%E5%87%BD%E6%95%B0%E6%9B%B4%E6%96%B0%E4%BC%9A%E8%AF%9D%E7%8A%B6%E6%80%81"><span class="nav-number">3.</span> <span class="nav-text">配合回调函数更新会话状态</span></a><ol class="nav-child"><li class="nav-item nav-level-2"><a class="nav-link" href="#%E4%BD%BF%E7%94%A8%E5%9B%9E%E8%B0%83%E5%87%BD%E6%95%B0%E6%9B%B4%E6%96%B0%E4%BC%9A%E8%AF%9D%E7%8A%B6%E6%80%81"><span class="nav-number">3.1.</span> <span class="nav-text">使用回调函数更新会话状态</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E5%9C%A8%E5%9B%9E%E8%B0%83%E5%87%BD%E6%95%B0%E4%B8%AD%E4%BD%BF%E7%94%A8args%E5%92%8Ckwargs"><span class="nav-number">3.2.</span> <span class="nav-text">在回调函数中使用args和kwargs</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E5%9C%A8%E8%A1%A8%E5%8D%95%E4%B8%8A%E7%BB%91%E5%AE%9A%E5%9B%9E%E8%B0%83%E5%87%BD%E6%95%B0"><span class="nav-number">3.3.</span> <span class="nav-text">在表单上绑定回调函数</span></a></li></ol></li><li class="nav-item nav-level-1"><a class="nav-link" href="#%E5%8F%98%E9%87%8F%E7%8A%B6%E6%80%81%E5%92%8C%E9%83%A8%E4%BB%B6%E7%8A%B6%E6%80%81%E7%9A%84%E5%85%B3%E8%81%94"><span class="nav-number">4.</span> <span class="nav-text">变量状态和部件状态的关联</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#API"><span class="nav-number">5.</span> <span class="nav-text">API</span></a><ol class="nav-child"><li class="nav-item nav-level-2"><a class="nav-link" href="#%E5%88%9D%E5%A7%8B%E5%8C%96%E7%8A%B6%E6%80%81"><span class="nav-number">5.1.</span> <span class="nav-text">初始化状态</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E8%AF%BB%E5%8F%96%E5%92%8C%E6%9B%B4%E6%96%B0"><span class="nav-number">5.2.</span> <span class="nav-text">读取和更新</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E5%88%A0%E9%99%A4"><span class="nav-number">5.3.</span> <span class="nav-text">删除</span></a></li></ol></li><li class="nav-item nav-level-1"><a class="nav-link" href="#%E6%B3%A8%E6%84%8F%E7%82%B9"><span class="nav-number">6.</span> <span class="nav-text">注意点</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#%E5%8F%82%E8%80%83%E8%B5%84%E6%96%99"><span class="nav-number">7.</span> <span class="nav-text">参考资料</span></a></li></ol></div>
+      </div>
+      <!--/noindex-->
+
+      <div class="site-overview-wrap sidebar-panel">
+        <div class="site-author motion-element" itemprop="author" itemscope itemtype="http://schema.org/Person">
+    <img class="site-author-image" itemprop="image" alt="Xin-Bo Qi(亓欣波)"
+      src="/images/avatar.jpg">
+  <p class="site-author-name" itemprop="name">Xin-Bo Qi(亓欣波)</p>
+  <div class="site-description" itemprop="description">Digitize everything to realize Digitalization!</div>
+</div>
+<div class="site-state-wrap motion-element">
+  <nav class="site-state">
+      <div class="site-state-item site-state-posts">
+          <a href="/archives/">
+        
+          <span class="site-state-item-count">150</span>
+          <span class="site-state-item-name">posts</span>
+        </a>
+      </div>
+      <div class="site-state-item site-state-categories">
+            <a href="/categories/">
+          
+        <span class="site-state-item-count">6</span>
+        <span class="site-state-item-name">categories</span></a>
+      </div>
+      <div class="site-state-item site-state-tags">
+            <a href="/tags/">
+          
+        <span class="site-state-item-count">50</span>
+        <span class="site-state-item-name">tags</span></a>
+      </div>
+  </nav>
+</div>
+  <div class="links-of-author motion-element">
+      <span class="links-of-author-item">
+        <a href="https://github.com/qixinbo" title="GitHub → https:&#x2F;&#x2F;github.com&#x2F;qixinbo" rel="noopener" target="_blank"><i class="github fa-fw"></i>GitHub</a>
+      </span>
+      <span class="links-of-author-item">
+        <a href="mailto:qixinbo@gmail.com" title="E-Mail → mailto:qixinbo@gmail.com" rel="noopener" target="_blank"><i class="envelope fa-fw"></i>E-Mail</a>
+      </span>
+      <span class="links-of-author-item">
+        <a href="https://twitter.com/qixinbo" title="Twitter → https:&#x2F;&#x2F;twitter.com&#x2F;qixinbo" rel="noopener" target="_blank"><i class="fab fa-twitter fa-fw"></i>Twitter</a>
+      </span>
+      <span class="links-of-author-item">
+        <a href="/atom.xml" title="RSS → &#x2F;atom.xml"><i class="fas fa-rss fa-fw"></i>RSS</a>
+      </span>
+  </div>
+
+
+  <div class="links-of-blogroll motion-element">
+    <div class="links-of-blogroll-title"><i class="fa fa-link fa-fw"></i>
+      Links
+    </div>
+    <ul class="links-of-blogroll-list">
+        <li class="links-of-blogroll-item">
+          <a href="https://www.tsinghua.edu.cn/" title="https:&#x2F;&#x2F;www.tsinghua.edu.cn" rel="noopener" target="_blank">THU</a>
+        </li>
+        <li class="links-of-blogroll-item">
+          <a href="http://www.imr.cas.cn/" title="http:&#x2F;&#x2F;www.imr.cas.cn" rel="noopener" target="_blank">IMR</a>
+        </li>
+        <li class="links-of-blogroll-item">
+          <a href="http://www.sdu.edu.cn/" title="http:&#x2F;&#x2F;www.sdu.edu.cn" rel="noopener" target="_blank">SDU</a>
+        </li>
+        <li class="links-of-blogroll-item">
+          <a href="http://liam0205.me/" title="http:&#x2F;&#x2F;liam0205.me&#x2F;" rel="noopener" target="_blank">黄晨成</a>
+        </li>
+    </ul>
+  </div>
+
+      </div>
+
+    </div>
+  </aside>
+  <div id="sidebar-dimmer"></div>
+
+
+      </div>
+    </main>
+
+    <footer class="footer">
+      <div class="footer-inner">
+        
+
+        
+
+<div class="copyright">
+  
+  &copy; 
+  <span itemprop="copyrightYear">2022</span>
+  <span class="with-love">
+    <i class="fa fa-heart"></i>
+  </span>
+  <span class="author" itemprop="copyrightHolder">Xin-Bo Qi(亓欣波)</span>
+</div>
+  <div class="powered-by">Powered by <a href="https://hexo.io/" class="theme-link" rel="noopener" target="_blank">Hexo</a> & <a href="https://theme-next.org/" class="theme-link" rel="noopener" target="_blank">NexT.Gemini</a>
+  </div>
+
+        
+
+
+
+
+
+
+
+
+      </div>
+    </footer>
+  </div>
+
+  
+  <script src="/lib/anime.min.js"></script>
+  <script src="/lib/velocity/velocity.min.js"></script>
+  <script src="/lib/velocity/velocity.ui.min.js"></script>
+
+<script src="/js/utils.js"></script>
+
+<script src="/js/motion.js"></script>
+
+
+<script src="/js/schemes/pisces.js"></script>
+
+
+<script src="/js/next-boot.js"></script>
+
+
+
+
+  
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+  
+
+  
+      
+
+<script>
+  if (typeof MathJax === 'undefined') {
+    window.MathJax = {
+      loader: {
+        source: {
+          '[tex]/amsCd': '[tex]/amscd',
+          '[tex]/AMScd': '[tex]/amscd'
+        }
+      },
+      tex: {
+        inlineMath: {'[+]': [['$', '$']]},
+        tags: 'ams'
+      },
+      options: {
+        renderActions: {
+          findScript: [10, doc => {
+            document.querySelectorAll('script[type^="math/tex"]').forEach(node => {
+              const display = !!node.type.match(/; *mode=display/);
+              const math = new doc.options.MathItem(node.textContent, doc.inputJax[0], display);
+              const text = document.createTextNode('');
+              node.parentNode.replaceChild(text, node);
+              math.start = {node: text, delim: '', n: 0};
+              math.end = {node: text, delim: '', n: 0};
+              doc.math.push(math);
+            });
+          }, '', false],
+          insertedScript: [200, () => {
+            document.querySelectorAll('mjx-container').forEach(node => {
+              let target = node.parentNode;
+              if (target.nodeName.toLowerCase() === 'li') {
+                target.parentNode.classList.add('has-jax');
+              }
+            });
+          }, '', false]
+        }
+      }
+    };
+    (function () {
+      var script = document.createElement('script');
+      script.src = '//cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js';
+      script.defer = true;
+      document.head.appendChild(script);
+    })();
+  } else {
+    MathJax.startup.document.state(0);
+    MathJax.texReset();
+    MathJax.typeset();
+  }
+</script>
+
+    
+
+  
+
+<script>
+  function loadCount() {
+    var d = document, s = d.createElement('script');
+    s.src = 'https://qixinbo.disqus.com/count.js';
+    s.id = 'dsq-count-scr';
+    (d.head || d.body).appendChild(s);
+  }
+  // defer loading until the whole page loading is completed
+  window.addEventListener('load', loadCount, false);
+</script>
+<script>
+  var disqus_config = function() {
+    this.page.url = "http://qixinbo.github.io/2022/03/10/streamlit_2/";
+    this.page.identifier = "2022/03/10/streamlit_2/";
+    this.page.title = "用Python开发web应用——Streamlit框架解析：2 -- 会话状态";
+    };
+  NexT.utils.loadComments(document.querySelector('#disqus_thread'), () => {
+    if (window.DISQUS) {
+      DISQUS.reset({
+        reload: true,
+        config: disqus_config
+      });
+    } else {
+      var d = document, s = d.createElement('script');
+      s.src = 'https://qixinbo.disqus.com/embed.js';
+      s.setAttribute('data-timestamp', '' + +new Date());
+      (d.head || d.body).appendChild(s);
+    }
+  });
+</script>
+
+</body>
+</html>
