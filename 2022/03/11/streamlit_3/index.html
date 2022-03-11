@@ -1,0 +1,624 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=2">
+<meta name="theme-color" content="#222">
+<meta name="generator" content="Hexo 5.4.0">
+  <link rel="apple-touch-icon" sizes="180x180" href="/images/apple-touch-icon-next.png">
+  <link rel="icon" type="image/png" sizes="32x32" href="/favicon.ico">
+  <link rel="icon" type="image/png" sizes="16x16" href="/favicon.ico">
+  <link rel="mask-icon" href="/images/logo.svg" color="#222">
+
+<link rel="stylesheet" href="/css/main.css">
+
+
+<link rel="stylesheet" href="/lib/font-awesome/css/all.min.css">
+
+<script id="hexo-configurations">
+    var NexT = window.NexT || {};
+    var CONFIG = {"hostname":"qixinbo.github.io","root":"/","scheme":"Gemini","version":"7.8.0","exturl":false,"sidebar":{"position":"left","display":"post","padding":18,"offset":12,"onmobile":false},"copycode":{"enable":false,"show_result":false,"style":null},"back2top":{"enable":true,"sidebar":false,"scrollpercent":false},"bookmark":{"enable":false,"color":"#222","save":"auto"},"fancybox":false,"mediumzoom":false,"lazyload":false,"pangu":false,"comments":{"style":"tabs","active":null,"storage":true,"lazyload":false,"nav":null},"algolia":{"hits":{"per_page":10},"labels":{"input_placeholder":"Search for Posts","hits_empty":"We didn't find any results for the search: ${query}","hits_stats":"${hits} results found in ${time} ms"}},"localsearch":{"enable":false,"trigger":"auto","top_n_per_article":1,"unescape":false,"preload":false},"motion":{"enable":true,"async":false,"transition":{"post_block":"fadeIn","post_header":"slideDownIn","post_body":"slideDownIn","coll_header":"slideLeftIn","sidebar":"slideUpIn"}}};
+  </script>
+
+  <meta name="description" content="简介 Streamlit的组件Components是一系列第三方的Python模块，其极大地扩展了Streamlit的功能。 Components带来了无穷的想象力和可能性，比如与React、Vue等前端框架联动、创建自定义风格和行为的新部件、以及增加新的可视化图表类型等。  使用组件 查找可用组件 查找组件有两个常用的途径： 一是Component Gallery，这是官方挑选出来的特色组件；">
+<meta property="og:type" content="article">
+<meta property="og:title" content="用Python开发web应用——Streamlit框架解析：3 -- 组件">
+<meta property="og:url" content="http://qixinbo.github.io/2022/03/11/streamlit_3/index.html">
+<meta property="og:site_name" content="数字旗手">
+<meta property="og:description" content="简介 Streamlit的组件Components是一系列第三方的Python模块，其极大地扩展了Streamlit的功能。 Components带来了无穷的想象力和可能性，比如与React、Vue等前端框架联动、创建自定义风格和行为的新部件、以及增加新的可视化图表类型等。  使用组件 查找可用组件 查找组件有两个常用的途径： 一是Component Gallery，这是官方挑选出来的特色组件；">
+<meta property="og:locale" content="en_US">
+<meta property="og:image" content="https://user-images.githubusercontent.com/6218739/157794777-0778762a-cb06-437e-98bc-6f63cc6f4a11.png">
+<meta property="og:image" content="https://user-images.githubusercontent.com/6218739/157795147-df1b82ca-51b5-4d86-97ba-d1c3c608da06.png">
+<meta property="og:image" content="https://user-images.githubusercontent.com/6218739/157796219-22acc939-89b1-49aa-ad11-e67803a14446.png">
+<meta property="og:image" content="https://user-images.githubusercontent.com/6218739/157813585-17353496-5ccf-4126-8073-5b16ea5fc70b.png">
+<meta property="article:published_time" content="2022-03-10T16:00:00.000Z">
+<meta property="article:modified_time" content="2022-03-11T08:46:28.971Z">
+<meta property="article:author" content="Xin-Bo Qi(亓欣波)">
+<meta property="article:tag" content="Streamlit">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:image" content="https://user-images.githubusercontent.com/6218739/157794777-0778762a-cb06-437e-98bc-6f63cc6f4a11.png">
+
+<link rel="canonical" href="http://qixinbo.github.io/2022/03/11/streamlit_3/">
+
+
+<script id="page-configurations">
+  // https://hexo.io/docs/variables.html
+  CONFIG.page = {
+    sidebar: "",
+    isHome : false,
+    isPost : true,
+    lang   : 'en'
+  };
+</script>
+
+  <title>用Python开发web应用——Streamlit框架解析：3 -- 组件 | 数字旗手</title>
+  
+
+
+
+
+
+
+  <noscript>
+  <style>
+  .use-motion .brand,
+  .use-motion .menu-item,
+  .sidebar-inner,
+  .use-motion .post-block,
+  .use-motion .pagination,
+  .use-motion .comments,
+  .use-motion .post-header,
+  .use-motion .post-body,
+  .use-motion .collection-header { opacity: initial; }
+
+  .use-motion .site-title,
+  .use-motion .site-subtitle {
+    opacity: initial;
+    top: initial;
+  }
+
+  .use-motion .logo-line-before i { left: initial; }
+  .use-motion .logo-line-after i { right: initial; }
+  </style>
+</noscript>
+
+<link rel="alternate" href="/atom.xml" title="数字旗手" type="application/atom+xml">
+</head>
+
+<body itemscope itemtype="http://schema.org/WebPage">
+  <div class="container use-motion">
+    <div class="headband"></div>
+
+    <header class="header" itemscope itemtype="http://schema.org/WPHeader">
+      <div class="header-inner"><div class="site-brand-container">
+  <div class="site-nav-toggle">
+    <div class="toggle" aria-label="Toggle navigation bar">
+      <span class="toggle-line toggle-line-first"></span>
+      <span class="toggle-line toggle-line-middle"></span>
+      <span class="toggle-line toggle-line-last"></span>
+    </div>
+  </div>
+
+  <div class="site-meta">
+
+    <a href="/" class="brand" rel="start">
+      <span class="logo-line-before"><i></i></span>
+      <h1 class="site-title">数字旗手</h1>
+      <span class="logo-line-after"><i></i></span>
+    </a>
+      <p class="site-subtitle" itemprop="description">电气化、自动化、数字化、智能化、智慧化</p>
+  </div>
+
+  <div class="site-nav-right">
+    <div class="toggle popup-trigger">
+    </div>
+  </div>
+</div>
+
+
+
+
+<nav class="site-nav">
+  <ul id="menu" class="main-menu menu">
+        <li class="menu-item menu-item-home">
+
+    <a href="/" rel="section"><i class="fa fa-home fa-fw"></i>Home</a>
+
+  </li>
+        <li class="menu-item menu-item-categories">
+
+    <a href="/categories/" rel="section"><i class="fa fa-th fa-fw"></i>Categories</a>
+
+  </li>
+        <li class="menu-item menu-item-archives">
+
+    <a href="/archives/" rel="section"><i class="fa fa-archive fa-fw"></i>Archives</a>
+
+  </li>
+        <li class="menu-item menu-item-tags">
+
+    <a href="/tags/" rel="section"><i class="fa fa-tags fa-fw"></i>Tags</a>
+
+  </li>
+        <li class="menu-item menu-item-scholar">
+
+    <a href="/scholar/" rel="section"><i class="fa fa-chart-bar fa-fw"></i>scholar</a>
+
+  </li>
+        <li class="menu-item menu-item-sources">
+
+    <a href="/sources/" rel="section"><i class="fa fa-rss fa-fw"></i>sources</a>
+
+  </li>
+        <li class="menu-item menu-item-gallery">
+
+    <a href="/gallery/" rel="section"><i class="fa fa-file-image fa-fw"></i>gallery</a>
+
+  </li>
+        <li class="menu-item menu-item-about">
+
+    <a href="/about/" rel="section"><i class="fa fa-user fa-fw"></i>About</a>
+
+  </li>
+        <li class="menu-item menu-item-commonweal">
+
+    <a href="/404.html" rel="section"><i class="fa fa-heartbeat fa-fw"></i>Commonweal 404</a>
+
+  </li>
+  </ul>
+</nav>
+
+
+
+
+</div>
+    </header>
+
+    
+  <div class="back-to-top">
+    <i class="fa fa-arrow-up"></i>
+    <span>0%</span>
+  </div>
+
+
+    <main class="main">
+      <div class="main-inner">
+        <div class="content-wrap">
+          
+
+          <div class="content post posts-expand">
+            
+
+    
+  
+  
+  <article itemscope itemtype="http://schema.org/Article" class="post-block" lang="en">
+    <link itemprop="mainEntityOfPage" href="http://qixinbo.github.io/2022/03/11/streamlit_3/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="image" content="/images/avatar.jpg">
+      <meta itemprop="name" content="Xin-Bo Qi(亓欣波)">
+      <meta itemprop="description" content="Digitize everything to realize Digitalization!">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="数字旗手">
+    </span>
+      <header class="post-header">
+        <h1 class="post-title" itemprop="name headline">
+          用Python开发web应用——Streamlit框架解析：3 -- 组件
+        </h1>
+
+        <div class="post-meta">
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="far fa-calendar"></i>
+              </span>
+              <span class="post-meta-item-text">Posted on</span>
+              
+
+              <time title="Created: 2022-03-11 00:00:00 / Modified: 16:46:28" itemprop="dateCreated datePublished" datetime="2022-03-11T00:00:00+08:00">2022-03-11</time>
+            </span>
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="far fa-folder"></i>
+              </span>
+              <span class="post-meta-item-text">In</span>
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+                  <a href="/categories/digitalization/" itemprop="url" rel="index"><span itemprop="name">digitalization</span></a>
+                </span>
+            </span>
+
+          
+  
+  <span class="post-meta-item">
+    
+      <span class="post-meta-item-icon">
+        <i class="far fa-comment"></i>
+      </span>
+      <span class="post-meta-item-text">Disqus: </span>
+    
+    <a title="disqus" href="/2022/03/11/streamlit_3/#disqus_thread" itemprop="discussionUrl">
+      <span class="post-comments-count disqus-comment-count" data-disqus-identifier="2022/03/11/streamlit_3/" itemprop="commentCount"></span>
+    </a>
+  </span>
+  
+  
+
+        </div>
+      </header>
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+        <h1 id="简介"><a href="#简介" class="headerlink" title="简介"></a>简介</h1><p>Streamlit的组件Components是一系列第三方的Python模块，其极大地扩展了Streamlit的功能。<br>Components带来了无穷的想象力和可能性，比如与React、Vue等前端框架联动、创建自定义风格和行为的新部件、以及增加新的可视化图表类型等。</p>
+<h1 id="使用组件"><a href="#使用组件" class="headerlink" title="使用组件"></a>使用组件</h1><h2 id="查找可用组件"><a href="#查找可用组件" class="headerlink" title="查找可用组件"></a>查找可用组件</h2><p>查找组件有两个常用的途径：<br>一是<a target="_blank" rel="noopener" href="https://streamlit.io/components">Component Gallery</a>，这是官方挑选出来的特色组件；<br>二是<a target="_blank" rel="noopener" href="https://discuss.streamlit.io/t/streamlit-components-community-tracker/4634">Streamlit Components - Community Tracker</a>这个论坛帖子，里面搜集了很多社区成员创建的组件。</p>
+<h2 id="安装组件"><a href="#安装组件" class="headerlink" title="安装组件"></a>安装组件</h2><p>安装这些组件，只需：<br><figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">pip install some_cool_component</span><br></pre></td></tr></table></figure><br>以<a target="_blank" rel="noopener" href="https://github.com/PablocFonseca/streamlit-aggrid">AgGrid</a>组件为例，安装命令为：<br><figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">pip install streamlit-aggrid</span><br></pre></td></tr></table></figure></p>
+<h2 id="使用组件-1"><a href="#使用组件-1" class="headerlink" title="使用组件"></a>使用组件</h2><p>查看组件的使用文档，还是以AgGrid为例：<br><figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">from</span> st_aggrid <span class="keyword">import</span> AgGrid</span><br><span class="line">AgGrid(my_dataframe)</span><br></pre></td></tr></table></figure></p>
+<h1 id="创建组件"><a href="#创建组件" class="headerlink" title="创建组件"></a>创建组件</h1><p>如果已有的组件不满足自己的需求，还可以自己创建组件。<br>先来看一下插件的类型：<br><figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">import</span> streamlit <span class="keyword">as</span> st</span><br><span class="line"></span><br><span class="line">x = st.slider(<span class="string">&#x27;x&#x27;</span>)</span><br><span class="line">st.markdown(<span class="string">f&#x27;`<span class="subst">&#123;x&#125;</span>` squared is `<span class="subst">&#123;x * x&#125;</span>`&#x27;</span>)</span><br></pre></td></tr></table></figure><br>如上代码中有两种组件：<br>（1）静态组件static components，即<code>st.markdown</code>，它是无状态的，仅向浏览器发送和渲染数据；<br>（2）双向组件bidirectional components，即<code>st.slider</code>，它有内部状态，会从浏览器中返回数据，也可以向浏览器发送和渲染数据，即在后台Python代码和前端JavaScript代码之间交换数据。</p>
+<p>对于组件开发，Streamlit提供了<code>streamlit.components.v1</code>这个包：<br><figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">importstreamlit.components.v1 <span class="keyword">as</span> components</span><br></pre></td></tr></table></figure><br>这个略显冗长的导入声明对组件API明确地指明了版本号，这样以后升级后就不会破坏已有的组件。</p>
+<p>具体地，对于静态组件，有两种方法可供使用：<br>（1）<code>html(...)</code>可以基于HTML、JavaScript和CSS来创建组件；<br>（2）<code>iframe(...)</code>可以嵌入外部网站。<br>对于双向组件：<br><code>declare_component(...)</code>可以创建在Streamlit和浏览器之间双向交换数据的动态部件。</p>
+<h2 id="创建静态组件"><a href="#创建静态组件" class="headerlink" title="创建静态组件"></a>创建静态组件</h2><p>如果创建的组件目的是为了仅仅展示HTML代码或从Python可视化库中渲染图表，那么可以有两种很简单的方法实现<code>components.html()</code>和<code>components.iframe()</code>。</p>
+<h3 id="示例1：Gist代码段"><a href="#示例1：Gist代码段" class="headerlink" title="示例1：Gist代码段"></a>示例1：Gist代码段</h3><p>比如想在页面中嵌入如下这种Github Gist代码段：<br><img src="https://user-images.githubusercontent.com/6218739/157794777-0778762a-cb06-437e-98bc-6f63cc6f4a11.png" alt="gist"><br>那么，可以这样写：<br><figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">import</span> streamlit <span class="keyword">as</span> st</span><br><span class="line"><span class="keyword">import</span> streamlit.components.v1 <span class="keyword">as</span> components</span><br><span class="line"></span><br><span class="line"><span class="function"><span class="keyword">def</span> <span class="title">github_gist</span>(<span class="params">gist_creator, gist_id, height=<span class="number">600</span>, scrolling=<span class="literal">True</span></span>):</span></span><br><span class="line">    components.html(</span><br><span class="line">        <span class="string">f&quot;&quot;&quot;</span></span><br><span class="line"><span class="string">      &lt;script src=&quot;https://gist.github.com/<span class="subst">&#123;gist_creator&#125;</span>/<span class="subst">&#123;gist_id&#125;</span>.js&quot;&gt;</span></span><br><span class="line"><span class="string">      &lt;/script&gt;</span></span><br><span class="line"><span class="string">    &quot;&quot;&quot;</span>,</span><br><span class="line">        height=height,</span><br><span class="line">        scrolling=scrolling,</span><br><span class="line">    )</span><br><span class="line"></span><br><span class="line">github_gist(<span class="string">&#x27;gwen001&#x27;</span>, <span class="string">&#x27;6843c83d878ff22783bd573ac48a2c93&#x27;</span>, height=<span class="number">600</span>)</span><br></pre></td></tr></table></figure><br>可以看出，在<code>components.html()</code>可以方便地嵌入和调用javascript脚本。</p>
+<h3 id="示例2：boostrap"><a href="#示例2：boostrap" class="headerlink" title="示例2：boostrap"></a>示例2：boostrap</h3><p>如下例子是使用bootstrap库创建自定义按钮。<br><figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">import</span> streamlit <span class="keyword">as</span> st</span><br><span class="line"><span class="keyword">import</span> streamlit.components.v1 <span class="keyword">as</span> components</span><br><span class="line"></span><br><span class="line"><span class="comment"># bootstrap 4 collapse example</span></span><br><span class="line">components.html(</span><br><span class="line">    <span class="string">&quot;&quot;&quot;</span></span><br><span class="line"><span class="string">    &lt;link rel=&quot;stylesheet&quot; href=&quot;https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0/css/bootstrap.min.css&quot; integrity=&quot;sha384-Gn5384xqQ1aoWXA+058RXPxPg6fy4IWvTNh0E263XmFcJlSAwiGgFAW/dAiS6JXm&quot; crossorigin=&quot;anonymous&quot;&gt;</span></span><br><span class="line"><span class="string">    &lt;script src=&quot;https://code.jquery.com/jquery-3.2.1.slim.min.js&quot; integrity=&quot;sha384-KJ3o2DKtIkvYIK3UENzmM7KCkRr/rE9/Qpg6aAZGJwFDMVNA/GpGFF93hXpG5KkN&quot; crossorigin=&quot;anonymous&quot;&gt;&lt;/script&gt;</span></span><br><span class="line"><span class="string">    &lt;script src=&quot;https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0/js/bootstrap.min.js&quot; integrity=&quot;sha384-JZR6Spejh4U02d8jOt6vLEHfe/JQGiRRSQQxSfFWpi1MquVdAyjUar5+76PVCmYl&quot; crossorigin=&quot;anonymous&quot;&gt;&lt;/script&gt;</span></span><br><span class="line"><span class="string">    &lt;div id=&quot;accordion&quot;&gt;</span></span><br><span class="line"><span class="string">      &lt;div class=&quot;card&quot;&gt;</span></span><br><span class="line"><span class="string">        &lt;div class=&quot;card-header&quot; id=&quot;headingOne&quot;&gt;</span></span><br><span class="line"><span class="string">          &lt;h5 class=&quot;mb-0&quot;&gt;</span></span><br><span class="line"><span class="string">            &lt;button class=&quot;btn btn-link&quot; data-toggle=&quot;collapse&quot; data-target=&quot;#collapseOne&quot; aria-expanded=&quot;true&quot; aria-controls=&quot;collapseOne&quot;&gt;</span></span><br><span class="line"><span class="string">            Collapsible Group Item #1</span></span><br><span class="line"><span class="string">            &lt;/button&gt;</span></span><br><span class="line"><span class="string">          &lt;/h5&gt;</span></span><br><span class="line"><span class="string">        &lt;/div&gt;</span></span><br><span class="line"><span class="string">        &lt;div id=&quot;collapseOne&quot; class=&quot;collapse show&quot; aria-labelledby=&quot;headingOne&quot; data-parent=&quot;#accordion&quot;&gt;</span></span><br><span class="line"><span class="string">          &lt;div class=&quot;card-body&quot;&gt;</span></span><br><span class="line"><span class="string">            Collapsible Group Item #1 content</span></span><br><span class="line"><span class="string">          &lt;/div&gt;</span></span><br><span class="line"><span class="string">        &lt;/div&gt;</span></span><br><span class="line"><span class="string">      &lt;/div&gt;</span></span><br><span class="line"><span class="string">      &lt;div class=&quot;card&quot;&gt;</span></span><br><span class="line"><span class="string">        &lt;div class=&quot;card-header&quot; id=&quot;headingTwo&quot;&gt;</span></span><br><span class="line"><span class="string">          &lt;h5 class=&quot;mb-0&quot;&gt;</span></span><br><span class="line"><span class="string">            &lt;button class=&quot;btn btn-link collapsed&quot; data-toggle=&quot;collapse&quot; data-target=&quot;#collapseTwo&quot; aria-expanded=&quot;false&quot; aria-controls=&quot;collapseTwo&quot;&gt;</span></span><br><span class="line"><span class="string">            Collapsible Group Item #2</span></span><br><span class="line"><span class="string">            &lt;/button&gt;</span></span><br><span class="line"><span class="string">          &lt;/h5&gt;</span></span><br><span class="line"><span class="string">        &lt;/div&gt;</span></span><br><span class="line"><span class="string">        &lt;div id=&quot;collapseTwo&quot; class=&quot;collapse&quot; aria-labelledby=&quot;headingTwo&quot; data-parent=&quot;#accordion&quot;&gt;</span></span><br><span class="line"><span class="string">          &lt;div class=&quot;card-body&quot;&gt;</span></span><br><span class="line"><span class="string">            Collapsible Group Item #2 content</span></span><br><span class="line"><span class="string">          &lt;/div&gt;</span></span><br><span class="line"><span class="string">        &lt;/div&gt;</span></span><br><span class="line"><span class="string">      &lt;/div&gt;</span></span><br><span class="line"><span class="string">    &lt;/div&gt;</span></span><br><span class="line"><span class="string">    &quot;&quot;&quot;</span>,</span><br><span class="line">    height=<span class="number">600</span>,</span><br><span class="line">)</span><br><span class="line"></span><br></pre></td></tr></table></figure><br>效果如下：<br><img src="https://user-images.githubusercontent.com/6218739/157795147-df1b82ca-51b5-4d86-97ba-d1c3c608da06.png" alt="bootstrap"><br>可以看出，可以嵌入任意的HTML、CSS和JavaScript代码。<br>同时，因为Component运行在由一个<code>iframe</code>创建的沙盒sandbox中，不用担心安全问题。</p>
+<h3 id="示例3：嵌入外部网站"><a href="#示例3：嵌入外部网站" class="headerlink" title="示例3：嵌入外部网站"></a>示例3：嵌入外部网站</h3><p><code>components.iframe</code>与<code>components.html</code>功能类似，只是它的输入是URL地址，这样就能轻松地将外部网站嵌入到Streamlit app中。<br><figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">import</span> streamlit <span class="keyword">as</span> st</span><br><span class="line"><span class="keyword">import</span> streamlit.components.v1 <span class="keyword">as</span> components</span><br><span class="line"></span><br><span class="line"><span class="comment"># embed streamlit docs in a streamlit app</span></span><br><span class="line">st.title(<span class="string">&quot;Embed external website&quot;</span>)</span><br><span class="line">components.iframe(<span class="string">&quot;http://www.bing.com/&quot;</span>, height=<span class="number">600</span>, width=<span class="number">1000</span>)</span><br></pre></td></tr></table></figure><br>效果如下：<br><img src="https://user-images.githubusercontent.com/6218739/157796219-22acc939-89b1-49aa-ad11-e67803a14446.png" alt="iframe"></p>
+<h2 id="创建双向组件"><a href="#创建双向组件" class="headerlink" title="创建双向组件"></a>创建双向组件</h2><p>双向组件由两部分构成：<br>（1）一个前端frontend：基于HTML或任意web技术栈（JS技术，React、Vue等框架）构建，然后在Streamlit app中通过一个<code>iframe</code>标签所渲染；<br>（2）一个Python API：使得app可以实例化，并与前端交流数据。</p>
+<h3 id="环境配置"><a href="#环境配置" class="headerlink" title="环境配置"></a>环境配置</h3><p>要创建双向组件，需要先安装如下环境：<br>（1）Python3.7-python3.9<br>（2）Streamlit 0.63+<br>（3）nodejs<br>（4）npm或yarn</p>
+<h3 id="下载模板"><a href="#下载模板" class="headerlink" title="下载模板"></a>下载模板</h3><p>可以使用任意web技术来构建组件，Streamlit官方提供了基于React.js前端和纯TypeScript的开发模板，见<a target="_blank" rel="noopener" href="https://github.com/streamlit/component-template">这个仓库</a>。<br>也可以使用Vue.js及其他技术。这里以一个社区成员提供的<a target="_blank" rel="noopener" href="https://github.com/andfanilo/streamlit-component-template-vue">Vue3模板</a>为例，下载该模板：<br><figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">git clone git@github.com:andfanilo/streamlit-component-template-vue.git</span><br></pre></td></tr></table></figure></p>
+<h3 id="安装依赖并运行模板"><a href="#安装依赖并运行模板" class="headerlink" title="安装依赖并运行模板"></a>安装依赖并运行模板</h3><figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">$ cd my_component/frontend</span><br><span class="line">$ npm install    <span class="comment"># Install npm dependencies</span></span><br><span class="line">$ npm run serve  <span class="comment"># Start the Webpack dev server</span></span><br></pre></td></tr></table></figure>
+<p>注意这里是使用了开发服务器来运行前端代码，好处是开发阶段，每次代码的变动都能直接起效。<br>在实际上线过程中，使用：<br><figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">npm run build</span><br></pre></td></tr></table></figure><br>来进行打包。具体详情可查看“发布组件”一节。</p>
+<h3 id="运行app"><a href="#运行app" class="headerlink" title="运行app"></a>运行app</h3><p>另开一个终端，然后运行该模板所对应的app：<br><figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">streamlit run my_component/__init__.py  <span class="comment"># run the example</span></span><br></pre></td></tr></table></figure></p>
+<p>效果如下：<br><img src="https://user-images.githubusercontent.com/6218739/157813585-17353496-5ccf-4126-8073-5b16ea5fc70b.png" alt="vue"></p>
+<p>这个例子展示了双向交流数据是怎样进行的。Streamlit Component展示一个按钮（<code>python-&gt;JavaScript</code>），然后终端用户可以点击按钮。每次按钮被点击后，JavaScript前端就增加计算器数值，然后把它传递回Python（<code>JavaScript-&gt;Python</code>），然后Streamlit又再次渲染展示（<code>Python-&gt;JavaScript</code>）。</p>
+<h3 id="原理"><a href="#原理" class="headerlink" title="原理"></a>原理</h3><h4 id="数据交换过程"><a href="#数据交换过程" class="headerlink" title="数据交换过程"></a>数据交换过程</h4><p>（1）Python到JavaScript<br>基于Vue的前端在<code>my_component/frontend/src/MyComponent.vue</code>文件中。Python脚本传来的参数可以在<code>args</code>属性中获得：<br>以此例来说，在Python脚本中定义的函数及其参数为：<br><figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br></pre></td><td class="code"><pre><span class="line">_component_func = components.declare_component(</span><br><span class="line">    <span class="string">&quot;my_component&quot;</span>,</span><br><span class="line">    url=<span class="string">&quot;http://localhost:3001&quot;</span>,</span><br><span class="line">)</span><br><span class="line"></span><br><span class="line"><span class="function"><span class="keyword">def</span> <span class="title">my_component</span>(<span class="params">name, key=<span class="literal">None</span></span>):</span></span><br><span class="line">    component_value = _component_func(name=name, key=key, default=<span class="number">0</span>)</span><br><span class="line">    <span class="keyword">return</span> component_value</span><br><span class="line"></span><br><span class="line">num_clicks = my_component(<span class="string">&quot;World&quot;</span>)</span><br></pre></td></tr></table></figure><br>然后在前端Vue模板中可以这样接收和使用：<br><figure class="highlight"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line">&lt;template&gt;</span><br><span class="line">  &lt;span&gt;</span><br><span class="line">    Hello, &#123;&#123; args.name &#125;&#125;! &amp;nbsp;</span><br><span class="line">  &lt;/span&gt;</span><br><span class="line">&lt;/template&gt;</span><br></pre></td></tr></table></figure><br>（2）JavaScript到Python<br>在前端中通过<code>Streamlit.setComponentValue()</code>向Python脚本传递数据：<br><figure class="highlight js"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">Streamlit.setComponentValue(numClicks.value)</span><br></pre></td></tr></table></figure><br>在Python脚本中获得如上数值：<br><figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">num_clicks = my_component(<span class="string">&quot;World&quot;</span>)</span><br><span class="line">st.markdown(<span class="string">&quot;You&#x27;ve clicked %s times!&quot;</span> % <span class="built_in">int</span>(num_clicks))</span><br></pre></td></tr></table></figure><br>当调用<code>Streamlit.setComponentValue(new_value)</code>时，这个新的数值就会传给Streamlit，其就会从上到下重新运行Python脚本，当脚本重新运行后，对<code>my_component(...)</code>的调用就会返回新的数值。</p>
+<h4 id="数据序列化"><a href="#数据序列化" class="headerlink" title="数据序列化"></a>数据序列化</h4><p>（1）Python到JavaScript<br>如前所述，可以在Python的<code>my_component</code>函数中传递数据，从而在JavaScript中获取。可以传递的数据有：</p>
+<ul>
+<li>任何可序列化为JSON的数据</li>
+<li><code>numpy.array</code></li>
+<li><code>pandas.DataFrame</code></li>
+</ul>
+<p>第一种任何可序列化为JSON的数据都会被序列化为JSON字符串，然后在JavaScript中反序列化。<br>第二种和第三种都是通过<a target="_blank" rel="noopener" href="https://arrow.apache.org/">Apache Arrow</a>序列化，然后被反序列化为<code>ArrowType</code>，它是Arrow自定义的一种数据格式，提供了非常简便的API供调用。<br>（2）JavaScript到Python<br>如前所述，可以在JavaScript的<code>Streamlit.setComponentValue()</code>函数中传递数据给Python。不像是前面Python到JavaScript那样可以传递参数并解析参数，这个函数仅能传递一个数值。如果想传递多个数值，需要将它们封装成<code>Array</code>或<code>Object</code>。<br>从JavaScript到Python，可以传递可序列化为JSON的数据，以及<code>ArrowTable</code>这种能表示data frame的数据结构。</p>
+<h1 id="发布组件"><a href="#发布组件" class="headerlink" title="发布组件"></a>发布组件</h1><p>新的组件创建好后，可以将其打包发布到PyPI上，供其他Python用户使用。即使不是为了公开自己的组件，对于双向组件，也是需要将前端部分进行生产环境下的打包。<br>对于静态组件的发布，以及上传PyPI，这些操作在这里都不再详述，具体可以参考<a target="_blank" rel="noopener" href="https://docs.streamlit.io/library/components/publish">这里</a>。<br>这一部分主要看双向组件的配置，因为其既还有Python代码，也有JS和HTML代码，需要将这些前端代码编译成静态文件。<br>双向组件的配置基于前面的template。<br>（1）命名组件<br>首先，将<code>template/my_component/</code>文件夹重命名为<code>template/&lt;component name&gt;/</code>；<br>然后，将组件名字传入<code>declare_component()</code>的第一个参数。<br><figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">if</span> <span class="keyword">not</span> _RELEASE:</span><br><span class="line">    _component_func = components.declare_component(</span><br><span class="line">        <span class="string">&quot;hello_world&quot;</span>,</span><br><span class="line">        url=<span class="string">&quot;http://localhost:3001&quot;</span>,</span><br><span class="line">    )</span><br><span class="line"><span class="keyword">else</span>:</span><br><span class="line">    parent_dir = os.path.dirname(os.path.abspath(__file__))</span><br><span class="line">    build_dir = os.path.join(parent_dir, <span class="string">&quot;frontend/dist&quot;</span>)</span><br><span class="line">    _component_func = components.declare_component(</span><br><span class="line">        <span class="string">&quot;hello_world&quot;</span>, path=build_dir)</span><br></pre></td></tr></table></figure><br>（2）打包前端文件<br><figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">$ cd frontend</span><br><span class="line">$ npm run build</span><br></pre></td></tr></table></figure><br>即将Vue代码编译为HTML、CSS和JS文件。这将会新建一个<code>frontend/dist/</code>文件夹，里面存放了这些文件。<br>（3）更改Release模式<br>将Python脚本中的模式设为release模式：<code>_RELEASE = True</code>。</p>
+<p>这样配置以后，就无需通过<code>npm run serve</code>开启一个开发服务器，直接使用一个终端运行<code>streamlit run</code>即可。</p>
+
+    </div>
+
+    
+    
+    
+        <div class="reward-container">
+  <div></div>
+  <button onclick="var qr = document.getElementById('qr'); qr.style.display = (qr.style.display === 'none') ? 'block' : 'none';">
+    Donate
+  </button>
+  <div id="qr" style="display: none;">
+      
+      <div style="display: inline-block;">
+        <img src="/images/wechat_reward.png" alt="Xin-Bo Qi(亓欣波) WeChat Pay">
+        <p>WeChat Pay</p>
+      </div>
+
+  </div>
+</div>
+
+
+      <footer class="post-footer">
+          <div class="post-tags">
+              <a href="/tags/Streamlit/" rel="tag"># Streamlit</a>
+          </div>
+
+        
+
+
+        
+    <div class="post-nav">
+      <div class="post-nav-item">
+    <a href="/2022/03/10/streamlit_2/" rel="prev" title="用Python开发web应用——Streamlit框架解析：2 -- 会话状态">
+      <i class="fa fa-chevron-left"></i> 用Python开发web应用——Streamlit框架解析：2 -- 会话状态
+    </a></div>
+      <div class="post-nav-item"></div>
+    </div>
+      </footer>
+    
+  </article>
+  
+  
+  
+
+
+
+          </div>
+          
+    
+  <div class="comments">
+    <div id="disqus_thread">
+      <noscript>Please enable JavaScript to view the comments powered by Disqus.</noscript>
+    </div>
+  </div>
+  
+
+<script>
+  window.addEventListener('tabs:register', () => {
+    let { activeClass } = CONFIG.comments;
+    if (CONFIG.comments.storage) {
+      activeClass = localStorage.getItem('comments_active') || activeClass;
+    }
+    if (activeClass) {
+      let activeTab = document.querySelector(`a[href="#comment-${activeClass}"]`);
+      if (activeTab) {
+        activeTab.click();
+      }
+    }
+  });
+  if (CONFIG.comments.storage) {
+    window.addEventListener('tabs:click', event => {
+      if (!event.target.matches('.tabs-comment .tab-content .tab-pane')) return;
+      let commentClass = event.target.classList[1];
+      localStorage.setItem('comments_active', commentClass);
+    });
+  }
+</script>
+
+        </div>
+          
+  
+  <div class="toggle sidebar-toggle">
+    <span class="toggle-line toggle-line-first"></span>
+    <span class="toggle-line toggle-line-middle"></span>
+    <span class="toggle-line toggle-line-last"></span>
+  </div>
+
+  <aside class="sidebar">
+    <div class="sidebar-inner">
+
+      <ul class="sidebar-nav motion-element">
+        <li class="sidebar-nav-toc">
+          Table of Contents
+        </li>
+        <li class="sidebar-nav-overview">
+          Overview
+        </li>
+      </ul>
+
+      <!--noindex-->
+      <div class="post-toc-wrap sidebar-panel">
+          <div class="post-toc motion-element"><ol class="nav"><li class="nav-item nav-level-1"><a class="nav-link" href="#%E7%AE%80%E4%BB%8B"><span class="nav-number">1.</span> <span class="nav-text">简介</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#%E4%BD%BF%E7%94%A8%E7%BB%84%E4%BB%B6"><span class="nav-number">2.</span> <span class="nav-text">使用组件</span></a><ol class="nav-child"><li class="nav-item nav-level-2"><a class="nav-link" href="#%E6%9F%A5%E6%89%BE%E5%8F%AF%E7%94%A8%E7%BB%84%E4%BB%B6"><span class="nav-number">2.1.</span> <span class="nav-text">查找可用组件</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E5%AE%89%E8%A3%85%E7%BB%84%E4%BB%B6"><span class="nav-number">2.2.</span> <span class="nav-text">安装组件</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E4%BD%BF%E7%94%A8%E7%BB%84%E4%BB%B6-1"><span class="nav-number">2.3.</span> <span class="nav-text">使用组件</span></a></li></ol></li><li class="nav-item nav-level-1"><a class="nav-link" href="#%E5%88%9B%E5%BB%BA%E7%BB%84%E4%BB%B6"><span class="nav-number">3.</span> <span class="nav-text">创建组件</span></a><ol class="nav-child"><li class="nav-item nav-level-2"><a class="nav-link" href="#%E5%88%9B%E5%BB%BA%E9%9D%99%E6%80%81%E7%BB%84%E4%BB%B6"><span class="nav-number">3.1.</span> <span class="nav-text">创建静态组件</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#%E7%A4%BA%E4%BE%8B1%EF%BC%9AGist%E4%BB%A3%E7%A0%81%E6%AE%B5"><span class="nav-number">3.1.1.</span> <span class="nav-text">示例1：Gist代码段</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E7%A4%BA%E4%BE%8B2%EF%BC%9Aboostrap"><span class="nav-number">3.1.2.</span> <span class="nav-text">示例2：boostrap</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E7%A4%BA%E4%BE%8B3%EF%BC%9A%E5%B5%8C%E5%85%A5%E5%A4%96%E9%83%A8%E7%BD%91%E7%AB%99"><span class="nav-number">3.1.3.</span> <span class="nav-text">示例3：嵌入外部网站</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E5%88%9B%E5%BB%BA%E5%8F%8C%E5%90%91%E7%BB%84%E4%BB%B6"><span class="nav-number">3.2.</span> <span class="nav-text">创建双向组件</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#%E7%8E%AF%E5%A2%83%E9%85%8D%E7%BD%AE"><span class="nav-number">3.2.1.</span> <span class="nav-text">环境配置</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E4%B8%8B%E8%BD%BD%E6%A8%A1%E6%9D%BF"><span class="nav-number">3.2.2.</span> <span class="nav-text">下载模板</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E5%AE%89%E8%A3%85%E4%BE%9D%E8%B5%96%E5%B9%B6%E8%BF%90%E8%A1%8C%E6%A8%A1%E6%9D%BF"><span class="nav-number">3.2.3.</span> <span class="nav-text">安装依赖并运行模板</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E8%BF%90%E8%A1%8Capp"><span class="nav-number">3.2.4.</span> <span class="nav-text">运行app</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E5%8E%9F%E7%90%86"><span class="nav-number">3.2.5.</span> <span class="nav-text">原理</span></a><ol class="nav-child"><li class="nav-item nav-level-4"><a class="nav-link" href="#%E6%95%B0%E6%8D%AE%E4%BA%A4%E6%8D%A2%E8%BF%87%E7%A8%8B"><span class="nav-number">3.2.5.1.</span> <span class="nav-text">数据交换过程</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#%E6%95%B0%E6%8D%AE%E5%BA%8F%E5%88%97%E5%8C%96"><span class="nav-number">3.2.5.2.</span> <span class="nav-text">数据序列化</span></a></li></ol></li></ol></li></ol></li><li class="nav-item nav-level-1"><a class="nav-link" href="#%E5%8F%91%E5%B8%83%E7%BB%84%E4%BB%B6"><span class="nav-number">4.</span> <span class="nav-text">发布组件</span></a></li></ol></div>
+      </div>
+      <!--/noindex-->
+
+      <div class="site-overview-wrap sidebar-panel">
+        <div class="site-author motion-element" itemprop="author" itemscope itemtype="http://schema.org/Person">
+    <img class="site-author-image" itemprop="image" alt="Xin-Bo Qi(亓欣波)"
+      src="/images/avatar.jpg">
+  <p class="site-author-name" itemprop="name">Xin-Bo Qi(亓欣波)</p>
+  <div class="site-description" itemprop="description">Digitize everything to realize Digitalization!</div>
+</div>
+<div class="site-state-wrap motion-element">
+  <nav class="site-state">
+      <div class="site-state-item site-state-posts">
+          <a href="/archives/">
+        
+          <span class="site-state-item-count">151</span>
+          <span class="site-state-item-name">posts</span>
+        </a>
+      </div>
+      <div class="site-state-item site-state-categories">
+            <a href="/categories/">
+          
+        <span class="site-state-item-count">6</span>
+        <span class="site-state-item-name">categories</span></a>
+      </div>
+      <div class="site-state-item site-state-tags">
+            <a href="/tags/">
+          
+        <span class="site-state-item-count">50</span>
+        <span class="site-state-item-name">tags</span></a>
+      </div>
+  </nav>
+</div>
+  <div class="links-of-author motion-element">
+      <span class="links-of-author-item">
+        <a href="https://github.com/qixinbo" title="GitHub → https:&#x2F;&#x2F;github.com&#x2F;qixinbo" rel="noopener" target="_blank"><i class="github fa-fw"></i>GitHub</a>
+      </span>
+      <span class="links-of-author-item">
+        <a href="mailto:qixinbo@gmail.com" title="E-Mail → mailto:qixinbo@gmail.com" rel="noopener" target="_blank"><i class="envelope fa-fw"></i>E-Mail</a>
+      </span>
+      <span class="links-of-author-item">
+        <a href="https://twitter.com/qixinbo" title="Twitter → https:&#x2F;&#x2F;twitter.com&#x2F;qixinbo" rel="noopener" target="_blank"><i class="fab fa-twitter fa-fw"></i>Twitter</a>
+      </span>
+      <span class="links-of-author-item">
+        <a href="/atom.xml" title="RSS → &#x2F;atom.xml"><i class="fas fa-rss fa-fw"></i>RSS</a>
+      </span>
+  </div>
+
+
+  <div class="links-of-blogroll motion-element">
+    <div class="links-of-blogroll-title"><i class="fa fa-link fa-fw"></i>
+      Links
+    </div>
+    <ul class="links-of-blogroll-list">
+        <li class="links-of-blogroll-item">
+          <a href="https://www.tsinghua.edu.cn/" title="https:&#x2F;&#x2F;www.tsinghua.edu.cn" rel="noopener" target="_blank">THU</a>
+        </li>
+        <li class="links-of-blogroll-item">
+          <a href="http://www.imr.cas.cn/" title="http:&#x2F;&#x2F;www.imr.cas.cn" rel="noopener" target="_blank">IMR</a>
+        </li>
+        <li class="links-of-blogroll-item">
+          <a href="http://www.sdu.edu.cn/" title="http:&#x2F;&#x2F;www.sdu.edu.cn" rel="noopener" target="_blank">SDU</a>
+        </li>
+        <li class="links-of-blogroll-item">
+          <a href="http://liam0205.me/" title="http:&#x2F;&#x2F;liam0205.me&#x2F;" rel="noopener" target="_blank">黄晨成</a>
+        </li>
+    </ul>
+  </div>
+
+      </div>
+
+    </div>
+  </aside>
+  <div id="sidebar-dimmer"></div>
+
+
+      </div>
+    </main>
+
+    <footer class="footer">
+      <div class="footer-inner">
+        
+
+        
+
+<div class="copyright">
+  
+  &copy; 
+  <span itemprop="copyrightYear">2022</span>
+  <span class="with-love">
+    <i class="fa fa-heart"></i>
+  </span>
+  <span class="author" itemprop="copyrightHolder">Xin-Bo Qi(亓欣波)</span>
+</div>
+  <div class="powered-by">Powered by <a href="https://hexo.io/" class="theme-link" rel="noopener" target="_blank">Hexo</a> & <a href="https://theme-next.org/" class="theme-link" rel="noopener" target="_blank">NexT.Gemini</a>
+  </div>
+
+        
+
+
+
+
+
+
+
+
+      </div>
+    </footer>
+  </div>
+
+  
+  <script src="/lib/anime.min.js"></script>
+  <script src="/lib/velocity/velocity.min.js"></script>
+  <script src="/lib/velocity/velocity.ui.min.js"></script>
+
+<script src="/js/utils.js"></script>
+
+<script src="/js/motion.js"></script>
+
+
+<script src="/js/schemes/pisces.js"></script>
+
+
+<script src="/js/next-boot.js"></script>
+
+
+
+
+  
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+  
+
+  
+      
+
+<script>
+  if (typeof MathJax === 'undefined') {
+    window.MathJax = {
+      loader: {
+        source: {
+          '[tex]/amsCd': '[tex]/amscd',
+          '[tex]/AMScd': '[tex]/amscd'
+        }
+      },
+      tex: {
+        inlineMath: {'[+]': [['$', '$']]},
+        tags: 'ams'
+      },
+      options: {
+        renderActions: {
+          findScript: [10, doc => {
+            document.querySelectorAll('script[type^="math/tex"]').forEach(node => {
+              const display = !!node.type.match(/; *mode=display/);
+              const math = new doc.options.MathItem(node.textContent, doc.inputJax[0], display);
+              const text = document.createTextNode('');
+              node.parentNode.replaceChild(text, node);
+              math.start = {node: text, delim: '', n: 0};
+              math.end = {node: text, delim: '', n: 0};
+              doc.math.push(math);
+            });
+          }, '', false],
+          insertedScript: [200, () => {
+            document.querySelectorAll('mjx-container').forEach(node => {
+              let target = node.parentNode;
+              if (target.nodeName.toLowerCase() === 'li') {
+                target.parentNode.classList.add('has-jax');
+              }
+            });
+          }, '', false]
+        }
+      }
+    };
+    (function () {
+      var script = document.createElement('script');
+      script.src = '//cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js';
+      script.defer = true;
+      document.head.appendChild(script);
+    })();
+  } else {
+    MathJax.startup.document.state(0);
+    MathJax.texReset();
+    MathJax.typeset();
+  }
+</script>
+
+    
+
+  
+
+<script>
+  function loadCount() {
+    var d = document, s = d.createElement('script');
+    s.src = 'https://qixinbo.disqus.com/count.js';
+    s.id = 'dsq-count-scr';
+    (d.head || d.body).appendChild(s);
+  }
+  // defer loading until the whole page loading is completed
+  window.addEventListener('load', loadCount, false);
+</script>
+<script>
+  var disqus_config = function() {
+    this.page.url = "http://qixinbo.github.io/2022/03/11/streamlit_3/";
+    this.page.identifier = "2022/03/11/streamlit_3/";
+    this.page.title = "用Python开发web应用——Streamlit框架解析：3 -- 组件";
+    };
+  NexT.utils.loadComments(document.querySelector('#disqus_thread'), () => {
+    if (window.DISQUS) {
+      DISQUS.reset({
+        reload: true,
+        config: disqus_config
+      });
+    } else {
+      var d = document, s = d.createElement('script');
+      s.src = 'https://qixinbo.disqus.com/embed.js';
+      s.setAttribute('data-timestamp', '' + +new Date());
+      (d.head || d.body).appendChild(s);
+    }
+  });
+</script>
+
+</body>
+</html>
