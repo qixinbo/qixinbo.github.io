@@ -1,0 +1,618 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=2">
+<meta name="theme-color" content="#222">
+<meta name="generator" content="Hexo 5.4.0">
+  <link rel="apple-touch-icon" sizes="180x180" href="/images/apple-touch-icon-next.png">
+  <link rel="icon" type="image/png" sizes="32x32" href="/favicon.ico">
+  <link rel="icon" type="image/png" sizes="16x16" href="/favicon.ico">
+  <link rel="mask-icon" href="/images/logo.svg" color="#222">
+
+<link rel="stylesheet" href="/css/main.css">
+
+
+<link rel="stylesheet" href="/lib/font-awesome/css/all.min.css">
+
+<script id="hexo-configurations">
+    var NexT = window.NexT || {};
+    var CONFIG = {"hostname":"qixinbo.github.io","root":"/","scheme":"Gemini","version":"7.8.0","exturl":false,"sidebar":{"position":"left","display":"post","padding":18,"offset":12,"onmobile":false},"copycode":{"enable":false,"show_result":false,"style":null},"back2top":{"enable":true,"sidebar":false,"scrollpercent":false},"bookmark":{"enable":false,"color":"#222","save":"auto"},"fancybox":false,"mediumzoom":false,"lazyload":false,"pangu":false,"comments":{"style":"tabs","active":null,"storage":true,"lazyload":false,"nav":null},"algolia":{"hits":{"per_page":10},"labels":{"input_placeholder":"Search for Posts","hits_empty":"We didn't find any results for the search: ${query}","hits_stats":"${hits} results found in ${time} ms"}},"localsearch":{"enable":false,"trigger":"auto","top_n_per_article":1,"unescape":false,"preload":false},"motion":{"enable":true,"async":false,"transition":{"post_block":"fadeIn","post_header":"slideDownIn","post_body":"slideDownIn","coll_header":"slideLeftIn","sidebar":"slideUpIn"}}};
+  </script>
+
+  <meta name="description" content="简介 ImJoy有一个很有用的插件或独立应用，叫做Kaibu，它可以展示普通的位图、矢量图及vtk、stl等3D格式的数据。 比如如下展示：  其就是位图（png格式）、矢量图（json格式）、3D模型（stl格式）的一个叠加。  Kaibu主要用了两个JS库，一个是OpenLayers，一个是ITK-VTK，前者用于展示矢量图形、普通位图等数据，且对地图的展示异常强大，后者用于展示在医疗及科学计">
+<meta property="og:type" content="article">
+<meta property="og:title" content="开源深度学习计算平台ImJoy解析：12 -- 基于web的绘图库OpenLayers">
+<meta property="og:url" content="http://qixinbo.github.io/2022/03/16/ImJoy_12/index.html">
+<meta property="og:site_name" content="数字旗手">
+<meta property="og:description" content="简介 ImJoy有一个很有用的插件或独立应用，叫做Kaibu，它可以展示普通的位图、矢量图及vtk、stl等3D格式的数据。 比如如下展示：  其就是位图（png格式）、矢量图（json格式）、3D模型（stl格式）的一个叠加。  Kaibu主要用了两个JS库，一个是OpenLayers，一个是ITK-VTK，前者用于展示矢量图形、普通位图等数据，且对地图的展示异常强大，后者用于展示在医疗及科学计">
+<meta property="og:locale" content="en_US">
+<meta property="og:image" content="https://user-images.githubusercontent.com/6218739/158537518-a3583f3e-4b06-494b-928a-3904f6b29fb2.png">
+<meta property="og:image" content="https://user-images.githubusercontent.com/6218739/158340705-a8876d2b-035e-4764-9c77-229e722be721.png">
+<meta property="og:image" content="https://user-images.githubusercontent.com/6218739/158343566-6f7fa033-d8ec-4741-b50f-5e65ce122485.png">
+<meta property="og:image" content="https://user-images.githubusercontent.com/6218739/158392776-41d856f4-1c85-43e2-a129-380ab1131356.png">
+<meta property="og:image" content="https://user-images.githubusercontent.com/6218739/158398065-704634ef-a6dc-4d17-a4a6-a87edc51c8f1.png">
+<meta property="article:published_time" content="2022-03-15T16:00:00.000Z">
+<meta property="article:modified_time" content="2022-03-16T07:26:31.349Z">
+<meta property="article:author" content="Xin-Bo Qi(亓欣波)">
+<meta property="article:tag" content="ImJoy">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:image" content="https://user-images.githubusercontent.com/6218739/158537518-a3583f3e-4b06-494b-928a-3904f6b29fb2.png">
+
+<link rel="canonical" href="http://qixinbo.github.io/2022/03/16/ImJoy_12/">
+
+
+<script id="page-configurations">
+  // https://hexo.io/docs/variables.html
+  CONFIG.page = {
+    sidebar: "",
+    isHome : false,
+    isPost : true,
+    lang   : 'en'
+  };
+</script>
+
+  <title>开源深度学习计算平台ImJoy解析：12 -- 基于web的绘图库OpenLayers | 数字旗手</title>
+  
+
+
+
+
+
+
+  <noscript>
+  <style>
+  .use-motion .brand,
+  .use-motion .menu-item,
+  .sidebar-inner,
+  .use-motion .post-block,
+  .use-motion .pagination,
+  .use-motion .comments,
+  .use-motion .post-header,
+  .use-motion .post-body,
+  .use-motion .collection-header { opacity: initial; }
+
+  .use-motion .site-title,
+  .use-motion .site-subtitle {
+    opacity: initial;
+    top: initial;
+  }
+
+  .use-motion .logo-line-before i { left: initial; }
+  .use-motion .logo-line-after i { right: initial; }
+  </style>
+</noscript>
+
+<link rel="alternate" href="/atom.xml" title="数字旗手" type="application/atom+xml">
+</head>
+
+<body itemscope itemtype="http://schema.org/WebPage">
+  <div class="container use-motion">
+    <div class="headband"></div>
+
+    <header class="header" itemscope itemtype="http://schema.org/WPHeader">
+      <div class="header-inner"><div class="site-brand-container">
+  <div class="site-nav-toggle">
+    <div class="toggle" aria-label="Toggle navigation bar">
+      <span class="toggle-line toggle-line-first"></span>
+      <span class="toggle-line toggle-line-middle"></span>
+      <span class="toggle-line toggle-line-last"></span>
+    </div>
+  </div>
+
+  <div class="site-meta">
+
+    <a href="/" class="brand" rel="start">
+      <span class="logo-line-before"><i></i></span>
+      <h1 class="site-title">数字旗手</h1>
+      <span class="logo-line-after"><i></i></span>
+    </a>
+      <p class="site-subtitle" itemprop="description">电气化、自动化、数字化、智能化、智慧化</p>
+  </div>
+
+  <div class="site-nav-right">
+    <div class="toggle popup-trigger">
+    </div>
+  </div>
+</div>
+
+
+
+
+<nav class="site-nav">
+  <ul id="menu" class="main-menu menu">
+        <li class="menu-item menu-item-home">
+
+    <a href="/" rel="section"><i class="fa fa-home fa-fw"></i>Home</a>
+
+  </li>
+        <li class="menu-item menu-item-categories">
+
+    <a href="/categories/" rel="section"><i class="fa fa-th fa-fw"></i>Categories</a>
+
+  </li>
+        <li class="menu-item menu-item-archives">
+
+    <a href="/archives/" rel="section"><i class="fa fa-archive fa-fw"></i>Archives</a>
+
+  </li>
+        <li class="menu-item menu-item-tags">
+
+    <a href="/tags/" rel="section"><i class="fa fa-tags fa-fw"></i>Tags</a>
+
+  </li>
+        <li class="menu-item menu-item-scholar">
+
+    <a href="/scholar/" rel="section"><i class="fa fa-chart-bar fa-fw"></i>scholar</a>
+
+  </li>
+        <li class="menu-item menu-item-sources">
+
+    <a href="/sources/" rel="section"><i class="fa fa-rss fa-fw"></i>sources</a>
+
+  </li>
+        <li class="menu-item menu-item-gallery">
+
+    <a href="/gallery/" rel="section"><i class="fa fa-file-image fa-fw"></i>gallery</a>
+
+  </li>
+        <li class="menu-item menu-item-about">
+
+    <a href="/about/" rel="section"><i class="fa fa-user fa-fw"></i>About</a>
+
+  </li>
+        <li class="menu-item menu-item-commonweal">
+
+    <a href="/404.html" rel="section"><i class="fa fa-heartbeat fa-fw"></i>Commonweal 404</a>
+
+  </li>
+  </ul>
+</nav>
+
+
+
+
+</div>
+    </header>
+
+    
+  <div class="back-to-top">
+    <i class="fa fa-arrow-up"></i>
+    <span>0%</span>
+  </div>
+
+
+    <main class="main">
+      <div class="main-inner">
+        <div class="content-wrap">
+          
+
+          <div class="content post posts-expand">
+            
+
+    
+  
+  
+  <article itemscope itemtype="http://schema.org/Article" class="post-block" lang="en">
+    <link itemprop="mainEntityOfPage" href="http://qixinbo.github.io/2022/03/16/ImJoy_12/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="image" content="/images/avatar.jpg">
+      <meta itemprop="name" content="Xin-Bo Qi(亓欣波)">
+      <meta itemprop="description" content="Digitize everything to realize Digitalization!">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="数字旗手">
+    </span>
+      <header class="post-header">
+        <h1 class="post-title" itemprop="name headline">
+          开源深度学习计算平台ImJoy解析：12 -- 基于web的绘图库OpenLayers
+        </h1>
+
+        <div class="post-meta">
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="far fa-calendar"></i>
+              </span>
+              <span class="post-meta-item-text">Posted on</span>
+              
+
+              <time title="Created: 2022-03-16 00:00:00 / Modified: 15:26:31" itemprop="dateCreated datePublished" datetime="2022-03-16T00:00:00+08:00">2022-03-16</time>
+            </span>
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="far fa-folder"></i>
+              </span>
+              <span class="post-meta-item-text">In</span>
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+                  <a href="/categories/computer-vision/" itemprop="url" rel="index"><span itemprop="name">computer vision</span></a>
+                </span>
+            </span>
+
+          
+  
+  <span class="post-meta-item">
+    
+      <span class="post-meta-item-icon">
+        <i class="far fa-comment"></i>
+      </span>
+      <span class="post-meta-item-text">Disqus: </span>
+    
+    <a title="disqus" href="/2022/03/16/ImJoy_12/#disqus_thread" itemprop="discussionUrl">
+      <span class="post-comments-count disqus-comment-count" data-disqus-identifier="2022/03/16/ImJoy_12/" itemprop="commentCount"></span>
+    </a>
+  </span>
+  
+  
+
+        </div>
+      </header>
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+        <h1 id="简介"><a href="#简介" class="headerlink" title="简介"></a>简介</h1><p>ImJoy有一个很有用的插件或独立应用，叫做<a target="_blank" rel="noopener" href="https://kaibu.org/">Kaibu</a>，它可以展示普通的位图、矢量图及vtk、stl等3D格式的数据。<br>比如如下展示：<br><img src="https://user-images.githubusercontent.com/6218739/158537518-a3583f3e-4b06-494b-928a-3904f6b29fb2.png" alt="kaibu"><br>其就是位图（png格式）、矢量图（json格式）、3D模型（stl格式）的一个叠加。</p>
+<p>Kaibu主要用了两个JS库，一个是<a target="_blank" rel="noopener" href="https://openlayers.org/">OpenLayers</a>，一个是<a target="_blank" rel="noopener" href="https://kitware.github.io/itk-vtk-viewer/docs/">ITK-VTK</a>，前者用于展示矢量图形、普通位图等数据，且对地图的展示异常强大，后者用于展示在医疗及科学计算中常用的3D图像、网格、点集等。</p>
+<p>这一篇主要介绍OpenLayers的相关知识。</p>
+<h1 id="配置环境"><a href="#配置环境" class="headerlink" title="配置环境"></a>配置环境</h1><p>从<a target="_blank" rel="noopener" href="https://github.com/openlayers/workshop/releases">OpenLayers workshop releases</a>里下载最新的资料包。<br>安装依赖：<br><figure class="highlight js"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">npm install</span><br></pre></td></tr></table></figure><br>启动：<br><figure class="highlight js"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">npm start</span><br></pre></td></tr></table></figure><br>这会启动一个开发服务器。可以通过<code>http://localhost:1234</code>查看一个“欢迎”的弹出窗口，以及<code>http://localhost:1234/doc/</code>查看说明文档。</p>
+<h1 id="开发入门"><a href="#开发入门" class="headerlink" title="开发入门"></a>开发入门</h1><p>这一部分会通过OpenLayers map来创建一个简单的web页面。<br>在OpenLayers中，一个map是在web页面中被渲染的一系列“层”layers的集合。OpenLayers支持很多种layers：<br>（1）针对平铺光栅切片数据的Tile layer；<br>（2）针对位图图像的Image layer；<br>（3）针对矢量数据的Vector layer；<br>（4）针对平铺矢量切片数据的Vector tile layer。<br>除了这些layers，一个map还可以通过一系列的控制（即在map上面的UI元素）和交互（即与map进行交互反馈的部件）来进行配置。<br>为了创建一个map，需要通过HTML中的元素来创建（如一个<code>&lt;div&gt;</code>元素），以及一些样式来指定合适的尺寸。</p>
+<h2 id="HTML页面"><a href="#HTML页面" class="headerlink" title="HTML页面"></a>HTML页面</h2><p>将项目根目录中的<code>index.html</code>里的内容替换为如下代码（注释写在了代码中）：<br><figure class="highlight js"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br></pre></td><td class="code"><pre><span class="line">&lt;!DOCTYPE html&gt;</span><br><span class="line">&lt;html&gt;</span><br><span class="line">  &lt;head&gt;</span><br><span class="line">    &lt;meta charset=<span class="string">&quot;utf-8&quot;</span>&gt;</span><br><span class="line">    &lt;title&gt;OpenLayers&lt;/title&gt;</span><br><span class="line">    &lt;style&gt;</span><br><span class="line">      <span class="comment">/*引入OpenLayers的样式*/</span></span><br><span class="line">      @<span class="keyword">import</span> <span class="string">&quot;node_modules/ol/ol.css&quot;</span>;</span><br><span class="line">    &lt;/style&gt;</span><br><span class="line">    &lt;style&gt;</span><br><span class="line">      <span class="comment">/*该部分样式使得map容器完全充满整个页面*/</span></span><br><span class="line">      html, body, #map-container &#123;</span><br><span class="line">        margin: <span class="number">0</span>;</span><br><span class="line">        height: <span class="number">100</span>%;</span><br><span class="line">        width: <span class="number">100</span>%;</span><br><span class="line">        font-family: sans-serif;</span><br><span class="line">      &#125;</span><br><span class="line">    &lt;/style&gt;</span><br><span class="line">  &lt;/head&gt;</span><br><span class="line">  &lt;body&gt;</span><br><span class="line">    &lt;!-- 该div标签是map的渲染容器 --&gt;</span><br><span class="line">    &lt;div id=<span class="string">&quot;map-container&quot;</span>&gt;&lt;/div&gt;</span><br><span class="line">    &lt;!-- 引入相关的js代码 --&gt;</span><br><span class="line">    &lt;script src=<span class="string">&quot;./main.js&quot;</span> type=<span class="string">&quot;module&quot;</span>&gt;&lt;/script&gt;</span><br><span class="line">  &lt;/body&gt;</span><br><span class="line">&lt;/html&gt;</span><br></pre></td></tr></table></figure></p>
+<h2 id="具体应用"><a href="#具体应用" class="headerlink" title="具体应用"></a>具体应用</h2><p>将项目根目录中的<code>main.js</code>里的内容替换为如下代码：<br><figure class="highlight js"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">// 从OpenLayers中导入必要的模块</span></span><br><span class="line"><span class="keyword">import</span> OSM <span class="keyword">from</span> <span class="string">&#x27;ol/source/OSM&#x27;</span>;</span><br><span class="line"><span class="keyword">import</span> TileLayer <span class="keyword">from</span> <span class="string">&#x27;ol/layer/Tile&#x27;</span>;</span><br><span class="line"><span class="keyword">import</span> &#123;<span class="built_in">Map</span>, View&#125; <span class="keyword">from</span> <span class="string">&#x27;ol&#x27;</span>;</span><br><span class="line"><span class="keyword">import</span> &#123;fromLonLat&#125; <span class="keyword">from</span> <span class="string">&#x27;ol/proj&#x27;</span>;</span><br><span class="line"></span><br><span class="line"><span class="comment">// 创建一个Map对象</span></span><br><span class="line"><span class="keyword">new</span> <span class="built_in">Map</span>(&#123;</span><br><span class="line">  <span class="comment">// 目标是HTML中的那个div元素</span></span><br><span class="line">  target: <span class="string">&#x27;map-container&#x27;</span>,</span><br><span class="line">  layers: [</span><br><span class="line">    <span class="comment">// 具体的layer是使用了Tile Layer</span></span><br><span class="line">    <span class="keyword">new</span> TileLayer(&#123;</span><br><span class="line">      source: <span class="keyword">new</span> OSM(),</span><br><span class="line">    &#125;),</span><br><span class="line">  ],</span><br><span class="line">  <span class="comment">// view定义了初始的中心点和缩放比例</span></span><br><span class="line">  view: <span class="keyword">new</span> View(&#123;</span><br><span class="line">    <span class="comment">// 中心点的指定是通过fromLonLat函数获取地理坐标</span></span><br><span class="line">    center: fromLonLat([<span class="number">0</span>, <span class="number">0</span>]),</span><br><span class="line">    zoom: <span class="number">2</span>,</span><br><span class="line">  &#125;),</span><br><span class="line">&#125;);</span><br></pre></td></tr></table></figure></p>
+<h2 id="效果"><a href="#效果" class="headerlink" title="效果"></a>效果</h2><p>此时打开<code>http://localhost:1234</code>，会看到世界地图：<br><img src="https://user-images.githubusercontent.com/6218739/158340705-a8876d2b-035e-4764-9c77-229e722be721.png" alt="basic"></p>
+<h1 id="矢量数据"><a href="#矢量数据" class="headerlink" title="矢量数据"></a>矢量数据</h1><p>在这一部分，将会创建一个可以操作矢量数据的编辑器，使得用户可以导入数据、绘制形状、修改已有形状及导出结果等。<br>本部分会使用<a target="_blank" rel="noopener" href="https://geojson.org/">GeoJSON</a>数据，不过OpenLayers支持其他大量的矢量数据格式。</p>
+<h2 id="渲染GeoJSON"><a href="#渲染GeoJSON" class="headerlink" title="渲染GeoJSON"></a>渲染GeoJSON</h2><p>在开发编辑功能之前，先看一下基本的对矢量数据的渲染功能。<br>在项目的data路径下有一个名为<code>countries.json</code>的GeoJSON文件，这里将加载该数据并在地图上渲染出来。<br>首先，编辑一下刚才的<code>index.html</code>，这里新加一行控制背景颜色的代码：<br><figure class="highlight js"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br></pre></td><td class="code"><pre><span class="line">&lt;!DOCTYPE html&gt;</span><br><span class="line">&lt;html&gt;</span><br><span class="line">  &lt;head&gt;</span><br><span class="line">    &lt;meta charset=<span class="string">&quot;utf-8&quot;</span>&gt;</span><br><span class="line">    &lt;title&gt;OpenLayers&lt;/title&gt;</span><br><span class="line">    &lt;style&gt;</span><br><span class="line">      @<span class="keyword">import</span> <span class="string">&quot;node_modules/ol/ol.css&quot;</span>;</span><br><span class="line">    &lt;/style&gt;</span><br><span class="line">    &lt;style&gt;</span><br><span class="line">      html, body, #map-container &#123;</span><br><span class="line">        margin: <span class="number">0</span>;</span><br><span class="line">        height: <span class="number">100</span>%;</span><br><span class="line">        width: <span class="number">100</span>%;</span><br><span class="line">        font-family: sans-serif;</span><br><span class="line">        <span class="comment">/*新加了这一行来控制背景颜色*/</span></span><br><span class="line">        background-color: #04041b;</span><br><span class="line">      &#125;</span><br><span class="line">    &lt;/style&gt;</span><br><span class="line">  &lt;/head&gt;</span><br><span class="line">  &lt;body&gt;</span><br><span class="line">    &lt;div id=<span class="string">&quot;map-container&quot;</span>&gt;&lt;/div&gt;</span><br><span class="line">    &lt;script src=<span class="string">&quot;./main.js&quot;</span> type=<span class="string">&quot;module&quot;</span>&gt;&lt;/script&gt;</span><br><span class="line">  &lt;/body&gt;</span><br><span class="line">&lt;/html&gt;</span><br></pre></td></tr></table></figure><br>然后将<code>main.js</code>中的内容替换为如下代码：<br><figure class="highlight js"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">// 导入GeoJSON包来读写该格式的数据</span></span><br><span class="line"><span class="keyword">import</span> GeoJSON <span class="keyword">from</span> <span class="string">&#x27;ol/format/GeoJSON&#x27;</span>;</span><br><span class="line"><span class="keyword">import</span> <span class="built_in">Map</span> <span class="keyword">from</span> <span class="string">&#x27;ol/Map&#x27;</span>;</span><br><span class="line"><span class="keyword">import</span> VectorLayer <span class="keyword">from</span> <span class="string">&#x27;ol/layer/Vector&#x27;</span>;</span><br><span class="line"><span class="keyword">import</span> VectorSource <span class="keyword">from</span> <span class="string">&#x27;ol/source/Vector&#x27;</span>;</span><br><span class="line"><span class="keyword">import</span> View <span class="keyword">from</span> <span class="string">&#x27;ol/View&#x27;</span>;</span><br><span class="line"></span><br><span class="line"><span class="keyword">new</span> <span class="built_in">Map</span>(&#123;</span><br><span class="line">  target: <span class="string">&#x27;map-container&#x27;</span>,</span><br><span class="line">  layers: [</span><br><span class="line">    <span class="comment">// layer使用的是处理和渲染矢量数据的VectorLayer</span></span><br><span class="line">    <span class="keyword">new</span> VectorLayer(&#123;</span><br><span class="line">      <span class="comment">// VectorSource用来获取GeoJSON数据，并管理空间索引</span></span><br><span class="line">      source: <span class="keyword">new</span> VectorSource(&#123;</span><br><span class="line">        format: <span class="keyword">new</span> GeoJSON(),</span><br><span class="line">        <span class="comment">// 导入data目录下的JSON文件</span></span><br><span class="line">        url: <span class="string">&#x27;./data/countries.json&#x27;</span>,</span><br><span class="line">      &#125;),</span><br><span class="line">    &#125;),</span><br><span class="line">  ],</span><br><span class="line">  view: <span class="keyword">new</span> View(&#123;</span><br><span class="line">    center: [<span class="number">0</span>, <span class="number">0</span>],</span><br><span class="line">    zoom: <span class="number">2</span>,</span><br><span class="line">  &#125;),</span><br><span class="line">&#125;);</span><br></pre></td></tr></table></figure><br>效果如下：<br><img src="https://user-images.githubusercontent.com/6218739/158343566-6f7fa033-d8ec-4741-b50f-5e65ce122485.png" alt="json"></p>
+<p>因为我们会重载这个页面很多次，目前代码下每次重载页面都会回到初始的view方式，即初始的中心点和缩放大小。如果能每次重载都能保持map在相同的位置就能节省很多人力。<br>此时可以借助<code>ol-hashed</code>包实现，修改代码如下：<br><figure class="highlight js"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">import</span> GeoJSON <span class="keyword">from</span> <span class="string">&#x27;ol/format/GeoJSON&#x27;</span>;</span><br><span class="line"><span class="keyword">import</span> <span class="built_in">Map</span> <span class="keyword">from</span> <span class="string">&#x27;ol/Map&#x27;</span>;</span><br><span class="line"><span class="keyword">import</span> VectorLayer <span class="keyword">from</span> <span class="string">&#x27;ol/layer/Vector&#x27;</span>;</span><br><span class="line"><span class="keyword">import</span> VectorSource <span class="keyword">from</span> <span class="string">&#x27;ol/source/Vector&#x27;</span>;</span><br><span class="line"><span class="keyword">import</span> View <span class="keyword">from</span> <span class="string">&#x27;ol/View&#x27;</span>;</span><br><span class="line"><span class="comment">// 导入ol-hashed包</span></span><br><span class="line"><span class="keyword">import</span> sync <span class="keyword">from</span> <span class="string">&#x27;ol-hashed&#x27;</span>;</span><br><span class="line"></span><br><span class="line"><span class="comment">// 将Map对象分配到一个变量上</span></span><br><span class="line"><span class="keyword">const</span> map = <span class="keyword">new</span> <span class="built_in">Map</span>(&#123;</span><br><span class="line">  target: <span class="string">&#x27;map-container&#x27;</span>,</span><br><span class="line">  layers: [</span><br><span class="line">    <span class="keyword">new</span> VectorLayer(&#123;</span><br><span class="line">      source: <span class="keyword">new</span> VectorSource(&#123;</span><br><span class="line">        format: <span class="keyword">new</span> GeoJSON(),</span><br><span class="line">        url: <span class="string">&#x27;./data/countries.json&#x27;</span>,</span><br><span class="line">      &#125;),</span><br><span class="line">    &#125;),</span><br><span class="line">  ],</span><br><span class="line">  view: <span class="keyword">new</span> View(&#123;</span><br><span class="line">    center: [<span class="number">0</span>, <span class="number">0</span>],</span><br><span class="line">    zoom: <span class="number">2</span>,</span><br><span class="line">  &#125;),</span><br><span class="line">&#125;);</span><br><span class="line"></span><br><span class="line"><span class="comment">// 将上面的变量传递给sync函数</span></span><br><span class="line">sync(map);</span><br></pre></td></tr></table></figure><br>此时，你会发现，将地图移动和缩放到某一特定程度后，下次重新载入代码仍然保持该视角不变。</p>
+<h2 id="拖放"><a href="#拖放" class="headerlink" title="拖放"></a>拖放</h2><p>对于要实现的编辑器，想要允许用户能够导入自己的数据进行编辑。为此，这里将添加<code>DragAndDrop</code>功能。<br>跟以前一样，这里仍只处理GeoJSON这种数据，不过该交互也支持其他类型的数据格式。<br>修改<code>main.js</code>为：<br><figure class="highlight js"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">import</span> GeoJSON <span class="keyword">from</span> <span class="string">&#x27;ol/format/GeoJSON&#x27;</span>;</span><br><span class="line"><span class="keyword">import</span> <span class="built_in">Map</span> <span class="keyword">from</span> <span class="string">&#x27;ol/Map&#x27;</span>;</span><br><span class="line"><span class="keyword">import</span> VectorLayer <span class="keyword">from</span> <span class="string">&#x27;ol/layer/Vector&#x27;</span>;</span><br><span class="line"><span class="keyword">import</span> VectorSource <span class="keyword">from</span> <span class="string">&#x27;ol/source/Vector&#x27;</span>;</span><br><span class="line"><span class="keyword">import</span> View <span class="keyword">from</span> <span class="string">&#x27;ol/View&#x27;</span>;</span><br><span class="line"><span class="keyword">import</span> sync <span class="keyword">from</span> <span class="string">&#x27;ol-hashed&#x27;</span>;</span><br><span class="line"><span class="comment">// 导入DragAndDrop包</span></span><br><span class="line"><span class="keyword">import</span> DragAndDrop <span class="keyword">from</span> <span class="string">&#x27;ol/interaction/DragAndDrop&#x27;</span>;</span><br><span class="line"></span><br><span class="line"><span class="comment">// 定义一个Map对象，只指定它的目标和视图</span></span><br><span class="line"><span class="keyword">const</span> map = <span class="keyword">new</span> <span class="built_in">Map</span>(&#123;</span><br><span class="line">  target: <span class="string">&#x27;map-container&#x27;</span>,</span><br><span class="line">  view: <span class="keyword">new</span> View(&#123;</span><br><span class="line">    center: [<span class="number">0</span>, <span class="number">0</span>],</span><br><span class="line">    zoom: <span class="number">2</span>,</span><br><span class="line">  &#125;),</span><br><span class="line">&#125;);</span><br><span class="line"></span><br><span class="line">sync(map);</span><br><span class="line"></span><br><span class="line"><span class="comment">// 创建数据源VectorSource，但是里面没有任何数据</span></span><br><span class="line"><span class="keyword">const</span> source = <span class="keyword">new</span> VectorSource();</span><br><span class="line"></span><br><span class="line"><span class="comment">// 创建VectorLayer，里面的source传入上面定义的空的source</span></span><br><span class="line"><span class="keyword">const</span> layer = <span class="keyword">new</span> VectorLayer(&#123;</span><br><span class="line">  source: source,</span><br><span class="line">&#125;);</span><br><span class="line"><span class="comment">// 将layer添加到map中</span></span><br><span class="line">map.addLayer(layer);</span><br><span class="line"></span><br><span class="line"><span class="comment">// 对map添加拖放交互</span></span><br><span class="line">map.addInteraction(</span><br><span class="line">  <span class="keyword">new</span> DragAndDrop(&#123;</span><br><span class="line">    <span class="comment">// 将拖放动作作用在Vector Source上</span></span><br><span class="line">    source: source,</span><br><span class="line">    <span class="comment">// 指定GeoJSON格式</span></span><br><span class="line">    formatConstructors: [GeoJSON],</span><br><span class="line">  &#125;)</span><br><span class="line">);</span><br></pre></td></tr></table></figure><br>此时就能将GeoJSON文件拖放到该页面上，从而进行渲染。</p>
+<h2 id="修改特征"><a href="#修改特征" class="headerlink" title="修改特征"></a>修改特征</h2><p>现在可以将数据拖放到编辑器中，下面是添加“修改”功能。<br>实现方式是使用<code>Modify</code>交互。<br>修改<code>main.js</code>为：<br><figure class="highlight js"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">import</span> DragAndDrop <span class="keyword">from</span> <span class="string">&#x27;ol/interaction/DragAndDrop&#x27;</span>;</span><br><span class="line"><span class="keyword">import</span> GeoJSON <span class="keyword">from</span> <span class="string">&#x27;ol/format/GeoJSON&#x27;</span>;</span><br><span class="line"><span class="keyword">import</span> <span class="built_in">Map</span> <span class="keyword">from</span> <span class="string">&#x27;ol/Map&#x27;</span>;</span><br><span class="line"><span class="comment">// 导入Modify包</span></span><br><span class="line"><span class="keyword">import</span> Modify <span class="keyword">from</span> <span class="string">&#x27;ol/interaction/Modify&#x27;</span>;</span><br><span class="line"><span class="keyword">import</span> VectorLayer <span class="keyword">from</span> <span class="string">&#x27;ol/layer/Vector&#x27;</span>;</span><br><span class="line"><span class="keyword">import</span> VectorSource <span class="keyword">from</span> <span class="string">&#x27;ol/source/Vector&#x27;</span>;</span><br><span class="line"><span class="keyword">import</span> View <span class="keyword">from</span> <span class="string">&#x27;ol/View&#x27;</span>;</span><br><span class="line"><span class="keyword">import</span> sync <span class="keyword">from</span> <span class="string">&#x27;ol-hashed&#x27;</span>;</span><br><span class="line"></span><br><span class="line"><span class="keyword">const</span> map = <span class="keyword">new</span> <span class="built_in">Map</span>(&#123;</span><br><span class="line">  target: <span class="string">&#x27;map-container&#x27;</span>,</span><br><span class="line">  view: <span class="keyword">new</span> View(&#123;</span><br><span class="line">    center: [<span class="number">0</span>, <span class="number">0</span>],</span><br><span class="line">    zoom: <span class="number">2</span>,</span><br><span class="line">  &#125;),</span><br><span class="line">&#125;);</span><br><span class="line"></span><br><span class="line">sync(map);</span><br><span class="line"></span><br><span class="line"><span class="keyword">const</span> source = <span class="keyword">new</span> VectorSource();</span><br><span class="line"></span><br><span class="line"><span class="keyword">const</span> layer = <span class="keyword">new</span> VectorLayer(&#123;</span><br><span class="line">  source: source,</span><br><span class="line">&#125;);</span><br><span class="line">map.addLayer(layer);</span><br><span class="line"></span><br><span class="line">map.addInteraction(</span><br><span class="line">  <span class="keyword">new</span> DragAndDrop(&#123;</span><br><span class="line">    source: source,</span><br><span class="line">    formatConstructors: [GeoJSON],</span><br><span class="line">  &#125;)</span><br><span class="line">);</span><br><span class="line"></span><br><span class="line"><span class="comment">// 在map上添加Modify交互，并配置交互对象</span></span><br><span class="line">map.addInteraction(</span><br><span class="line">  <span class="keyword">new</span> Modify(&#123;</span><br><span class="line">    source: source,</span><br><span class="line">  &#125;)</span><br><span class="line">);</span><br></pre></td></tr></table></figure><br>此时就可以拖动顶点来修改特征。也可以使用<code>Alt+Click</code>来删除顶点。</p>
+<h2 id="绘制特征"><a href="#绘制特征" class="headerlink" title="绘制特征"></a>绘制特征</h2><p>接下来添加<code>Draw</code>交互来使得用户可以绘制新的特征，并添加到数据中。<br><figure class="highlight js"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">import</span> DragAndDrop <span class="keyword">from</span> <span class="string">&#x27;ol/interaction/DragAndDrop&#x27;</span>;</span><br><span class="line"><span class="comment">// 导入Draw包</span></span><br><span class="line"><span class="keyword">import</span> Draw <span class="keyword">from</span> <span class="string">&#x27;ol/interaction/Draw&#x27;</span>;</span><br><span class="line"><span class="keyword">import</span> GeoJSON <span class="keyword">from</span> <span class="string">&#x27;ol/format/GeoJSON&#x27;</span>;</span><br><span class="line"><span class="keyword">import</span> <span class="built_in">Map</span> <span class="keyword">from</span> <span class="string">&#x27;ol/Map&#x27;</span>;</span><br><span class="line"><span class="keyword">import</span> Modify <span class="keyword">from</span> <span class="string">&#x27;ol/interaction/Modify&#x27;</span>;</span><br><span class="line"><span class="keyword">import</span> VectorLayer <span class="keyword">from</span> <span class="string">&#x27;ol/layer/Vector&#x27;</span>;</span><br><span class="line"><span class="keyword">import</span> VectorSource <span class="keyword">from</span> <span class="string">&#x27;ol/source/Vector&#x27;</span>;</span><br><span class="line"><span class="keyword">import</span> View <span class="keyword">from</span> <span class="string">&#x27;ol/View&#x27;</span>;</span><br><span class="line"><span class="keyword">import</span> sync <span class="keyword">from</span> <span class="string">&#x27;ol-hashed&#x27;</span>;</span><br><span class="line"></span><br><span class="line"><span class="keyword">const</span> map = <span class="keyword">new</span> <span class="built_in">Map</span>(&#123;</span><br><span class="line">  target: <span class="string">&#x27;map-container&#x27;</span>,</span><br><span class="line">  view: <span class="keyword">new</span> View(&#123;</span><br><span class="line">    center: [<span class="number">0</span>, <span class="number">0</span>],</span><br><span class="line">    zoom: <span class="number">2</span>,</span><br><span class="line">  &#125;),</span><br><span class="line">&#125;);</span><br><span class="line"></span><br><span class="line">sync(map);</span><br><span class="line"></span><br><span class="line"><span class="keyword">const</span> source = <span class="keyword">new</span> VectorSource();</span><br><span class="line"></span><br><span class="line"><span class="keyword">const</span> layer = <span class="keyword">new</span> VectorLayer(&#123;</span><br><span class="line">  source: source,</span><br><span class="line">&#125;);</span><br><span class="line">map.addLayer(layer);</span><br><span class="line"></span><br><span class="line">map.addInteraction(</span><br><span class="line">  <span class="keyword">new</span> DragAndDrop(&#123;</span><br><span class="line">    source: source,</span><br><span class="line">    formatConstructors: [GeoJSON],</span><br><span class="line">  &#125;)</span><br><span class="line">);</span><br><span class="line"></span><br><span class="line">map.addInteraction(</span><br><span class="line">  <span class="keyword">new</span> Modify(&#123;</span><br><span class="line">    source: source,</span><br><span class="line">  &#125;)</span><br><span class="line">);</span><br><span class="line"></span><br><span class="line"><span class="comment">// 在map上添加Draw交互</span></span><br><span class="line">map.addInteraction(</span><br><span class="line">  <span class="keyword">new</span> Draw(&#123;</span><br><span class="line">    <span class="comment">// 指定绘制形状，该值可以是任意的GeoJSON的几何形状</span></span><br><span class="line">    type: <span class="string">&#x27;Polygon&#x27;</span>,</span><br><span class="line">    <span class="comment">// 配置交互对象</span></span><br><span class="line">    source: source,</span><br><span class="line">  &#125;)</span><br><span class="line">);</span><br></pre></td></tr></table></figure></p>
+<h2 id="自动吸附"><a href="#自动吸附" class="headerlink" title="自动吸附"></a>自动吸附</h2><p>上面的绘制功能添加后，可以发现，当绘制图形时，很难沿着之前的图形进行精确绘制。<br>此时可以添加<code>snap</code>功能，当鼠标移动到某个像素一定范围内时，就能自动吸附到该像素，从而完成精确绘制。<br><figure class="highlight js"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br><span class="line">52</span><br><span class="line">53</span><br><span class="line">54</span><br><span class="line">55</span><br><span class="line">56</span><br><span class="line">57</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">import</span> DragAndDrop <span class="keyword">from</span> <span class="string">&#x27;ol/interaction/DragAndDrop&#x27;</span>;</span><br><span class="line"><span class="keyword">import</span> Draw <span class="keyword">from</span> <span class="string">&#x27;ol/interaction/Draw&#x27;</span>;</span><br><span class="line"><span class="keyword">import</span> GeoJSON <span class="keyword">from</span> <span class="string">&#x27;ol/format/GeoJSON&#x27;</span>;</span><br><span class="line"><span class="keyword">import</span> GeometryType <span class="keyword">from</span> <span class="string">&#x27;ol/geom/GeometryType&#x27;</span>;</span><br><span class="line"><span class="keyword">import</span> <span class="built_in">Map</span> <span class="keyword">from</span> <span class="string">&#x27;ol/Map&#x27;</span>;</span><br><span class="line"><span class="keyword">import</span> Modify <span class="keyword">from</span> <span class="string">&#x27;ol/interaction/Modify&#x27;</span>;</span><br><span class="line"><span class="comment">// 添加Snap包</span></span><br><span class="line"><span class="keyword">import</span> Snap <span class="keyword">from</span> <span class="string">&#x27;ol/interaction/Snap&#x27;</span>;</span><br><span class="line"><span class="keyword">import</span> VectorLayer <span class="keyword">from</span> <span class="string">&#x27;ol/layer/Vector&#x27;</span>;</span><br><span class="line"><span class="keyword">import</span> VectorSource <span class="keyword">from</span> <span class="string">&#x27;ol/source/Vector&#x27;</span>;</span><br><span class="line"><span class="keyword">import</span> View <span class="keyword">from</span> <span class="string">&#x27;ol/View&#x27;</span>;</span><br><span class="line"><span class="keyword">import</span> sync <span class="keyword">from</span> <span class="string">&#x27;ol-hashed&#x27;</span>;</span><br><span class="line"></span><br><span class="line"><span class="keyword">const</span> map = <span class="keyword">new</span> <span class="built_in">Map</span>(&#123;</span><br><span class="line">  target: <span class="string">&#x27;map-container&#x27;</span>,</span><br><span class="line">  view: <span class="keyword">new</span> View(&#123;</span><br><span class="line">    center: [<span class="number">0</span>, <span class="number">0</span>],</span><br><span class="line">    zoom: <span class="number">2</span>,</span><br><span class="line">  &#125;),</span><br><span class="line">&#125;);</span><br><span class="line"></span><br><span class="line">sync(map);</span><br><span class="line"></span><br><span class="line"><span class="keyword">const</span> source = <span class="keyword">new</span> VectorSource();</span><br><span class="line"></span><br><span class="line"><span class="keyword">const</span> layer = <span class="keyword">new</span> VectorLayer(&#123;</span><br><span class="line">  source: source,</span><br><span class="line">&#125;);</span><br><span class="line">map.addLayer(layer);</span><br><span class="line"></span><br><span class="line">map.addInteraction(</span><br><span class="line">  <span class="keyword">new</span> DragAndDrop(&#123;</span><br><span class="line">    source: source,</span><br><span class="line">    formatConstructors: [GeoJSON],</span><br><span class="line">  &#125;)</span><br><span class="line">);</span><br><span class="line"></span><br><span class="line">map.addInteraction(</span><br><span class="line">  <span class="keyword">new</span> Modify(&#123;</span><br><span class="line">    source: source,</span><br><span class="line">  &#125;)</span><br><span class="line">);</span><br><span class="line"></span><br><span class="line">map.addInteraction(</span><br><span class="line">  <span class="keyword">new</span> Draw(&#123;</span><br><span class="line">    source: source,</span><br><span class="line">    type: GeometryType.POLYGON,</span><br><span class="line">  &#125;)</span><br><span class="line">);</span><br><span class="line"></span><br><span class="line"><span class="comment">// 在map上添加Snap交互</span></span><br><span class="line">map.addInteraction(</span><br><span class="line">  <span class="keyword">new</span> Snap(&#123;</span><br><span class="line">    <span class="comment">// 配置作用对象</span></span><br><span class="line">    source: source,</span><br><span class="line">  &#125;)</span><br><span class="line">);</span><br></pre></td></tr></table></figure></p>
+<h2 id="下载特征"><a href="#下载特征" class="headerlink" title="下载特征"></a>下载特征</h2><p>当上传数据，且对其编辑后，希望能下载特征。<br>为了能实现这个功能，这里将特征数据序列化为GeoJSON数据，然后创建一个带<code>download</code>属性的<code>&lt;a&gt;</code>元素，这样就能触发浏览器的文件保存对话框。<br>同时，在map上添加一个按钮，可以使得用户清除现在的特征，重新绘制。<br>修改<code>index.html</code>为：<br><figure class="highlight js"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br></pre></td><td class="code"><pre><span class="line">&lt;!DOCTYPE html&gt;</span><br><span class="line">&lt;html&gt;</span><br><span class="line">  &lt;head&gt;</span><br><span class="line">    &lt;meta charset=<span class="string">&quot;utf-8&quot;</span>&gt;</span><br><span class="line">    &lt;title&gt;OpenLayers&lt;/title&gt;</span><br><span class="line">    &lt;style&gt;</span><br><span class="line">      @<span class="keyword">import</span> <span class="string">&quot;node_modules/ol/ol.css&quot;</span>;</span><br><span class="line">    &lt;/style&gt;</span><br><span class="line">    &lt;style&gt;</span><br><span class="line">      html, body, #map-container &#123;</span><br><span class="line">        margin: <span class="number">0</span>;</span><br><span class="line">        height: <span class="number">100</span>%;</span><br><span class="line">        width: <span class="number">100</span>%;</span><br><span class="line">        font-family: sans-serif;</span><br><span class="line">        background-color: #04041b;</span><br><span class="line">      &#125;</span><br><span class="line">      <span class="comment">/*对id为tools的div进行样式设定*/</span></span><br><span class="line">      #tools &#123;</span><br><span class="line">        position: absolute;</span><br><span class="line">        top: 1rem;</span><br><span class="line">        right: 1rem;</span><br><span class="line">      &#125;</span><br><span class="line">      <span class="comment">/*对id为tools中的两个后代a元素设定样式*/</span></span><br><span class="line">      <span class="comment">/*css语法可以参见这里：*/</span></span><br><span class="line">      <span class="comment">/*https://www.runoob.com/css/css-combinators.html*/</span></span><br><span class="line">      #tools a &#123;</span><br><span class="line">        display: inline-block;</span><br><span class="line">        padding: <span class="number">0.</span>5rem;</span><br><span class="line">        background: white;</span><br><span class="line">        cursor: pointer;</span><br><span class="line">      &#125;</span><br><span class="line">      <span class="comment">/*! [tools] */</span></span><br><span class="line">    &lt;/style&gt;</span><br><span class="line">  &lt;/head&gt;</span><br><span class="line">  &lt;body&gt;</span><br><span class="line">    &lt;div id=<span class="string">&quot;map-container&quot;</span>&gt;&lt;/div&gt;</span><br><span class="line">    &lt;script src=<span class="string">&quot;./main.js&quot;</span> type=<span class="string">&quot;module&quot;</span>&gt;&lt;/script&gt;</span><br><span class="line">    &lt;!-- 新增一个div元素，里面包含了两个a元素 --&gt;</span><br><span class="line">    &lt;div id=<span class="string">&quot;tools&quot;</span>&gt;</span><br><span class="line">      &lt;a id=<span class="string">&quot;clear&quot;</span>&gt;Clear&lt;/a&gt;</span><br><span class="line">      &lt;a id=<span class="string">&quot;download&quot;</span> download=<span class="string">&quot;features.json&quot;</span>&gt;Download&lt;/a&gt;</span><br><span class="line">    &lt;/div&gt;</span><br><span class="line">  &lt;/body&gt;</span><br><span class="line">&lt;/html&gt;</span><br></pre></td></tr></table></figure><br>修改<code>main.js</code>为：<br><figure class="highlight js"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br><span class="line">52</span><br><span class="line">53</span><br><span class="line">54</span><br><span class="line">55</span><br><span class="line">56</span><br><span class="line">57</span><br><span class="line">58</span><br><span class="line">59</span><br><span class="line">60</span><br><span class="line">61</span><br><span class="line">62</span><br><span class="line">63</span><br><span class="line">64</span><br><span class="line">65</span><br><span class="line">66</span><br><span class="line">67</span><br><span class="line">68</span><br><span class="line">69</span><br><span class="line">70</span><br><span class="line">71</span><br><span class="line">72</span><br><span class="line">73</span><br><span class="line">74</span><br><span class="line">75</span><br><span class="line">76</span><br><span class="line">77</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">import</span> GeoJSON <span class="keyword">from</span> <span class="string">&#x27;ol/format/GeoJSON&#x27;</span>;</span><br><span class="line"><span class="keyword">import</span> GeometryType <span class="keyword">from</span> <span class="string">&#x27;ol/geom/GeometryType&#x27;</span>;</span><br><span class="line"><span class="keyword">import</span> <span class="built_in">Map</span> <span class="keyword">from</span> <span class="string">&#x27;ol/Map&#x27;</span>;</span><br><span class="line"><span class="keyword">import</span> VectorLayer <span class="keyword">from</span> <span class="string">&#x27;ol/layer/Vector&#x27;</span>;</span><br><span class="line"><span class="keyword">import</span> VectorSource <span class="keyword">from</span> <span class="string">&#x27;ol/source/Vector&#x27;</span>;</span><br><span class="line"><span class="keyword">import</span> View <span class="keyword">from</span> <span class="string">&#x27;ol/View&#x27;</span>;</span><br><span class="line"><span class="keyword">import</span> sync <span class="keyword">from</span> <span class="string">&#x27;ol-hashed&#x27;</span>;</span><br><span class="line"><span class="keyword">import</span> &#123;DragAndDrop, Draw, Modify, Snap&#125; <span class="keyword">from</span> <span class="string">&#x27;ol/interaction&#x27;</span>;</span><br><span class="line"></span><br><span class="line"><span class="keyword">const</span> map = <span class="keyword">new</span> <span class="built_in">Map</span>(&#123;</span><br><span class="line">  target: <span class="string">&#x27;map-container&#x27;</span>,</span><br><span class="line">  view: <span class="keyword">new</span> View(&#123;</span><br><span class="line">    center: [<span class="number">0</span>, <span class="number">0</span>],</span><br><span class="line">    zoom: <span class="number">2</span>,</span><br><span class="line">  &#125;),</span><br><span class="line">&#125;);</span><br><span class="line"></span><br><span class="line">sync(map);</span><br><span class="line"></span><br><span class="line"><span class="keyword">const</span> source = <span class="keyword">new</span> VectorSource();</span><br><span class="line"></span><br><span class="line"><span class="keyword">const</span> layer = <span class="keyword">new</span> VectorLayer(&#123;</span><br><span class="line">  source: source,</span><br><span class="line">&#125;);</span><br><span class="line">map.addLayer(layer);</span><br><span class="line"></span><br><span class="line">map.addInteraction(</span><br><span class="line">  <span class="keyword">new</span> DragAndDrop(&#123;</span><br><span class="line">    source: source,</span><br><span class="line">    formatConstructors: [GeoJSON],</span><br><span class="line">  &#125;)</span><br><span class="line">);</span><br><span class="line"></span><br><span class="line">map.addInteraction(</span><br><span class="line">  <span class="keyword">new</span> Modify(&#123;</span><br><span class="line">    source: source,</span><br><span class="line">  &#125;)</span><br><span class="line">);</span><br><span class="line"></span><br><span class="line">map.addInteraction(</span><br><span class="line">  <span class="keyword">new</span> Draw(&#123;</span><br><span class="line">    source: source,</span><br><span class="line">    type: GeometryType.POLYGON,</span><br><span class="line">  &#125;)</span><br><span class="line">);</span><br><span class="line"></span><br><span class="line">map.addInteraction(</span><br><span class="line">  <span class="keyword">new</span> Snap(&#123;</span><br><span class="line">    source: source,</span><br><span class="line">  &#125;)</span><br><span class="line">);</span><br><span class="line"></span><br><span class="line"><span class="comment">// 实现清除功能</span></span><br><span class="line"><span class="comment">// 首先通过DOM选取clear按钮</span></span><br><span class="line"><span class="keyword">const</span> clear = <span class="built_in">document</span>.getElementById(<span class="string">&#x27;clear&#x27;</span>);</span><br><span class="line"><span class="comment">// 对该按钮添加鼠标事件</span></span><br><span class="line">clear.addEventListener(<span class="string">&#x27;click&#x27;</span>, <span class="function"><span class="keyword">function</span> (<span class="params"></span>) </span>&#123;</span><br><span class="line">  source.clear();</span><br><span class="line">&#125;);</span><br><span class="line"></span><br><span class="line"><span class="comment">// 实现下载功能</span></span><br><span class="line"><span class="comment">// 这里序列化数据为GeoJSON格式</span></span><br><span class="line"><span class="keyword">const</span> format = <span class="keyword">new</span> GeoJSON(&#123;<span class="attr">featureProjection</span>: <span class="string">&#x27;EPSG:3857&#x27;</span>&#125;);</span><br><span class="line"><span class="comment">// 通过DOM获取download按钮</span></span><br><span class="line"><span class="keyword">const</span> download = <span class="built_in">document</span>.getElementById(<span class="string">&#x27;download&#x27;</span>);</span><br><span class="line"></span><br><span class="line"><span class="comment">// 因为这里是期望随时都能下载最新的数据，所以将数据获取及序列化的工作绑定在source的change事件上</span></span><br><span class="line"><span class="comment">// 即，只要source改变，download按钮所能获得的数据就是最新的source</span></span><br><span class="line">source.on(<span class="string">&#x27;change&#x27;</span>, <span class="function"><span class="keyword">function</span> (<span class="params"></span>) </span>&#123;</span><br><span class="line">  <span class="comment">// 获得特征</span></span><br><span class="line">  <span class="keyword">const</span> features = source.getFeatures();</span><br><span class="line">  <span class="comment">// 序列化特征</span></span><br><span class="line">  <span class="keyword">const</span> json = format.writeFeatures(features);</span><br><span class="line">  <span class="comment">// 这里将原json字符串转换成URI组成部分，将附加到下载按钮的href中</span></span><br><span class="line">  download.href =</span><br><span class="line">    <span class="string">&#x27;data:application/json;charset=utf-8,&#x27;</span> + <span class="built_in">encodeURIComponent</span>(json);</span><br><span class="line">&#125;);</span><br></pre></td></tr></table></figure><br>效果如下：<br><img src="https://user-images.githubusercontent.com/6218739/158392776-41d856f4-1c85-43e2-a129-380ab1131356.png" alt="download"></p>
+<h2 id="配置绘图样式"><a href="#配置绘图样式" class="headerlink" title="配置绘图样式"></a>配置绘图样式</h2><p>前面的编辑功能都是使用了默认样式，这里增加更多的属性来使得编辑功能更加强大，比如设置画笔宽度、设置填充颜色等。</p>
+<h3 id="静态样式"><a href="#静态样式" class="headerlink" title="静态样式"></a>静态样式</h3><p>如果单纯想将样式都调成一个模样，那么可以直接简单地将样式固定即可，如下面代码：<br><figure class="highlight js"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">const</span> layer = <span class="keyword">new</span> VectorLayer(&#123;</span><br><span class="line">  source: source,</span><br><span class="line">  style: <span class="keyword">new</span> Style(&#123;</span><br><span class="line">    fill: <span class="keyword">new</span> Fill(&#123;</span><br><span class="line">      color: <span class="string">&#x27;red&#x27;</span></span><br><span class="line">    &#125;),</span><br><span class="line">    stroke: <span class="keyword">new</span> Stroke(&#123;</span><br><span class="line">      color: <span class="string">&#x27;white&#x27;</span></span><br><span class="line">    &#125;)</span><br><span class="line">  &#125;)</span><br><span class="line">&#125;);</span><br></pre></td></tr></table></figure><br>即都填充成红色，笔画都是白色。</p>
+<h3 id="动态样式"><a href="#动态样式" class="headerlink" title="动态样式"></a>动态样式</h3><p>更多情况下，动态样式使用得更多，即按照一定的规则自动设置样式。<br>如下面：<br><figure class="highlight js"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line">constlayer = newVectorLayer(&#123;</span><br><span class="line">  source: source,</span><br><span class="line">  style: <span class="function"><span class="keyword">function</span>(<span class="params">feature, resolution</span>) </span>&#123;</span><br><span class="line">    constname = feature.get(<span class="string">&#x27;name&#x27;</span>).toUpperCase();</span><br><span class="line">    returnname &lt; <span class="string">&quot;N&quot;</span>? style1 : style2; <span class="comment">// assuming these are created elsewhere&#125;</span></span><br><span class="line">&#125;);</span><br></pre></td></tr></table></figure><br>就是根据feature的name来设置样式，如果是<code>A-M</code>，就用style1，如果是<code>N-Z</code>，则使用style2。<br>所以设定好规则非常重要。<br>下面将展示如何根据几何区域设定样式。<br>修改<code>main.js</code>为：<br><figure class="highlight js"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br><span class="line">52</span><br><span class="line">53</span><br><span class="line">54</span><br><span class="line">55</span><br><span class="line">56</span><br><span class="line">57</span><br><span class="line">58</span><br><span class="line">59</span><br><span class="line">60</span><br><span class="line">61</span><br><span class="line">62</span><br><span class="line">63</span><br><span class="line">64</span><br><span class="line">65</span><br><span class="line">66</span><br><span class="line">67</span><br><span class="line">68</span><br><span class="line">69</span><br><span class="line">70</span><br><span class="line">71</span><br><span class="line">72</span><br><span class="line">73</span><br><span class="line">74</span><br><span class="line">75</span><br><span class="line">76</span><br><span class="line">77</span><br><span class="line">78</span><br><span class="line">79</span><br><span class="line">80</span><br><span class="line">81</span><br><span class="line">82</span><br><span class="line">83</span><br><span class="line">84</span><br><span class="line">85</span><br><span class="line">86</span><br><span class="line">87</span><br><span class="line">88</span><br><span class="line">89</span><br><span class="line">90</span><br><span class="line">91</span><br><span class="line">92</span><br><span class="line">93</span><br><span class="line">94</span><br><span class="line">95</span><br><span class="line">96</span><br><span class="line">97</span><br><span class="line">98</span><br><span class="line">99</span><br><span class="line">100</span><br><span class="line">101</span><br><span class="line">102</span><br><span class="line">103</span><br><span class="line">104</span><br><span class="line">105</span><br><span class="line">106</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">import</span> DragAndDrop <span class="keyword">from</span> <span class="string">&#x27;ol/interaction/DragAndDrop&#x27;</span>;</span><br><span class="line"><span class="keyword">import</span> Draw <span class="keyword">from</span> <span class="string">&#x27;ol/interaction/Draw&#x27;</span>;</span><br><span class="line"><span class="keyword">import</span> GeoJSON <span class="keyword">from</span> <span class="string">&#x27;ol/format/GeoJSON&#x27;</span>;</span><br><span class="line"><span class="keyword">import</span> GeometryType <span class="keyword">from</span> <span class="string">&#x27;ol/geom/GeometryType&#x27;</span>;</span><br><span class="line"><span class="keyword">import</span> <span class="built_in">Map</span> <span class="keyword">from</span> <span class="string">&#x27;ol/Map&#x27;</span>;</span><br><span class="line"><span class="keyword">import</span> Modify <span class="keyword">from</span> <span class="string">&#x27;ol/interaction/Modify&#x27;</span>;</span><br><span class="line"><span class="keyword">import</span> Snap <span class="keyword">from</span> <span class="string">&#x27;ol/interaction/Snap&#x27;</span>;</span><br><span class="line"><span class="keyword">import</span> VectorLayer <span class="keyword">from</span> <span class="string">&#x27;ol/layer/Vector&#x27;</span>;</span><br><span class="line"><span class="keyword">import</span> VectorSource <span class="keyword">from</span> <span class="string">&#x27;ol/source/Vector&#x27;</span>;</span><br><span class="line"><span class="keyword">import</span> View <span class="keyword">from</span> <span class="string">&#x27;ol/View&#x27;</span>;</span><br><span class="line"><span class="keyword">import</span> sync <span class="keyword">from</span> <span class="string">&#x27;ol-hashed&#x27;</span>;</span><br><span class="line"><span class="comment">// 导入必要的样式库</span></span><br><span class="line"><span class="keyword">import</span> &#123;Fill, Stroke, Style&#125; <span class="keyword">from</span> <span class="string">&#x27;ol/style&#x27;</span>;</span><br><span class="line"><span class="comment">// 导入colormap包</span></span><br><span class="line"><span class="keyword">import</span> colormap <span class="keyword">from</span> <span class="string">&#x27;colormap&#x27;</span>;</span><br><span class="line"><span class="comment">// 从OpenLayers导入getArea包</span></span><br><span class="line"><span class="keyword">import</span> &#123;getArea&#125; <span class="keyword">from</span> <span class="string">&#x27;ol/sphere&#x27;</span>;</span><br><span class="line"></span><br><span class="line"><span class="comment">// --- 根据面积计算颜色：开始 ----</span></span><br><span class="line"><span class="keyword">const</span> min = <span class="number">1e8</span>; <span class="comment">// the smallest area</span></span><br><span class="line"><span class="keyword">const</span> max = <span class="number">2e13</span>; <span class="comment">// the biggest area</span></span><br><span class="line"><span class="keyword">const</span> steps = <span class="number">50</span>;</span><br><span class="line"><span class="keyword">const</span> ramp = colormap(&#123;</span><br><span class="line">  colormap: <span class="string">&#x27;blackbody&#x27;</span>,</span><br><span class="line">  nshades: steps,</span><br><span class="line">&#125;);</span><br><span class="line"></span><br><span class="line"><span class="function"><span class="keyword">function</span> <span class="title">clamp</span>(<span class="params">value, low, high</span>) </span>&#123;</span><br><span class="line">  <span class="keyword">return</span> <span class="built_in">Math</span>.max(low, <span class="built_in">Math</span>.min(value, high));</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="function"><span class="keyword">function</span> <span class="title">getColor</span>(<span class="params">feature</span>) </span>&#123;</span><br><span class="line">  <span class="keyword">const</span> area = getArea(feature.getGeometry());</span><br><span class="line">  <span class="keyword">const</span> f = <span class="built_in">Math</span>.pow(clamp((area - min) / (max - min), <span class="number">0</span>, <span class="number">1</span>), <span class="number">1</span> / <span class="number">2</span>);</span><br><span class="line">  <span class="keyword">const</span> index = <span class="built_in">Math</span>.round(f * (steps - <span class="number">1</span>));</span><br><span class="line">  <span class="keyword">return</span> ramp[index];</span><br><span class="line">&#125;</span><br><span class="line"><span class="comment">// --- 根据面积计算颜色：结束 ----</span></span><br><span class="line"></span><br><span class="line"><span class="keyword">const</span> map = <span class="keyword">new</span> <span class="built_in">Map</span>(&#123;</span><br><span class="line">  target: <span class="string">&#x27;map-container&#x27;</span>,</span><br><span class="line">  view: <span class="keyword">new</span> View(&#123;</span><br><span class="line">    center: [<span class="number">0</span>, <span class="number">0</span>],</span><br><span class="line">    zoom: <span class="number">2</span>,</span><br><span class="line">  &#125;),</span><br><span class="line">&#125;);</span><br><span class="line"></span><br><span class="line">sync(map);</span><br><span class="line"></span><br><span class="line"><span class="keyword">const</span> source = <span class="keyword">new</span> VectorSource();</span><br><span class="line"></span><br><span class="line"><span class="comment">// 添加样式</span></span><br><span class="line"><span class="keyword">const</span> layer = <span class="keyword">new</span> VectorLayer(&#123;</span><br><span class="line">  source: source,</span><br><span class="line">  style: <span class="function"><span class="keyword">function</span> (<span class="params">feature</span>) </span>&#123;</span><br><span class="line">    <span class="keyword">return</span> <span class="keyword">new</span> Style(&#123;</span><br><span class="line">      fill: <span class="keyword">new</span> Fill(&#123;</span><br><span class="line">        color: getColor(feature),</span><br><span class="line">      &#125;),</span><br><span class="line">      stroke: <span class="keyword">new</span> Stroke(&#123;</span><br><span class="line">        color: <span class="string">&#x27;rgba(255,255,255,0.8)&#x27;</span>,</span><br><span class="line">      &#125;),</span><br><span class="line">    &#125;);</span><br><span class="line">  &#125;,</span><br><span class="line">&#125;);</span><br><span class="line"></span><br><span class="line">map.addLayer(layer);</span><br><span class="line"></span><br><span class="line">map.addInteraction(</span><br><span class="line">  <span class="keyword">new</span> DragAndDrop(&#123;</span><br><span class="line">    source: source,</span><br><span class="line">    formatConstructors: [GeoJSON],</span><br><span class="line">  &#125;)</span><br><span class="line">);</span><br><span class="line"></span><br><span class="line">map.addInteraction(</span><br><span class="line">  <span class="keyword">new</span> Modify(&#123;</span><br><span class="line">    source: source,</span><br><span class="line">  &#125;)</span><br><span class="line">);</span><br><span class="line"></span><br><span class="line">map.addInteraction(</span><br><span class="line">  <span class="keyword">new</span> Draw(&#123;</span><br><span class="line">    source: source,</span><br><span class="line">    type: GeometryType.POLYGON,</span><br><span class="line">  &#125;)</span><br><span class="line">);</span><br><span class="line"></span><br><span class="line">map.addInteraction(</span><br><span class="line">  <span class="keyword">new</span> Snap(&#123;</span><br><span class="line">    source: source,</span><br><span class="line">  &#125;)</span><br><span class="line">);</span><br><span class="line"></span><br><span class="line"><span class="keyword">const</span> clear = <span class="built_in">document</span>.getElementById(<span class="string">&#x27;clear&#x27;</span>);</span><br><span class="line">clear.addEventListener(<span class="string">&#x27;click&#x27;</span>, <span class="function"><span class="keyword">function</span> (<span class="params"></span>) </span>&#123;</span><br><span class="line">  source.clear();</span><br><span class="line">&#125;);</span><br><span class="line"></span><br><span class="line"><span class="keyword">const</span> format = <span class="keyword">new</span> GeoJSON(&#123;<span class="attr">featureProjection</span>: <span class="string">&#x27;EPSG:3857&#x27;</span>&#125;);</span><br><span class="line"><span class="keyword">const</span> download = <span class="built_in">document</span>.getElementById(<span class="string">&#x27;download&#x27;</span>);</span><br><span class="line">source.on(<span class="string">&#x27;change&#x27;</span>, <span class="function"><span class="keyword">function</span> (<span class="params"></span>) </span>&#123;</span><br><span class="line">  <span class="keyword">const</span> features = source.getFeatures();</span><br><span class="line">  <span class="keyword">const</span> json = format.writeFeatures(features);</span><br><span class="line">  download.href = <span class="string">&#x27;data:text/json;charset=utf-8,&#x27;</span> + json;</span><br><span class="line">&#125;);</span><br></pre></td></tr></table></figure><br>效果如下：<br><img src="https://user-images.githubusercontent.com/6218739/158398065-704634ef-a6dc-4d17-a4a6-a87edc51c8f1.png" alt="style"></p>
+<h1 id="移动端地图和数据集成"><a href="#移动端地图和数据集成" class="headerlink" title="移动端地图和数据集成"></a>移动端地图和数据集成</h1><p>这一部分将创建一个移动端的地图来展示用户的GPS位置和朝向。该项目的目的是为了展示怎样将OpenLayers与浏览器的API及第三方工具进行集成。<br>具体地，仅使用几行代码即可调用浏览器的关于地理位置的API，从而得到GPS位置，以及使用<a target="_blank" rel="noopener" href="https://www.npmjs.com/package/kompas">kompas</a>库通过设备的陀螺仪获得朝向。然后，通过使用Vector Layer，就能很轻易地在地图上显示结果。</p>
+<p>因为这一部分需要移动端的配合，不再具体分析。</p>
+<p>更多用法留坑待填。</p>
+
+    </div>
+
+    
+    
+    
+        <div class="reward-container">
+  <div></div>
+  <button onclick="var qr = document.getElementById('qr'); qr.style.display = (qr.style.display === 'none') ? 'block' : 'none';">
+    Donate
+  </button>
+  <div id="qr" style="display: none;">
+      
+      <div style="display: inline-block;">
+        <img src="/images/wechat_reward.png" alt="Xin-Bo Qi(亓欣波) WeChat Pay">
+        <p>WeChat Pay</p>
+      </div>
+
+  </div>
+</div>
+
+
+      <footer class="post-footer">
+          <div class="post-tags">
+              <a href="/tags/ImJoy/" rel="tag"># ImJoy</a>
+          </div>
+
+        
+
+
+        
+    <div class="post-nav">
+      <div class="post-nav-item">
+    <a href="/2022/03/11/streamlit_3/" rel="prev" title="用Python开发web应用——Streamlit框架解析：3 -- 组件">
+      <i class="fa fa-chevron-left"></i> 用Python开发web应用——Streamlit框架解析：3 -- 组件
+    </a></div>
+      <div class="post-nav-item"></div>
+    </div>
+      </footer>
+    
+  </article>
+  
+  
+  
+
+
+
+          </div>
+          
+    
+  <div class="comments">
+    <div id="disqus_thread">
+      <noscript>Please enable JavaScript to view the comments powered by Disqus.</noscript>
+    </div>
+  </div>
+  
+
+<script>
+  window.addEventListener('tabs:register', () => {
+    let { activeClass } = CONFIG.comments;
+    if (CONFIG.comments.storage) {
+      activeClass = localStorage.getItem('comments_active') || activeClass;
+    }
+    if (activeClass) {
+      let activeTab = document.querySelector(`a[href="#comment-${activeClass}"]`);
+      if (activeTab) {
+        activeTab.click();
+      }
+    }
+  });
+  if (CONFIG.comments.storage) {
+    window.addEventListener('tabs:click', event => {
+      if (!event.target.matches('.tabs-comment .tab-content .tab-pane')) return;
+      let commentClass = event.target.classList[1];
+      localStorage.setItem('comments_active', commentClass);
+    });
+  }
+</script>
+
+        </div>
+          
+  
+  <div class="toggle sidebar-toggle">
+    <span class="toggle-line toggle-line-first"></span>
+    <span class="toggle-line toggle-line-middle"></span>
+    <span class="toggle-line toggle-line-last"></span>
+  </div>
+
+  <aside class="sidebar">
+    <div class="sidebar-inner">
+
+      <ul class="sidebar-nav motion-element">
+        <li class="sidebar-nav-toc">
+          Table of Contents
+        </li>
+        <li class="sidebar-nav-overview">
+          Overview
+        </li>
+      </ul>
+
+      <!--noindex-->
+      <div class="post-toc-wrap sidebar-panel">
+          <div class="post-toc motion-element"><ol class="nav"><li class="nav-item nav-level-1"><a class="nav-link" href="#%E7%AE%80%E4%BB%8B"><span class="nav-number">1.</span> <span class="nav-text">简介</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#%E9%85%8D%E7%BD%AE%E7%8E%AF%E5%A2%83"><span class="nav-number">2.</span> <span class="nav-text">配置环境</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#%E5%BC%80%E5%8F%91%E5%85%A5%E9%97%A8"><span class="nav-number">3.</span> <span class="nav-text">开发入门</span></a><ol class="nav-child"><li class="nav-item nav-level-2"><a class="nav-link" href="#HTML%E9%A1%B5%E9%9D%A2"><span class="nav-number">3.1.</span> <span class="nav-text">HTML页面</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E5%85%B7%E4%BD%93%E5%BA%94%E7%94%A8"><span class="nav-number">3.2.</span> <span class="nav-text">具体应用</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E6%95%88%E6%9E%9C"><span class="nav-number">3.3.</span> <span class="nav-text">效果</span></a></li></ol></li><li class="nav-item nav-level-1"><a class="nav-link" href="#%E7%9F%A2%E9%87%8F%E6%95%B0%E6%8D%AE"><span class="nav-number">4.</span> <span class="nav-text">矢量数据</span></a><ol class="nav-child"><li class="nav-item nav-level-2"><a class="nav-link" href="#%E6%B8%B2%E6%9F%93GeoJSON"><span class="nav-number">4.1.</span> <span class="nav-text">渲染GeoJSON</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E6%8B%96%E6%94%BE"><span class="nav-number">4.2.</span> <span class="nav-text">拖放</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E4%BF%AE%E6%94%B9%E7%89%B9%E5%BE%81"><span class="nav-number">4.3.</span> <span class="nav-text">修改特征</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E7%BB%98%E5%88%B6%E7%89%B9%E5%BE%81"><span class="nav-number">4.4.</span> <span class="nav-text">绘制特征</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E8%87%AA%E5%8A%A8%E5%90%B8%E9%99%84"><span class="nav-number">4.5.</span> <span class="nav-text">自动吸附</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E4%B8%8B%E8%BD%BD%E7%89%B9%E5%BE%81"><span class="nav-number">4.6.</span> <span class="nav-text">下载特征</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E9%85%8D%E7%BD%AE%E7%BB%98%E5%9B%BE%E6%A0%B7%E5%BC%8F"><span class="nav-number">4.7.</span> <span class="nav-text">配置绘图样式</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#%E9%9D%99%E6%80%81%E6%A0%B7%E5%BC%8F"><span class="nav-number">4.7.1.</span> <span class="nav-text">静态样式</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E5%8A%A8%E6%80%81%E6%A0%B7%E5%BC%8F"><span class="nav-number">4.7.2.</span> <span class="nav-text">动态样式</span></a></li></ol></li></ol></li><li class="nav-item nav-level-1"><a class="nav-link" href="#%E7%A7%BB%E5%8A%A8%E7%AB%AF%E5%9C%B0%E5%9B%BE%E5%92%8C%E6%95%B0%E6%8D%AE%E9%9B%86%E6%88%90"><span class="nav-number">5.</span> <span class="nav-text">移动端地图和数据集成</span></a></li></ol></div>
+      </div>
+      <!--/noindex-->
+
+      <div class="site-overview-wrap sidebar-panel">
+        <div class="site-author motion-element" itemprop="author" itemscope itemtype="http://schema.org/Person">
+    <img class="site-author-image" itemprop="image" alt="Xin-Bo Qi(亓欣波)"
+      src="/images/avatar.jpg">
+  <p class="site-author-name" itemprop="name">Xin-Bo Qi(亓欣波)</p>
+  <div class="site-description" itemprop="description">Digitize everything to realize Digitalization!</div>
+</div>
+<div class="site-state-wrap motion-element">
+  <nav class="site-state">
+      <div class="site-state-item site-state-posts">
+          <a href="/archives/">
+        
+          <span class="site-state-item-count">152</span>
+          <span class="site-state-item-name">posts</span>
+        </a>
+      </div>
+      <div class="site-state-item site-state-categories">
+            <a href="/categories/">
+          
+        <span class="site-state-item-count">6</span>
+        <span class="site-state-item-name">categories</span></a>
+      </div>
+      <div class="site-state-item site-state-tags">
+            <a href="/tags/">
+          
+        <span class="site-state-item-count">50</span>
+        <span class="site-state-item-name">tags</span></a>
+      </div>
+  </nav>
+</div>
+  <div class="links-of-author motion-element">
+      <span class="links-of-author-item">
+        <a href="https://github.com/qixinbo" title="GitHub → https:&#x2F;&#x2F;github.com&#x2F;qixinbo" rel="noopener" target="_blank"><i class="github fa-fw"></i>GitHub</a>
+      </span>
+      <span class="links-of-author-item">
+        <a href="mailto:qixinbo@gmail.com" title="E-Mail → mailto:qixinbo@gmail.com" rel="noopener" target="_blank"><i class="envelope fa-fw"></i>E-Mail</a>
+      </span>
+      <span class="links-of-author-item">
+        <a href="https://twitter.com/qixinbo" title="Twitter → https:&#x2F;&#x2F;twitter.com&#x2F;qixinbo" rel="noopener" target="_blank"><i class="fab fa-twitter fa-fw"></i>Twitter</a>
+      </span>
+      <span class="links-of-author-item">
+        <a href="/atom.xml" title="RSS → &#x2F;atom.xml"><i class="fas fa-rss fa-fw"></i>RSS</a>
+      </span>
+  </div>
+
+
+  <div class="links-of-blogroll motion-element">
+    <div class="links-of-blogroll-title"><i class="fa fa-link fa-fw"></i>
+      Links
+    </div>
+    <ul class="links-of-blogroll-list">
+        <li class="links-of-blogroll-item">
+          <a href="https://www.tsinghua.edu.cn/" title="https:&#x2F;&#x2F;www.tsinghua.edu.cn" rel="noopener" target="_blank">THU</a>
+        </li>
+        <li class="links-of-blogroll-item">
+          <a href="http://www.imr.cas.cn/" title="http:&#x2F;&#x2F;www.imr.cas.cn" rel="noopener" target="_blank">IMR</a>
+        </li>
+        <li class="links-of-blogroll-item">
+          <a href="http://www.sdu.edu.cn/" title="http:&#x2F;&#x2F;www.sdu.edu.cn" rel="noopener" target="_blank">SDU</a>
+        </li>
+        <li class="links-of-blogroll-item">
+          <a href="http://liam0205.me/" title="http:&#x2F;&#x2F;liam0205.me&#x2F;" rel="noopener" target="_blank">黄晨成</a>
+        </li>
+    </ul>
+  </div>
+
+      </div>
+
+    </div>
+  </aside>
+  <div id="sidebar-dimmer"></div>
+
+
+      </div>
+    </main>
+
+    <footer class="footer">
+      <div class="footer-inner">
+        
+
+        
+
+<div class="copyright">
+  
+  &copy; 
+  <span itemprop="copyrightYear">2022</span>
+  <span class="with-love">
+    <i class="fa fa-heart"></i>
+  </span>
+  <span class="author" itemprop="copyrightHolder">Xin-Bo Qi(亓欣波)</span>
+</div>
+  <div class="powered-by">Powered by <a href="https://hexo.io/" class="theme-link" rel="noopener" target="_blank">Hexo</a> & <a href="https://theme-next.org/" class="theme-link" rel="noopener" target="_blank">NexT.Gemini</a>
+  </div>
+
+        
+
+
+
+
+
+
+
+
+      </div>
+    </footer>
+  </div>
+
+  
+  <script src="/lib/anime.min.js"></script>
+  <script src="/lib/velocity/velocity.min.js"></script>
+  <script src="/lib/velocity/velocity.ui.min.js"></script>
+
+<script src="/js/utils.js"></script>
+
+<script src="/js/motion.js"></script>
+
+
+<script src="/js/schemes/pisces.js"></script>
+
+
+<script src="/js/next-boot.js"></script>
+
+
+
+
+  
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+  
+
+  
+      
+
+<script>
+  if (typeof MathJax === 'undefined') {
+    window.MathJax = {
+      loader: {
+        source: {
+          '[tex]/amsCd': '[tex]/amscd',
+          '[tex]/AMScd': '[tex]/amscd'
+        }
+      },
+      tex: {
+        inlineMath: {'[+]': [['$', '$']]},
+        tags: 'ams'
+      },
+      options: {
+        renderActions: {
+          findScript: [10, doc => {
+            document.querySelectorAll('script[type^="math/tex"]').forEach(node => {
+              const display = !!node.type.match(/; *mode=display/);
+              const math = new doc.options.MathItem(node.textContent, doc.inputJax[0], display);
+              const text = document.createTextNode('');
+              node.parentNode.replaceChild(text, node);
+              math.start = {node: text, delim: '', n: 0};
+              math.end = {node: text, delim: '', n: 0};
+              doc.math.push(math);
+            });
+          }, '', false],
+          insertedScript: [200, () => {
+            document.querySelectorAll('mjx-container').forEach(node => {
+              let target = node.parentNode;
+              if (target.nodeName.toLowerCase() === 'li') {
+                target.parentNode.classList.add('has-jax');
+              }
+            });
+          }, '', false]
+        }
+      }
+    };
+    (function () {
+      var script = document.createElement('script');
+      script.src = '//cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js';
+      script.defer = true;
+      document.head.appendChild(script);
+    })();
+  } else {
+    MathJax.startup.document.state(0);
+    MathJax.texReset();
+    MathJax.typeset();
+  }
+</script>
+
+    
+
+  
+
+<script>
+  function loadCount() {
+    var d = document, s = d.createElement('script');
+    s.src = 'https://qixinbo.disqus.com/count.js';
+    s.id = 'dsq-count-scr';
+    (d.head || d.body).appendChild(s);
+  }
+  // defer loading until the whole page loading is completed
+  window.addEventListener('load', loadCount, false);
+</script>
+<script>
+  var disqus_config = function() {
+    this.page.url = "http://qixinbo.github.io/2022/03/16/ImJoy_12/";
+    this.page.identifier = "2022/03/16/ImJoy_12/";
+    this.page.title = "开源深度学习计算平台ImJoy解析：12 -- 基于web的绘图库OpenLayers";
+    };
+  NexT.utils.loadComments(document.querySelector('#disqus_thread'), () => {
+    if (window.DISQUS) {
+      DISQUS.reset({
+        reload: true,
+        config: disqus_config
+      });
+    } else {
+      var d = document, s = d.createElement('script');
+      s.src = 'https://qixinbo.disqus.com/embed.js';
+      s.setAttribute('data-timestamp', '' + +new Date());
+      (d.head || d.body).appendChild(s);
+    }
+  });
+</script>
+
+</body>
+</html>
