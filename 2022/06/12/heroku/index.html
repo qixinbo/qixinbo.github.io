@@ -1,0 +1,620 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=2">
+<meta name="theme-color" content="#222">
+<meta name="generator" content="Hexo 5.4.0">
+  <link rel="apple-touch-icon" sizes="180x180" href="/images/apple-touch-icon-next.png">
+  <link rel="icon" type="image/png" sizes="32x32" href="/favicon.ico">
+  <link rel="icon" type="image/png" sizes="16x16" href="/favicon.ico">
+  <link rel="mask-icon" href="/images/logo.svg" color="#222">
+
+<link rel="stylesheet" href="/css/main.css">
+
+
+<link rel="stylesheet" href="/lib/font-awesome/css/all.min.css">
+
+<script id="hexo-configurations">
+    var NexT = window.NexT || {};
+    var CONFIG = {"hostname":"qixinbo.github.io","root":"/","scheme":"Gemini","version":"7.8.0","exturl":false,"sidebar":{"position":"left","display":"post","padding":18,"offset":12,"onmobile":false},"copycode":{"enable":false,"show_result":false,"style":null},"back2top":{"enable":true,"sidebar":false,"scrollpercent":false},"bookmark":{"enable":false,"color":"#222","save":"auto"},"fancybox":false,"mediumzoom":false,"lazyload":false,"pangu":false,"comments":{"style":"tabs","active":null,"storage":true,"lazyload":false,"nav":null},"algolia":{"hits":{"per_page":10},"labels":{"input_placeholder":"Search for Posts","hits_empty":"We didn't find any results for the search: ${query}","hits_stats":"${hits} results found in ${time} ms"}},"localsearch":{"enable":false,"trigger":"auto","top_n_per_article":1,"unescape":false,"preload":false},"motion":{"enable":true,"async":false,"transition":{"post_block":"fadeIn","post_header":"slideDownIn","post_body":"slideDownIn","coll_header":"slideLeftIn","sidebar":"slideUpIn"}}};
+  </script>
+
+  <meta name="description" content="简介 当开发了一款web应用后，需要使用服务器将其托管以供用户进行访问。服务器的选择多种多样，可以选择自己搭建服务器，也可以选择如今大火的各种云服务器。 虽说现在云服务器的价格已经非常亲民（尤其是对于新用户的各种优惠政策），但毕竟还是需要真金白银的付出，尤其是考虑自己开发的应用可能只是为了大家尝试的情形下，此时可以选择一些提供免费部署的云平台。 Heroku是一个非常优秀的PaaS(Platfor">
+<meta property="og:type" content="article">
+<meta property="og:title" content="使用Heroku云平台免费托管web应用">
+<meta property="og:url" content="http://qixinbo.github.io/2022/06/12/heroku/index.html">
+<meta property="og:site_name" content="数字旗手">
+<meta property="og:description" content="简介 当开发了一款web应用后，需要使用服务器将其托管以供用户进行访问。服务器的选择多种多样，可以选择自己搭建服务器，也可以选择如今大火的各种云服务器。 虽说现在云服务器的价格已经非常亲民（尤其是对于新用户的各种优惠政策），但毕竟还是需要真金白银的付出，尤其是考虑自己开发的应用可能只是为了大家尝试的情形下，此时可以选择一些提供免费部署的云平台。 Heroku是一个非常优秀的PaaS(Platfor">
+<meta property="og:locale" content="en_US">
+<meta property="article:published_time" content="2022-06-11T16:00:00.000Z">
+<meta property="article:modified_time" content="2022-06-16T01:35:05.025Z">
+<meta property="article:author" content="Xin-Bo Qi(亓欣波)">
+<meta property="article:tag" content="Docker">
+<meta property="article:tag" content="Cloud">
+<meta name="twitter:card" content="summary">
+
+<link rel="canonical" href="http://qixinbo.github.io/2022/06/12/heroku/">
+
+
+<script id="page-configurations">
+  // https://hexo.io/docs/variables.html
+  CONFIG.page = {
+    sidebar: "",
+    isHome : false,
+    isPost : true,
+    lang   : 'en'
+  };
+</script>
+
+  <title>使用Heroku云平台免费托管web应用 | 数字旗手</title>
+  
+
+
+
+
+
+
+  <noscript>
+  <style>
+  .use-motion .brand,
+  .use-motion .menu-item,
+  .sidebar-inner,
+  .use-motion .post-block,
+  .use-motion .pagination,
+  .use-motion .comments,
+  .use-motion .post-header,
+  .use-motion .post-body,
+  .use-motion .collection-header { opacity: initial; }
+
+  .use-motion .site-title,
+  .use-motion .site-subtitle {
+    opacity: initial;
+    top: initial;
+  }
+
+  .use-motion .logo-line-before i { left: initial; }
+  .use-motion .logo-line-after i { right: initial; }
+  </style>
+</noscript>
+
+<link rel="alternate" href="/atom.xml" title="数字旗手" type="application/atom+xml">
+</head>
+
+<body itemscope itemtype="http://schema.org/WebPage">
+  <div class="container use-motion">
+    <div class="headband"></div>
+
+    <header class="header" itemscope itemtype="http://schema.org/WPHeader">
+      <div class="header-inner"><div class="site-brand-container">
+  <div class="site-nav-toggle">
+    <div class="toggle" aria-label="Toggle navigation bar">
+      <span class="toggle-line toggle-line-first"></span>
+      <span class="toggle-line toggle-line-middle"></span>
+      <span class="toggle-line toggle-line-last"></span>
+    </div>
+  </div>
+
+  <div class="site-meta">
+
+    <a href="/" class="brand" rel="start">
+      <span class="logo-line-before"><i></i></span>
+      <h1 class="site-title">数字旗手</h1>
+      <span class="logo-line-after"><i></i></span>
+    </a>
+      <p class="site-subtitle" itemprop="description">电气化、自动化、数字化、智能化、智慧化</p>
+  </div>
+
+  <div class="site-nav-right">
+    <div class="toggle popup-trigger">
+    </div>
+  </div>
+</div>
+
+
+
+
+<nav class="site-nav">
+  <ul id="menu" class="main-menu menu">
+        <li class="menu-item menu-item-home">
+
+    <a href="/" rel="section"><i class="fa fa-home fa-fw"></i>Home</a>
+
+  </li>
+        <li class="menu-item menu-item-categories">
+
+    <a href="/categories/" rel="section"><i class="fa fa-th fa-fw"></i>Categories</a>
+
+  </li>
+        <li class="menu-item menu-item-archives">
+
+    <a href="/archives/" rel="section"><i class="fa fa-archive fa-fw"></i>Archives</a>
+
+  </li>
+        <li class="menu-item menu-item-tags">
+
+    <a href="/tags/" rel="section"><i class="fa fa-tags fa-fw"></i>Tags</a>
+
+  </li>
+        <li class="menu-item menu-item-scholar">
+
+    <a href="/scholar/" rel="section"><i class="fa fa-chart-bar fa-fw"></i>scholar</a>
+
+  </li>
+        <li class="menu-item menu-item-sources">
+
+    <a href="/sources/" rel="section"><i class="fa fa-rss fa-fw"></i>sources</a>
+
+  </li>
+        <li class="menu-item menu-item-gallery">
+
+    <a href="/gallery/" rel="section"><i class="fa fa-file-image fa-fw"></i>gallery</a>
+
+  </li>
+        <li class="menu-item menu-item-about">
+
+    <a href="/about/" rel="section"><i class="fa fa-user fa-fw"></i>About</a>
+
+  </li>
+        <li class="menu-item menu-item-commonweal">
+
+    <a href="/404.html" rel="section"><i class="fa fa-heartbeat fa-fw"></i>Commonweal 404</a>
+
+  </li>
+  </ul>
+</nav>
+
+
+
+
+</div>
+    </header>
+
+    
+  <div class="back-to-top">
+    <i class="fa fa-arrow-up"></i>
+    <span>0%</span>
+  </div>
+
+
+    <main class="main">
+      <div class="main-inner">
+        <div class="content-wrap">
+          
+
+          <div class="content post posts-expand">
+            
+
+    
+  
+  
+  <article itemscope itemtype="http://schema.org/Article" class="post-block" lang="en">
+    <link itemprop="mainEntityOfPage" href="http://qixinbo.github.io/2022/06/12/heroku/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="image" content="/images/avatar.jpg">
+      <meta itemprop="name" content="Xin-Bo Qi(亓欣波)">
+      <meta itemprop="description" content="Digitize everything to realize Digitalization!">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="数字旗手">
+    </span>
+      <header class="post-header">
+        <h1 class="post-title" itemprop="name headline">
+          使用Heroku云平台免费托管web应用
+        </h1>
+
+        <div class="post-meta">
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="far fa-calendar"></i>
+              </span>
+              <span class="post-meta-item-text">Posted on</span>
+
+              <time title="Created: 2022-06-12 00:00:00" itemprop="dateCreated datePublished" datetime="2022-06-12T00:00:00+08:00">2022-06-12</time>
+            </span>
+              <span class="post-meta-item">
+                <span class="post-meta-item-icon">
+                  <i class="far fa-calendar-check"></i>
+                </span>
+                <span class="post-meta-item-text">Edited on</span>
+                <time title="Modified: 2022-06-16 09:35:05" itemprop="dateModified" datetime="2022-06-16T09:35:05+08:00">2022-06-16</time>
+              </span>
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="far fa-folder"></i>
+              </span>
+              <span class="post-meta-item-text">In</span>
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+                  <a href="/categories/coding/" itemprop="url" rel="index"><span itemprop="name">coding</span></a>
+                </span>
+            </span>
+
+          
+  
+  <span class="post-meta-item">
+    
+      <span class="post-meta-item-icon">
+        <i class="far fa-comment"></i>
+      </span>
+      <span class="post-meta-item-text">Disqus: </span>
+    
+    <a title="disqus" href="/2022/06/12/heroku/#disqus_thread" itemprop="discussionUrl">
+      <span class="post-comments-count disqus-comment-count" data-disqus-identifier="2022/06/12/heroku/" itemprop="commentCount"></span>
+    </a>
+  </span>
+  
+  
+
+        </div>
+      </header>
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+        <h1 id="简介"><a href="#简介" class="headerlink" title="简介"></a>简介</h1><p>当开发了一款<code>web</code>应用后，需要使用服务器将其托管以供用户进行访问。服务器的选择多种多样，可以选择自己搭建服务器，也可以选择如今大火的各种云服务器。<br>虽说现在云服务器的价格已经非常亲民（尤其是对于新用户的各种优惠政策），但毕竟还是需要真金白银的付出，尤其是考虑自己开发的应用可能只是为了大家尝试的情形下，此时可以选择一些提供免费部署的云平台。<br><a target="_blank" rel="noopener" href="https://www.heroku.com/"><code>Heroku</code></a>是一个非常优秀的<code>PaaS</code>(<code>Platform as a Service</code>)云平台，它有如下几个优点：<br>（1）自动软件部署：当软件的代码变动后，通过<code>git</code>进行代码追踪后，就可以自动触发软件的部署交付；<br>（2）无需关心背后的基础设施：因为<code>Heroku</code>是一个<code>PaaS</code>平台，而不是<code>IaaS</code>(<code>Infrastructure as a Service</code>)平台，所以它屏蔽了很多的细节，比如使用的操作系统、运行环境等。用户写好配置文件后，自动搭建应用程序所需的环境；<br>（3）免费额度：对于小型应用来说，免费版已足够，但是有不少限制，比如应用在<code>30</code>分钟内无访问的话会自动休眠，再次有访问时会被唤醒，可能会有<code>10</code>多秒的延迟；每个月限制在<code>550</code>小时的免费运行时长；提供给用户的<code>Postgres</code>数据库存储的数据不能超过<code>10000</code>行等。</p>
+<h1 id="注册"><a href="#注册" class="headerlink" title="注册"></a>注册</h1><p>登录<a target="_blank" rel="noopener" href="https://signup.heroku.com/">heroku网站</a>注册一个账号。</p>
+<h1 id="下载并安装Heroku工具"><a href="#下载并安装Heroku工具" class="headerlink" title="下载并安装Heroku工具"></a>下载并安装Heroku工具</h1><p>注意，需要电脑上提前安装git。</p>
+<h2 id="下载"><a href="#下载" class="headerlink" title="下载"></a>下载</h2><p>Heroku工具的<a target="_blank" rel="noopener" href="https://devcenter.heroku.com/articles/heroku-cli">下载地址</a>。</p>
+<h2 id="验证"><a href="#验证" class="headerlink" title="验证"></a>验证</h2><p>安装后进行验证：<br><figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">heroku --version</span><br></pre></td></tr></table></figure></p>
+<h2 id="登录"><a href="#登录" class="headerlink" title="登录"></a>登录</h2><p>登录账号：<br><figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">heroku login</span><br></pre></td></tr></table></figure></p>
+<h1 id="创建或使用已有git仓库"><a href="#创建或使用已有git仓库" class="headerlink" title="创建或使用已有git仓库"></a>创建或使用已有git仓库</h1><p>在项目中创建git仓库，或使用已有的git仓库：<br><figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">cd my-project/</span><br><span class="line">git init</span><br></pre></td></tr></table></figure></p>
+<h1 id="创建Heroku-App"><a href="#创建Heroku-App" class="headerlink" title="创建Heroku App"></a>创建Heroku App</h1><h2 id="新建或连接Heroku-App"><a href="#新建或连接Heroku-App" class="headerlink" title="新建或连接Heroku App"></a>新建或连接Heroku App</h2><p>在命令行中新建Heroku App：<br><figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">heroku create my-project-test</span><br></pre></td></tr></table></figure><br>或者在Heroku网站上已创建了App，此时连接即可：<br><figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">heroku git:remote -a my-project-test</span><br></pre></td></tr></table></figure></p>
+<h1 id="操作git仓库"><a href="#操作git仓库" class="headerlink" title="操作git仓库"></a>操作git仓库</h1><p>对于项目文件的更新，使用常规的git命令即可：<br><figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">git add .</span><br><span class="line">git commit -am <span class="string">&quot;make it better&quot;</span></span><br></pre></td></tr></table></figure></p>
+<h1 id="部署到Heroku"><a href="#部署到Heroku" class="headerlink" title="部署到Heroku"></a>部署到Heroku</h1><figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">git push heroku master</span><br></pre></td></tr></table></figure>
+<p>如果涉及到<code>master</code>分支更名为<code>main</code>分支，可以查看<a target="_blank" rel="noopener" href="https://help.heroku.com/O0EXQZTA/how-do-i-switch-branches-from-master-to-main">该教程</a>。</p>
+<h2 id="Vue项目部署"><a href="#Vue项目部署" class="headerlink" title="Vue项目部署"></a>Vue项目部署</h2><p>特别地，对于<code>Vue.js</code>开发的项目，要注意以下几点：<br>（<a target="_blank" rel="noopener" href="https://cli.vuejs.org/guide/deployment.html#heroku">教程1</a>, <a target="_blank" rel="noopener" href="https://medium.com/unalai/%E8%AA%8D%E8%AD%98-heroku-%E5%AD%B8%E7%BF%92%E5%B0%87-vue-%E5%B0%88%E6%A1%88%E9%83%A8%E7%BD%B2%E8%87%B3heroku-4f5d8bd9b8e2">教程2</a>）</p>
+<h3 id="文件打包"><a href="#文件打包" class="headerlink" title="文件打包"></a>文件打包</h3><figure class="highlight js"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">npm run build</span><br></pre></td></tr></table></figure>
+<h3 id="git加入dist路径"><a href="#git加入dist路径" class="headerlink" title="git加入dist路径"></a>git加入dist路径</h3><p>在<code>.gitignore</code>文件中删除<code>/dist</code>条目，使得该路径可以被<code>git</code>监控。</p>
+<h3 id="新增文件"><a href="#新增文件" class="headerlink" title="新增文件"></a>新增文件</h3><p>新建<code>static.json</code>文件：<br><figure class="highlight js"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><span class="line">&#123;</span><br><span class="line">  <span class="string">&quot;root&quot;</span>: <span class="string">&quot;dist&quot;</span>,</span><br><span class="line">  <span class="string">&quot;clean_urls&quot;</span>: <span class="literal">true</span>,</span><br><span class="line">  <span class="string">&quot;routes&quot;</span>: &#123;</span><br><span class="line">    <span class="string">&quot;/**&quot;</span>: <span class="string">&quot;index.html&quot;</span></span><br><span class="line">  &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure><br>注意将上述改动都通过<code>git add</code>和<code>git commit</code>提交。</p>
+<h3 id="新增Heroku指令"><a href="#新增Heroku指令" class="headerlink" title="新增Heroku指令"></a>新增Heroku指令</h3><figure class="highlight js"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">heroku buildpacks:add heroku/nodejs</span><br><span class="line">heroku buildpacks:add https:<span class="comment">//github.com/heroku/heroku-buildpack-static</span></span><br></pre></td></tr></table></figure>
+<h3 id="部署"><a href="#部署" class="headerlink" title="部署"></a>部署</h3><figure class="highlight js"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">git push heroku master</span><br></pre></td></tr></table></figure>
+<h2 id="Python项目部署"><a href="#Python项目部署" class="headerlink" title="Python项目部署"></a>Python项目部署</h2><h3 id="添加python版本指定文件"><a href="#添加python版本指定文件" class="headerlink" title="添加python版本指定文件"></a>添加python版本指定文件</h3><p>新建<code>runtime.txt</code>文件，然后在里面写上<code>python</code>版本，如：<br><figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">python-<span class="number">3.7</span><span class="number">.13</span></span><br></pre></td></tr></table></figure><br>不过<code>python</code>版本与<code>heroku</code>的版本需要对应，具体查看<a target="_blank" rel="noopener" href="https://devcenter.heroku.com/articles/python-support">这里的说明</a>。</p>
+<h3 id="添加依赖需求文件"><a href="#添加依赖需求文件" class="headerlink" title="添加依赖需求文件"></a>添加依赖需求文件</h3><figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">pip freeze &gt; requirements.txt</span><br></pre></td></tr></table></figure>
+<h3 id="添加Procfile"><a href="#添加Procfile" class="headerlink" title="添加Procfile"></a>添加Procfile</h3><p>新建<code>Procfile</code>文件，里面包含的是Web应用服务器启动时执行的命令，比如：<br><figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">web: uvicorn main:app --host=<span class="number">0.0</span><span class="number">.0</span><span class="number">.0</span> --port=$&#123;PORT:-<span class="number">5000</span>&#125;</span><br></pre></td></tr></table></figure><br>一篇很好的教程见<a target="_blank" rel="noopener" href="https://towardsdatascience.com/how-to-deploy-your-fastapi-app-on-heroku-for-free-8d4271a4ab9">这里</a>。</p>
+<h3 id="问题汇总"><a href="#问题汇总" class="headerlink" title="问题汇总"></a>问题汇总</h3><p>（1）遇到<code>Your account has reached its concurrent build limit</code>这个错误，可以：<br><figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">heroku restart</span><br></pre></td></tr></table></figure><br>参考<a target="_blank" rel="noopener" href="https://stackoverflow.com/questions/47028871/heroku-your-account-has-reached-its-concurrent-build-limit">这个问题</a>。<br>（2）项目不能太大，免费版实测压缩后最大是<code>500M</code>。<br>（3）如果用到<code>opencv</code>，需要这样配置：<br>首先添加指令：<br><figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">heroku buildpacks:add --index <span class="number">1</span> heroku-community/apt</span><br></pre></td></tr></table></figure><br>然后新建<code>Aptfile</code>，内容为：<br><figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line">libsm6</span><br><span class="line">libxrender1</span><br><span class="line">libfontconfig1</span><br><span class="line">libice6</span><br></pre></td></tr></table></figure><br>参考<a target="_blank" rel="noopener" href="https://medium.com/analytics-vidhya/deploying-your-opencv-flask-web-application-on-heroku-c23efcceb1e8">该教程</a>。</p>
+<h1 id="启动App"><a href="#启动App" class="headerlink" title="启动App"></a>启动App</h1><p>在<code>Heroku</code>网站上的该<code>App</code>的<code>settings</code>中找到该<code>App</code>的网站<code>url</code>。<br>或者通过以下命令：<br><figure class="highlight js"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">heroku open</span><br></pre></td></tr></table></figure><br>即可直接打开App。<br>以后即可通过该网址访问该<code>App</code>。</p>
+
+    </div>
+
+    
+    
+    
+        <div class="reward-container">
+  <div></div>
+  <button onclick="var qr = document.getElementById('qr'); qr.style.display = (qr.style.display === 'none') ? 'block' : 'none';">
+    Donate
+  </button>
+  <div id="qr" style="display: none;">
+      
+      <div style="display: inline-block;">
+        <img src="/images/wechat_reward.png" alt="Xin-Bo Qi(亓欣波) WeChat Pay">
+        <p>WeChat Pay</p>
+      </div>
+
+  </div>
+</div>
+
+
+      <footer class="post-footer">
+          <div class="post-tags">
+              <a href="/tags/Docker/" rel="tag"># Docker</a>
+              <a href="/tags/Cloud/" rel="tag"># Cloud</a>
+          </div>
+
+        
+
+
+        
+    <div class="post-nav">
+      <div class="post-nav-item">
+    <a href="/2022/05/22/ImJoy_13/" rel="prev" title="开源深度学习计算平台ImJoy解析：13 -- Kaibu应用">
+      <i class="fa fa-chevron-left"></i> 开源深度学习计算平台ImJoy解析：13 -- Kaibu应用
+    </a></div>
+      <div class="post-nav-item"></div>
+    </div>
+      </footer>
+    
+  </article>
+  
+  
+  
+
+
+
+          </div>
+          
+    
+  <div class="comments">
+    <div id="disqus_thread">
+      <noscript>Please enable JavaScript to view the comments powered by Disqus.</noscript>
+    </div>
+  </div>
+  
+
+<script>
+  window.addEventListener('tabs:register', () => {
+    let { activeClass } = CONFIG.comments;
+    if (CONFIG.comments.storage) {
+      activeClass = localStorage.getItem('comments_active') || activeClass;
+    }
+    if (activeClass) {
+      let activeTab = document.querySelector(`a[href="#comment-${activeClass}"]`);
+      if (activeTab) {
+        activeTab.click();
+      }
+    }
+  });
+  if (CONFIG.comments.storage) {
+    window.addEventListener('tabs:click', event => {
+      if (!event.target.matches('.tabs-comment .tab-content .tab-pane')) return;
+      let commentClass = event.target.classList[1];
+      localStorage.setItem('comments_active', commentClass);
+    });
+  }
+</script>
+
+        </div>
+          
+  
+  <div class="toggle sidebar-toggle">
+    <span class="toggle-line toggle-line-first"></span>
+    <span class="toggle-line toggle-line-middle"></span>
+    <span class="toggle-line toggle-line-last"></span>
+  </div>
+
+  <aside class="sidebar">
+    <div class="sidebar-inner">
+
+      <ul class="sidebar-nav motion-element">
+        <li class="sidebar-nav-toc">
+          Table of Contents
+        </li>
+        <li class="sidebar-nav-overview">
+          Overview
+        </li>
+      </ul>
+
+      <!--noindex-->
+      <div class="post-toc-wrap sidebar-panel">
+          <div class="post-toc motion-element"><ol class="nav"><li class="nav-item nav-level-1"><a class="nav-link" href="#%E7%AE%80%E4%BB%8B"><span class="nav-number">1.</span> <span class="nav-text">简介</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#%E6%B3%A8%E5%86%8C"><span class="nav-number">2.</span> <span class="nav-text">注册</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#%E4%B8%8B%E8%BD%BD%E5%B9%B6%E5%AE%89%E8%A3%85Heroku%E5%B7%A5%E5%85%B7"><span class="nav-number">3.</span> <span class="nav-text">下载并安装Heroku工具</span></a><ol class="nav-child"><li class="nav-item nav-level-2"><a class="nav-link" href="#%E4%B8%8B%E8%BD%BD"><span class="nav-number">3.1.</span> <span class="nav-text">下载</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E9%AA%8C%E8%AF%81"><span class="nav-number">3.2.</span> <span class="nav-text">验证</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E7%99%BB%E5%BD%95"><span class="nav-number">3.3.</span> <span class="nav-text">登录</span></a></li></ol></li><li class="nav-item nav-level-1"><a class="nav-link" href="#%E5%88%9B%E5%BB%BA%E6%88%96%E4%BD%BF%E7%94%A8%E5%B7%B2%E6%9C%89git%E4%BB%93%E5%BA%93"><span class="nav-number">4.</span> <span class="nav-text">创建或使用已有git仓库</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#%E5%88%9B%E5%BB%BAHeroku-App"><span class="nav-number">5.</span> <span class="nav-text">创建Heroku App</span></a><ol class="nav-child"><li class="nav-item nav-level-2"><a class="nav-link" href="#%E6%96%B0%E5%BB%BA%E6%88%96%E8%BF%9E%E6%8E%A5Heroku-App"><span class="nav-number">5.1.</span> <span class="nav-text">新建或连接Heroku App</span></a></li></ol></li><li class="nav-item nav-level-1"><a class="nav-link" href="#%E6%93%8D%E4%BD%9Cgit%E4%BB%93%E5%BA%93"><span class="nav-number">6.</span> <span class="nav-text">操作git仓库</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#%E9%83%A8%E7%BD%B2%E5%88%B0Heroku"><span class="nav-number">7.</span> <span class="nav-text">部署到Heroku</span></a><ol class="nav-child"><li class="nav-item nav-level-2"><a class="nav-link" href="#Vue%E9%A1%B9%E7%9B%AE%E9%83%A8%E7%BD%B2"><span class="nav-number">7.1.</span> <span class="nav-text">Vue项目部署</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#%E6%96%87%E4%BB%B6%E6%89%93%E5%8C%85"><span class="nav-number">7.1.1.</span> <span class="nav-text">文件打包</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#git%E5%8A%A0%E5%85%A5dist%E8%B7%AF%E5%BE%84"><span class="nav-number">7.1.2.</span> <span class="nav-text">git加入dist路径</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E6%96%B0%E5%A2%9E%E6%96%87%E4%BB%B6"><span class="nav-number">7.1.3.</span> <span class="nav-text">新增文件</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E6%96%B0%E5%A2%9EHeroku%E6%8C%87%E4%BB%A4"><span class="nav-number">7.1.4.</span> <span class="nav-text">新增Heroku指令</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E9%83%A8%E7%BD%B2"><span class="nav-number">7.1.5.</span> <span class="nav-text">部署</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#Python%E9%A1%B9%E7%9B%AE%E9%83%A8%E7%BD%B2"><span class="nav-number">7.2.</span> <span class="nav-text">Python项目部署</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#%E6%B7%BB%E5%8A%A0python%E7%89%88%E6%9C%AC%E6%8C%87%E5%AE%9A%E6%96%87%E4%BB%B6"><span class="nav-number">7.2.1.</span> <span class="nav-text">添加python版本指定文件</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E6%B7%BB%E5%8A%A0%E4%BE%9D%E8%B5%96%E9%9C%80%E6%B1%82%E6%96%87%E4%BB%B6"><span class="nav-number">7.2.2.</span> <span class="nav-text">添加依赖需求文件</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E6%B7%BB%E5%8A%A0Procfile"><span class="nav-number">7.2.3.</span> <span class="nav-text">添加Procfile</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E9%97%AE%E9%A2%98%E6%B1%87%E6%80%BB"><span class="nav-number">7.2.4.</span> <span class="nav-text">问题汇总</span></a></li></ol></li></ol></li><li class="nav-item nav-level-1"><a class="nav-link" href="#%E5%90%AF%E5%8A%A8App"><span class="nav-number">8.</span> <span class="nav-text">启动App</span></a></li></ol></div>
+      </div>
+      <!--/noindex-->
+
+      <div class="site-overview-wrap sidebar-panel">
+        <div class="site-author motion-element" itemprop="author" itemscope itemtype="http://schema.org/Person">
+    <img class="site-author-image" itemprop="image" alt="Xin-Bo Qi(亓欣波)"
+      src="/images/avatar.jpg">
+  <p class="site-author-name" itemprop="name">Xin-Bo Qi(亓欣波)</p>
+  <div class="site-description" itemprop="description">Digitize everything to realize Digitalization!</div>
+</div>
+<div class="site-state-wrap motion-element">
+  <nav class="site-state">
+      <div class="site-state-item site-state-posts">
+          <a href="/archives/">
+        
+          <span class="site-state-item-count">156</span>
+          <span class="site-state-item-name">posts</span>
+        </a>
+      </div>
+      <div class="site-state-item site-state-categories">
+            <a href="/categories/">
+          
+        <span class="site-state-item-count">6</span>
+        <span class="site-state-item-name">categories</span></a>
+      </div>
+      <div class="site-state-item site-state-tags">
+            <a href="/tags/">
+          
+        <span class="site-state-item-count">53</span>
+        <span class="site-state-item-name">tags</span></a>
+      </div>
+  </nav>
+</div>
+  <div class="links-of-author motion-element">
+      <span class="links-of-author-item">
+        <a href="https://github.com/qixinbo" title="GitHub → https:&#x2F;&#x2F;github.com&#x2F;qixinbo" rel="noopener" target="_blank"><i class="github fa-fw"></i>GitHub</a>
+      </span>
+      <span class="links-of-author-item">
+        <a href="mailto:qixinbo@gmail.com" title="E-Mail → mailto:qixinbo@gmail.com" rel="noopener" target="_blank"><i class="envelope fa-fw"></i>E-Mail</a>
+      </span>
+      <span class="links-of-author-item">
+        <a href="https://twitter.com/qixinbo" title="Twitter → https:&#x2F;&#x2F;twitter.com&#x2F;qixinbo" rel="noopener" target="_blank"><i class="fab fa-twitter fa-fw"></i>Twitter</a>
+      </span>
+      <span class="links-of-author-item">
+        <a href="/atom.xml" title="RSS → &#x2F;atom.xml"><i class="fas fa-rss fa-fw"></i>RSS</a>
+      </span>
+  </div>
+
+
+  <div class="links-of-blogroll motion-element">
+    <div class="links-of-blogroll-title"><i class="fa fa-link fa-fw"></i>
+      Links
+    </div>
+    <ul class="links-of-blogroll-list">
+        <li class="links-of-blogroll-item">
+          <a href="https://www.tsinghua.edu.cn/" title="https:&#x2F;&#x2F;www.tsinghua.edu.cn" rel="noopener" target="_blank">THU</a>
+        </li>
+        <li class="links-of-blogroll-item">
+          <a href="http://www.imr.cas.cn/" title="http:&#x2F;&#x2F;www.imr.cas.cn" rel="noopener" target="_blank">IMR</a>
+        </li>
+        <li class="links-of-blogroll-item">
+          <a href="http://www.sdu.edu.cn/" title="http:&#x2F;&#x2F;www.sdu.edu.cn" rel="noopener" target="_blank">SDU</a>
+        </li>
+        <li class="links-of-blogroll-item">
+          <a href="http://liam0205.me/" title="http:&#x2F;&#x2F;liam0205.me&#x2F;" rel="noopener" target="_blank">黄晨成</a>
+        </li>
+    </ul>
+  </div>
+
+      </div>
+
+    </div>
+  </aside>
+  <div id="sidebar-dimmer"></div>
+
+
+      </div>
+    </main>
+
+    <footer class="footer">
+      <div class="footer-inner">
+        
+
+        
+
+<div class="copyright">
+  
+  &copy; 
+  <span itemprop="copyrightYear">2022</span>
+  <span class="with-love">
+    <i class="fa fa-heart"></i>
+  </span>
+  <span class="author" itemprop="copyrightHolder">Xin-Bo Qi(亓欣波)</span>
+</div>
+  <div class="powered-by">Powered by <a href="https://hexo.io/" class="theme-link" rel="noopener" target="_blank">Hexo</a> & <a href="https://theme-next.org/" class="theme-link" rel="noopener" target="_blank">NexT.Gemini</a>
+  </div>
+
+        
+
+
+
+
+
+
+
+
+      </div>
+    </footer>
+  </div>
+
+  
+  <script src="/lib/anime.min.js"></script>
+  <script src="/lib/velocity/velocity.min.js"></script>
+  <script src="/lib/velocity/velocity.ui.min.js"></script>
+
+<script src="/js/utils.js"></script>
+
+<script src="/js/motion.js"></script>
+
+
+<script src="/js/schemes/pisces.js"></script>
+
+
+<script src="/js/next-boot.js"></script>
+
+
+
+
+  
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+  
+
+  
+      
+
+<script>
+  if (typeof MathJax === 'undefined') {
+    window.MathJax = {
+      loader: {
+        source: {
+          '[tex]/amsCd': '[tex]/amscd',
+          '[tex]/AMScd': '[tex]/amscd'
+        }
+      },
+      tex: {
+        inlineMath: {'[+]': [['$', '$']]},
+        tags: 'ams'
+      },
+      options: {
+        renderActions: {
+          findScript: [10, doc => {
+            document.querySelectorAll('script[type^="math/tex"]').forEach(node => {
+              const display = !!node.type.match(/; *mode=display/);
+              const math = new doc.options.MathItem(node.textContent, doc.inputJax[0], display);
+              const text = document.createTextNode('');
+              node.parentNode.replaceChild(text, node);
+              math.start = {node: text, delim: '', n: 0};
+              math.end = {node: text, delim: '', n: 0};
+              doc.math.push(math);
+            });
+          }, '', false],
+          insertedScript: [200, () => {
+            document.querySelectorAll('mjx-container').forEach(node => {
+              let target = node.parentNode;
+              if (target.nodeName.toLowerCase() === 'li') {
+                target.parentNode.classList.add('has-jax');
+              }
+            });
+          }, '', false]
+        }
+      }
+    };
+    (function () {
+      var script = document.createElement('script');
+      script.src = '//cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js';
+      script.defer = true;
+      document.head.appendChild(script);
+    })();
+  } else {
+    MathJax.startup.document.state(0);
+    MathJax.texReset();
+    MathJax.typeset();
+  }
+</script>
+
+    
+
+  
+
+<script>
+  function loadCount() {
+    var d = document, s = d.createElement('script');
+    s.src = 'https://qixinbo.disqus.com/count.js';
+    s.id = 'dsq-count-scr';
+    (d.head || d.body).appendChild(s);
+  }
+  // defer loading until the whole page loading is completed
+  window.addEventListener('load', loadCount, false);
+</script>
+<script>
+  var disqus_config = function() {
+    this.page.url = "http://qixinbo.github.io/2022/06/12/heroku/";
+    this.page.identifier = "2022/06/12/heroku/";
+    this.page.title = "使用Heroku云平台免费托管web应用";
+    };
+  NexT.utils.loadComments(document.querySelector('#disqus_thread'), () => {
+    if (window.DISQUS) {
+      DISQUS.reset({
+        reload: true,
+        config: disqus_config
+      });
+    } else {
+      var d = document, s = d.createElement('script');
+      s.src = 'https://qixinbo.disqus.com/embed.js';
+      s.setAttribute('data-timestamp', '' + +new Date());
+      (d.head || d.body).appendChild(s);
+    }
+  });
+</script>
+
+</body>
+</html>

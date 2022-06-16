@@ -184,6 +184,116 @@
   
   
   <article itemscope itemtype="http://schema.org/Article" class="post-block" lang="en">
+    <link itemprop="mainEntityOfPage" href="http://qixinbo.github.io/2016/09/17/dealii-learn-step12/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="image" content="/images/avatar.jpg">
+      <meta itemprop="name" content="Xin-Bo Qi(亓欣波)">
+      <meta itemprop="description" content="Digitize everything to realize Digitalization!">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="数字旗手">
+    </span>
+      <header class="post-header">
+        <h2 class="post-title" itemprop="name headline">
+          
+            <a href="/2016/09/17/dealii-learn-step12/" class="post-title-link" itemprop="url">求解偏微分方程开源有限元软件deal.II学习--Step 12</a>
+        </h2>
+
+        <div class="post-meta">
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="far fa-calendar"></i>
+              </span>
+              <span class="post-meta-item-text">Posted on</span>
+
+              <time title="Created: 2016-09-17 00:00:00" itemprop="dateCreated datePublished" datetime="2016-09-17T00:00:00+08:00">2016-09-17</time>
+            </span>
+              <span class="post-meta-item">
+                <span class="post-meta-item-icon">
+                  <i class="far fa-calendar-check"></i>
+                </span>
+                <span class="post-meta-item-text">Edited on</span>
+                <time title="Modified: 2021-03-26 14:50:36" itemprop="dateModified" datetime="2021-03-26T14:50:36+08:00">2021-03-26</time>
+              </span>
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="far fa-folder"></i>
+              </span>
+              <span class="post-meta-item-text">In</span>
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+                  <a href="/categories/simulation/" itemprop="url" rel="index"><span itemprop="name">simulation</span></a>
+                </span>
+            </span>
+
+          
+  
+  <span class="post-meta-item">
+    
+      <span class="post-meta-item-icon">
+        <i class="far fa-comment"></i>
+      </span>
+      <span class="post-meta-item-text">Disqus: </span>
+    
+    <a title="disqus" href="/2016/09/17/dealii-learn-step12/#disqus_thread" itemprop="discussionUrl">
+      <span class="post-comments-count disqus-comment-count" data-disqus-identifier="2016/09/17/dealii-learn-step12/" itemprop="commentCount"></span>
+    </a>
+  </span>
+  
+  
+
+        </div>
+      </header>
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+          引子
+本例主要讲解MeshWorker框架和间断Galerkin方法，即DG。
+
+ * 用间断Galerkin法离散线性对流方程
+ * 使用MeshWorker::loop()来组装系统矩阵
+
+本例主要关心的就是间断Galerkin法的循环，这相当复杂，因为必须分辨边界、常规内部边和有悬点的内部边。MeshWorker框架能够对所有的单元和边进行标准循环，它将分辨过程隐藏在了内部。
+使用MeshWorker需要手动做两件事：一是针对特定问题写内部积分器，二是从该命名空间中选择类，然后将它们组合起来来解决问题。
+
+要求解的问题是线性对流方程：
+
+边界条件是：
+
+这是入流边界，定义是：
+
+这个方程
+          <!--noindex-->
+            <div class="post-button">
+              <a class="btn" href="/2016/09/17/dealii-learn-step12/#more" rel="contents">
+                Read more &raquo;
+              </a>
+            </div>
+          <!--/noindex-->
+        
+      
+    </div>
+
+    
+    
+    
+      <footer class="post-footer">
+        <div class="post-eof"></div>
+      </footer>
+  </article>
+  
+  
+  
+
+      
+  
+  
+  <article itemscope itemtype="http://schema.org/Article" class="post-block" lang="en">
     <link itemprop="mainEntityOfPage" href="http://qixinbo.github.io/2016/09/16/dealii-learn-step10/">
 
     <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
@@ -1181,112 +1291,6 @@ deal.II有一个特性，叫作”维度无关的编程“。前面的例子中�
   
   
 
-      
-  
-  
-  <article itemscope itemtype="http://schema.org/Article" class="post-block" lang="en">
-    <link itemprop="mainEntityOfPage" href="http://qixinbo.github.io/2016/08/19/mathematica-fem-ch4/">
-
-    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
-      <meta itemprop="image" content="/images/avatar.jpg">
-      <meta itemprop="name" content="Xin-Bo Qi(亓欣波)">
-      <meta itemprop="description" content="Digitize everything to realize Digitalization!">
-    </span>
-
-    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
-      <meta itemprop="name" content="数字旗手">
-    </span>
-      <header class="post-header">
-        <h2 class="post-title" itemprop="name headline">
-          
-            <a href="/2016/08/19/mathematica-fem-ch4/" class="post-title-link" itemprop="url">利用Mathematica进行有限元编程(三)：三角形单元分析</a>
-        </h2>
-
-        <div class="post-meta">
-            <span class="post-meta-item">
-              <span class="post-meta-item-icon">
-                <i class="far fa-calendar"></i>
-              </span>
-              <span class="post-meta-item-text">Posted on</span>
-
-              <time title="Created: 2016-08-19 00:00:00" itemprop="dateCreated datePublished" datetime="2016-08-19T00:00:00+08:00">2016-08-19</time>
-            </span>
-              <span class="post-meta-item">
-                <span class="post-meta-item-icon">
-                  <i class="far fa-calendar-check"></i>
-                </span>
-                <span class="post-meta-item-text">Edited on</span>
-                <time title="Modified: 2021-03-26 15:48:21" itemprop="dateModified" datetime="2021-03-26T15:48:21+08:00">2021-03-26</time>
-              </span>
-            <span class="post-meta-item">
-              <span class="post-meta-item-icon">
-                <i class="far fa-folder"></i>
-              </span>
-              <span class="post-meta-item-text">In</span>
-                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
-                  <a href="/categories/simulation/" itemprop="url" rel="index"><span itemprop="name">simulation</span></a>
-                </span>
-            </span>
-
-          
-  
-  <span class="post-meta-item">
-    
-      <span class="post-meta-item-icon">
-        <i class="far fa-comment"></i>
-      </span>
-      <span class="post-meta-item-text">Disqus: </span>
-    
-    <a title="disqus" href="/2016/08/19/mathematica-fem-ch4/#disqus_thread" itemprop="discussionUrl">
-      <span class="post-comments-count disqus-comment-count" data-disqus-identifier="2016/08/19/mathematica-fem-ch4/" itemprop="commentCount"></span>
-    </a>
-  </span>
-  
-  
-
-        </div>
-      </header>
-
-    
-    
-    
-    <div class="post-body" itemprop="articleBody">
-
-      
-          本文是对Mathematica有限元分析与工程应用一书的学习笔记。
-
-三角形单元适用于具有复杂和不规则边界形状的问题，是一种常见的网格离散方式。
-
-双线性三角形单元
-局部坐标系
-之前的杆单元和桁架元的局部坐标系容易建立，即建在其自身上即可。而三角形单元的局部坐标系显然不能这样建立，其常采用一套无量纲的自然坐标系——面积坐标，如下图所示：
-
-三角形123内部有一任意点P，P与顶点1、2、3组成3个子三角形，每个子三角形的面积与总面积之比记为$L_i$，即P点的面积坐标为$(L_1,L_2,L_3)$。
-因为三个坐标相加为1，所以仅有两个独立的自然坐标，所以可以简记为：
-
-注意到：面积坐标还有如下
-          <!--noindex-->
-            <div class="post-button">
-              <a class="btn" href="/2016/08/19/mathematica-fem-ch4/#more" rel="contents">
-                Read more &raquo;
-              </a>
-            </div>
-          <!--/noindex-->
-        
-      
-    </div>
-
-    
-    
-    
-      <footer class="post-footer">
-        <div class="post-eof"></div>
-      </footer>
-  </article>
-  
-  
-  
-
 
   
   <nav class="pagination">
@@ -1358,7 +1362,7 @@ deal.II有一个特性，叫作”维度无关的编程“。前面的例子中�
       <div class="site-state-item site-state-posts">
           <a href="/archives/">
         
-          <span class="site-state-item-count">155</span>
+          <span class="site-state-item-count">156</span>
           <span class="site-state-item-name">posts</span>
         </a>
       </div>
@@ -1371,7 +1375,7 @@ deal.II有一个特性，叫作”维度无关的编程“。前面的例子中�
       <div class="site-state-item site-state-tags">
             <a href="/tags/">
           
-        <span class="site-state-item-count">52</span>
+        <span class="site-state-item-count">53</span>
         <span class="site-state-item-name">tags</span></a>
       </div>
   </nav>

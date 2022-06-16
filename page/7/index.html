@@ -184,6 +184,112 @@
   
   
   <article itemscope itemtype="http://schema.org/Article" class="post-block" lang="en">
+    <link itemprop="mainEntityOfPage" href="http://qixinbo.github.io/2019/10/29/ImagePy_12/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="image" content="/images/avatar.jpg">
+      <meta itemprop="name" content="Xin-Bo Qi(亓欣波)">
+      <meta itemprop="description" content="Digitize everything to realize Digitalization!">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="数字旗手">
+    </span>
+      <header class="post-header">
+        <h2 class="post-title" itemprop="name headline">
+          
+            <a href="/2019/10/29/ImagePy_12/" class="post-title-link" itemprop="url">ImagePy解析：12 -- 画布Canvas类详解</a>
+        </h2>
+
+        <div class="post-meta">
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="far fa-calendar"></i>
+              </span>
+              <span class="post-meta-item-text">Posted on</span>
+
+              <time title="Created: 2019-10-29 00:00:00" itemprop="dateCreated datePublished" datetime="2019-10-29T00:00:00+08:00">2019-10-29</time>
+            </span>
+              <span class="post-meta-item">
+                <span class="post-meta-item-icon">
+                  <i class="far fa-calendar-check"></i>
+                </span>
+                <span class="post-meta-item-text">Edited on</span>
+                <time title="Modified: 2021-03-26 15:43:52" itemprop="dateModified" datetime="2021-03-26T15:43:52+08:00">2021-03-26</time>
+              </span>
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="far fa-folder"></i>
+              </span>
+              <span class="post-meta-item-text">In</span>
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+                  <a href="/categories/computer-vision/" itemprop="url" rel="index"><span itemprop="name">computer vision</span></a>
+                </span>
+            </span>
+
+          
+  
+  <span class="post-meta-item">
+    
+      <span class="post-meta-item-icon">
+        <i class="far fa-comment"></i>
+      </span>
+      <span class="post-meta-item-text">Disqus: </span>
+    
+    <a title="disqus" href="/2019/10/29/ImagePy_12/#disqus_thread" itemprop="discussionUrl">
+      <span class="post-comments-count disqus-comment-count" data-disqus-identifier="2019/10/29/ImagePy_12/" itemprop="commentCount"></span>
+    </a>
+  </span>
+  
+  
+
+        </div>
+      </header>
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+          %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+2020-9-5 更新：
+加入draw_image()和mix_img()方法的详解
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+前面系列文已经提到，ImagePy的画布Canvas类已经被抽象出来，可以被单独使用。
+本节就对该类做一个详细解析：因为Canvas类又调用了同一路径下的boxutil和imutil，所以本文的思路是先整体介绍它的运行机理，然后具体到某一功能时可以再详细查看下方的详细解释，这样不至于迷失在代码中。。
+
+该类的源码地址在这里。
+
+画布Canvas运行机理
+总体看一下它的调
+          <!--noindex-->
+            <div class="post-button">
+              <a class="btn" href="/2019/10/29/ImagePy_12/#more" rel="contents">
+                Read more &raquo;
+              </a>
+            </div>
+          <!--/noindex-->
+        
+      
+    </div>
+
+    
+    
+    
+      <footer class="post-footer">
+        <div class="post-eof"></div>
+      </footer>
+  </article>
+  
+  
+  
+
+      
+  
+  
+  <article itemscope itemtype="http://schema.org/Article" class="post-block" lang="en">
     <link itemprop="mainEntityOfPage" href="http://qixinbo.github.io/2019/10/20/python-indexing/">
 
     <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
@@ -1167,109 +1273,6 @@ ImagePy的自由引擎Free engine解析
   
   
 
-      
-  
-  
-  <article itemscope itemtype="http://schema.org/Article" class="post-block" lang="en">
-    <link itemprop="mainEntityOfPage" href="http://qixinbo.github.io/2019/09/01/ImagePy_5/">
-
-    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
-      <meta itemprop="image" content="/images/avatar.jpg">
-      <meta itemprop="name" content="Xin-Bo Qi(亓欣波)">
-      <meta itemprop="description" content="Digitize everything to realize Digitalization!">
-    </span>
-
-    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
-      <meta itemprop="name" content="数字旗手">
-    </span>
-      <header class="post-header">
-        <h2 class="post-title" itemprop="name headline">
-          
-            <a href="/2019/09/01/ImagePy_5/" class="post-title-link" itemprop="url">ImagePy解析：5 -- wxPython多线程编程</a>
-        </h2>
-
-        <div class="post-meta">
-            <span class="post-meta-item">
-              <span class="post-meta-item-icon">
-                <i class="far fa-calendar"></i>
-              </span>
-              <span class="post-meta-item-text">Posted on</span>
-
-              <time title="Created: 2019-09-01 00:00:00" itemprop="dateCreated datePublished" datetime="2019-09-01T00:00:00+08:00">2019-09-01</time>
-            </span>
-              <span class="post-meta-item">
-                <span class="post-meta-item-icon">
-                  <i class="far fa-calendar-check"></i>
-                </span>
-                <span class="post-meta-item-text">Edited on</span>
-                <time title="Modified: 2021-03-26 15:44:59" itemprop="dateModified" datetime="2021-03-26T15:44:59+08:00">2021-03-26</time>
-              </span>
-            <span class="post-meta-item">
-              <span class="post-meta-item-icon">
-                <i class="far fa-folder"></i>
-              </span>
-              <span class="post-meta-item-text">In</span>
-                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
-                  <a href="/categories/computer-vision/" itemprop="url" rel="index"><span itemprop="name">computer vision</span></a>
-                </span>
-            </span>
-
-          
-  
-  <span class="post-meta-item">
-    
-      <span class="post-meta-item-icon">
-        <i class="far fa-comment"></i>
-      </span>
-      <span class="post-meta-item-text">Disqus: </span>
-    
-    <a title="disqus" href="/2019/09/01/ImagePy_5/#disqus_thread" itemprop="discussionUrl">
-      <span class="post-comments-count disqus-comment-count" data-disqus-identifier="2019/09/01/ImagePy_5/" itemprop="commentCount"></span>
-    </a>
-  </span>
-  
-  
-
-        </div>
-      </header>
-
-    
-    
-    
-    <div class="post-body" itemprop="articleBody">
-
-      
-          参考文献：
-多线程threading
-wxPython Recipes: A Problem - Solution Approach
-
-本篇是对上面这两个参考文章的摘抄学习，第一篇博客介绍了Python怎样多线程编程，第二个是本书，介绍了wxPython怎样多线程编程，实际是在Python多线程编程的基础上开展的。
-ImagePy也是这样的多线程编程思路，所以本篇可以作为理解ImagePy的辅助材料。
-
-Python多线程threading
-在Python3中，通过threading模块提供线程的功能。原来的thread模块已废弃。但是threading模块中有个Thread类（大写的T，类名
-          <!--noindex-->
-            <div class="post-button">
-              <a class="btn" href="/2019/09/01/ImagePy_5/#more" rel="contents">
-                Read more &raquo;
-              </a>
-            </div>
-          <!--/noindex-->
-        
-      
-    </div>
-
-    
-    
-    
-      <footer class="post-footer">
-        <div class="post-eof"></div>
-      </footer>
-  </article>
-  
-  
-  
-
 
   
   <nav class="pagination">
@@ -1341,7 +1344,7 @@ Python多线程threading
       <div class="site-state-item site-state-posts">
           <a href="/archives/">
         
-          <span class="site-state-item-count">155</span>
+          <span class="site-state-item-count">156</span>
           <span class="site-state-item-name">posts</span>
         </a>
       </div>
@@ -1354,7 +1357,7 @@ Python多线程threading
       <div class="site-state-item site-state-tags">
             <a href="/tags/">
           
-        <span class="site-state-item-count">52</span>
+        <span class="site-state-item-count">53</span>
         <span class="site-state-item-name">tags</span></a>
       </div>
   </nav>

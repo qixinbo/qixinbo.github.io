@@ -184,6 +184,110 @@
   
   
   <article itemscope itemtype="http://schema.org/Article" class="post-block" lang="en">
+    <link itemprop="mainEntityOfPage" href="http://qixinbo.github.io/2016/02/22/openphase-vtk/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="image" content="/images/avatar.jpg">
+      <meta itemprop="name" content="Xin-Bo Qi(亓欣波)">
+      <meta itemprop="description" content="Digitize everything to realize Digitalization!">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="数字旗手">
+    </span>
+      <header class="post-header">
+        <h2 class="post-title" itemprop="name headline">
+          
+            <a href="/2016/02/22/openphase-vtk/" class="post-title-link" itemprop="url">OpenPhase实例学习系列：VTK文件格式详解</a>
+        </h2>
+
+        <div class="post-meta">
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="far fa-calendar"></i>
+              </span>
+              <span class="post-meta-item-text">Posted on</span>
+
+              <time title="Created: 2016-02-22 00:00:00" itemprop="dateCreated datePublished" datetime="2016-02-22T00:00:00+08:00">2016-02-22</time>
+            </span>
+              <span class="post-meta-item">
+                <span class="post-meta-item-icon">
+                  <i class="far fa-calendar-check"></i>
+                </span>
+                <span class="post-meta-item-text">Edited on</span>
+                <time title="Modified: 2021-03-26 15:49:50" itemprop="dateModified" datetime="2021-03-26T15:49:50+08:00">2021-03-26</time>
+              </span>
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="far fa-folder"></i>
+              </span>
+              <span class="post-meta-item-text">In</span>
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+                  <a href="/categories/simulation/" itemprop="url" rel="index"><span itemprop="name">simulation</span></a>
+                </span>
+            </span>
+
+          
+  
+  <span class="post-meta-item">
+    
+      <span class="post-meta-item-icon">
+        <i class="far fa-comment"></i>
+      </span>
+      <span class="post-meta-item-text">Disqus: </span>
+    
+    <a title="disqus" href="/2016/02/22/openphase-vtk/#disqus_thread" itemprop="discussionUrl">
+      <span class="post-comments-count disqus-comment-count" data-disqus-identifier="2016/02/22/openphase-vtk/" itemprop="commentCount"></span>
+    </a>
+  </span>
+  
+  
+
+        </div>
+      </header>
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+          VTK文件格式概况
+VTK，全称为Visualization Toolkit，即“可视化工具箱”，制订了一个统一的文件输入输出格式，这样就可在不同的软件间方便通信。
+VTK文件格式包括五个基本部分：
+(1)第一部分是文件版本说明：
+# vtk DataFile Version 3.0
+(2)第二部分是文件头，是一个由”\n”结尾的字符串，最大为256个字符，如：
+PhaseField
+(3)第三部分说明文件的格式，是ASCII或BINARY，两者必填其一。
+(4)第四部分是数据集的结构。
+该部分起始是关键词DATASET加上数据集的类型，数据集的类型，即几何/拓扑的类型，包括()：STRUCT
+          <!--noindex-->
+            <div class="post-button">
+              <a class="btn" href="/2016/02/22/openphase-vtk/#more" rel="contents">
+                Read more &raquo;
+              </a>
+            </div>
+          <!--/noindex-->
+        
+      
+    </div>
+
+    
+    
+    
+      <footer class="post-footer">
+        <div class="post-eof"></div>
+      </footer>
+  </article>
+  
+  
+  
+
+      
+  
+  
+  <article itemscope itemtype="http://schema.org/Article" class="post-block" lang="en">
     <link itemprop="mainEntityOfPage" href="http://qixinbo.github.io/2016/01/30/paper-sci/">
 
     <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
@@ -758,7 +862,7 @@ gfortran -o app Example.F90 liboctq.o liboceq.a
       <div class="site-state-item site-state-posts">
           <a href="/archives/">
         
-          <span class="site-state-item-count">155</span>
+          <span class="site-state-item-count">156</span>
           <span class="site-state-item-name">posts</span>
         </a>
       </div>
@@ -771,7 +875,7 @@ gfortran -o app Example.F90 liboctq.o liboceq.a
       <div class="site-state-item site-state-tags">
             <a href="/tags/">
           
-        <span class="site-state-item-count">52</span>
+        <span class="site-state-item-count">53</span>
         <span class="site-state-item-name">tags</span></a>
       </div>
   </nav>
