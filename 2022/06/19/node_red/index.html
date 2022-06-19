@@ -1,0 +1,650 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=2">
+<meta name="theme-color" content="#222">
+<meta name="generator" content="Hexo 5.4.0">
+  <link rel="apple-touch-icon" sizes="180x180" href="/images/apple-touch-icon-next.png">
+  <link rel="icon" type="image/png" sizes="32x32" href="/favicon.ico">
+  <link rel="icon" type="image/png" sizes="16x16" href="/favicon.ico">
+  <link rel="mask-icon" href="/images/logo.svg" color="#222">
+
+<link rel="stylesheet" href="/css/main.css">
+
+
+<link rel="stylesheet" href="/lib/font-awesome/css/all.min.css">
+
+<script id="hexo-configurations">
+    var NexT = window.NexT || {};
+    var CONFIG = {"hostname":"qixinbo.github.io","root":"/","scheme":"Gemini","version":"7.8.0","exturl":false,"sidebar":{"position":"left","display":"post","padding":18,"offset":12,"onmobile":false},"copycode":{"enable":false,"show_result":false,"style":null},"back2top":{"enable":true,"sidebar":false,"scrollpercent":false},"bookmark":{"enable":false,"color":"#222","save":"auto"},"fancybox":false,"mediumzoom":false,"lazyload":false,"pangu":false,"comments":{"style":"tabs","active":null,"storage":true,"lazyload":false,"nav":null},"algolia":{"hits":{"per_page":10},"labels":{"input_placeholder":"Search for Posts","hits_empty":"We didn't find any results for the search: ${query}","hits_stats":"${hits} results found in ${time} ms"}},"localsearch":{"enable":false,"trigger":"auto","top_n_per_article":1,"unescape":false,"preload":false},"motion":{"enable":true,"async":false,"transition":{"post_block":"fadeIn","post_header":"slideDownIn","post_body":"slideDownIn","coll_header":"slideLeftIn","sidebar":"slideUpIn"}}};
+  </script>
+
+  <meta name="description" content="简介 Node-RED是一种低代码的将各种硬件设备、API和在线服务连接起来的编程工具，比如将各种传感器（如树莓派上的传感器）、工业控制器（如MQTT、OPC-UA协议）、在线API（比如获取天气情况、发送邮件等）等以图形化拖拽编程的形式进行高效组态。因此，Node-RED广泛地应用在物联网流程和程序开发中。  安装和运行 Node-RED可以运行在多种设备上，比如本地计算机运行、设备上运行（如树">
+<meta property="og:type" content="article">
+<meta property="og:title" content="物联网应用的低代码开发工具Node-RED上手及案例">
+<meta property="og:url" content="http://qixinbo.github.io/2022/06/19/node_red/index.html">
+<meta property="og:site_name" content="数字旗手">
+<meta property="og:description" content="简介 Node-RED是一种低代码的将各种硬件设备、API和在线服务连接起来的编程工具，比如将各种传感器（如树莓派上的传感器）、工业控制器（如MQTT、OPC-UA协议）、在线API（比如获取天气情况、发送邮件等）等以图形化拖拽编程的形式进行高效组态。因此，Node-RED广泛地应用在物联网流程和程序开发中。  安装和运行 Node-RED可以运行在多种设备上，比如本地计算机运行、设备上运行（如树">
+<meta property="og:locale" content="en_US">
+<meta property="og:image" content="https://user-images.githubusercontent.com/6218739/174246248-dce70e2e-1986-47a8-a92a-1f2743c91efc.png">
+<meta property="og:image" content="https://user-images.githubusercontent.com/6218739/174427721-ad0b02c6-144d-4042-b209-c95f6b0f97f6.png">
+<meta property="og:image" content="https://user-images.githubusercontent.com/6218739/174256774-dc145287-371d-4f9e-a3a4-98b70f36a7d6.png">
+<meta property="og:image" content="https://user-images.githubusercontent.com/6218739/174427243-23b6211b-29f2-49e8-bec8-4ca2995aa4d6.png">
+<meta property="og:image" content="https://user-images.githubusercontent.com/6218739/174427394-cc56d998-fbf6-4dc2-8bca-fcbd4d4144bb.png">
+<meta property="og:image" content="https://user-images.githubusercontent.com/6218739/174427603-ca2a14ef-fd15-4725-b7ea-8e4e445d1ddc.png">
+<meta property="og:image" content="https://user-images.githubusercontent.com/6218739/174429564-a46b42f9-a03c-4e38-a158-4b7b381379e4.png">
+<meta property="og:image" content="https://user-images.githubusercontent.com/6218739/174429673-ce52d8ce-b4ab-4c0c-9f62-8a6ba244cae1.png">
+<meta property="og:image" content="https://user-images.githubusercontent.com/6218739/174447253-efa5ead0-5bac-4e9b-8b0d-8d62a6efcdfd.png">
+<meta property="og:image" content="https://user-images.githubusercontent.com/6218739/174447513-e936e93f-4ec2-420b-af10-50ecdba68ef7.png">
+<meta property="og:image" content="https://user-images.githubusercontent.com/6218739/174447659-69abc04c-269d-4941-a0b2-99971a60e3be.png">
+<meta property="og:image" content="https://user-images.githubusercontent.com/6218739/174447756-cbf82931-77c6-44a1-9f2e-d370141f2c46.png">
+<meta property="og:image" content="https://user-images.githubusercontent.com/6218739/174448258-e84dd2a1-9737-4be1-ba1c-8445753c4569.png">
+<meta property="og:image" content="https://user-images.githubusercontent.com/6218739/174448938-5d219710-a860-447e-8fb4-fe1c74d0cce3.png">
+<meta property="article:published_time" content="2022-06-18T16:00:00.000Z">
+<meta property="article:modified_time" content="2022-06-19T07:48:00.451Z">
+<meta property="article:author" content="Xin-Bo Qi(亓欣波)">
+<meta property="article:tag" content="IoT">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:image" content="https://user-images.githubusercontent.com/6218739/174246248-dce70e2e-1986-47a8-a92a-1f2743c91efc.png">
+
+<link rel="canonical" href="http://qixinbo.github.io/2022/06/19/node_red/">
+
+
+<script id="page-configurations">
+  // https://hexo.io/docs/variables.html
+  CONFIG.page = {
+    sidebar: "",
+    isHome : false,
+    isPost : true,
+    lang   : 'en'
+  };
+</script>
+
+  <title>物联网应用的低代码开发工具Node-RED上手及案例 | 数字旗手</title>
+  
+
+
+
+
+
+
+  <noscript>
+  <style>
+  .use-motion .brand,
+  .use-motion .menu-item,
+  .sidebar-inner,
+  .use-motion .post-block,
+  .use-motion .pagination,
+  .use-motion .comments,
+  .use-motion .post-header,
+  .use-motion .post-body,
+  .use-motion .collection-header { opacity: initial; }
+
+  .use-motion .site-title,
+  .use-motion .site-subtitle {
+    opacity: initial;
+    top: initial;
+  }
+
+  .use-motion .logo-line-before i { left: initial; }
+  .use-motion .logo-line-after i { right: initial; }
+  </style>
+</noscript>
+
+<link rel="alternate" href="/atom.xml" title="数字旗手" type="application/atom+xml">
+</head>
+
+<body itemscope itemtype="http://schema.org/WebPage">
+  <div class="container use-motion">
+    <div class="headband"></div>
+
+    <header class="header" itemscope itemtype="http://schema.org/WPHeader">
+      <div class="header-inner"><div class="site-brand-container">
+  <div class="site-nav-toggle">
+    <div class="toggle" aria-label="Toggle navigation bar">
+      <span class="toggle-line toggle-line-first"></span>
+      <span class="toggle-line toggle-line-middle"></span>
+      <span class="toggle-line toggle-line-last"></span>
+    </div>
+  </div>
+
+  <div class="site-meta">
+
+    <a href="/" class="brand" rel="start">
+      <span class="logo-line-before"><i></i></span>
+      <h1 class="site-title">数字旗手</h1>
+      <span class="logo-line-after"><i></i></span>
+    </a>
+      <p class="site-subtitle" itemprop="description">电气化、自动化、数字化、智能化、智慧化</p>
+  </div>
+
+  <div class="site-nav-right">
+    <div class="toggle popup-trigger">
+    </div>
+  </div>
+</div>
+
+
+
+
+<nav class="site-nav">
+  <ul id="menu" class="main-menu menu">
+        <li class="menu-item menu-item-home">
+
+    <a href="/" rel="section"><i class="fa fa-home fa-fw"></i>Home</a>
+
+  </li>
+        <li class="menu-item menu-item-categories">
+
+    <a href="/categories/" rel="section"><i class="fa fa-th fa-fw"></i>Categories</a>
+
+  </li>
+        <li class="menu-item menu-item-archives">
+
+    <a href="/archives/" rel="section"><i class="fa fa-archive fa-fw"></i>Archives</a>
+
+  </li>
+        <li class="menu-item menu-item-tags">
+
+    <a href="/tags/" rel="section"><i class="fa fa-tags fa-fw"></i>Tags</a>
+
+  </li>
+        <li class="menu-item menu-item-scholar">
+
+    <a href="/scholar/" rel="section"><i class="fa fa-chart-bar fa-fw"></i>scholar</a>
+
+  </li>
+        <li class="menu-item menu-item-sources">
+
+    <a href="/sources/" rel="section"><i class="fa fa-rss fa-fw"></i>sources</a>
+
+  </li>
+        <li class="menu-item menu-item-gallery">
+
+    <a href="/gallery/" rel="section"><i class="fa fa-file-image fa-fw"></i>gallery</a>
+
+  </li>
+        <li class="menu-item menu-item-about">
+
+    <a href="/about/" rel="section"><i class="fa fa-user fa-fw"></i>About</a>
+
+  </li>
+        <li class="menu-item menu-item-commonweal">
+
+    <a href="/404.html" rel="section"><i class="fa fa-heartbeat fa-fw"></i>Commonweal 404</a>
+
+  </li>
+  </ul>
+</nav>
+
+
+
+
+</div>
+    </header>
+
+    
+  <div class="back-to-top">
+    <i class="fa fa-arrow-up"></i>
+    <span>0%</span>
+  </div>
+
+
+    <main class="main">
+      <div class="main-inner">
+        <div class="content-wrap">
+          
+
+          <div class="content post posts-expand">
+            
+
+    
+  
+  
+  <article itemscope itemtype="http://schema.org/Article" class="post-block" lang="en">
+    <link itemprop="mainEntityOfPage" href="http://qixinbo.github.io/2022/06/19/node_red/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="image" content="/images/avatar.jpg">
+      <meta itemprop="name" content="Xin-Bo Qi(亓欣波)">
+      <meta itemprop="description" content="Digitize everything to realize Digitalization!">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="数字旗手">
+    </span>
+      <header class="post-header">
+        <h1 class="post-title" itemprop="name headline">
+          物联网应用的低代码开发工具Node-RED上手及案例
+        </h1>
+
+        <div class="post-meta">
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="far fa-calendar"></i>
+              </span>
+              <span class="post-meta-item-text">Posted on</span>
+              
+
+              <time title="Created: 2022-06-19 00:00:00 / Modified: 15:48:00" itemprop="dateCreated datePublished" datetime="2022-06-19T00:00:00+08:00">2022-06-19</time>
+            </span>
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="far fa-folder"></i>
+              </span>
+              <span class="post-meta-item-text">In</span>
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+                  <a href="/categories/coding/" itemprop="url" rel="index"><span itemprop="name">coding</span></a>
+                </span>
+            </span>
+
+          
+  
+  <span class="post-meta-item">
+    
+      <span class="post-meta-item-icon">
+        <i class="far fa-comment"></i>
+      </span>
+      <span class="post-meta-item-text">Disqus: </span>
+    
+    <a title="disqus" href="/2022/06/19/node_red/#disqus_thread" itemprop="discussionUrl">
+      <span class="post-comments-count disqus-comment-count" data-disqus-identifier="2022/06/19/node_red/" itemprop="commentCount"></span>
+    </a>
+  </span>
+  
+  
+
+        </div>
+      </header>
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+        <h1 id="简介"><a href="#简介" class="headerlink" title="简介"></a>简介</h1><p><a target="_blank" rel="noopener" href="https://nodered.org/">Node-RED</a>是一种低代码的将各种硬件设备、API和在线服务连接起来的编程工具，比如将各种传感器（如树莓派上的传感器）、工业控制器（如<code>MQTT</code>、<code>OPC-UA</code>协议）、在线API（比如获取天气情况、发送邮件等）等以图形化拖拽编程的形式进行高效组态。因此，<code>Node-RED</code>广泛地应用在物联网流程和程序开发中。</p>
+<h1 id="安装和运行"><a href="#安装和运行" class="headerlink" title="安装和运行"></a>安装和运行</h1><p><code>Node-RED</code>可以运行在多种设备上，比如本地计算机运行、设备上运行（如树莓派、Arduino和Android等），以及在云端运行（比如IBM云、AWS云和微软Azure云等）。<br>具体可以查看<a target="_blank" rel="noopener" href="https://nodered.org/docs/getting-started/">这里</a>。<br>下面将以本地计算机运行为例，同时最简单的就是使用<code>docker</code>方式进行安装、运行。<br><code>docker</code>安装运行只需一条命令即可：<br><figure class="highlight sh"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">docker run -it -p 1880:1880 -v node_red_data:/data --name mynodered nodered/node-red</span><br></pre></td></tr></table></figure><br>对该命令具体解释一下：<br><figure class="highlight sh"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line">docker run              - 利用镜像创建容器，会先检查本地是否存在指定的镜像，或不存在就从公有仓库下载</span><br><span class="line">-it                     - 附加一个交互式的终端，以查看输出内容</span><br><span class="line">-p 1880:1880            - 指定端口映射</span><br><span class="line">-v node_red_data:/data  - 挂载容器数据卷，实现容器数据的持久化，前者是主机目录，后者是容器内目录</span><br><span class="line">--name mynodered        - 自定义一个容器名</span><br><span class="line">nodered/node-red        - 该容器所基于的镜像文件</span><br></pre></td></tr></table></figure><br>启动命令后就可以在浏览器中通过<code>http://&#123;host-ip&#125;:1880</code>这样的地址访问<code>Node-RED</code>，比如<code>http://127.0.0.1:1880/</code>。</p>
+<h2 id="后台运行"><a href="#后台运行" class="headerlink" title="后台运行"></a>后台运行</h2><p>此时命令运行在终端，如果对运行情况满意，可以通过<code>Ctrl-p</code> <code>Ctrl-q</code>命令将其转入守护模式，此时容器就会在后台运行，</p>
+<h2 id="前台运行"><a href="#前台运行" class="headerlink" title="前台运行"></a>前台运行</h2><p>如果想重新在终端中查看运行日志，则重新附加到终端运行，即：<br><figure class="highlight sh"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">docker attach mynodered</span><br></pre></td></tr></table></figure></p>
+<h2 id="停止和重启"><a href="#停止和重启" class="headerlink" title="停止和重启"></a>停止和重启</h2><p>停止容器，使用：<br><figure class="highlight sh"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">docker stop mynodered</span><br></pre></td></tr></table></figure><br>如果想重启容器（比如计算机重启后或Docker daemon守护进程重启后），则：<br><figure class="highlight sh"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">docker start mynodered</span><br></pre></td></tr></table></figure></p>
+<h2 id="更多"><a href="#更多" class="headerlink" title="更多"></a>更多</h2><p>更多关于<code>docker</code>安装和运行<code>Node-RED</code>，可以查看<a target="_blank" rel="noopener" href="https://nodered.org/docs/getting-started/docker">这里</a>，里面详述了数据持久化、升级、其他设备上的安装方式等。</p>
+<h1 id="创建第一个flow"><a href="#创建第一个flow" class="headerlink" title="创建第一个flow"></a>创建第一个flow</h1><p>这部分将创建<code>Node-RED</code>的第一个<code>flow</code>，来入门学习<code>Node-RED</code>。</p>
+<h2 id="访问编辑器"><a href="#访问编辑器" class="headerlink" title="访问编辑器"></a>访问编辑器</h2><p>当在后台运行了<code>Node-RED</code>后，就可以在浏览器中打开编辑器。<br>如果浏览器与<code>Node-RED</code>运行在同一台电脑上，那么就可以通过<code>http://localhost:1880</code>打开编辑器。<br>如果在另一台电脑上打开浏览器，则使用具体ip地址访问即可，即：<code>http://&lt;ip-address&gt;:1880</code>。</p>
+<h2 id="添加inject节点"><a href="#添加inject节点" class="headerlink" title="添加inject节点"></a>添加inject节点</h2><p><code>inject</code>节点可以对一个<code>flow</code>发射消息，比如在这个节点上点击它上面的左侧小按钮，或者在多个<code>injects</code>之间设置时间间隔。<br>从左侧面板中拖动<code>inject</code>节点到中间工作区中。</p>
+<h2 id="添加debug节点"><a href="#添加debug节点" class="headerlink" title="添加debug节点"></a>添加debug节点</h2><p><code>debug</code>节点能够将信息显示在<code>Debug</code>边栏中。默认情况下，它会只显示消息的<code>payload</code>（即承载的内容），也有可能显示整个消息对象。<br>从左侧面板中拖动<code>debug</code>节点到中间工作区中。</p>
+<h2 id="连线"><a href="#连线" class="headerlink" title="连线"></a>连线</h2><p>在<code>inject</code>节点的输出拖动到<code>debug</code>节点的输入上，两者之间的连线即表明两者连接起来了。</p>
+<h2 id="部署"><a href="#部署" class="headerlink" title="部署"></a>部署</h2><p>经过如上步骤，这两个节点仅存在于编辑器中，还必须部署到服务器上。<br>点击右上角的<code>Deploy</code>按钮。<br>打开<code>debug</code>边栏（即右上角那个小虫子图标），然后点击<code>inject</code>节点上的左侧小按钮，就可以在边栏中看到有数字出现。默认情况下，<code>inject</code>节点将<code>1970年1月1日</code>依赖的毫秒数作为它的<code>payload</code>。</p>
+<h2 id="添加function节点"><a href="#添加function节点" class="headerlink" title="添加function节点"></a>添加function节点</h2><p><code>function</code>节点可以将消息传入一个<code>JavaScript</code>函数中。<br>选择现在已有的连线，然后删除它。<br>从左侧面板中选择<code>function</code>节点，放到<code>inject</code>节点和<code>debug</code>节点中间，然后将它们三个顺序连接起来。<br>双击<code>function</code>节点，打开编辑对话框，填入如下内容：<br><figure class="highlight js"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">// Create a Date object from the payload</span></span><br><span class="line"><span class="keyword">var</span> date = <span class="keyword">new</span> <span class="built_in">Date</span>(msg.payload);</span><br><span class="line"><span class="comment">// Change the payload to be a formatted Date string</span></span><br><span class="line">msg.payload = date.toString();</span><br><span class="line"><span class="comment">// Return the message so it can be sent on</span></span><br><span class="line"><span class="keyword">return</span> msg;</span><br></pre></td></tr></table></figure><br>点击<code>done</code>按钮关闭该对话框，然后点击<code>deploy</code>按钮。<br>此时再次点击<code>inject</code>节点，就会发现边栏中的消息已经变成了带格式的可读的时间戳形式。</p>
+<h2 id="总结"><a href="#总结" class="headerlink" title="总结"></a>总结</h2><p>这个<code>flow</code>清晰地展示了如何创建<code>flow</code>的基本过程。</p>
+<h1 id="创建第二个flow"><a href="#创建第二个flow" class="headerlink" title="创建第二个flow"></a>创建第二个flow</h1><p>第二个<code>flow</code>基于上面的第一个<code>flow</code>，它可以从外部导入数据，并进行操作。</p>
+<h2 id="添加inject节点-1"><a href="#添加inject节点-1" class="headerlink" title="添加inject节点"></a>添加inject节点</h2><p>在第一个<code>flow</code>中，<code>inject</code>节点是用来在鼠标点击时触发一个<code>flow</code>。<br>在第二个<code>flow</code>中，<code>inject</code>节点会配置成在一定间隔下触发一个<code>flow</code>。<br>从左侧面板中拖动<code>inject</code>节点到中间工作区中，然后双击打开编辑对话框，在<code>Repeat</code>下选择<code>interval</code>，然后设置成<code>every 5 seconds</code>。点击<code>done</code>保存该设置。</p>
+<h2 id="添加http-request节点"><a href="#添加http-request节点" class="headerlink" title="添加http request节点"></a>添加http request节点</h2><p><code>http request</code>节点可以用来获得一个web页面。<br>从左侧面板中拖动<code>http request</code>节点到中间工作区中，编辑<code>URL</code>一项为：<code>https://earthquake.usgs.gov/earthquakes/feed/v1.0/summary/significant_month.csv</code>。该链接是从美国地质调查局网站上获得的上一个月的地震信息，是一个<code>csv</code>文件。</p>
+<h2 id="添加csv节点"><a href="#添加csv节点" class="headerlink" title="添加csv节点"></a>添加csv节点</h2><p>添加<code>csv</code>节点，在<code>Input</code>中勾选<code>First row contains column names</code>。</p>
+<h2 id="添加debug节点-1"><a href="#添加debug节点-1" class="headerlink" title="添加debug节点"></a>添加debug节点</h2><p>添加<code>debug</code>节点作为输出。</p>
+<h2 id="连线-1"><a href="#连线-1" class="headerlink" title="连线"></a>连线</h2><p>将上述节点顺序连接。</p>
+<h2 id="添加switch节点"><a href="#添加switch节点" class="headerlink" title="添加switch节点"></a>添加switch节点</h2><p>添加<code>switch</code>节点，双击打开编辑框，依次设置如下属性：<br>将<code>Property</code>设置为<code>msg.payload.mag</code>，判断条件设置为<code>&gt;=</code>，判断对象类型设置为<code>number</code>（从下拉列表选择），判断值设置为<code>7</code>。<br>从<code>csv</code>节点的输出中引出第二条连线到<code>switch</code>节点上。</p>
+<h2 id="添加change节点"><a href="#添加change节点" class="headerlink" title="添加change节点"></a>添加change节点</h2><p>添加<code>change</code>节点，将<code>switch</code>节点的输出连接到该节点上。<br>双击<code>change</code>节点，设置<code>msg.payload</code>到字符串<code>PANIC!</code>。</p>
+<h2 id="添加debug节点-2"><a href="#添加debug节点-2" class="headerlink" title="添加debug节点"></a>添加debug节点</h2><p>再次添加<code>debug</code>节点，将<code>change</code>节点的输出连接到它的输入上。</p>
+<h2 id="部署-1"><a href="#部署-1" class="headerlink" title="部署"></a>部署</h2><p>点击<code>Deploy</code>进行部署。<br>可以发现，每隔<code>5s</code>它就会发一次请求，然后得到如下内容：<br><figure class="highlight js"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">msg.payload : <span class="built_in">Object</span></span><br><span class="line">&#123; <span class="attr">time</span>: <span class="string">&quot;2022-05-19T10:13:31.625Z&quot;</span>, <span class="attr">latitude</span>: -<span class="number">54.132</span>, <span class="attr">longitude</span>: <span class="number">159.0545</span>, <span class="attr">depth</span>: <span class="number">10</span>, <span class="attr">mag</span>: <span class="number">6.9</span> … &#125;</span><br></pre></td></tr></table></figure><br>可以点击该消息左侧的小箭头查看详情。<br>如果地震的烈度大于<code>7</code>，还会收到如下消息：<br><figure class="highlight js"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">msg.payload : string[<span class="number">6</span>]</span><br><span class="line"><span class="string">&quot;PANIC!&quot;</span></span><br></pre></td></tr></table></figure></p>
+<h2 id="总结-1"><a href="#总结-1" class="headerlink" title="总结"></a>总结</h2><p>该<code>flow</code>演示了每隔一段时间自动触发从某个<code>url</code>获取数据的操作。同时对数据进行解析和判断。</p>
+<h1 id="新增节点"><a href="#新增节点" class="headerlink" title="新增节点"></a>新增节点</h1><p>参考教程见<a target="_blank" rel="noopener" href="https://nodered.17coding.net/docs/getting-started/adding-nodes">这里</a>。<br><code>Node-RED</code>本身只包含了一些核心的基本节点，但还有大量来自于<code>Node-RED</code>项目和广大社区的其他节点可以使用。<br>可以在<a target="_blank" rel="noopener" href="https://flows.nodered.org/">Node-RED代码库</a>或<a target="_blank" rel="noopener" href="https://www.npmjs.com/search?q=keywords:node-red">npm仓库</a>中寻找所需要的节点。</p>
+<h2 id="使用编辑器"><a href="#使用编辑器" class="headerlink" title="使用编辑器"></a>使用编辑器</h2><p>从<code>0.15</code>版开始，可以直接通过编辑器安装节点。具体做法是，在右上角的菜单中选择“管理面板”<code>Manage Palette</code>，然后在出现的面板中选择<code>Install</code>标签，这样就可以搜索安装新的节点，并启用或禁用已有节点了。</p>
+<h2 id="通过npm安装"><a href="#通过npm安装" class="headerlink" title="通过npm安装"></a>通过npm安装</h2><p>可以通过<code>npm</code>将节点安装到保存用户数据的本地目录中(默认为<code>$HOME/.node-red)</code>：<br><figure class="highlight js"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">cd $HOME/.node-red</span><br><span class="line">npm install &lt;npm-package-name&gt;</span><br></pre></td></tr></table></figure><br>也可以安装到全局目录中:<br><figure class="highlight js"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">sudo npm install -g &lt;npm-package-name&gt;</span><br></pre></td></tr></table></figure><br>但是这样需要重启<code>Node-RED</code>，以便它能够获取到新的节点。</p>
+<h2 id="复制节点文件"><a href="#复制节点文件" class="headerlink" title="复制节点文件"></a>复制节点文件</h2><p>将<code>.js</code>和<code>.html</code>文件复制到保存用户数据目录中的<code>nodes</code>子目录，也是安装节点的一个可行方式。如果这些节点中存在一些<code>npm</code>依赖项，那么也必须将其安装到用户数据目录中。但建议只是在开发阶段使用这种方式。</p>
+<h1 id="MQTT例子"><a href="#MQTT例子" class="headerlink" title="MQTT例子"></a>MQTT例子</h1><p>参考教程<a target="_blank" rel="noopener" href="https://www.emqx.com/zh/blog/using-node-red-to-process-mqtt-data">1</a>、<a target="_blank" rel="noopener" href="https://www.v5w.com/iot/node-red/127.html">2</a>、<a target="_blank" rel="noopener" href="https://www.youtube.com/watch?v=XDrwgMSQrEY">3</a>。<br>除<code>HTTP</code>、<code>WebScoket</code>等一些基础的网络服务应用节点外，<code>Node-RED</code>还提供对于<code>MQTT</code>协议的连接支持。目前同时提供了一个<code>MQTT</code>的订阅节点和<code>MQTT</code>的发布节点，订阅节点用于数据的输入，而发布节点可以用于数据的输出。<br>关于<code>MQTT</code>，<a target="_blank" rel="noopener" href="https://siot.readthedocs.io/zh_CN/latest/1.about/02_mqtt.html">这里</a>有一个很好的介绍。摘录一个架构图如下：<br><img src="https://user-images.githubusercontent.com/6218739/174246248-dce70e2e-1986-47a8-a92a-1f2743c91efc.png" alt="mqtt"></p>
+<h2 id="安装MQTT消息服务器"><a href="#安装MQTT消息服务器" class="headerlink" title="安装MQTT消息服务器"></a>安装MQTT消息服务器</h2><h3 id="安装EMQX"><a href="#安装EMQX" class="headerlink" title="安装EMQX"></a>安装EMQX</h3><p>开源免费的<code>MQTT</code>消息服务器有很多，如<a target="_blank" rel="noopener" href="https://github.com/emqx/emqx">EMQX</a>、<a target="_blank" rel="noopener" href="https://github.com/eclipse/mosquitto">Mosquitto</a>、<a target="_blank" rel="noopener" href="https://github.com/moscajs/mosca">Mosca</a>等。<br>这里选择<code>EMQX</code>，使用<code>docker</code>安装：<br><figure class="highlight sh"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">docker run -d --name emqx -p 1883:1883 -p 8081:8081 -p 8083:8083 -p 8883:8883 -p 8084:8084 -p 18083:18083 emqx/emqx</span><br></pre></td></tr></table></figure></p>
+<h2 id="配置Node-RED"><a href="#配置Node-RED" class="headerlink" title="配置Node-RED"></a>配置Node-RED</h2><h3 id="整体架构"><a href="#整体架构" class="headerlink" title="整体架构"></a>整体架构</h3><p><code>Node-RED</code>中的<code>flow</code>结构配置为：<br><img src="https://user-images.githubusercontent.com/6218739/174427721-ad0b02c6-144d-4042-b209-c95f6b0f97f6.png" alt="flow"><br>上方是发布节点<code>mqtt out</code>，用于发布数据；下方是订阅节点<code>mqtt in</code>，是用于订阅数据。</p>
+<h3 id="发布消息"><a href="#发布消息" class="headerlink" title="发布消息"></a>发布消息</h3><p>对触发消息的节点<code>inject</code>进行配置（这是为了模拟一个简单的传感器的开关）：<br><img src="https://user-images.githubusercontent.com/6218739/174256774-dc145287-371d-4f9e-a3a4-98b70f36a7d6.png" alt="sensor1"><br>对发布数据的节点<code>mqtt out</code>进行配置：<br>最开始配置时，<code>Server</code>一项需要新建，可按如下新建（注意<code>IP</code>地址设置正确，因为这里是<code>docker</code>安装的消息服务器，所以不能用<code>localhost</code>或者<code>127.0.0.1</code>这样的本地地址）：<br><img src="https://user-images.githubusercontent.com/6218739/174427243-23b6211b-29f2-49e8-bec8-4ca2995aa4d6.png" alt="broker"><br>然后<code>mqtt out</code>的配置都使用如下的默认即可（因为它的<code>topic</code>和<code>payload</code>都是通过前面的<code>inject</code>节点传输过来）<br><img src="https://user-images.githubusercontent.com/6218739/174427394-cc56d998-fbf6-4dc2-8bca-fcbd4d4144bb.png" alt="mqttout"><br>以上就是相当于建立了一个<code>mqtt</code>的发布服务，点击<code>inject</code>后就会对<code>EMQX</code>消息服务器发送指定主题的消息。</p>
+<h3 id="订阅消息"><a href="#订阅消息" class="headerlink" title="订阅消息"></a>订阅消息</h3><p>然后再配置<code>mqtt in</code>节点用来订阅消息，如下：<br><img src="https://user-images.githubusercontent.com/6218739/174427603-ca2a14ef-fd15-4725-b7ea-8e4e445d1ddc.png" alt="mqttin"><br>它的<code>Server</code>默认与<code>mqtt out</code>的相同，以及<code>Topic</code>设置为<code>sensors/#</code>，其中<code>#</code>时一个通配符。</p>
+<h3 id="运行"><a href="#运行" class="headerlink" title="运行"></a>运行</h3><p>点击<code>inject</code>后，就会发现在<code>Debug</code>边栏中出现：<br><figure class="highlight js"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">sensors/sensor1 : msg.payload : string[<span class="number">4</span>]</span><br><span class="line"><span class="string">&quot;Open&quot;</span></span><br></pre></td></tr></table></figure><br>即，通过<code>mqtt out</code>客户端发送了主题为<code>sensors/sensor1</code>、内容为<code>Open</code>的消息给<code>EMQX</code>消息服务器，该服务器又将消息发送给了订阅了该类主题的<code>mqtt in</code>客户端。</p>
+<h3 id="升级"><a href="#升级" class="headerlink" title="升级"></a>升级</h3><p>再把整个<code>flow</code>架构升级一下，如图：<br><img src="https://user-images.githubusercontent.com/6218739/174429564-a46b42f9-a03c-4e38-a158-4b7b381379e4.png" alt="newflow"><br>即新增了一个<code>inject</code>节点，其配置为：<br><img src="https://user-images.githubusercontent.com/6218739/174429673-ce52d8ce-b4ab-4c0c-9f62-8a6ba244cae1.png" alt="close"><br>当点击它时，<code>Debug</code>边栏中会出现<code>Close</code>消息。<br>这样就模拟了一个简单的传感器开关的效果。</p>
+<h3 id="其他"><a href="#其他" class="headerlink" title="其他"></a>其他</h3><p>在上述例子中，<code>mqtt</code>的发送和订阅消息都是使用了<code>Node-RED</code>中的节点，更为普遍的一个情况是其他客户端或服务发送了相关的<code>topic</code>及其<code>payload</code>，然后在<code>Node-RED</code>中进行订阅（反之亦然），总之是订阅和发送的客户端不在一个地方。<br>一个尝试可以使用上面的<code>EMQ</code>开源的<code>MQTT X</code>软件，它是一款优雅的跨平台 MQTT 5.0 桌面客户端，支持 macOS, Linux, Windows。<br><code>MQTT X</code> 的<code>UI</code>采用了聊天界面形式，简化了页面操作逻辑，用户可以快速创建连接，允许保存多个客户端，方便用户快速测试<code>MQTT/MQTTS</code>连接，及<code>MQTT</code>消息的订阅和发布。<br>下载地址在<a target="_blank" rel="noopener" href="https://mqttx.app/zh">这里</a>，安装后再与<code>EMQX</code>消息服务器进行连接。然后发送或者订阅<code>sensors/#</code>相关的主题，就可以实现与<code>Node-RED</code>中的<code>flow</code>的联动。</p>
+<h1 id="时序数据的可视化"><a href="#时序数据的可视化" class="headerlink" title="时序数据的可视化"></a>时序数据的可视化</h1><p>这一部分介绍对时序数据序列进行采集，然后存储进入时序数据库中，并使用看板进行可视化。使用到的技术和软件分别为：通过<code>MQTT</code>来生成时序数据序列、通过<code>Node-RED</code>采集该时序数据序列、通过时序数据库<code>InfluxDB</code>进行存储、以及最后通过<code>Grafana</code>进行数据可视化。</p>
+<p>主要参考教程在<a target="_blank" rel="noopener" href="https://www.bilibili.com/video/BV1uW4y1C7jt">这里</a>。</p>
+<h2 id="时序数据库InfluxDB"><a href="#时序数据库InfluxDB" class="headerlink" title="时序数据库InfluxDB"></a>时序数据库InfluxDB</h2><p>使用<code>docker</code>进行安装和部署，见<a target="_blank" rel="noopener" href="https://zhuanlan.zhihu.com/p/459383022">教程</a>：<br><figure class="highlight sh"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">docker run -d --name myinfluxdb --restart always -p 8086:8086 -v influxdb2:/var/lib/influxdb2 influxdb</span><br></pre></td></tr></table></figure><br>其中的命令的含义为：<br><figure class="highlight sh"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line">-d  启动后在后台运行，不打印日志</span><br><span class="line">--name 容器名  给容器命名，方便管理，也可以不写此参数</span><br><span class="line">--restart always  如果容器死掉，就自动将其拉起，也可以不写此参数</span><br><span class="line">-v 宿主机路径:容器内路径  将容器内指定路径挂载出来到宿主机中，这里是把数据库本地存储的目录挂出来，保证容器销毁以后数据还在</span><br><span class="line">-p 宿主机端口:容器内端口  将宿主机端口与容器内端口进行映射，influxdb默认的容器内端口是8086，容器外端口可以根据需要自己调整</span><br></pre></td></tr></table></figure></p>
+<p>如果下载很慢，可以先配置一下<code>docker</code>的国内镜像源加速，教程见<a target="_blank" rel="noopener" href="https://yeasy.gitbook.io/docker_practice/install/mirror">这里</a>：<br>在<code>/etc/docker/daemon.json</code>中写入如下内容（如果文件不存在请新建该文件）：<br><figure class="highlight sh"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line">&#123;</span><br><span class="line">  <span class="string">&quot;registry-mirrors&quot;</span>: [</span><br><span class="line">    <span class="string">&quot;https://docker.mirrors.ustc.edu.cn&quot;</span>,</span><br><span class="line">    <span class="string">&quot;https://mirror.baidubce.com&quot;</span></span><br><span class="line">  ]</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure><br>注意，一定要保证该文件符合json规范，否则Docker将不能启动。<br>之后重新启动服务：<br><figure class="highlight sh"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">$ sudo systemctl daemon-reload</span><br><span class="line">$ sudo systemctl restart docker</span><br></pre></td></tr></table></figure></p>
+<p><code>InfluxDB</code>自带一个图形化的管理后台，可以通过<code>http://127.0.0.1:8086</code>登录。<br>进入以后，配置一下初始用户（比如<code>root</code>)、密码、组织、<code>buckets</code>（比如<code>test</code>）。<br>进行如上的初始配置后，另一个非常重要的是<code>API Token</code>，它可以规定对数据库的操作权限，比如可读、可写等。</p>
+<h2 id="Node-RED配置"><a href="#Node-RED配置" class="headerlink" title="Node-RED配置"></a>Node-RED配置</h2><p>首先安装一个名为<code>node-red-contrib-influxdb</code>的节点。<br>我们这里依然复用上面<code>mqtt</code>的例子，但是要做一定的改动。整体架构图如下：<br><img src="https://user-images.githubusercontent.com/6218739/174447253-efa5ead0-5bac-4e9b-8b0d-8d62a6efcdfd.png" alt="newflow"><br>具体改动为：<br>（1）两个<code>inject</code>节点的<code>payload</code>的类型由原先的<code>string</code>都改为<code>number</code>，即原来的<code>Open</code>改为<code>1</code>、<code>Close</code>改为<code>0</code>，以数值形式存入时序数据库中，同时触发条件分别改为<code>每5秒触发一次</code>和<code>每3秒触发一次</code>，这样形成一个周期性的类似锯齿波形状的时间序列数据；<br>（2）<code>mqtt in</code>节点的<code>Output</code>属性更改为<code>a parsed JSON object</code>，如下图：<br><img src="https://user-images.githubusercontent.com/6218739/174447513-e936e93f-4ec2-420b-af10-50ecdba68ef7.png" alt="newmqttin"><br>这样才能将正确的数据传输给时序数据库。<br>（3）如总架构图所述，新增一个节点<code>influxdb out</code>节点，这样才能将<code>Node-RED</code>与<code>InfluxDB</code>连接起来。对节点第一次配置时，需要在里面新建一个<code>Server</code>，具体配置如下图（仍然注意<code>IP</code>地址，不能使用类似<code>localhost</code>这样的，因为<code>InfluxDB</code>是通过<code>docker</code>部署的）：<br><img src="https://user-images.githubusercontent.com/6218739/174447659-69abc04c-269d-4941-a0b2-99971a60e3be.png" alt="influxdbserver"><br>配置好<code>Server</code>后，然后再对具体连接的数据库进行配置，如下图所示：<br><img src="https://user-images.githubusercontent.com/6218739/174447756-cbf82931-77c6-44a1-9f2e-d370141f2c46.png" alt="dataconnect"><br>其中<code>Organization</code>和<code>Bucket</code>就是之前通过后台创建的。<code>Meansurement</code>一项可以任意填写，其会在<code>test</code>这个数据库中新建此表。</p>
+<p>部署后，就可以通过<code>InfluxDB</code>的管理后台看到数据的输入，如下图（注意箭头的地方）：<br><img src="https://user-images.githubusercontent.com/6218739/174448258-e84dd2a1-9737-4be1-ba1c-8445753c4569.png" alt="influxdata"><br>这个看板只是<code>InfluxDB</code>后台的一个简单的可视化，没法用于真正的前端可视化（比如嵌入到网页中、免登录查看等）。因此还需要下面专业的<code>Grafana</code>进行可视化。</p>
+<h2 id="Grafana可视化看板"><a href="#Grafana可视化看板" class="headerlink" title="Grafana可视化看板"></a>Grafana可视化看板</h2><p>通过<code>docker</code>安装和部署：<br><figure class="highlight sh"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">docker run -d --name=grafana -p 3000:3000 grafana/grafana-enterprise</span><br></pre></td></tr></table></figure><br>通过<code>http://127.0.0.1:3000/</code>登录<code>Grafana</code>后台，默认的用户名和密码都是<code>admin</code>。<br>然后与具体的数据库相连接，通过<code>Add data source</code>，选择<code>InfluxDB</code>，连接它的方式与之前<code>Node-RED</code>中的类似，但是注意选择<code>Query Language</code>为<code>Flux</code>，然后不勾选<code>Basic auth</code>，才能出现<code>orgnization</code>、<code>token</code>、<code>Default Bucket</code>等选项。<br>然后再<code>Create new dashboard</code>，如下图：<br><img src="https://user-images.githubusercontent.com/6218739/174448938-5d219710-a860-447e-8fb4-fe1c74d0cce3.png" alt="grafana"><br>这里就考验查询语句的功力了。对<code>Grafana</code>有需求的话可以仔细研究一下。</p>
+
+    </div>
+
+    
+    
+    
+        <div class="reward-container">
+  <div></div>
+  <button onclick="var qr = document.getElementById('qr'); qr.style.display = (qr.style.display === 'none') ? 'block' : 'none';">
+    Donate
+  </button>
+  <div id="qr" style="display: none;">
+      
+      <div style="display: inline-block;">
+        <img src="/images/wechat_reward.png" alt="Xin-Bo Qi(亓欣波) WeChat Pay">
+        <p>WeChat Pay</p>
+      </div>
+
+  </div>
+</div>
+
+
+      <footer class="post-footer">
+          <div class="post-tags">
+              <a href="/tags/IoT/" rel="tag"># IoT</a>
+          </div>
+
+        
+
+
+        
+    <div class="post-nav">
+      <div class="post-nav-item">
+    <a href="/2022/06/12/heroku/" rel="prev" title="使用Heroku云平台免费托管web应用">
+      <i class="fa fa-chevron-left"></i> 使用Heroku云平台免费托管web应用
+    </a></div>
+      <div class="post-nav-item"></div>
+    </div>
+      </footer>
+    
+  </article>
+  
+  
+  
+
+
+
+          </div>
+          
+    
+  <div class="comments">
+    <div id="disqus_thread">
+      <noscript>Please enable JavaScript to view the comments powered by Disqus.</noscript>
+    </div>
+  </div>
+  
+
+<script>
+  window.addEventListener('tabs:register', () => {
+    let { activeClass } = CONFIG.comments;
+    if (CONFIG.comments.storage) {
+      activeClass = localStorage.getItem('comments_active') || activeClass;
+    }
+    if (activeClass) {
+      let activeTab = document.querySelector(`a[href="#comment-${activeClass}"]`);
+      if (activeTab) {
+        activeTab.click();
+      }
+    }
+  });
+  if (CONFIG.comments.storage) {
+    window.addEventListener('tabs:click', event => {
+      if (!event.target.matches('.tabs-comment .tab-content .tab-pane')) return;
+      let commentClass = event.target.classList[1];
+      localStorage.setItem('comments_active', commentClass);
+    });
+  }
+</script>
+
+        </div>
+          
+  
+  <div class="toggle sidebar-toggle">
+    <span class="toggle-line toggle-line-first"></span>
+    <span class="toggle-line toggle-line-middle"></span>
+    <span class="toggle-line toggle-line-last"></span>
+  </div>
+
+  <aside class="sidebar">
+    <div class="sidebar-inner">
+
+      <ul class="sidebar-nav motion-element">
+        <li class="sidebar-nav-toc">
+          Table of Contents
+        </li>
+        <li class="sidebar-nav-overview">
+          Overview
+        </li>
+      </ul>
+
+      <!--noindex-->
+      <div class="post-toc-wrap sidebar-panel">
+          <div class="post-toc motion-element"><ol class="nav"><li class="nav-item nav-level-1"><a class="nav-link" href="#%E7%AE%80%E4%BB%8B"><span class="nav-number">1.</span> <span class="nav-text">简介</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#%E5%AE%89%E8%A3%85%E5%92%8C%E8%BF%90%E8%A1%8C"><span class="nav-number">2.</span> <span class="nav-text">安装和运行</span></a><ol class="nav-child"><li class="nav-item nav-level-2"><a class="nav-link" href="#%E5%90%8E%E5%8F%B0%E8%BF%90%E8%A1%8C"><span class="nav-number">2.1.</span> <span class="nav-text">后台运行</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E5%89%8D%E5%8F%B0%E8%BF%90%E8%A1%8C"><span class="nav-number">2.2.</span> <span class="nav-text">前台运行</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E5%81%9C%E6%AD%A2%E5%92%8C%E9%87%8D%E5%90%AF"><span class="nav-number">2.3.</span> <span class="nav-text">停止和重启</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E6%9B%B4%E5%A4%9A"><span class="nav-number">2.4.</span> <span class="nav-text">更多</span></a></li></ol></li><li class="nav-item nav-level-1"><a class="nav-link" href="#%E5%88%9B%E5%BB%BA%E7%AC%AC%E4%B8%80%E4%B8%AAflow"><span class="nav-number">3.</span> <span class="nav-text">创建第一个flow</span></a><ol class="nav-child"><li class="nav-item nav-level-2"><a class="nav-link" href="#%E8%AE%BF%E9%97%AE%E7%BC%96%E8%BE%91%E5%99%A8"><span class="nav-number">3.1.</span> <span class="nav-text">访问编辑器</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E6%B7%BB%E5%8A%A0inject%E8%8A%82%E7%82%B9"><span class="nav-number">3.2.</span> <span class="nav-text">添加inject节点</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E6%B7%BB%E5%8A%A0debug%E8%8A%82%E7%82%B9"><span class="nav-number">3.3.</span> <span class="nav-text">添加debug节点</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E8%BF%9E%E7%BA%BF"><span class="nav-number">3.4.</span> <span class="nav-text">连线</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E9%83%A8%E7%BD%B2"><span class="nav-number">3.5.</span> <span class="nav-text">部署</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E6%B7%BB%E5%8A%A0function%E8%8A%82%E7%82%B9"><span class="nav-number">3.6.</span> <span class="nav-text">添加function节点</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E6%80%BB%E7%BB%93"><span class="nav-number">3.7.</span> <span class="nav-text">总结</span></a></li></ol></li><li class="nav-item nav-level-1"><a class="nav-link" href="#%E5%88%9B%E5%BB%BA%E7%AC%AC%E4%BA%8C%E4%B8%AAflow"><span class="nav-number">4.</span> <span class="nav-text">创建第二个flow</span></a><ol class="nav-child"><li class="nav-item nav-level-2"><a class="nav-link" href="#%E6%B7%BB%E5%8A%A0inject%E8%8A%82%E7%82%B9-1"><span class="nav-number">4.1.</span> <span class="nav-text">添加inject节点</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E6%B7%BB%E5%8A%A0http-request%E8%8A%82%E7%82%B9"><span class="nav-number">4.2.</span> <span class="nav-text">添加http request节点</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E6%B7%BB%E5%8A%A0csv%E8%8A%82%E7%82%B9"><span class="nav-number">4.3.</span> <span class="nav-text">添加csv节点</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E6%B7%BB%E5%8A%A0debug%E8%8A%82%E7%82%B9-1"><span class="nav-number">4.4.</span> <span class="nav-text">添加debug节点</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E8%BF%9E%E7%BA%BF-1"><span class="nav-number">4.5.</span> <span class="nav-text">连线</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E6%B7%BB%E5%8A%A0switch%E8%8A%82%E7%82%B9"><span class="nav-number">4.6.</span> <span class="nav-text">添加switch节点</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E6%B7%BB%E5%8A%A0change%E8%8A%82%E7%82%B9"><span class="nav-number">4.7.</span> <span class="nav-text">添加change节点</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E6%B7%BB%E5%8A%A0debug%E8%8A%82%E7%82%B9-2"><span class="nav-number">4.8.</span> <span class="nav-text">添加debug节点</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E9%83%A8%E7%BD%B2-1"><span class="nav-number">4.9.</span> <span class="nav-text">部署</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E6%80%BB%E7%BB%93-1"><span class="nav-number">4.10.</span> <span class="nav-text">总结</span></a></li></ol></li><li class="nav-item nav-level-1"><a class="nav-link" href="#%E6%96%B0%E5%A2%9E%E8%8A%82%E7%82%B9"><span class="nav-number">5.</span> <span class="nav-text">新增节点</span></a><ol class="nav-child"><li class="nav-item nav-level-2"><a class="nav-link" href="#%E4%BD%BF%E7%94%A8%E7%BC%96%E8%BE%91%E5%99%A8"><span class="nav-number">5.1.</span> <span class="nav-text">使用编辑器</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E9%80%9A%E8%BF%87npm%E5%AE%89%E8%A3%85"><span class="nav-number">5.2.</span> <span class="nav-text">通过npm安装</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E5%A4%8D%E5%88%B6%E8%8A%82%E7%82%B9%E6%96%87%E4%BB%B6"><span class="nav-number">5.3.</span> <span class="nav-text">复制节点文件</span></a></li></ol></li><li class="nav-item nav-level-1"><a class="nav-link" href="#MQTT%E4%BE%8B%E5%AD%90"><span class="nav-number">6.</span> <span class="nav-text">MQTT例子</span></a><ol class="nav-child"><li class="nav-item nav-level-2"><a class="nav-link" href="#%E5%AE%89%E8%A3%85MQTT%E6%B6%88%E6%81%AF%E6%9C%8D%E5%8A%A1%E5%99%A8"><span class="nav-number">6.1.</span> <span class="nav-text">安装MQTT消息服务器</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#%E5%AE%89%E8%A3%85EMQX"><span class="nav-number">6.1.1.</span> <span class="nav-text">安装EMQX</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E9%85%8D%E7%BD%AENode-RED"><span class="nav-number">6.2.</span> <span class="nav-text">配置Node-RED</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#%E6%95%B4%E4%BD%93%E6%9E%B6%E6%9E%84"><span class="nav-number">6.2.1.</span> <span class="nav-text">整体架构</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E5%8F%91%E5%B8%83%E6%B6%88%E6%81%AF"><span class="nav-number">6.2.2.</span> <span class="nav-text">发布消息</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E8%AE%A2%E9%98%85%E6%B6%88%E6%81%AF"><span class="nav-number">6.2.3.</span> <span class="nav-text">订阅消息</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E8%BF%90%E8%A1%8C"><span class="nav-number">6.2.4.</span> <span class="nav-text">运行</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E5%8D%87%E7%BA%A7"><span class="nav-number">6.2.5.</span> <span class="nav-text">升级</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E5%85%B6%E4%BB%96"><span class="nav-number">6.2.6.</span> <span class="nav-text">其他</span></a></li></ol></li></ol></li><li class="nav-item nav-level-1"><a class="nav-link" href="#%E6%97%B6%E5%BA%8F%E6%95%B0%E6%8D%AE%E7%9A%84%E5%8F%AF%E8%A7%86%E5%8C%96"><span class="nav-number">7.</span> <span class="nav-text">时序数据的可视化</span></a><ol class="nav-child"><li class="nav-item nav-level-2"><a class="nav-link" href="#%E6%97%B6%E5%BA%8F%E6%95%B0%E6%8D%AE%E5%BA%93InfluxDB"><span class="nav-number">7.1.</span> <span class="nav-text">时序数据库InfluxDB</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#Node-RED%E9%85%8D%E7%BD%AE"><span class="nav-number">7.2.</span> <span class="nav-text">Node-RED配置</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#Grafana%E5%8F%AF%E8%A7%86%E5%8C%96%E7%9C%8B%E6%9D%BF"><span class="nav-number">7.3.</span> <span class="nav-text">Grafana可视化看板</span></a></li></ol></li></ol></div>
+      </div>
+      <!--/noindex-->
+
+      <div class="site-overview-wrap sidebar-panel">
+        <div class="site-author motion-element" itemprop="author" itemscope itemtype="http://schema.org/Person">
+    <img class="site-author-image" itemprop="image" alt="Xin-Bo Qi(亓欣波)"
+      src="/images/avatar.jpg">
+  <p class="site-author-name" itemprop="name">Xin-Bo Qi(亓欣波)</p>
+  <div class="site-description" itemprop="description">Digitize everything to realize Digitalization!</div>
+</div>
+<div class="site-state-wrap motion-element">
+  <nav class="site-state">
+      <div class="site-state-item site-state-posts">
+          <a href="/archives/">
+        
+          <span class="site-state-item-count">157</span>
+          <span class="site-state-item-name">posts</span>
+        </a>
+      </div>
+      <div class="site-state-item site-state-categories">
+            <a href="/categories/">
+          
+        <span class="site-state-item-count">6</span>
+        <span class="site-state-item-name">categories</span></a>
+      </div>
+      <div class="site-state-item site-state-tags">
+            <a href="/tags/">
+          
+        <span class="site-state-item-count">54</span>
+        <span class="site-state-item-name">tags</span></a>
+      </div>
+  </nav>
+</div>
+  <div class="links-of-author motion-element">
+      <span class="links-of-author-item">
+        <a href="https://github.com/qixinbo" title="GitHub → https:&#x2F;&#x2F;github.com&#x2F;qixinbo" rel="noopener" target="_blank"><i class="github fa-fw"></i>GitHub</a>
+      </span>
+      <span class="links-of-author-item">
+        <a href="mailto:qixinbo@gmail.com" title="E-Mail → mailto:qixinbo@gmail.com" rel="noopener" target="_blank"><i class="envelope fa-fw"></i>E-Mail</a>
+      </span>
+      <span class="links-of-author-item">
+        <a href="https://twitter.com/qixinbo" title="Twitter → https:&#x2F;&#x2F;twitter.com&#x2F;qixinbo" rel="noopener" target="_blank"><i class="fab fa-twitter fa-fw"></i>Twitter</a>
+      </span>
+      <span class="links-of-author-item">
+        <a href="/atom.xml" title="RSS → &#x2F;atom.xml"><i class="fas fa-rss fa-fw"></i>RSS</a>
+      </span>
+  </div>
+
+
+  <div class="links-of-blogroll motion-element">
+    <div class="links-of-blogroll-title"><i class="fa fa-link fa-fw"></i>
+      Links
+    </div>
+    <ul class="links-of-blogroll-list">
+        <li class="links-of-blogroll-item">
+          <a href="https://www.tsinghua.edu.cn/" title="https:&#x2F;&#x2F;www.tsinghua.edu.cn" rel="noopener" target="_blank">THU</a>
+        </li>
+        <li class="links-of-blogroll-item">
+          <a href="http://www.imr.cas.cn/" title="http:&#x2F;&#x2F;www.imr.cas.cn" rel="noopener" target="_blank">IMR</a>
+        </li>
+        <li class="links-of-blogroll-item">
+          <a href="http://www.sdu.edu.cn/" title="http:&#x2F;&#x2F;www.sdu.edu.cn" rel="noopener" target="_blank">SDU</a>
+        </li>
+        <li class="links-of-blogroll-item">
+          <a href="http://liam0205.me/" title="http:&#x2F;&#x2F;liam0205.me&#x2F;" rel="noopener" target="_blank">黄晨成</a>
+        </li>
+    </ul>
+  </div>
+
+      </div>
+
+    </div>
+  </aside>
+  <div id="sidebar-dimmer"></div>
+
+
+      </div>
+    </main>
+
+    <footer class="footer">
+      <div class="footer-inner">
+        
+
+        
+
+<div class="copyright">
+  
+  &copy; 
+  <span itemprop="copyrightYear">2022</span>
+  <span class="with-love">
+    <i class="fa fa-heart"></i>
+  </span>
+  <span class="author" itemprop="copyrightHolder">Xin-Bo Qi(亓欣波)</span>
+</div>
+  <div class="powered-by">Powered by <a href="https://hexo.io/" class="theme-link" rel="noopener" target="_blank">Hexo</a> & <a href="https://theme-next.org/" class="theme-link" rel="noopener" target="_blank">NexT.Gemini</a>
+  </div>
+
+        
+
+
+
+
+
+
+
+
+      </div>
+    </footer>
+  </div>
+
+  
+  <script src="/lib/anime.min.js"></script>
+  <script src="/lib/velocity/velocity.min.js"></script>
+  <script src="/lib/velocity/velocity.ui.min.js"></script>
+
+<script src="/js/utils.js"></script>
+
+<script src="/js/motion.js"></script>
+
+
+<script src="/js/schemes/pisces.js"></script>
+
+
+<script src="/js/next-boot.js"></script>
+
+
+
+
+  
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+  
+
+  
+      
+
+<script>
+  if (typeof MathJax === 'undefined') {
+    window.MathJax = {
+      loader: {
+        source: {
+          '[tex]/amsCd': '[tex]/amscd',
+          '[tex]/AMScd': '[tex]/amscd'
+        }
+      },
+      tex: {
+        inlineMath: {'[+]': [['$', '$']]},
+        tags: 'ams'
+      },
+      options: {
+        renderActions: {
+          findScript: [10, doc => {
+            document.querySelectorAll('script[type^="math/tex"]').forEach(node => {
+              const display = !!node.type.match(/; *mode=display/);
+              const math = new doc.options.MathItem(node.textContent, doc.inputJax[0], display);
+              const text = document.createTextNode('');
+              node.parentNode.replaceChild(text, node);
+              math.start = {node: text, delim: '', n: 0};
+              math.end = {node: text, delim: '', n: 0};
+              doc.math.push(math);
+            });
+          }, '', false],
+          insertedScript: [200, () => {
+            document.querySelectorAll('mjx-container').forEach(node => {
+              let target = node.parentNode;
+              if (target.nodeName.toLowerCase() === 'li') {
+                target.parentNode.classList.add('has-jax');
+              }
+            });
+          }, '', false]
+        }
+      }
+    };
+    (function () {
+      var script = document.createElement('script');
+      script.src = '//cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js';
+      script.defer = true;
+      document.head.appendChild(script);
+    })();
+  } else {
+    MathJax.startup.document.state(0);
+    MathJax.texReset();
+    MathJax.typeset();
+  }
+</script>
+
+    
+
+  
+
+<script>
+  function loadCount() {
+    var d = document, s = d.createElement('script');
+    s.src = 'https://qixinbo.disqus.com/count.js';
+    s.id = 'dsq-count-scr';
+    (d.head || d.body).appendChild(s);
+  }
+  // defer loading until the whole page loading is completed
+  window.addEventListener('load', loadCount, false);
+</script>
+<script>
+  var disqus_config = function() {
+    this.page.url = "http://qixinbo.github.io/2022/06/19/node_red/";
+    this.page.identifier = "2022/06/19/node_red/";
+    this.page.title = "物联网应用的低代码开发工具Node-RED上手及案例";
+    };
+  NexT.utils.loadComments(document.querySelector('#disqus_thread'), () => {
+    if (window.DISQUS) {
+      DISQUS.reset({
+        reload: true,
+        config: disqus_config
+      });
+    } else {
+      var d = document, s = d.createElement('script');
+      s.src = 'https://qixinbo.disqus.com/embed.js';
+      s.setAttribute('data-timestamp', '' + +new Date());
+      (d.head || d.body).appendChild(s);
+    }
+  });
+</script>
+
+</body>
+</html>
