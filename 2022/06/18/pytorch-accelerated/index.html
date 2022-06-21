@@ -1,0 +1,623 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=2">
+<meta name="theme-color" content="#222">
+<meta name="generator" content="Hexo 5.4.0">
+  <link rel="apple-touch-icon" sizes="180x180" href="/images/apple-touch-icon-next.png">
+  <link rel="icon" type="image/png" sizes="32x32" href="/favicon.ico">
+  <link rel="icon" type="image/png" sizes="16x16" href="/favicon.ico">
+  <link rel="mask-icon" href="/images/logo.svg" color="#222">
+
+<link rel="stylesheet" href="/css/main.css">
+
+
+<link rel="stylesheet" href="/lib/font-awesome/css/all.min.css">
+
+<script id="hexo-configurations">
+    var NexT = window.NexT || {};
+    var CONFIG = {"hostname":"qixinbo.github.io","root":"/","scheme":"Gemini","version":"7.8.0","exturl":false,"sidebar":{"position":"left","display":"post","padding":18,"offset":12,"onmobile":false},"copycode":{"enable":false,"show_result":false,"style":null},"back2top":{"enable":true,"sidebar":false,"scrollpercent":false},"bookmark":{"enable":false,"color":"#222","save":"auto"},"fancybox":false,"mediumzoom":false,"lazyload":false,"pangu":false,"comments":{"style":"tabs","active":null,"storage":true,"lazyload":false,"nav":null},"algolia":{"hits":{"per_page":10},"labels":{"input_placeholder":"Search for Posts","hits_empty":"We didn't find any results for the search: ${query}","hits_stats":"${hits} results found in ${time} ms"}},"localsearch":{"enable":false,"trigger":"auto","top_n_per_article":1,"unescape":false,"preload":false},"motion":{"enable":true,"async":false,"transition":{"post_block":"fadeIn","post_header":"slideDownIn","post_body":"slideDownIn","coll_header":"slideLeftIn","sidebar":"slideUpIn"}}};
+  </script>
+
+  <meta name="description" content="介绍 pytorch-accelerated是一个轻量级的库，旨在通过提供一个最小但可扩展的训练循环（封装在一个Trainer对象中）来加速PyTorch模型的训练过程；它足够灵活，可以处理大多数用例，并且能够利用不同的硬件选项而不需要修改代码。更多介绍见原作者的博文。 pytorch-accelerated最大的两个特点就是：简单simplicity和透明transparency。怎么理解这两个">
+<meta property="og:type" content="article">
+<meta property="og:title" content="轻量级PyTorch通用训练模板pytorch-accelerated介绍及入门">
+<meta property="og:url" content="http://qixinbo.github.io/2022/06/18/pytorch-accelerated/index.html">
+<meta property="og:site_name" content="数字旗手">
+<meta property="og:description" content="介绍 pytorch-accelerated是一个轻量级的库，旨在通过提供一个最小但可扩展的训练循环（封装在一个Trainer对象中）来加速PyTorch模型的训练过程；它足够灵活，可以处理大多数用例，并且能够利用不同的硬件选项而不需要修改代码。更多介绍见原作者的博文。 pytorch-accelerated最大的两个特点就是：简单simplicity和透明transparency。怎么理解这两个">
+<meta property="og:locale" content="en_US">
+<meta property="article:published_time" content="2022-06-17T16:00:00.000Z">
+<meta property="article:modified_time" content="2022-06-21T08:41:39.855Z">
+<meta property="article:author" content="Xin-Bo Qi(亓欣波)">
+<meta property="article:tag" content="PyTorch">
+<meta name="twitter:card" content="summary">
+
+<link rel="canonical" href="http://qixinbo.github.io/2022/06/18/pytorch-accelerated/">
+
+
+<script id="page-configurations">
+  // https://hexo.io/docs/variables.html
+  CONFIG.page = {
+    sidebar: "",
+    isHome : false,
+    isPost : true,
+    lang   : 'en'
+  };
+</script>
+
+  <title>轻量级PyTorch通用训练模板pytorch-accelerated介绍及入门 | 数字旗手</title>
+  
+
+
+
+
+
+
+  <noscript>
+  <style>
+  .use-motion .brand,
+  .use-motion .menu-item,
+  .sidebar-inner,
+  .use-motion .post-block,
+  .use-motion .pagination,
+  .use-motion .comments,
+  .use-motion .post-header,
+  .use-motion .post-body,
+  .use-motion .collection-header { opacity: initial; }
+
+  .use-motion .site-title,
+  .use-motion .site-subtitle {
+    opacity: initial;
+    top: initial;
+  }
+
+  .use-motion .logo-line-before i { left: initial; }
+  .use-motion .logo-line-after i { right: initial; }
+  </style>
+</noscript>
+
+<link rel="alternate" href="/atom.xml" title="数字旗手" type="application/atom+xml">
+</head>
+
+<body itemscope itemtype="http://schema.org/WebPage">
+  <div class="container use-motion">
+    <div class="headband"></div>
+
+    <header class="header" itemscope itemtype="http://schema.org/WPHeader">
+      <div class="header-inner"><div class="site-brand-container">
+  <div class="site-nav-toggle">
+    <div class="toggle" aria-label="Toggle navigation bar">
+      <span class="toggle-line toggle-line-first"></span>
+      <span class="toggle-line toggle-line-middle"></span>
+      <span class="toggle-line toggle-line-last"></span>
+    </div>
+  </div>
+
+  <div class="site-meta">
+
+    <a href="/" class="brand" rel="start">
+      <span class="logo-line-before"><i></i></span>
+      <h1 class="site-title">数字旗手</h1>
+      <span class="logo-line-after"><i></i></span>
+    </a>
+      <p class="site-subtitle" itemprop="description">电气化、自动化、数字化、智能化、智慧化</p>
+  </div>
+
+  <div class="site-nav-right">
+    <div class="toggle popup-trigger">
+    </div>
+  </div>
+</div>
+
+
+
+
+<nav class="site-nav">
+  <ul id="menu" class="main-menu menu">
+        <li class="menu-item menu-item-home">
+
+    <a href="/" rel="section"><i class="fa fa-home fa-fw"></i>Home</a>
+
+  </li>
+        <li class="menu-item menu-item-categories">
+
+    <a href="/categories/" rel="section"><i class="fa fa-th fa-fw"></i>Categories</a>
+
+  </li>
+        <li class="menu-item menu-item-archives">
+
+    <a href="/archives/" rel="section"><i class="fa fa-archive fa-fw"></i>Archives</a>
+
+  </li>
+        <li class="menu-item menu-item-tags">
+
+    <a href="/tags/" rel="section"><i class="fa fa-tags fa-fw"></i>Tags</a>
+
+  </li>
+        <li class="menu-item menu-item-scholar">
+
+    <a href="/scholar/" rel="section"><i class="fa fa-chart-bar fa-fw"></i>scholar</a>
+
+  </li>
+        <li class="menu-item menu-item-sources">
+
+    <a href="/sources/" rel="section"><i class="fa fa-rss fa-fw"></i>sources</a>
+
+  </li>
+        <li class="menu-item menu-item-gallery">
+
+    <a href="/gallery/" rel="section"><i class="fa fa-file-image fa-fw"></i>gallery</a>
+
+  </li>
+        <li class="menu-item menu-item-about">
+
+    <a href="/about/" rel="section"><i class="fa fa-user fa-fw"></i>About</a>
+
+  </li>
+        <li class="menu-item menu-item-commonweal">
+
+    <a href="/404.html" rel="section"><i class="fa fa-heartbeat fa-fw"></i>Commonweal 404</a>
+
+  </li>
+  </ul>
+</nav>
+
+
+
+
+</div>
+    </header>
+
+    
+  <div class="back-to-top">
+    <i class="fa fa-arrow-up"></i>
+    <span>0%</span>
+  </div>
+
+
+    <main class="main">
+      <div class="main-inner">
+        <div class="content-wrap">
+          
+
+          <div class="content post posts-expand">
+            
+
+    
+  
+  
+  <article itemscope itemtype="http://schema.org/Article" class="post-block" lang="en">
+    <link itemprop="mainEntityOfPage" href="http://qixinbo.github.io/2022/06/18/pytorch-accelerated/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="image" content="/images/avatar.jpg">
+      <meta itemprop="name" content="Xin-Bo Qi(亓欣波)">
+      <meta itemprop="description" content="Digitize everything to realize Digitalization!">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="数字旗手">
+    </span>
+      <header class="post-header">
+        <h1 class="post-title" itemprop="name headline">
+          轻量级PyTorch通用训练模板pytorch-accelerated介绍及入门
+        </h1>
+
+        <div class="post-meta">
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="far fa-calendar"></i>
+              </span>
+              <span class="post-meta-item-text">Posted on</span>
+
+              <time title="Created: 2022-06-18 00:00:00" itemprop="dateCreated datePublished" datetime="2022-06-18T00:00:00+08:00">2022-06-18</time>
+            </span>
+              <span class="post-meta-item">
+                <span class="post-meta-item-icon">
+                  <i class="far fa-calendar-check"></i>
+                </span>
+                <span class="post-meta-item-text">Edited on</span>
+                <time title="Modified: 2022-06-21 16:41:39" itemprop="dateModified" datetime="2022-06-21T16:41:39+08:00">2022-06-21</time>
+              </span>
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="far fa-folder"></i>
+              </span>
+              <span class="post-meta-item-text">In</span>
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+                  <a href="/categories/machine-learning/" itemprop="url" rel="index"><span itemprop="name">machine learning</span></a>
+                </span>
+            </span>
+
+          
+  
+  <span class="post-meta-item">
+    
+      <span class="post-meta-item-icon">
+        <i class="far fa-comment"></i>
+      </span>
+      <span class="post-meta-item-text">Disqus: </span>
+    
+    <a title="disqus" href="/2022/06/18/pytorch-accelerated/#disqus_thread" itemprop="discussionUrl">
+      <span class="post-comments-count disqus-comment-count" data-disqus-identifier="2022/06/18/pytorch-accelerated/" itemprop="commentCount"></span>
+    </a>
+  </span>
+  
+  
+
+        </div>
+      </header>
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+        <h1 id="介绍"><a href="#介绍" class="headerlink" title="介绍"></a>介绍</h1><p><a target="_blank" rel="noopener" href="https://github.com/Chris-hughes10/pytorch-accelerated"><code>pytorch-accelerated</code></a>是一个轻量级的库，旨在通过提供一个最小但可扩展的训练循环（封装在一个<code>Trainer</code>对象中）来加速<code>PyTorch</code>模型的训练过程；它足够灵活，可以处理大多数用例，并且能够利用不同的硬件选项而不需要修改代码。更多介绍见原作者的<a target="_blank" rel="noopener" href="https://towardsdatascience.com/introducing-pytorch-accelerated-6ba99530608c">博文</a>。<br><code>pytorch-accelerated</code>最大的两个特点就是：简单<code>simplicity</code>和透明<code>transparency</code>。怎么理解这两个词呢（个人理解）：<br>（1）简单体现在它是一套可复用的<code>PyTorch</code>的训练代码，每次有新模型和新场景需要训练时不必将原来的代码拷过来拷过去，<code>pytorch-accelerated</code>提供了一套通用但不失灵活性的代码模板；<br>（2）透明体现在它基于纯正的<code>PyTorch</code>语法和<code>API</code>，而不是对<code>PyTorch</code>进行过度封装（此处<code>PyTorch Lightning</code>中枪），否则用户会感觉新学习了一套框架和语法。<br>这里可以再扩展说一下，作者的<a target="_blank" rel="noopener" href="https://towardsdatascience.com/introducing-pytorch-accelerated-6ba99530608c">介绍博文</a>后有一条评论：“这个库与<code>PyTorch Lighting</code>对比怎么样，我已经用了<code>Lightning</code>，为啥要用这个库呢？”作者给出了一个长长的回答，解释得挺清晰的：</p>
+<blockquote>
+<p>我使用<code>Lightning</code>很长时间了，但越来越觉得我花在理解和调试<code>Lightning</code>上的时间比花在任务上的时间多。这在一开始可能很简单，但由于选项和指标太多，我发现自己花了很多时间阅读文档，并发现源代码对我来说并不容易一目了然。<br>另外，从一开始我就发现，<code>Lightning</code>的设计，即模型和训练循环绑在一起，并不适合我想为同一个任务轻松切换不同的模型和优化器的场景；我个人更喜欢训练循环与模型分开。这意味着模型仍然是纯正的<code>PyTorch</code>；我可以插入其他库的模型，如<code>timm</code>，而不需要做任何修改，也不需要在部署时有任何额外的依赖。<br>从本质上讲，我想要一个简单易懂、易于调试的库，同时保持足够的灵活性以满足我的需要；学习曲线足够浅，我可以把它介绍给其他人，他们也可以很快上手。根据我自己的要求，我创建了PyTorch-accelerated。它在简单的情况下开箱即用，而且很容易定制行为的任何部分。</p>
+</blockquote>
+<p>再再扩展说一下，对于<code>PyTorch Lightning</code>，知乎上有很多真香帖（比如<a target="_blank" rel="noopener" href="https://zhuanlan.zhihu.com/p/353985363">1</a>、<a target="_blank" rel="noopener" href="https://zhuanlan.zhihu.com/p/157742258">2</a>），也有很多劝退帖（比如<a target="_blank" rel="noopener" href="https://zhuanlan.zhihu.com/p/492703063">1</a>、<a target="_blank" rel="noopener" href="https://zhuanlan.zhihu.com/p/363045412">2</a>（这篇虽然从标题和全文上看是“真香”，实则在文章最后和评论中作者表示弃坑了，采用了原生的<code>PyTorch</code>））。个人感觉采用<code>PyTorch Lightning</code>有两个很大的弊端（严格来说其实是一个）：<br>（1）与原生<code>PyTorch</code>相比，<code>PyTorch Lightning</code>进行了过度封装，感觉像是在学习另一个框架；<br>（2）假设使用<code>PyTorch Lightning</code>编写代码，如果是个人使用还好，但如果是一个团队共同维护代码，很难说服别人也采用该写法。<br>于是，本文的主角<code>pytorch-accelerated</code>就有了用武之地。</p>
+<h2 id="目标用户"><a href="#目标用户" class="headerlink" title="目标用户"></a>目标用户</h2><p>什么类型的用户/开发者可以尝试使用<code>pytorch-accelerated</code>呢：<br>（1）熟悉PyTorch的用户，但希望避免编写常见的训练循环模板，以专注于其他更重要的部分。<br>（2）喜欢并乐于选择和创建自己的模型、损失函数、优化器和数据集的用户。<br>（3）喜欢简单但高效的功能的用户，这些功能的行为需要很容易调试、理解和推理（<code>PyTorch Lightning</code>：你报我身份证得了）。</p>
+<p>另一方面，<code>pytorch-accelerated</code>不适合什么类型的用户/开发者呢？<br>（1）如果你正在寻找一个端到端的解决方案，包括从加载数据到推理的所有内容，该方案帮助你选择模型、优化器或损失函数，此时可能更适合使用<a target="_blank" rel="noopener" href="https://github.com/fastai/fastai">fastai</a>。 <code>pytorch-accelerated</code>只关注训练过程，其他所有问题都由用户负责。<br>（2）如果你想自己编写整个训练循环，但是不想涉及恼人的设备管理问题（比如多机多卡并行），你可能最适合使用<code>Hugging Face</code>的<a target="_blank" rel="noopener" href="https://github.com/huggingface/accelerate"><code>accelerate</code></a>！ <code>accelerate</code>专注于将<code>PyTorch</code>的分布式训练和混合精度训练变得简单，不过整个训练循环得自己写。<br>（3）如果你正在研究一个定制的、高度复杂的、不符合通常训练循环模式的用例，并且想在你选择的硬件上挤出每一点性能，你可能最好坚持使用原生<code>PyTorch</code>；在高度专业化的情况下，任何高级<code>API</code>都会成为一种开销。</p>
+<h1 id="安装"><a href="#安装" class="headerlink" title="安装"></a>安装</h1><p>（注意提前安装好<code>pytorch</code>）<br>使用<code>pip</code>安装：<br><figure class="highlight sh"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">pip install pytorch-accelerated</span><br></pre></td></tr></table></figure><br>其实看<code>pytorch-accelerated</code>的<code>requirements.txt</code>，它只依赖于<code>Hugging Face</code>的<code>accelerate</code>库及<code>tqdm</code>（在终端下显示进度条），因此可以说是它的<code>API</code>就是<code>PyTorch</code>的原生<code>API</code>加上<code>accelerate</code>的分布式训练的<code>API</code>。</p>
+<h2 id="accelerate库"><a href="#accelerate库" class="headerlink" title="accelerate库"></a>accelerate库</h2><p><code>Hugging Face</code>的<code>🤗accelerate</code>库（<a target="_blank" rel="noopener" href="https://github.com/huggingface/accelerate">地址</a>），可以无痛地对<code>Pytorch</code>进行多<code>GPU</code>、<code>TPU</code>、<a target="_blank" rel="noopener" href="https://zhuanlan.zhihu.com/p/103685761">混合精度训练</a>。见<a target="_blank" rel="noopener" href="https://mp.weixin.qq.com/s/ST0mWd4E7ZxMMl04_yTKzA">机器之心的报道</a>。</p>
+<blockquote>
+<p>多数 PyTorch 高级库都支持分布式训练和混合精度训练，但是它们引入的抽象化往往需要用户学习新的 API 来定制训练循环。许多 PyTorch 用户希望完全控制自己的训练循环，但不想编写和维护训练所需的复杂的样板代码。Hugging Face 最近发布的新库 Accelerate 解决了这个问题。<br><code>🤗accelerate</code>提供了一个简单的<code>API</code>，将与多<code>GPU</code>、<code>TPU</code>、<code>fp16</code>相关的样板代码抽离了出来，保持其余代码不变。<code>PyTorch</code>用户无须使用不便控制和调整的抽象类或编写、维护样板代码，就可以直接上手多<code>GPU</code>或<code>TPU</code>。</p>
+</blockquote>
+<p><code>🤗accelerate</code>库有两大特点：<br>（1）提供了一套简单的<code>API</code>来处理分布式训练和混合精度训练，无需在不同情形下对代码进行大的改动；<br>（2）提供了一个命令行接口工具来快速配置并并行脚本。</p>
+<h2 id="可选"><a href="#可选" class="headerlink" title="可选"></a>可选</h2><p>如果是想为了直接运行<code>pytorch-accelerated</code>提供的<code>examples</code>，则可以这样安装<a target="_blank" rel="noopener" href="https://stackoverflow.com/questions/46775346/what-do-square-brackets-mean-in-pip-install">其他所依赖的包</a>：<br><figure class="highlight sh"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">pip install pytorch-accelerated[examples]</span><br></pre></td></tr></table></figure></p>
+<h1 id="配置和运行"><a href="#配置和运行" class="headerlink" title="配置和运行"></a>配置和运行</h1><p>可以使用<code>🤗accelerate</code>的<code>CLI</code>工具来生成配置文件：<br><figure class="highlight sh"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">accelerate config --config_file accelerate_config.yaml</span><br></pre></td></tr></table></figure><br>然后运行：<br><figure class="highlight sh"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">accelerate launch --config_file accelerate_config.yaml train.py [--training-args]</span><br></pre></td></tr></table></figure><br>值得注意的是，也不是必须要用<code>CLI</code>工具。如果想更精细地控制启动命令和参数，仍然可以通过通常的方式来运行脚本：<br><figure class="highlight sh"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">python train.py / python -m torch.distributed ...</span><br></pre></td></tr></table></figure></p>
+<h1 id="MNIST例子"><a href="#MNIST例子" class="headerlink" title="MNIST例子"></a>MNIST例子</h1><p><code>MNIST</code>手写字符分类可以说是深度学习领域的<code>Hello World</code>。<br>这一节将以<code>MNIST</code>来看看<code>pytorch-accelerated</code>是怎么使用的。</p>
+<h2 id="数据和模型准备"><a href="#数据和模型准备" class="headerlink" title="数据和模型准备"></a>数据和模型准备</h2><p>因为<code>pytorch-accelerated</code>专注于训练模型部分，因此数据的加载和模型的构建、配置都是使用的原生的<code>PyTorch</code>的代码：<br><figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment"># examples/train_mnist.py</span></span><br><span class="line"><span class="keyword">import</span> os</span><br><span class="line"></span><br><span class="line"><span class="keyword">from</span> torch <span class="keyword">import</span> nn, optim</span><br><span class="line"><span class="keyword">from</span> torch.utils.data <span class="keyword">import</span> random_split</span><br><span class="line"><span class="keyword">from</span> torchvision <span class="keyword">import</span> transforms</span><br><span class="line"><span class="keyword">from</span> torchvision.datasets <span class="keyword">import</span> MNIST</span><br><span class="line"></span><br><span class="line"><span class="comment"># 加载数据集</span></span><br><span class="line">dataset = MNIST(os.getcwd(), download=<span class="literal">True</span>, transform=transforms.ToTensor())</span><br><span class="line"><span class="comment"># 拆分数据集</span></span><br><span class="line">train_dataset, validation_dataset, test_dataset = random_split(dataset, [<span class="number">50000</span>, <span class="number">5000</span>, <span class="number">5000</span>])</span><br><span class="line"></span><br><span class="line"><span class="comment"># 定义神经网络模型</span></span><br><span class="line"><span class="class"><span class="keyword">class</span> <span class="title">MNISTModel</span>(<span class="params">nn.Module</span>):</span></span><br><span class="line">    <span class="function"><span class="keyword">def</span> <span class="title">__init__</span>(<span class="params">self</span>):</span></span><br><span class="line">        <span class="built_in">super</span>().__init__()</span><br><span class="line">        self.main = nn.Sequential(</span><br><span class="line">            nn.Linear(in_features=<span class="number">784</span>, out_features=<span class="number">128</span>),</span><br><span class="line">            nn.ReLU(),</span><br><span class="line">            nn.Linear(in_features=<span class="number">128</span>, out_features=<span class="number">64</span>),</span><br><span class="line">            nn.ReLU(),</span><br><span class="line">            nn.Linear(in_features=<span class="number">64</span>, out_features=<span class="number">10</span>),</span><br><span class="line">        )</span><br><span class="line"></span><br><span class="line">    <span class="function"><span class="keyword">def</span> <span class="title">forward</span>(<span class="params">self, <span class="built_in">input</span></span>):</span></span><br><span class="line">        <span class="keyword">return</span> self.main(<span class="built_in">input</span>.view(<span class="built_in">input</span>.shape[<span class="number">0</span>], -<span class="number">1</span>))</span><br><span class="line"></span><br><span class="line"><span class="comment"># 实例化模型</span></span><br><span class="line">model = MNISTModel()</span><br><span class="line"><span class="comment"># 定义优化器</span></span><br><span class="line">optimizer = optim.SGD(model.parameters(), lr=<span class="number">0.001</span>, momentum=<span class="number">0.9</span>)</span><br><span class="line"><span class="comment"># 定义损失函数</span></span><br><span class="line">loss_func = nn.CrossEntropyLoss()</span><br><span class="line">	</span><br></pre></td></tr></table></figure></p>
+<h2 id="训练循环"><a href="#训练循环" class="headerlink" title="训练循环"></a>训练循环</h2><p>加载了模型和数据后，下一步就是编写训练循环。<br>这里就是<code>pytorch-accelerated</code>的用武之地，唯一要做的就是导入<code>Trainer</code>。<br><figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">from</span> pytorch_accelerated <span class="keyword">import</span> Trainer</span><br><span class="line"></span><br><span class="line"><span class="comment"># Trainer被设计成用来封装一个完整的训练循环</span></span><br><span class="line"><span class="comment"># 将模型、损失函数和优化器都传入Trainer中</span></span><br><span class="line">trainer = Trainer(</span><br><span class="line">		model,</span><br><span class="line">		loss_func=loss_func,</span><br><span class="line">		optimizer=optimizer,</span><br><span class="line">)</span><br><span class="line"></span><br><span class="line"><span class="comment"># 入口点是train方法，定义了该怎样训练</span></span><br><span class="line"><span class="comment"># 可以设置训练集、验证集（注意是验证集，不是测试集）、迭代次数、批处理大小</span></span><br><span class="line"><span class="comment"># 还可以设置学习率策略、梯度累加等，这里没有用到</span></span><br><span class="line">trainer.train(</span><br><span class="line">	train_dataset=train_dataset,</span><br><span class="line">	eval_dataset=validation_dataset,</span><br><span class="line">	num_epochs=<span class="number">8</span>,</span><br><span class="line">	per_device_batch_size=<span class="number">32</span>,</span><br><span class="line">)</span><br><span class="line"></span><br><span class="line"><span class="comment"># 评估模型</span></span><br><span class="line">trainer.evaluate(</span><br><span class="line">	dataset=test_dataset,</span><br><span class="line">	per_device_batch_size=<span class="number">64</span>,</span><br><span class="line">)</span><br></pre></td></tr></table></figure></p>
+<h2 id="训练"><a href="#训练" class="headerlink" title="训练"></a>训练</h2><h3 id="生成配置文件"><a href="#生成配置文件" class="headerlink" title="生成配置文件"></a>生成配置文件</h3><figure class="highlight sh"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">accelerate config --config_file train_mnist.yaml</span><br></pre></td></tr></table></figure>
+<h3 id="开始训练"><a href="#开始训练" class="headerlink" title="开始训练"></a>开始训练</h3><figure class="highlight sh"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">accelerate launch --config_file train_mnist.yaml train_mnist.py</span><br></pre></td></tr></table></figure>
+<h2 id="增加指标"><a href="#增加指标" class="headerlink" title="增加指标"></a>增加指标</h2><p>上述例子中追踪的指标仅仅是每次迭代的损失<code>loss</code>，为了对训练结果有更深入的洞察，可以增加更多的指标。<br>对于指标的计算，这里引入了<a target="_blank" rel="noopener" href="https://github.com/Lightning-AI/metrics"><code>torchmetrics</code></a>（发现这个库还是<code>PyTorch-Lightning</code>社区开发的，这波<code>PyTorch-Lightning</code>被人摘桃了，血亏🤗），该库兼容分布式训练，因此就不需要手动从不同进程中聚合计算结果。<br>计算指标有两种方式：<br>（1）定义一个继承自<code>Trainer</code>的子类，<br>（2）使用回调<code>callback</code>。<br>具体使用哪种方式极大地取决于用户的喜好。<br>不过作者有如下建议：因为计算指标实际上是不能影响训练代码的，因此使用<code>callback</code>可能是一个好的方式，因为使用<code>Trainer</code>子类的话，它也会间接地参与训练过程。不过还是具体情况具体分析。注意，因为<code>callbacks</code>都是顺序执行的，必须保证在打印指标之前就调用这些回调。<br>下面是对比这两种实现方式。</p>
+<h3 id="使用Trainer子类"><a href="#使用Trainer子类" class="headerlink" title="使用Trainer子类"></a>使用Trainer子类</h3><p><code>Trainer</code>有很多方法可以被重载，具体的文档在<a target="_blank" rel="noopener" href="https://pytorch-accelerated.readthedocs.io/en/latest/trainer.html#customizing-trainer-behaviour">这里</a>。主要的一个特点是有动词前缀（比如<code>create</code>和<code>calculate</code>）的方法都是期望能返回一个数值，其他的方法（比如<code>optimizer.step()</code>）则是用来设置内部状态。<br>示例代码为：<br><figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br><span class="line">52</span><br><span class="line">53</span><br><span class="line">54</span><br><span class="line">55</span><br><span class="line">56</span><br><span class="line">57</span><br><span class="line">58</span><br><span class="line">59</span><br><span class="line">60</span><br><span class="line">61</span><br><span class="line">62</span><br><span class="line">63</span><br><span class="line">64</span><br><span class="line">65</span><br><span class="line">66</span><br><span class="line">67</span><br><span class="line">68</span><br><span class="line">69</span><br><span class="line">70</span><br><span class="line">71</span><br><span class="line">72</span><br><span class="line">73</span><br><span class="line">74</span><br><span class="line">75</span><br><span class="line">76</span><br><span class="line">77</span><br><span class="line">78</span><br><span class="line">79</span><br><span class="line">80</span><br><span class="line">81</span><br><span class="line">82</span><br><span class="line">83</span><br><span class="line">84</span><br><span class="line">85</span><br><span class="line">86</span><br><span class="line">87</span><br><span class="line">88</span><br><span class="line">89</span><br><span class="line">90</span><br><span class="line">91</span><br><span class="line">92</span><br><span class="line">93</span><br><span class="line">94</span><br><span class="line">95</span><br><span class="line">96</span><br><span class="line">97</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment"># Copyright © 2021 Chris Hughes</span></span><br><span class="line"><span class="comment">########################################################################</span></span><br><span class="line"><span class="comment"># This example trains a model on the MNIST Dataset</span></span><br><span class="line"></span><br><span class="line"><span class="comment"># This example demonstrates how the default trainer class can be overridden</span></span><br><span class="line"><span class="comment"># so that we can record classification metrics</span></span><br><span class="line"><span class="comment">#</span></span><br><span class="line"><span class="comment"># Note, this example requires installing the torchmetrics package</span></span><br><span class="line"><span class="comment">########################################################################</span></span><br><span class="line"></span><br><span class="line"><span class="keyword">import</span> os</span><br><span class="line"></span><br><span class="line"><span class="keyword">from</span> torch <span class="keyword">import</span> nn, optim</span><br><span class="line"><span class="keyword">from</span> torch.utils.data <span class="keyword">import</span> random_split</span><br><span class="line"><span class="keyword">from</span> torchmetrics <span class="keyword">import</span> MetricCollection, Accuracy, Precision, Recall</span><br><span class="line"><span class="keyword">from</span> torchvision <span class="keyword">import</span> transforms</span><br><span class="line"><span class="keyword">from</span> torchvision.datasets <span class="keyword">import</span> MNIST</span><br><span class="line"></span><br><span class="line"><span class="keyword">from</span> pytorch_accelerated <span class="keyword">import</span> Trainer</span><br><span class="line"></span><br><span class="line"></span><br><span class="line"><span class="class"><span class="keyword">class</span> <span class="title">MNISTModel</span>(<span class="params">nn.Module</span>):</span></span><br><span class="line">    <span class="function"><span class="keyword">def</span> <span class="title">__init__</span>(<span class="params">self</span>):</span></span><br><span class="line">        <span class="built_in">super</span>().__init__()</span><br><span class="line">        self.main = nn.Sequential(</span><br><span class="line">            nn.Linear(in_features=<span class="number">784</span>, out_features=<span class="number">128</span>),</span><br><span class="line">            nn.ReLU(),</span><br><span class="line">            nn.Linear(in_features=<span class="number">128</span>, out_features=<span class="number">64</span>),</span><br><span class="line">            nn.ReLU(),</span><br><span class="line">            nn.Linear(in_features=<span class="number">64</span>, out_features=<span class="number">10</span>),</span><br><span class="line">        )</span><br><span class="line"></span><br><span class="line">    <span class="function"><span class="keyword">def</span> <span class="title">forward</span>(<span class="params">self, x</span>):</span></span><br><span class="line">        <span class="keyword">return</span> self.main(x.view(x.shape[<span class="number">0</span>], -<span class="number">1</span>))</span><br><span class="line"></span><br><span class="line"></span><br><span class="line"><span class="class"><span class="keyword">class</span> <span class="title">TrainerWithMetrics</span>(<span class="params">Trainer</span>):</span></span><br><span class="line">    <span class="function"><span class="keyword">def</span> <span class="title">__init__</span>(<span class="params">self, num_classes, *args, **kwargs</span>):</span></span><br><span class="line">        <span class="built_in">super</span>().__init__(*args, **kwargs)</span><br><span class="line"></span><br><span class="line">        <span class="comment"># this will be moved to the correct device automatically by the</span></span><br><span class="line">        <span class="comment"># MoveModulesToDeviceCallback callback, which is used by default</span></span><br><span class="line">        self.metrics = MetricCollection(</span><br><span class="line">            &#123;</span><br><span class="line">                <span class="string">&quot;accuracy&quot;</span>: Accuracy(num_classes=num_classes),</span><br><span class="line">                <span class="string">&quot;precision&quot;</span>: Precision(num_classes=num_classes),</span><br><span class="line">                <span class="string">&quot;recall&quot;</span>: Recall(num_classes=num_classes),</span><br><span class="line">            &#125;</span><br><span class="line">        )</span><br><span class="line"></span><br><span class="line">    <span class="function"><span class="keyword">def</span> <span class="title">calculate_eval_batch_loss</span>(<span class="params">self, batch</span>):</span></span><br><span class="line">        batch_output = <span class="built_in">super</span>().calculate_eval_batch_loss(batch)</span><br><span class="line">        preds = batch_output[<span class="string">&quot;model_outputs&quot;</span>].argmax(dim=-<span class="number">1</span>)</span><br><span class="line"></span><br><span class="line">        self.metrics.update(preds, batch[<span class="number">1</span>])</span><br><span class="line"></span><br><span class="line">        <span class="keyword">return</span> batch_output</span><br><span class="line"></span><br><span class="line">    <span class="function"><span class="keyword">def</span> <span class="title">eval_epoch_end</span>(<span class="params">self</span>):</span></span><br><span class="line">        metrics = self.metrics.compute()</span><br><span class="line">        self.run_history.update_metric(<span class="string">&quot;accuracy&quot;</span>, metrics[<span class="string">&quot;accuracy&quot;</span>].cpu())</span><br><span class="line">        self.run_history.update_metric(<span class="string">&quot;precision&quot;</span>, metrics[<span class="string">&quot;precision&quot;</span>].cpu())</span><br><span class="line">        self.run_history.update_metric(<span class="string">&quot;recall&quot;</span>, metrics[<span class="string">&quot;recall&quot;</span>].cpu())</span><br><span class="line"></span><br><span class="line">        self.metrics.reset()</span><br><span class="line"></span><br><span class="line"></span><br><span class="line"><span class="function"><span class="keyword">def</span> <span class="title">main</span>():</span></span><br><span class="line">    dataset = MNIST(os.getcwd(), download=<span class="literal">True</span>, transform=transforms.ToTensor())</span><br><span class="line">    num_classes = <span class="built_in">len</span>(dataset.class_to_idx)</span><br><span class="line"></span><br><span class="line">    train_dataset, validation_dataset, test_dataset = random_split(</span><br><span class="line">        dataset, [<span class="number">50000</span>, <span class="number">5000</span>, <span class="number">5000</span>]</span><br><span class="line">    )</span><br><span class="line">    model = MNISTModel()</span><br><span class="line">    optimizer = optim.SGD(model.parameters(), lr=<span class="number">0.001</span>, momentum=<span class="number">0.9</span>)</span><br><span class="line">    loss_func = nn.CrossEntropyLoss()</span><br><span class="line"></span><br><span class="line">    trainer = TrainerWithMetrics(</span><br><span class="line">        model=model, loss_func=loss_func, optimizer=optimizer, num_classes=num_classes</span><br><span class="line">    )</span><br><span class="line"></span><br><span class="line">    trainer.train(</span><br><span class="line">        train_dataset=train_dataset,</span><br><span class="line">        eval_dataset=validation_dataset,</span><br><span class="line">        num_epochs=<span class="number">2</span>,</span><br><span class="line">        per_device_batch_size=<span class="number">32</span>,</span><br><span class="line">    )</span><br><span class="line"></span><br><span class="line">    trainer.evaluate(</span><br><span class="line">        dataset=test_dataset,</span><br><span class="line">        per_device_batch_size=<span class="number">64</span>,</span><br><span class="line">    )</span><br><span class="line"></span><br><span class="line"></span><br><span class="line"><span class="keyword">if</span> __name__ == <span class="string">&quot;__main__&quot;</span>:</span><br><span class="line">    main()</span><br></pre></td></tr></table></figure></p>
+<h3 id="使用回调"><a href="#使用回调" class="headerlink" title="使用回调"></a>使用回调</h3><p>上面的代码可能已经有所显示，对于“增加指标”这种小的微调，如果使用<code>Trainer</code>子类的话会显得有些用力过猛。<br>此例中，可以保持默认的<code>trainer</code>不变，而使用回调来扩展功能。<br>为了创建一个新的回调，需要创建<code>TrainerCallback</code>的子类，然后重载相关方法，文档见<a target="_blank" rel="noopener" href="https://pytorch-accelerated.readthedocs.io/en/latest/callbacks.html#creating-new-callbacks">这里</a>。为了避免与<code>Trainer</code>的方法混淆，所有的回调方法都有<code>on_</code>前缀。<br>创建新的回调：<br><figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">from</span> torchmetrics <span class="keyword">import</span> MetricCollection, Accuracy, Precision, Recall</span><br><span class="line"></span><br><span class="line"><span class="keyword">from</span> pytorch_accelerated.callbacks <span class="keyword">import</span> TrainerCallback</span><br><span class="line"></span><br><span class="line"></span><br><span class="line"><span class="class"><span class="keyword">class</span> <span class="title">ClassificationMetricsCallback</span>(<span class="params">TrainerCallback</span>):</span></span><br><span class="line">    <span class="function"><span class="keyword">def</span> <span class="title">__init__</span>(<span class="params">self, num_classes</span>):</span></span><br><span class="line">        self.metrics = MetricCollection(</span><br><span class="line">            &#123;</span><br><span class="line">                <span class="string">&quot;accuracy&quot;</span>: Accuracy(num_classes=num_classes),</span><br><span class="line">                <span class="string">&quot;precision&quot;</span>: Precision(num_classes=num_classes),</span><br><span class="line">                <span class="string">&quot;recall&quot;</span>: Recall(num_classes=num_classes),</span><br><span class="line">            &#125;</span><br><span class="line">        )</span><br><span class="line"></span><br><span class="line">    <span class="function"><span class="keyword">def</span> <span class="title">_move_to_device</span>(<span class="params">self, trainer</span>):</span></span><br><span class="line">        self.metrics.to(trainer.device)</span><br><span class="line"></span><br><span class="line">    <span class="function"><span class="keyword">def</span> <span class="title">on_training_run_start</span>(<span class="params">self, trainer, **kwargs</span>):</span></span><br><span class="line">        self._move_to_device(trainer)</span><br><span class="line"></span><br><span class="line">    <span class="function"><span class="keyword">def</span> <span class="title">on_evaluation_run_start</span>(<span class="params">self, trainer, **kwargs</span>):</span></span><br><span class="line">        self._move_to_device(trainer)</span><br><span class="line"></span><br><span class="line">    <span class="function"><span class="keyword">def</span> <span class="title">on_eval_step_end</span>(<span class="params">self, trainer, batch, batch_output, **kwargs</span>):</span></span><br><span class="line">        preds = batch_output[<span class="string">&quot;model_outputs&quot;</span>].argmax(dim=-<span class="number">1</span>)</span><br><span class="line">        self.metrics.update(preds, batch[<span class="number">1</span>])</span><br><span class="line"></span><br><span class="line">    <span class="function"><span class="keyword">def</span> <span class="title">on_eval_epoch_end</span>(<span class="params">self, trainer, **kwargs</span>):</span></span><br><span class="line">        metrics = self.metrics.compute()</span><br><span class="line">        trainer.run_history.update_metric(<span class="string">&quot;accuracy&quot;</span>, metrics[<span class="string">&quot;accuracy&quot;</span>].cpu())</span><br><span class="line">        trainer.run_history.update_metric(<span class="string">&quot;precision&quot;</span>, metrics[<span class="string">&quot;precision&quot;</span>].cpu())</span><br><span class="line">        trainer.run_history.update_metric(<span class="string">&quot;recall&quot;</span>, metrics[<span class="string">&quot;recall&quot;</span>].cpu())</span><br><span class="line"></span><br><span class="line">        self.metrics.reset()</span><br></pre></td></tr></table></figure><br>需要注意的一点是，在训练或验证之前，需要手动地将指标移动到正确地设备上。不过<code>Trainer</code>已经将这一步做了非常简单的处理，可以依据上下文返回正确的设备，即：<br><figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">from</span> pytorch_accelerated.trainer <span class="keyword">import</span> DEFAULT_CALLBACKS</span><br><span class="line"></span><br><span class="line"><span class="comment"># 将自定义的回调传入Trainer</span></span><br><span class="line"><span class="comment"># 因为想保持默认行为，所以将自定义的回调放在所有的默认回调之前。</span></span><br><span class="line">trainer = Trainer(</span><br><span class="line">	model,</span><br><span class="line">	loss_func=loss_func,</span><br><span class="line">	optimizer=optimizer,</span><br><span class="line">	callbacks=(</span><br><span class="line">		ClassificationMetricsCallback(</span><br><span class="line">			num_classes=num_classes,</span><br><span class="line">		),</span><br><span class="line">		*DEFAULT_CALLBACKS,</span><br><span class="line">	),</span><br><span class="line">)</span><br></pre></td></tr></table></figure><br>然后将上面代码复制进入最开始的代码中即可，无需变动其他地方的代码（只是需要在创建数据集后，计算一下其分类数目以传入回调<code>num_classes = len(dataset.class_to_idx)</code>）。</p>
+<h1 id="后记"><a href="#后记" class="headerlink" title="后记"></a>后记</h1><p>实际只从这个<code>MNIST</code>例子还不能看出<code>pytorch-accelerated</code>能在多大程度上提高效率，后面需要多研究一下它的例子，毕竟<code>通用模板</code>的意义在于能适用于多种情形。留坑待填。</p>
+
+    </div>
+
+    
+    
+    
+        <div class="reward-container">
+  <div></div>
+  <button onclick="var qr = document.getElementById('qr'); qr.style.display = (qr.style.display === 'none') ? 'block' : 'none';">
+    Donate
+  </button>
+  <div id="qr" style="display: none;">
+      
+      <div style="display: inline-block;">
+        <img src="/images/wechat_reward.png" alt="Xin-Bo Qi(亓欣波) WeChat Pay">
+        <p>WeChat Pay</p>
+      </div>
+
+  </div>
+</div>
+
+
+      <footer class="post-footer">
+          <div class="post-tags">
+              <a href="/tags/PyTorch/" rel="tag"># PyTorch</a>
+          </div>
+
+        
+
+
+        
+    <div class="post-nav">
+      <div class="post-nav-item">
+    <a href="/2022/06/12/heroku/" rel="prev" title="使用Heroku云平台免费托管web应用">
+      <i class="fa fa-chevron-left"></i> 使用Heroku云平台免费托管web应用
+    </a></div>
+      <div class="post-nav-item">
+    <a href="/2022/06/19/node_red/" rel="next" title="物联网应用的低代码开发工具Node-RED上手及案例">
+      物联网应用的低代码开发工具Node-RED上手及案例 <i class="fa fa-chevron-right"></i>
+    </a></div>
+    </div>
+      </footer>
+    
+  </article>
+  
+  
+  
+
+
+
+          </div>
+          
+    
+  <div class="comments">
+    <div id="disqus_thread">
+      <noscript>Please enable JavaScript to view the comments powered by Disqus.</noscript>
+    </div>
+  </div>
+  
+
+<script>
+  window.addEventListener('tabs:register', () => {
+    let { activeClass } = CONFIG.comments;
+    if (CONFIG.comments.storage) {
+      activeClass = localStorage.getItem('comments_active') || activeClass;
+    }
+    if (activeClass) {
+      let activeTab = document.querySelector(`a[href="#comment-${activeClass}"]`);
+      if (activeTab) {
+        activeTab.click();
+      }
+    }
+  });
+  if (CONFIG.comments.storage) {
+    window.addEventListener('tabs:click', event => {
+      if (!event.target.matches('.tabs-comment .tab-content .tab-pane')) return;
+      let commentClass = event.target.classList[1];
+      localStorage.setItem('comments_active', commentClass);
+    });
+  }
+</script>
+
+        </div>
+          
+  
+  <div class="toggle sidebar-toggle">
+    <span class="toggle-line toggle-line-first"></span>
+    <span class="toggle-line toggle-line-middle"></span>
+    <span class="toggle-line toggle-line-last"></span>
+  </div>
+
+  <aside class="sidebar">
+    <div class="sidebar-inner">
+
+      <ul class="sidebar-nav motion-element">
+        <li class="sidebar-nav-toc">
+          Table of Contents
+        </li>
+        <li class="sidebar-nav-overview">
+          Overview
+        </li>
+      </ul>
+
+      <!--noindex-->
+      <div class="post-toc-wrap sidebar-panel">
+          <div class="post-toc motion-element"><ol class="nav"><li class="nav-item nav-level-1"><a class="nav-link" href="#%E4%BB%8B%E7%BB%8D"><span class="nav-number">1.</span> <span class="nav-text">介绍</span></a><ol class="nav-child"><li class="nav-item nav-level-2"><a class="nav-link" href="#%E7%9B%AE%E6%A0%87%E7%94%A8%E6%88%B7"><span class="nav-number">1.1.</span> <span class="nav-text">目标用户</span></a></li></ol></li><li class="nav-item nav-level-1"><a class="nav-link" href="#%E5%AE%89%E8%A3%85"><span class="nav-number">2.</span> <span class="nav-text">安装</span></a><ol class="nav-child"><li class="nav-item nav-level-2"><a class="nav-link" href="#accelerate%E5%BA%93"><span class="nav-number">2.1.</span> <span class="nav-text">accelerate库</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E5%8F%AF%E9%80%89"><span class="nav-number">2.2.</span> <span class="nav-text">可选</span></a></li></ol></li><li class="nav-item nav-level-1"><a class="nav-link" href="#%E9%85%8D%E7%BD%AE%E5%92%8C%E8%BF%90%E8%A1%8C"><span class="nav-number">3.</span> <span class="nav-text">配置和运行</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#MNIST%E4%BE%8B%E5%AD%90"><span class="nav-number">4.</span> <span class="nav-text">MNIST例子</span></a><ol class="nav-child"><li class="nav-item nav-level-2"><a class="nav-link" href="#%E6%95%B0%E6%8D%AE%E5%92%8C%E6%A8%A1%E5%9E%8B%E5%87%86%E5%A4%87"><span class="nav-number">4.1.</span> <span class="nav-text">数据和模型准备</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E8%AE%AD%E7%BB%83%E5%BE%AA%E7%8E%AF"><span class="nav-number">4.2.</span> <span class="nav-text">训练循环</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E8%AE%AD%E7%BB%83"><span class="nav-number">4.3.</span> <span class="nav-text">训练</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#%E7%94%9F%E6%88%90%E9%85%8D%E7%BD%AE%E6%96%87%E4%BB%B6"><span class="nav-number">4.3.1.</span> <span class="nav-text">生成配置文件</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E5%BC%80%E5%A7%8B%E8%AE%AD%E7%BB%83"><span class="nav-number">4.3.2.</span> <span class="nav-text">开始训练</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E5%A2%9E%E5%8A%A0%E6%8C%87%E6%A0%87"><span class="nav-number">4.4.</span> <span class="nav-text">增加指标</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#%E4%BD%BF%E7%94%A8Trainer%E5%AD%90%E7%B1%BB"><span class="nav-number">4.4.1.</span> <span class="nav-text">使用Trainer子类</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E4%BD%BF%E7%94%A8%E5%9B%9E%E8%B0%83"><span class="nav-number">4.4.2.</span> <span class="nav-text">使用回调</span></a></li></ol></li></ol></li><li class="nav-item nav-level-1"><a class="nav-link" href="#%E5%90%8E%E8%AE%B0"><span class="nav-number">5.</span> <span class="nav-text">后记</span></a></li></ol></div>
+      </div>
+      <!--/noindex-->
+
+      <div class="site-overview-wrap sidebar-panel">
+        <div class="site-author motion-element" itemprop="author" itemscope itemtype="http://schema.org/Person">
+    <img class="site-author-image" itemprop="image" alt="Xin-Bo Qi(亓欣波)"
+      src="/images/avatar.jpg">
+  <p class="site-author-name" itemprop="name">Xin-Bo Qi(亓欣波)</p>
+  <div class="site-description" itemprop="description">Digitize everything to realize Digitalization!</div>
+</div>
+<div class="site-state-wrap motion-element">
+  <nav class="site-state">
+      <div class="site-state-item site-state-posts">
+          <a href="/archives/">
+        
+          <span class="site-state-item-count">158</span>
+          <span class="site-state-item-name">posts</span>
+        </a>
+      </div>
+      <div class="site-state-item site-state-categories">
+            <a href="/categories/">
+          
+        <span class="site-state-item-count">6</span>
+        <span class="site-state-item-name">categories</span></a>
+      </div>
+      <div class="site-state-item site-state-tags">
+            <a href="/tags/">
+          
+        <span class="site-state-item-count">54</span>
+        <span class="site-state-item-name">tags</span></a>
+      </div>
+  </nav>
+</div>
+  <div class="links-of-author motion-element">
+      <span class="links-of-author-item">
+        <a href="https://github.com/qixinbo" title="GitHub → https:&#x2F;&#x2F;github.com&#x2F;qixinbo" rel="noopener" target="_blank"><i class="github fa-fw"></i>GitHub</a>
+      </span>
+      <span class="links-of-author-item">
+        <a href="mailto:qixinbo@gmail.com" title="E-Mail → mailto:qixinbo@gmail.com" rel="noopener" target="_blank"><i class="envelope fa-fw"></i>E-Mail</a>
+      </span>
+      <span class="links-of-author-item">
+        <a href="https://twitter.com/qixinbo" title="Twitter → https:&#x2F;&#x2F;twitter.com&#x2F;qixinbo" rel="noopener" target="_blank"><i class="fab fa-twitter fa-fw"></i>Twitter</a>
+      </span>
+      <span class="links-of-author-item">
+        <a href="/atom.xml" title="RSS → &#x2F;atom.xml"><i class="fas fa-rss fa-fw"></i>RSS</a>
+      </span>
+  </div>
+
+
+  <div class="links-of-blogroll motion-element">
+    <div class="links-of-blogroll-title"><i class="fa fa-link fa-fw"></i>
+      Links
+    </div>
+    <ul class="links-of-blogroll-list">
+        <li class="links-of-blogroll-item">
+          <a href="https://www.tsinghua.edu.cn/" title="https:&#x2F;&#x2F;www.tsinghua.edu.cn" rel="noopener" target="_blank">THU</a>
+        </li>
+        <li class="links-of-blogroll-item">
+          <a href="http://www.imr.cas.cn/" title="http:&#x2F;&#x2F;www.imr.cas.cn" rel="noopener" target="_blank">IMR</a>
+        </li>
+        <li class="links-of-blogroll-item">
+          <a href="http://www.sdu.edu.cn/" title="http:&#x2F;&#x2F;www.sdu.edu.cn" rel="noopener" target="_blank">SDU</a>
+        </li>
+        <li class="links-of-blogroll-item">
+          <a href="http://liam0205.me/" title="http:&#x2F;&#x2F;liam0205.me&#x2F;" rel="noopener" target="_blank">黄晨成</a>
+        </li>
+    </ul>
+  </div>
+
+      </div>
+
+    </div>
+  </aside>
+  <div id="sidebar-dimmer"></div>
+
+
+      </div>
+    </main>
+
+    <footer class="footer">
+      <div class="footer-inner">
+        
+
+        
+
+<div class="copyright">
+  
+  &copy; 
+  <span itemprop="copyrightYear">2022</span>
+  <span class="with-love">
+    <i class="fa fa-heart"></i>
+  </span>
+  <span class="author" itemprop="copyrightHolder">Xin-Bo Qi(亓欣波)</span>
+</div>
+  <div class="powered-by">Powered by <a href="https://hexo.io/" class="theme-link" rel="noopener" target="_blank">Hexo</a> & <a href="https://theme-next.org/" class="theme-link" rel="noopener" target="_blank">NexT.Gemini</a>
+  </div>
+
+        
+
+
+
+
+
+
+
+
+      </div>
+    </footer>
+  </div>
+
+  
+  <script src="/lib/anime.min.js"></script>
+  <script src="/lib/velocity/velocity.min.js"></script>
+  <script src="/lib/velocity/velocity.ui.min.js"></script>
+
+<script src="/js/utils.js"></script>
+
+<script src="/js/motion.js"></script>
+
+
+<script src="/js/schemes/pisces.js"></script>
+
+
+<script src="/js/next-boot.js"></script>
+
+
+
+
+  
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+  
+
+  
+      
+
+<script>
+  if (typeof MathJax === 'undefined') {
+    window.MathJax = {
+      loader: {
+        source: {
+          '[tex]/amsCd': '[tex]/amscd',
+          '[tex]/AMScd': '[tex]/amscd'
+        }
+      },
+      tex: {
+        inlineMath: {'[+]': [['$', '$']]},
+        tags: 'ams'
+      },
+      options: {
+        renderActions: {
+          findScript: [10, doc => {
+            document.querySelectorAll('script[type^="math/tex"]').forEach(node => {
+              const display = !!node.type.match(/; *mode=display/);
+              const math = new doc.options.MathItem(node.textContent, doc.inputJax[0], display);
+              const text = document.createTextNode('');
+              node.parentNode.replaceChild(text, node);
+              math.start = {node: text, delim: '', n: 0};
+              math.end = {node: text, delim: '', n: 0};
+              doc.math.push(math);
+            });
+          }, '', false],
+          insertedScript: [200, () => {
+            document.querySelectorAll('mjx-container').forEach(node => {
+              let target = node.parentNode;
+              if (target.nodeName.toLowerCase() === 'li') {
+                target.parentNode.classList.add('has-jax');
+              }
+            });
+          }, '', false]
+        }
+      }
+    };
+    (function () {
+      var script = document.createElement('script');
+      script.src = '//cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js';
+      script.defer = true;
+      document.head.appendChild(script);
+    })();
+  } else {
+    MathJax.startup.document.state(0);
+    MathJax.texReset();
+    MathJax.typeset();
+  }
+</script>
+
+    
+
+  
+
+<script>
+  function loadCount() {
+    var d = document, s = d.createElement('script');
+    s.src = 'https://qixinbo.disqus.com/count.js';
+    s.id = 'dsq-count-scr';
+    (d.head || d.body).appendChild(s);
+  }
+  // defer loading until the whole page loading is completed
+  window.addEventListener('load', loadCount, false);
+</script>
+<script>
+  var disqus_config = function() {
+    this.page.url = "http://qixinbo.github.io/2022/06/18/pytorch-accelerated/";
+    this.page.identifier = "2022/06/18/pytorch-accelerated/";
+    this.page.title = "轻量级PyTorch通用训练模板pytorch-accelerated介绍及入门";
+    };
+  NexT.utils.loadComments(document.querySelector('#disqus_thread'), () => {
+    if (window.DISQUS) {
+      DISQUS.reset({
+        reload: true,
+        config: disqus_config
+      });
+    } else {
+      var d = document, s = d.createElement('script');
+      s.src = 'https://qixinbo.disqus.com/embed.js';
+      s.setAttribute('data-timestamp', '' + +new Date());
+      (d.head || d.body).appendChild(s);
+    }
+  });
+</script>
+
+</body>
+</html>
