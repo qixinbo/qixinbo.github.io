@@ -22,18 +22,18 @@
 
   <meta name="description" content="介绍 pytorch-accelerated是一个轻量级的库，旨在通过提供一个最小但可扩展的训练循环（封装在一个Trainer对象中）来加速PyTorch模型的训练过程；它足够灵活，可以处理大多数用例，并且能够利用不同的硬件选项而不需要修改代码。更多介绍见原作者的博文。 pytorch-accelerated最大的两个特点就是：简单simplicity和透明transparency。怎么理解这两个">
 <meta property="og:type" content="article">
-<meta property="og:title" content="轻量级PyTorch通用训练模板pytorch-accelerated介绍及入门">
-<meta property="og:url" content="http://qixinbo.github.io/2022/06/18/pytorch-accelerated/index.html">
+<meta property="og:title" content="轻量级PyTorch通用训练模板pytorch-accelerated解析：0 -- 介绍及入门">
+<meta property="og:url" content="http://qixinbo.github.io/2022/05/28/pytorch-accelerated_0/index.html">
 <meta property="og:site_name" content="数字旗手">
 <meta property="og:description" content="介绍 pytorch-accelerated是一个轻量级的库，旨在通过提供一个最小但可扩展的训练循环（封装在一个Trainer对象中）来加速PyTorch模型的训练过程；它足够灵活，可以处理大多数用例，并且能够利用不同的硬件选项而不需要修改代码。更多介绍见原作者的博文。 pytorch-accelerated最大的两个特点就是：简单simplicity和透明transparency。怎么理解这两个">
 <meta property="og:locale" content="en_US">
-<meta property="article:published_time" content="2022-06-17T16:00:00.000Z">
-<meta property="article:modified_time" content="2022-06-21T08:41:39.855Z">
+<meta property="article:published_time" content="2022-05-27T16:00:00.000Z">
+<meta property="article:modified_time" content="2022-06-22T15:17:40.536Z">
 <meta property="article:author" content="Xin-Bo Qi(亓欣波)">
 <meta property="article:tag" content="PyTorch">
 <meta name="twitter:card" content="summary">
 
-<link rel="canonical" href="http://qixinbo.github.io/2022/06/18/pytorch-accelerated/">
+<link rel="canonical" href="http://qixinbo.github.io/2022/05/28/pytorch-accelerated_0/">
 
 
 <script id="page-configurations">
@@ -46,7 +46,7 @@
   };
 </script>
 
-  <title>轻量级PyTorch通用训练模板pytorch-accelerated介绍及入门 | 数字旗手</title>
+  <title>轻量级PyTorch通用训练模板pytorch-accelerated解析：0 -- 介绍及入门 | 数字旗手</title>
   
 
 
@@ -188,7 +188,7 @@
   
   
   <article itemscope itemtype="http://schema.org/Article" class="post-block" lang="en">
-    <link itemprop="mainEntityOfPage" href="http://qixinbo.github.io/2022/06/18/pytorch-accelerated/">
+    <link itemprop="mainEntityOfPage" href="http://qixinbo.github.io/2022/05/28/pytorch-accelerated_0/">
 
     <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
       <meta itemprop="image" content="/images/avatar.jpg">
@@ -201,7 +201,7 @@
     </span>
       <header class="post-header">
         <h1 class="post-title" itemprop="name headline">
-          轻量级PyTorch通用训练模板pytorch-accelerated介绍及入门
+          轻量级PyTorch通用训练模板pytorch-accelerated解析：0 -- 介绍及入门
         </h1>
 
         <div class="post-meta">
@@ -211,14 +211,14 @@
               </span>
               <span class="post-meta-item-text">Posted on</span>
 
-              <time title="Created: 2022-06-18 00:00:00" itemprop="dateCreated datePublished" datetime="2022-06-18T00:00:00+08:00">2022-06-18</time>
+              <time title="Created: 2022-05-28 00:00:00" itemprop="dateCreated datePublished" datetime="2022-05-28T00:00:00+08:00">2022-05-28</time>
             </span>
               <span class="post-meta-item">
                 <span class="post-meta-item-icon">
                   <i class="far fa-calendar-check"></i>
                 </span>
                 <span class="post-meta-item-text">Edited on</span>
-                <time title="Modified: 2022-06-21 16:41:39" itemprop="dateModified" datetime="2022-06-21T16:41:39+08:00">2022-06-21</time>
+                <time title="Modified: 2022-06-22 23:17:40" itemprop="dateModified" datetime="2022-06-22T23:17:40+08:00">2022-06-22</time>
               </span>
             <span class="post-meta-item">
               <span class="post-meta-item-icon">
@@ -239,8 +239,8 @@
       </span>
       <span class="post-meta-item-text">Disqus: </span>
     
-    <a title="disqus" href="/2022/06/18/pytorch-accelerated/#disqus_thread" itemprop="discussionUrl">
-      <span class="post-comments-count disqus-comment-count" data-disqus-identifier="2022/06/18/pytorch-accelerated/" itemprop="commentCount"></span>
+    <a title="disqus" href="/2022/05/28/pytorch-accelerated_0/#disqus_thread" itemprop="discussionUrl">
+      <span class="post-comments-count disqus-comment-count" data-disqus-identifier="2022/05/28/pytorch-accelerated_0/" itemprop="commentCount"></span>
     </a>
   </span>
   
@@ -312,12 +312,12 @@
         
     <div class="post-nav">
       <div class="post-nav-item">
-    <a href="/2022/06/12/heroku/" rel="prev" title="使用Heroku云平台免费托管web应用">
-      <i class="fa fa-chevron-left"></i> 使用Heroku云平台免费托管web应用
+    <a href="/2022/05/22/ImJoy_13/" rel="prev" title="开源深度学习计算平台ImJoy解析：13 -- Kaibu应用">
+      <i class="fa fa-chevron-left"></i> 开源深度学习计算平台ImJoy解析：13 -- Kaibu应用
     </a></div>
       <div class="post-nav-item">
-    <a href="/2022/06/19/node_red/" rel="next" title="物联网应用的低代码开发工具Node-RED上手及案例">
-      物联网应用的低代码开发工具Node-RED上手及案例 <i class="fa fa-chevron-right"></i>
+    <a href="/2022/05/29/pytorch-accelerated_1/" rel="next" title="轻量级PyTorch通用训练模板pytorch-accelerated解析：1 -- API之Trainer">
+      轻量级PyTorch通用训练模板pytorch-accelerated解析：1 -- API之Trainer <i class="fa fa-chevron-right"></i>
     </a></div>
     </div>
       </footer>
@@ -400,7 +400,7 @@
       <div class="site-state-item site-state-posts">
           <a href="/archives/">
         
-          <span class="site-state-item-count">158</span>
+          <span class="site-state-item-count">159</span>
           <span class="site-state-item-name">posts</span>
         </a>
       </div>
@@ -600,9 +600,9 @@
 </script>
 <script>
   var disqus_config = function() {
-    this.page.url = "http://qixinbo.github.io/2022/06/18/pytorch-accelerated/";
-    this.page.identifier = "2022/06/18/pytorch-accelerated/";
-    this.page.title = "轻量级PyTorch通用训练模板pytorch-accelerated介绍及入门";
+    this.page.url = "http://qixinbo.github.io/2022/05/28/pytorch-accelerated_0/";
+    this.page.identifier = "2022/05/28/pytorch-accelerated_0/";
+    this.page.title = "轻量级PyTorch通用训练模板pytorch-accelerated解析：0 -- 介绍及入门";
     };
   NexT.utils.loadComments(document.querySelector('#disqus_thread'), () => {
     if (window.DISQUS) {

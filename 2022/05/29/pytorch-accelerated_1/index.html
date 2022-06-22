@@ -1,0 +1,706 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=2">
+<meta name="theme-color" content="#222">
+<meta name="generator" content="Hexo 5.4.0">
+  <link rel="apple-touch-icon" sizes="180x180" href="/images/apple-touch-icon-next.png">
+  <link rel="icon" type="image/png" sizes="32x32" href="/favicon.ico">
+  <link rel="icon" type="image/png" sizes="16x16" href="/favicon.ico">
+  <link rel="mask-icon" href="/images/logo.svg" color="#222">
+
+<link rel="stylesheet" href="/css/main.css">
+
+
+<link rel="stylesheet" href="/lib/font-awesome/css/all.min.css">
+
+<script id="hexo-configurations">
+    var NexT = window.NexT || {};
+    var CONFIG = {"hostname":"qixinbo.github.io","root":"/","scheme":"Gemini","version":"7.8.0","exturl":false,"sidebar":{"position":"left","display":"post","padding":18,"offset":12,"onmobile":false},"copycode":{"enable":false,"show_result":false,"style":null},"back2top":{"enable":true,"sidebar":false,"scrollpercent":false},"bookmark":{"enable":false,"color":"#222","save":"auto"},"fancybox":false,"mediumzoom":false,"lazyload":false,"pangu":false,"comments":{"style":"tabs","active":null,"storage":true,"lazyload":false,"nav":null},"algolia":{"hits":{"per_page":10},"labels":{"input_placeholder":"Search for Posts","hits_empty":"We didn't find any results for the search: ${query}","hits_stats":"${hits} results found in ${time} ms"}},"localsearch":{"enable":false,"trigger":"auto","top_n_per_article":1,"unescape":false,"preload":false},"motion":{"enable":true,"async":false,"transition":{"post_block":"fadeIn","post_header":"slideDownIn","post_body":"slideDownIn","coll_header":"slideLeftIn","sidebar":"slideUpIn"}}};
+  </script>
+
+  <meta name="description" content="简介 从这一节开始，详细看一下pytorch-accelerated的API。 本文是对Trainer的API的解析。  Trainer概览 训练器Trainer用来封装特定任务的整个训练循环，将模型、损失函数和优化器结合在一起，并为训练过程的每一步提供执行行为规范。 Trainer的实现是这样的：它提供了训练部分的（可重复的）实现，这些部分在被定义后很少发生变化——比如创建数据加载器，或如何将一">
+<meta property="og:type" content="article">
+<meta property="og:title" content="轻量级PyTorch通用训练模板pytorch-accelerated解析：1 -- API之Trainer">
+<meta property="og:url" content="http://qixinbo.github.io/2022/05/29/pytorch-accelerated_1/index.html">
+<meta property="og:site_name" content="数字旗手">
+<meta property="og:description" content="简介 从这一节开始，详细看一下pytorch-accelerated的API。 本文是对Trainer的API的解析。  Trainer概览 训练器Trainer用来封装特定任务的整个训练循环，将模型、损失函数和优化器结合在一起，并为训练过程的每一步提供执行行为规范。 Trainer的实现是这样的：它提供了训练部分的（可重复的）实现，这些部分在被定义后很少发生变化——比如创建数据加载器，或如何将一">
+<meta property="og:locale" content="en_US">
+<meta property="article:published_time" content="2022-05-28T16:00:00.000Z">
+<meta property="article:modified_time" content="2022-06-22T15:32:38.900Z">
+<meta property="article:author" content="Xin-Bo Qi(亓欣波)">
+<meta property="article:tag" content="PyTorch">
+<meta name="twitter:card" content="summary">
+
+<link rel="canonical" href="http://qixinbo.github.io/2022/05/29/pytorch-accelerated_1/">
+
+
+<script id="page-configurations">
+  // https://hexo.io/docs/variables.html
+  CONFIG.page = {
+    sidebar: "",
+    isHome : false,
+    isPost : true,
+    lang   : 'en'
+  };
+</script>
+
+  <title>轻量级PyTorch通用训练模板pytorch-accelerated解析：1 -- API之Trainer | 数字旗手</title>
+  
+
+
+
+
+
+
+  <noscript>
+  <style>
+  .use-motion .brand,
+  .use-motion .menu-item,
+  .sidebar-inner,
+  .use-motion .post-block,
+  .use-motion .pagination,
+  .use-motion .comments,
+  .use-motion .post-header,
+  .use-motion .post-body,
+  .use-motion .collection-header { opacity: initial; }
+
+  .use-motion .site-title,
+  .use-motion .site-subtitle {
+    opacity: initial;
+    top: initial;
+  }
+
+  .use-motion .logo-line-before i { left: initial; }
+  .use-motion .logo-line-after i { right: initial; }
+  </style>
+</noscript>
+
+<link rel="alternate" href="/atom.xml" title="数字旗手" type="application/atom+xml">
+</head>
+
+<body itemscope itemtype="http://schema.org/WebPage">
+  <div class="container use-motion">
+    <div class="headband"></div>
+
+    <header class="header" itemscope itemtype="http://schema.org/WPHeader">
+      <div class="header-inner"><div class="site-brand-container">
+  <div class="site-nav-toggle">
+    <div class="toggle" aria-label="Toggle navigation bar">
+      <span class="toggle-line toggle-line-first"></span>
+      <span class="toggle-line toggle-line-middle"></span>
+      <span class="toggle-line toggle-line-last"></span>
+    </div>
+  </div>
+
+  <div class="site-meta">
+
+    <a href="/" class="brand" rel="start">
+      <span class="logo-line-before"><i></i></span>
+      <h1 class="site-title">数字旗手</h1>
+      <span class="logo-line-after"><i></i></span>
+    </a>
+      <p class="site-subtitle" itemprop="description">电气化、自动化、数字化、智能化、智慧化</p>
+  </div>
+
+  <div class="site-nav-right">
+    <div class="toggle popup-trigger">
+    </div>
+  </div>
+</div>
+
+
+
+
+<nav class="site-nav">
+  <ul id="menu" class="main-menu menu">
+        <li class="menu-item menu-item-home">
+
+    <a href="/" rel="section"><i class="fa fa-home fa-fw"></i>Home</a>
+
+  </li>
+        <li class="menu-item menu-item-categories">
+
+    <a href="/categories/" rel="section"><i class="fa fa-th fa-fw"></i>Categories</a>
+
+  </li>
+        <li class="menu-item menu-item-archives">
+
+    <a href="/archives/" rel="section"><i class="fa fa-archive fa-fw"></i>Archives</a>
+
+  </li>
+        <li class="menu-item menu-item-tags">
+
+    <a href="/tags/" rel="section"><i class="fa fa-tags fa-fw"></i>Tags</a>
+
+  </li>
+        <li class="menu-item menu-item-scholar">
+
+    <a href="/scholar/" rel="section"><i class="fa fa-chart-bar fa-fw"></i>scholar</a>
+
+  </li>
+        <li class="menu-item menu-item-sources">
+
+    <a href="/sources/" rel="section"><i class="fa fa-rss fa-fw"></i>sources</a>
+
+  </li>
+        <li class="menu-item menu-item-gallery">
+
+    <a href="/gallery/" rel="section"><i class="fa fa-file-image fa-fw"></i>gallery</a>
+
+  </li>
+        <li class="menu-item menu-item-about">
+
+    <a href="/about/" rel="section"><i class="fa fa-user fa-fw"></i>About</a>
+
+  </li>
+        <li class="menu-item menu-item-commonweal">
+
+    <a href="/404.html" rel="section"><i class="fa fa-heartbeat fa-fw"></i>Commonweal 404</a>
+
+  </li>
+  </ul>
+</nav>
+
+
+
+
+</div>
+    </header>
+
+    
+  <div class="back-to-top">
+    <i class="fa fa-arrow-up"></i>
+    <span>0%</span>
+  </div>
+
+
+    <main class="main">
+      <div class="main-inner">
+        <div class="content-wrap">
+          
+
+          <div class="content post posts-expand">
+            
+
+    
+  
+  
+  <article itemscope itemtype="http://schema.org/Article" class="post-block" lang="en">
+    <link itemprop="mainEntityOfPage" href="http://qixinbo.github.io/2022/05/29/pytorch-accelerated_1/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="image" content="/images/avatar.jpg">
+      <meta itemprop="name" content="Xin-Bo Qi(亓欣波)">
+      <meta itemprop="description" content="Digitize everything to realize Digitalization!">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="数字旗手">
+    </span>
+      <header class="post-header">
+        <h1 class="post-title" itemprop="name headline">
+          轻量级PyTorch通用训练模板pytorch-accelerated解析：1 -- API之Trainer
+        </h1>
+
+        <div class="post-meta">
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="far fa-calendar"></i>
+              </span>
+              <span class="post-meta-item-text">Posted on</span>
+
+              <time title="Created: 2022-05-29 00:00:00" itemprop="dateCreated datePublished" datetime="2022-05-29T00:00:00+08:00">2022-05-29</time>
+            </span>
+              <span class="post-meta-item">
+                <span class="post-meta-item-icon">
+                  <i class="far fa-calendar-check"></i>
+                </span>
+                <span class="post-meta-item-text">Edited on</span>
+                <time title="Modified: 2022-06-22 23:32:38" itemprop="dateModified" datetime="2022-06-22T23:32:38+08:00">2022-06-22</time>
+              </span>
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="far fa-folder"></i>
+              </span>
+              <span class="post-meta-item-text">In</span>
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+                  <a href="/categories/machine-learning/" itemprop="url" rel="index"><span itemprop="name">machine learning</span></a>
+                </span>
+            </span>
+
+          
+  
+  <span class="post-meta-item">
+    
+      <span class="post-meta-item-icon">
+        <i class="far fa-comment"></i>
+      </span>
+      <span class="post-meta-item-text">Disqus: </span>
+    
+    <a title="disqus" href="/2022/05/29/pytorch-accelerated_1/#disqus_thread" itemprop="discussionUrl">
+      <span class="post-comments-count disqus-comment-count" data-disqus-identifier="2022/05/29/pytorch-accelerated_1/" itemprop="commentCount"></span>
+    </a>
+  </span>
+  
+  
+
+        </div>
+      </header>
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+        <h1 id="简介"><a href="#简介" class="headerlink" title="简介"></a>简介</h1><p>从这一节开始，详细看一下<code>pytorch-accelerated</code>的<code>API</code>。<br>本文是对<code>Trainer</code>的<code>API</code>的解析。</p>
+<h1 id="Trainer概览"><a href="#Trainer概览" class="headerlink" title="Trainer概览"></a>Trainer概览</h1><p>训练器<code>Trainer</code>用来封装特定任务的整个训练循环，将模型、损失函数和优化器结合在一起，并为训练过程的每一步提供执行行为规范。<br><code>Trainer</code>的实现是这样的：它提供了训练部分的（可重复的）实现，这些部分在被定义后很少发生变化——比如创建数据加载器，或如何将一批数据送入模型——同时与可能发生变化的部分保持解耦，比如模型、数据集、损失函数和优化器。<br><figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br></pre></td><td class="code"><pre><span class="line"><span class="class"><span class="keyword">class</span> <span class="title">Trainer</span>:</span></span><br><span class="line">    <span class="function"><span class="keyword">def</span> <span class="title">__init__</span>(<span class="params"></span></span></span><br><span class="line"><span class="function"><span class="params">        self,</span></span></span><br><span class="line"><span class="function"><span class="params">        model,</span></span></span><br><span class="line"><span class="function"><span class="params">        loss_func,</span></span></span><br><span class="line"><span class="function"><span class="params">        optimizer,</span></span></span><br><span class="line"><span class="function"><span class="params">        callbacks=DEFAULT_CALLBACKS,</span></span></span><br><span class="line"><span class="function"><span class="params">        run_history=<span class="literal">None</span>,</span></span></span><br><span class="line"><span class="function"><span class="params">    </span>):</span></span><br></pre></td></tr></table></figure><br>它的初始化函数中输入的参数有：</p>
+<ul>
+<li><code>model</code>：用来训练的神经网络模型，是<code>nn.Module</code>的子类</li>
+<li><code>loss_func</code>：用来训练模型的损失函数</li>
+<li><code>optimizer</code>：用来更新模型参数的优化器</li>
+<li><code>callbacks</code>：当训练进行时调用的回调函数列表<code>callbacks</code>，如果没有提供该列表，则使用默认的回调函数，包括<code>MoveModulesToDeviceCallback</code>、<code>TerminateOnNaNCallback</code>、<code>PrintProgressCallback</code>、<code>ProgressBarCallback</code>、<code>LogMetricsCallback</code>。</li>
+<li><code>run_history</code>：<code>RunHistory</code>的子类的一个实例，如果不提供的话（即<code>None</code>），则会新建一个<code>InMemoryRunHistory</code>这个子类的实例。</li>
+</ul>
+<h1 id="训练模型"><a href="#训练模型" class="headerlink" title="训练模型"></a>训练模型</h1><p><code>Trainer</code>的主要入口函数是<code>train()</code>方法，其用来启动模型训练（如果提供了验证集，那么会同时包括训练和验证评估）。<br><figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="keyword">def</span> <span class="title">train</span>(<span class="params"></span></span></span><br><span class="line"><span class="function"><span class="params">    self,</span></span></span><br><span class="line"><span class="function"><span class="params">    train_dataset,</span></span></span><br><span class="line"><span class="function"><span class="params">    num_epochs,</span></span></span><br><span class="line"><span class="function"><span class="params">    eval_dataset=<span class="literal">None</span>,</span></span></span><br><span class="line"><span class="function"><span class="params">    per_device_batch_size=<span class="number">8</span>,</span></span></span><br><span class="line"><span class="function"><span class="params">    max_num_train_steps=<span class="literal">None</span>,</span></span></span><br><span class="line"><span class="function"><span class="params">    gradient_accumulation_steps=<span class="number">1</span>,</span></span></span><br><span class="line"><span class="function"><span class="params">    gradient_clip_value=<span class="literal">None</span>,</span></span></span><br><span class="line"><span class="function"><span class="params">    create_scheduler_fn: <span class="type">Callable</span> = <span class="literal">None</span>,</span></span></span><br><span class="line"><span class="function"><span class="params">    train_dataloader_kwargs: <span class="built_in">dict</span> = <span class="literal">None</span>,</span></span></span><br><span class="line"><span class="function"><span class="params">    eval_dataloader_kwargs: <span class="built_in">dict</span> = <span class="literal">None</span>,</span></span></span><br><span class="line"><span class="function"><span class="params">    reset_run_history=<span class="literal">True</span>,</span></span></span><br><span class="line"><span class="function"><span class="params">    collate_fn=<span class="literal">None</span>,</span></span></span><br><span class="line"><span class="function"><span class="params"></span>):</span></span><br></pre></td></tr></table></figure><br>输入参数包括：</p>
+<ul>
+<li><code>train_dataset</code>：训练集</li>
+<li><code>num_epochs</code>：训练的迭代次数</li>
+<li><code>eval_dataset</code>：验证集，如果不提供的话，则跳过模型的验证评估环节</li>
+<li><code>per_device_batch_size</code>：每个设备上的批处理大小</li>
+<li><code>max_num_train_steps</code>：最大迭代步数，如果提供该参数的话，会覆盖掉<code>num_epochs</code></li>
+<li><code>gradient_accumulation_steps</code>：对特定步数进行梯度累加来模拟一个更大的批处理大小，默认该参数为<code>1</code></li>
+<li><code>gradient_clip_value</code>：如果指定的话，模型参数的梯度将被修剪到<code>[-gradient_clip_value, gradient_clip_value]</code>之间。</li>
+<li><code>create_scheduler_fn</code>：由于优化器需要在训练前就准备好，为了能够在优化器中使用学习率调度器，必须向<code>create_scheduler_fn</code>参数提供一个工厂函数。该工厂函数必须是一个接受优化器<code>optimizer</code>作为唯一参数的函数，并返回一个学习率调度器的实例。注意，这里不是传递一个学习率调度器的实例，而是传递一个工厂函数能返回这样的实例。</li>
+<li><code>train_dataloader_kwargs</code>：用来传递给训练集数据加载器的构造函数的关键字参数字典，详情参见<a target="_blank" rel="noopener" href="https://pytorch.org/docs/stable/data.html#torch.utils.data.DataLoader"><code>torch.utils.data.DataLoader</code></a>。</li>
+<li><code>eval_dataloader_kwargs</code>：用来传递给验证集数据加载器的构造函数的关键字参数字典，详情参见<a target="_blank" rel="noopener" href="https://pytorch.org/docs/stable/data.html#torch.utils.data.DataLoader"><code>torch.utils.data.DataLoader</code></a>。</li>
+<li><code>reset_run_history</code>：重置<code>Trainer</code>保留的之前的运行历史</li>
+<li><code>collate_fn</code>：训练集数据加载器和验证集数据加载器所使用的<code>collate_fn</code>函数</li>
+</ul>
+<h2 id="使用学习率调度器"><a href="#使用学习率调度器" class="headerlink" title="使用学习率调度器"></a>使用学习率调度器</h2><p>由于<code>Pytorch</code>学习率调度器的调用方式不尽相同，为了实现最大的灵活性，<code>PyTorch-accelerated</code>的<code>Trainer</code>期望在每次优化器更新后都默认调用一个给定的调度器。<br>请注意，由于优化器和数据加载器需要在训练前进行准备，为了使用学习率调度器，必须向<code>train()</code>提供一个工厂函数作为<code>create_scheduler_fn</code>参数。这必须是一个接受优化器作为单一参数的函数，并返回一个学习率调度器的实例。再次注意，这里不是传递一个学习率调度器的实例，而是传递一个工厂函数能返回这样的实例。<br>创建调度器工厂函数的一个简单方法是使用<code>functools.partial()</code>，比如：<br><figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">from</span> functools <span class="keyword">import</span> Partial</span><br><span class="line"><span class="keyword">from</span> torch.optim <span class="keyword">import</span> lr_scheduler</span><br><span class="line"></span><br><span class="line">create_scheduler_fn = partial(lr_scheduler.StepLR, step_size=<span class="number">7</span>, gamma=<span class="number">0.1</span>)</span><br></pre></td></tr></table></figure><br>特别注意：<code>Trainer</code>在每个批次之后都会调用一次所提供的调度器。这可能会导致意想不到的结果，因为一些<code>PyTorch</code>调度器预期是只在每一个<code>epoch</code>后进行调用。<br>例如，在上面的例子中，我们想要学习率在每个批次都会被乘以<code>0.1</code>。但是由于这个特殊的调度器被设计为每一个<code>epoch</code>调用一次，因此这不是我们想要的行为，此时可以通过下面的方法来解决这个问题：<br><figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">from</span> functools <span class="keyword">import</span> Partial</span><br><span class="line"><span class="keyword">from</span> torch.optim <span class="keyword">import</span> lr_scheduler</span><br><span class="line"><span class="keyword">from</span> pytorch_accelerated <span class="keyword">import</span> TrainerPlaceholderValues</span><br><span class="line"></span><br><span class="line">epochs_step_size = <span class="number">7</span></span><br><span class="line">create_scheduler_fn = partial(</span><br><span class="line">    lr_scheduler.StepLR,</span><br><span class="line">    step_size=TrainerPlaceHolderValues.NUM_UPDATE_STEPS_PER_EPOCH * epochs_step_size</span><br><span class="line">)</span><br></pre></td></tr></table></figure><br>这里，为了确定每个<code>epoch</code>的<code>steps</code>的数值，使用了<code>TrainerPlaceholderValues</code>占位符，下面将介绍。</p>
+<h3 id="使用TrainerPlaceHolderValues"><a href="#使用TrainerPlaceHolderValues" class="headerlink" title="使用TrainerPlaceHolderValues"></a>使用TrainerPlaceHolderValues</h3><p>一些学习率调度器需要一些信息，比如在训练运行期间的总步数<code>steps</code>。由于在创建训练数据加载器之前无法获得这些信息——这将作为<code>train()</code>方法的一部分来完成——在这种情况下可以使用一个占位符值，如下所示：<br><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br></pre></td><td class="code"><pre><span class="line">from functools import Partial</span><br><span class="line">from pytorch_accelerated import TrainerPlaceholderValues</span><br><span class="line">from torch.optim.lr_scheduler import OneCycleLR</span><br><span class="line"></span><br><span class="line">create_scheduler_fn &#x3D; partial(</span><br><span class="line">            OneCycleLR,</span><br><span class="line">            max_lr&#x3D;config.lr,</span><br><span class="line">            epochs&#x3D;TrainerPlaceholderValues.NUM_EPOCHS,</span><br><span class="line">            steps_per_epoch&#x3D;TrainerPlaceholderValues.NUM_UPDATE_STEPS_PER_EPOCH,</span><br><span class="line">        )</span><br></pre></td></tr></table></figure><br>这些占位符将由<code>trainer</code>在训练期间用正确的数值替换。<br>可用的占位符包括：</p>
+<ul>
+<li><code>NUM_EPOCHS</code></li>
+<li><code>NUM_UPDATE_STEPS_PER_EPOCH</code></li>
+<li><code>TRAIN_DATALOADER_LEN</code></li>
+<li><code>EVAL_DATALOADER_LEN</code></li>
+</ul>
+<p>或者，可以通过重载<code>Trainer</code>的<code>create_scheduler()</code>方法来获得同样的结果。</p>
+<h3 id="使用PyTorch-accelerated内置的调度器"><a href="#使用PyTorch-accelerated内置的调度器" class="headerlink" title="使用PyTorch-accelerated内置的调度器"></a>使用PyTorch-accelerated内置的调度器</h3><p><code>PyTorch-accelerated</code>包括一些调度器的实现，这些调度器具有与<code>PyTorch</code>调度器相同的接口，还有一些基类可以轻松创建自定义调度器；这些将在后面的<code>Schedulers</code>一节中详细讨论。<br>这些调度器的实现有一个替代的构造函数，可以直接作为<code>create_scheduler_fn</code>参数传递给`train()``，如下所示：<br><figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">from</span> pytorch_accelerated.schedulers <span class="keyword">import</span> CosineLrScheduler</span><br><span class="line">trainer.train(</span><br><span class="line">        train_dataset=train_dataset,</span><br><span class="line">        num_epochs=num_epochs,</span><br><span class="line">        per_device_batch_size=batch_size,</span><br><span class="line">        create_scheduler_fn=CosineLrScheduler.create_scheduler_fn(num_warmup_epochs=<span class="number">5</span>,</span><br><span class="line">                                                                  warmup_starting_lr=<span class="number">1e-6</span>,</span><br><span class="line">                                                                  num_cooldown_epochs=<span class="number">5</span>),</span><br><span class="line">        )</span><br></pre></td></tr></table></figure></p>
+<h3 id="使用timm调度器"><a href="#使用timm调度器" class="headerlink" title="使用timm调度器"></a>使用timm调度器</h3><p><code>timm</code>中包含的调度器与原生的<code>PyTorch</code>调度器有不同的接口，所以默认情况下不能与<code>Trainer</code>一起使用。<br><code>PyTorch-accelerated</code>包含了一个替代的<code>Trainer</code>，即<code>TrainerWithTimmScheduler</code>，它与<code>timm</code>的调度器兼容；<code>timm</code>调度器应作为工厂函数传递给这个训练器，方法与上述相同。</p>
+<h1 id="评估模型"><a href="#评估模型" class="headerlink" title="评估模型"></a>评估模型</h1><p>一旦模型被训练好，或者从检查点<code>checkpoint</code>加载，训练器<code>Trainer</code>也可以用于评估，这包括使用<code>Trainer</code>的评估循环的逻辑，在给定的数据集上运行一个<code>epoch</code>。<br><figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="keyword">def</span> <span class="title">evaluate</span>(<span class="params"></span></span></span><br><span class="line"><span class="function"><span class="params">    self,</span></span></span><br><span class="line"><span class="function"><span class="params">    dataset=<span class="literal">None</span>,</span></span></span><br><span class="line"><span class="function"><span class="params">    per_device_batch_size=<span class="number">8</span>,</span></span></span><br><span class="line"><span class="function"><span class="params">    dataloader_kwargs: <span class="built_in">dict</span> = <span class="literal">None</span>,</span></span></span><br><span class="line"><span class="function"><span class="params">    collate_fn=<span class="literal">None</span>,</span></span></span><br><span class="line"><span class="function"><span class="params"></span>):</span></span><br></pre></td></tr></table></figure><br>它的参数有：</p>
+<ul>
+<li><code>dataset</code>：要评估的数据集</li>
+<li><code>per_device_batch_size</code>：每个设备上的批处理大小</li>
+<li><code>dataloader_kwargs</code>：用来传递给数据加载器的构造函数的关键字参数字典，详情参见<a target="_blank" rel="noopener" href="https://pytorch.org/docs/stable/data.html#torch.utils.data.DataLoader"><code>torch.utils.data.DataLoader</code></a>。</li>
+<li><code>collate_fn</code>：数据加载器所使用的<code>collate_fn</code>函数。</li>
+</ul>
+<p>注意：启动一个评估后，会重置<code>Trainer</code>的运行历史。<br>另外，在分布式评估过程中，如果<code>per_device_batch_size * 使用的进程数</code>不能精确划分数据集，并且<code>drop_last=False</code>没有传给<code>dataloader_kwargs</code>，那么<code>dataloader</code>将在耗尽批次的进程中从头重复。在计算指标时应考虑到这一点。</p>
+<h1 id="效用函数"><a href="#效用函数" class="headerlink" title="效用函数"></a>效用函数</h1><p><code>Trainer</code>提供了很多效用函数供使用：</p>
+<h2 id="保存检查点"><a href="#保存检查点" class="headerlink" title="保存检查点"></a>保存检查点</h2><figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="keyword">def</span> <span class="title">save_checkpoint</span>(<span class="params"></span></span></span><br><span class="line"><span class="function"><span class="params">    self, save_path, checkpoint_kwargs=<span class="literal">None</span>, save_optimizer=<span class="literal">True</span>, save_per_node=<span class="literal">True</span></span></span></span><br><span class="line"><span class="function"><span class="params"></span>):</span></span><br></pre></td></tr></table></figure>
+<p>在一个检查点<code>checkpoint</code>文件中保存模型、优化器及其他指定的对象。<br>输入参数有：</p>
+<ul>
+<li><code>save_path</code>：存储检查点的路径，应该以<code>.pt</code>结尾</li>
+<li><code>checkpoint_kwargs</code>：在检查点中应该包含的其他对象</li>
+<li><code>save_optimizer</code>：指定是否保存优化器</li>
+<li><code>save_per_node</code>：指定是否每个机器保存检查点，如果<code>False</code>，则仅在<code>0</code>号进程中保存。默认是<code>True</code>。</li>
+</ul>
+<h2 id="加载检查点"><a href="#加载检查点" class="headerlink" title="加载检查点"></a>加载检查点</h2><figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="keyword">def</span> <span class="title">load_checkpoint</span>(<span class="params">self, checkpoint_path, load_optimizer=<span class="literal">True</span></span>):</span></span><br></pre></td></tr></table></figure>
+<p>从检查点文件中加载模型和优化器。<br>参数有：</p>
+<ul>
+<li><code>checkpoint_path</code>：要加载的检查点文件的路径</li>
+<li><code>load_optimizer</code>：如果检查点文件中包含了优化器，指定是否加载它</li>
+</ul>
+<h2 id="打印"><a href="#打印" class="headerlink" title="打印"></a>打印</h2><figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="keyword">def</span> <span class="title">print</span>(<span class="params">self, *args, **kwargs</span>):</span></span><br></pre></td></tr></table></figure>
+<p>用来替代原生的<code>print()</code>，以每个节点只打印一次。</p>
+<h2 id="聚合"><a href="#聚合" class="headerlink" title="聚合"></a>聚合</h2><figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="keyword">def</span> <span class="title">gather</span>(<span class="params">self, tensor</span>):</span></span><br></pre></td></tr></table></figure>
+<p>收集所有进程的张量值，并在第一个维度上将其连接起来。在进行评估时，这对重新组合所有进程的预测值很有用。<br>注意：该聚合操作将会在所有进程中进行。</p>
+<h1 id="自定义Trainer行为"><a href="#自定义Trainer行为" class="headerlink" title="自定义Trainer行为"></a>自定义Trainer行为</h1><p>虽然<code>Trainer</code>在简单的用例中能开箱即用，同时也鼓励对<code>Trainer</code>进行子类化并重载其方法。<br>以动词为前缀的方法，如<code>create</code>或<code>calculate</code>，期望返回一个值，所有其他方法都用于设置内部状态（如<code>optimizer.step()</code>）。</p>
+<h2 id="与构建相关的方法"><a href="#与构建相关的方法" class="headerlink" title="与构建相关的方法"></a>与构建相关的方法</h2><p>（1）构建训练集数据加载器<br><figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">Trainer.create_train_dataloader(batch_size: <span class="built_in">int</span>, train_dl_kwargs: <span class="type">Optional</span>[<span class="built_in">dict</span>] = <span class="literal">None</span>) → Iterable</span><br></pre></td></tr></table></figure><br>创建一个在训练中使用的数据加载器，该数据加载器接收通过<code>Trainer</code>传入的<code>train_dataset</code>和<code>collate</code>函数。<br>参数有：</p>
+<ul>
+<li><code>batch_size</code>：在每个设备上的批处理大小</li>
+<li><code>train_dl_kwargs</code>：用来传递给数据加载器的构造函数的关键字参数字典，详情参见<a target="_blank" rel="noopener" href="https://pytorch.org/docs/stable/data.html#torch.utils.data.DataLoader"><code>torch.utils.data.DataLoader</code></a></li>
+</ul>
+<p>注意：如果没有传入<code>train_dl_kwargs</code>参数，则使用<code>Trainer.get_default_train_dl_kwargs()</code>返回的参数。如果在<code>train_dl_kwargs</code>中同样加入了<code>batch_size</code>这一属性，则这里的<code>batch_size</code>会覆盖掉前面的<code>batch_size</code>。</p>
+<p>（2）获得默认训练集数据加载器参数<br><figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">Trainer.get_default_train_dl_kwargs(batch_size) → <span class="built_in">dict</span></span><br></pre></td></tr></table></figure><br>参数为<code>batch_size</code>，返回值为训练集数据加载器的默认参数字典。<br>（3）构建验证集数据加载器<br><figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">Trainer.create_eval_dataloader(batch_size: <span class="built_in">int</span>, eval_dl_kwargs: <span class="type">Optional</span>[<span class="built_in">dict</span>] = <span class="literal">None</span>) → Iterable</span><br></pre></td></tr></table></figure><br>创建一个在评估验证中使用的数据加载器，该数据加载器接收通过<code>Trainer</code>传入的<code>eval_dataset</code>和<code>collate</code>函数。<br>参数有：</p>
+<ul>
+<li><code>batch_size</code>：在每个设备上的批处理大小</li>
+<li><code>eval_dl_kwargs</code>：用来传递给数据加载器的构造函数的关键字参数字典，详情参见<a target="_blank" rel="noopener" href="https://pytorch.org/docs/stable/data.html#torch.utils.data.DataLoader"><code>torch.utils.data.DataLoader</code></a>。</li>
+</ul>
+<p>注意：如果没有传入<code>eval_dl_kwargs</code>参数，则使用<code>Trainer.get_default_eval_dl_kwargs()</code>返回的参数。如果在<code>eval_dl_kwargs</code>中同样加入了<code>batch_size</code>这一属性，则这里的<code>batch_size</code>会覆盖掉前面的<code>batch_size</code>。</p>
+<p>（4）获得默认验证集数据加载器参数<br><figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">Trainer.get_default_eval_dl_kwargs(batch_size) → <span class="built_in">dict</span></span><br></pre></td></tr></table></figure><br>参数为<code>batch_size</code>，返回值为验证集数据加载器的默认参数字典。<br>（5）创建调度器<br><figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">Trainer.create_scheduler()</span><br></pre></td></tr></table></figure><br>基于传给<code>Trainer</code>的<code>create_scheduler_fn</code>函数创建一个学习率调度器，返回值是一个学习率调度器的实例。</p>
+<h2 id="与训练相关的方法"><a href="#与训练相关的方法" class="headerlink" title="与训练相关的方法"></a>与训练相关的方法</h2><p>（1）训练开始时会调用如下方法：<br><figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">Trainer.training_run_start()</span><br></pre></td></tr></table></figure><br>（2）每一个<code>epoch</code>训练和评估完成后会调用如下方法：<br><figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">Trainer.training_run_epoch_end()</span><br></pre></td></tr></table></figure><br>（3）训练结束后会调用如下方法：<br><figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">Trainer.training_run_end()</span><br></pre></td></tr></table></figure></p>
+<h3 id="训练步相关方法"><a href="#训练步相关方法" class="headerlink" title="训练步相关方法"></a>训练步相关方法</h3><p>（1）每一训练<code>epoch</code>开始时调用如下方法：<br><figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">Trainer.train_epoch_start()</span><br></pre></td></tr></table></figure><br>该方法的默认行为是调用<code>self.model.train()</code>。<br>（2）在每一训练<code>epoch</code>后计算训练损失：<br><figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">Trainer.calculate_train_batch_loss(batch) → <span class="built_in">dict</span></span><br></pre></td></tr></table></figure><br>参数为</p>
+<ul>
+<li><code>batch</code>：训练集数据加载器的输出</li>
+</ul>
+<p>返回值为一个包含训练损失、模型输出和批处理大小的字典，必须包含这三个<code>keys</code>，也能包含其他的<code>keys</code>，这些额外的返回值可以通过<code>~callbacks.TrainerCallback.on_train_step_end</code>这个回调获得。<br>（3）反向传播步<br><figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">Trainer.backward_step(loss)</span><br></pre></td></tr></table></figure><br>使用加速器对<code>calculate_train_batch_loss()</code>返回的损失值进行反向传播。如果启用了梯度累积，该损失会被<code>1/累积步数</code>所缩放。<br>（4）优化步<br><figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">Trainer.optimizer_step()</span><br></pre></td></tr></table></figure><br>执行一个单一的优化步骤，并更新之前传递给<code>self.optimizer</code>的参数。<br>（5）学习率调度步<br><figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">Trainer.scheduler_step()</span><br></pre></td></tr></table></figure><br>如果指定了学习率调度器<code>self.scheduler</code>，则执行一次调度步。<br>（6）梯度置0步<br><figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">Trainer.optimizer_zero_grad()</span><br></pre></td></tr></table></figure><br>将所有优化后的<code>torch.Tensor</code>的梯度置为0。<br>（7）每一训练<code>epoch</code>结束时调用如下方法：<br><figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">Trainer.train_epoch_end()</span><br></pre></td></tr></table></figure></p>
+<h3 id="验证步相关方法"><a href="#验证步相关方法" class="headerlink" title="验证步相关方法"></a>验证步相关方法</h3><p>（1）每一验证<code>epoch</code>开始时调用如下方法：<br><figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">Trainer.eval_epoch_start()</span><br></pre></td></tr></table></figure><br>该方法的默认行为是调用<code>self.model.eval()</code>。<br>（2）在每一验证<code>epoch</code>后计算验证损失：<br><figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">Trainer.calculate_eval_batch_loss(batch) → <span class="built_in">dict</span></span><br></pre></td></tr></table></figure><br>参数为</p>
+<ul>
+<li><code>batch</code>：验证集数据加载器的输出</li>
+</ul>
+<p>返回值为一个包含验证损失、模型输出和批处理大小的字典，必须包含这三个<code>keys</code>，也能包含其他的<code>keys</code>，这些额外的返回值可以通过<code>~callbacks.TrainerCallback.on_eval_step_end</code>这个回调获得。<br>（3）每一验证<code>epoch</code>结束时调用如下方法：<br><figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">Trainer.eval_epoch_end()</span><br></pre></td></tr></table></figure></p>
+<h2 id="与评估相关的方法"><a href="#与评估相关的方法" class="headerlink" title="与评估相关的方法"></a>与评估相关的方法</h2><p>（1）模型评估开始时会调用如下方法：<br><figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">Trainer.evaluation_run_start()</span><br></pre></td></tr></table></figure><br>（2）评估结束后会调用如下方法：<br><figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">Trainer.evaluation_run_end()</span><br></pre></td></tr></table></figure></p>
+<h2 id="内部方法"><a href="#内部方法" class="headerlink" title="内部方法"></a>内部方法</h2><p>内部方法都是带着下划线前缀。<br>本着<code>Python</code>的精神，在训练器<code>Trainer</code>中没有什么是真正隐藏的。然而，必须小心，因为通过覆盖这些内部方法，会从根本上改变了<code>Trainer</code>的内部工作方式，这可能会产生意想不到的后果。当修改一个或多个内部方法时，用户有责任确保训练器继续按预期的方式工作。</p>
+<h3 id="内部构建"><a href="#内部构建" class="headerlink" title="内部构建"></a>内部构建</h3><p>（1）创建<a target="_blank" rel="noopener" href="https://huggingface.co/docs/accelerate/main/en/accelerator#accelerate.Accelerator"><code>accelerate.Accelerator</code></a>的实例：<br><figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">Trainer._create_accelerator()</span><br></pre></td></tr></table></figure><br>该实例将用来管理训练过程，后面简称为加速器实例。<br>（2）封装模型、优化器和数据加载器<br><figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">Trainer._prepare_model_optimizer_and_dataloaders()</span><br></pre></td></tr></table></figure><br>使用加速器实例将模型、优化器和数据加载器封装在训练所需的任意封装器中(例如<code>Torch.nn.parallel.DistributedDataParallel</code>），并确保参数被放在适当的设备上。<br>默认情况下，这将把每个数据加载器转换为<a target="_blank" rel="noopener" href="https://huggingface.co/docs/accelerate/main/en/internal#accelerate.data_loader.DataLoaderShard"><code>accelerate.data_loader.DataLoaderShard</code></a>的一个实例。根据数据加载器的<code>drop_last</code>属性的值，一种情况是迭代将停止在第一个太小/不能存在于所有进程的批次上，另一种情况是在数据耗尽的进程上从头开始循环批次，这样所有批次的大小都是一样的。注意：这可能会改变数据加载器的长度，所以应该在计算每个周期的更新步数（即初始化一个学习率调度器）之前调用。（这一段得再细细品）<br>（3）创建表示<code>trainer</code>当前状态的<code>TrainerRunConfig</code>的实例<br><figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">Trainer._create_run_config(per_device_batch_size, num_epochs, gradient_accumulation_steps, max_num_train_steps, gradient_clip_value) → TrainerRunConfig</span><br></pre></td></tr></table></figure><br>参数有：</p>
+<ul>
+<li><code>per_device_batch_size</code>：每个设备上的批大小</li>
+<li><code>num_epochs</code>：在当前训练的<code>epoch</code>数目</li>
+<li><code>gradient_accumulation_steps</code>：训练过程中使用的梯度累加的步数</li>
+<li><code>max_num_train_steps</code>：指定训练的最大步数，如果指定该参数的话，会覆盖<code>num_epochs</code>参数</li>
+<li><code>gradient_clip_value</code>：指定修剪模型参数梯度的阈值</li>
+</ul>
+<h3 id="与训练相关的内部方法"><a href="#与训练相关的内部方法" class="headerlink" title="与训练相关的内部方法"></a>与训练相关的内部方法</h3><p>在训练开始时，会使用如下内部方法：<br><figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">Trainer._run_training()</span><br></pre></td></tr></table></figure></p>
+<h3 id="与训练步相关的内部方法"><a href="#与训练步相关的内部方法" class="headerlink" title="与训练步相关的内部方法"></a>与训练步相关的内部方法</h3><p>（1）在每个训练步中的行为，使用如下内部方法：<br><figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">Trainer._run_train_epoch(train_dl)</span><br></pre></td></tr></table></figure><br>参数是<code>train_dl</code>，即训练集的数据加载器。<br>（2）修剪模型参数的梯度：<br><figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">Trainer._clip_gradients()</span><br></pre></td></tr></table></figure><br>该方法会根据之前传入<code>train()</code>方法的阈值来修剪模型参数的梯度。<br>默认情况下，使用<a target="_blank" rel="noopener" href="https://huggingface.co/docs/accelerate/main/en/accelerator#accelerate.Accelerator.clip_grad_value_"><code>accelerate.Accelerator.clip_grad_value_()</code></a>来修剪梯度。</p>
+<h3 id="与验证-评估相关的内部方法"><a href="#与验证-评估相关的内部方法" class="headerlink" title="与验证/评估相关的内部方法"></a>与验证/评估相关的内部方法</h3><p>在每个验证步中的行为，使用如下内部方法：<br><figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">Trainer._run_eval_epoch(valid_dl, is_training: <span class="built_in">bool</span> = <span class="literal">True</span>)</span><br></pre></td></tr></table></figure><br>参数是</p>
+<ul>
+<li><code>valid_dl</code>，即验证集或测试集的数据加载器。</li>
+<li><code>is_training</code>：指定该评估是否是训练过程的一部分，即可以是训练过程中对验证集的评估，也可以是训练结束后在测试集上的评估。</li>
+</ul>
+<h1 id="记录指标"><a href="#记录指标" class="headerlink" title="记录指标"></a>记录指标</h1><p><code>Trainer</code>包含一个<code>RunHistory</code>的实例，它可以用来存储和获得训练期间要跟踪的任何指标的值。默认情况下，<code>Trainer</code>记录的唯一指标是训练和验证期间观察到的损失。<br>注意：如果使用了<code>PrintMetricsCallback</code>回调，那么运行历史中记录的所有指标将被自动打印到控制台。<br><code>RunHistory</code>的<code>API</code>稍后会详细分析。<br>下面是一个例子，说明如何对<code>Trainer</code>进行子类化，并使用<code>RunHistory</code>来跟踪用<code>TorchMetrics</code>计算的指标：<br><figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">from</span> torchmetrics <span class="keyword">import</span> MetricCollection, Accuracy, Precision, Recall</span><br><span class="line"><span class="keyword">from</span> pytorch_accelerated <span class="keyword">import</span> Trainer</span><br><span class="line"></span><br><span class="line"><span class="class"><span class="keyword">class</span> <span class="title">TrainerWithMetrics</span>(<span class="params">Trainer</span>):</span></span><br><span class="line">    <span class="function"><span class="keyword">def</span> <span class="title">__init__</span>(<span class="params">self, num_classes, *args, **kwargs</span>):</span></span><br><span class="line">        <span class="built_in">super</span>().__init__(*args, **kwargs)</span><br><span class="line"></span><br><span class="line">        <span class="comment"># this will be moved to the correct device automatically by the</span></span><br><span class="line">        <span class="comment"># MoveModulesToDeviceCallback callback, which is used by default</span></span><br><span class="line">        self.metrics = MetricCollection(</span><br><span class="line">            &#123;</span><br><span class="line">                <span class="string">&quot;accuracy&quot;</span>: Accuracy(num_classes=num_classes),</span><br><span class="line">                <span class="string">&quot;precision&quot;</span>: Precision(num_classes=num_classes),</span><br><span class="line">                <span class="string">&quot;recall&quot;</span>: Recall(num_classes=num_classes),</span><br><span class="line">            &#125;</span><br><span class="line">        )</span><br><span class="line"></span><br><span class="line">    <span class="function"><span class="keyword">def</span> <span class="title">calculate_eval_batch_loss</span>(<span class="params">self, batch</span>):</span></span><br><span class="line">        batch_output = <span class="built_in">super</span>().calculate_eval_batch_loss(batch)</span><br><span class="line">        preds = batch_output[<span class="string">&quot;model_outputs&quot;</span>].argmax(dim=-<span class="number">1</span>)</span><br><span class="line"></span><br><span class="line">        self.metrics.update(preds, batch[<span class="number">1</span>])</span><br><span class="line"></span><br><span class="line">        <span class="keyword">return</span> batch_output</span><br><span class="line"></span><br><span class="line">    <span class="function"><span class="keyword">def</span> <span class="title">eval_epoch_end</span>(<span class="params">self</span>):</span></span><br><span class="line">        metrics = self.metrics.compute()</span><br><span class="line">        self.run_history.update_metric(<span class="string">&quot;accuracy&quot;</span>, metrics[<span class="string">&quot;accuracy&quot;</span>].cpu())</span><br><span class="line">        self.run_history.update_metric(<span class="string">&quot;precision&quot;</span>, metrics[<span class="string">&quot;precision&quot;</span>].cpu())</span><br><span class="line">        self.run_history.update_metric(<span class="string">&quot;recall&quot;</span>, metrics[<span class="string">&quot;recall&quot;</span>].cpu())</span><br><span class="line"></span><br><span class="line">        self.metrics.reset()</span><br></pre></td></tr></table></figure></p>
+<h1 id="Trainer运行过程"><a href="#Trainer运行过程" class="headerlink" title="Trainer运行过程"></a>Trainer运行过程</h1><p><code>Trainer</code>内部到底干了啥？用伪代码的话，是这样表达：<br><figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br></pre></td><td class="code"><pre><span class="line">train_dl = create_train_dataloader()</span><br><span class="line">eval_dl = create_eval_dataloader()</span><br><span class="line">scheduler = create_scheduler()</span><br><span class="line"></span><br><span class="line">training_run_start()</span><br><span class="line">on_training_run_start()</span><br><span class="line"></span><br><span class="line"><span class="keyword">for</span> epoch <span class="keyword">in</span> num_epochs:</span><br><span class="line">    train_epoch_start()</span><br><span class="line">    on_train_epoch_start()</span><br><span class="line">    <span class="keyword">for</span> batch <span class="keyword">in</span> train_dl:</span><br><span class="line">        on_train_step_start()</span><br><span class="line">        batch_output = calculate_train_batch_loss(batch)</span><br><span class="line">        on_train_step_end(batch, batch_output)</span><br><span class="line">        backward_step(batch_output[<span class="string">&quot;loss&quot;</span>])</span><br><span class="line">        optimizer_step()</span><br><span class="line">        scheduler_step()</span><br><span class="line">        optimizer_zero_grad()</span><br><span class="line">    train_epoch_end()</span><br><span class="line">    on_train_epoch_end()</span><br><span class="line"></span><br><span class="line">    eval_epoch_start()</span><br><span class="line">    on_eval_epoch_start()</span><br><span class="line">    <span class="keyword">for</span> batch <span class="keyword">in</span> eval_dl:</span><br><span class="line">        on_eval_step_start()</span><br><span class="line">        batch_output = calculate_eval_batch_loss(batch)</span><br><span class="line">        on_eval_step_end(batch, batch_output)</span><br><span class="line">    eval_epoch_end()</span><br><span class="line">    on_eval_epoch_end()</span><br><span class="line"></span><br><span class="line">    training_run_epoch_end()</span><br><span class="line">    on_training_run_epoch_end()</span><br><span class="line"></span><br><span class="line">training_run_end()</span><br><span class="line">on_training_run_end()</span><br></pre></td></tr></table></figure></p>
+<p>同样地，一个评估过程的表达可以这样表示：<br><figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br></pre></td><td class="code"><pre><span class="line">eval_dl = create_eval_dataloader()</span><br><span class="line"></span><br><span class="line">evaluation_run_start()</span><br><span class="line">on_evaluation_run_start()</span><br><span class="line"></span><br><span class="line">eval_epoch_start()</span><br><span class="line">on_eval_epoch_start()</span><br><span class="line"><span class="keyword">for</span> batch <span class="keyword">in</span> eval_dl:</span><br><span class="line">    on_eval_step_start()</span><br><span class="line">    batch_output = calculate_eval_batch_loss(batch)</span><br><span class="line">    on_eval_step_end(batch, batch_output)</span><br><span class="line">eval_epoch_end()</span><br><span class="line">on_eval_epoch_end()</span><br><span class="line"></span><br><span class="line">evaluation_run_end()</span><br><span class="line">on_evaluation_run_end()</span><br></pre></td></tr></table></figure><br>了解<code>Trainer</code>内部如何工作的最好方法是查阅<code>train()</code>方法的源代码；为了使内部方法尽可能的干净和清晰，作者们做了大量的工作。</p>
+
+    </div>
+
+    
+    
+    
+        <div class="reward-container">
+  <div></div>
+  <button onclick="var qr = document.getElementById('qr'); qr.style.display = (qr.style.display === 'none') ? 'block' : 'none';">
+    Donate
+  </button>
+  <div id="qr" style="display: none;">
+      
+      <div style="display: inline-block;">
+        <img src="/images/wechat_reward.png" alt="Xin-Bo Qi(亓欣波) WeChat Pay">
+        <p>WeChat Pay</p>
+      </div>
+
+  </div>
+</div>
+
+
+      <footer class="post-footer">
+          <div class="post-tags">
+              <a href="/tags/PyTorch/" rel="tag"># PyTorch</a>
+          </div>
+
+        
+
+
+        
+    <div class="post-nav">
+      <div class="post-nav-item">
+    <a href="/2022/05/28/pytorch-accelerated_0/" rel="prev" title="轻量级PyTorch通用训练模板pytorch-accelerated解析：0 -- 介绍及入门">
+      <i class="fa fa-chevron-left"></i> 轻量级PyTorch通用训练模板pytorch-accelerated解析：0 -- 介绍及入门
+    </a></div>
+      <div class="post-nav-item">
+    <a href="/2022/06/12/heroku/" rel="next" title="使用Heroku云平台免费托管web应用">
+      使用Heroku云平台免费托管web应用 <i class="fa fa-chevron-right"></i>
+    </a></div>
+    </div>
+      </footer>
+    
+  </article>
+  
+  
+  
+
+
+
+          </div>
+          
+    
+  <div class="comments">
+    <div id="disqus_thread">
+      <noscript>Please enable JavaScript to view the comments powered by Disqus.</noscript>
+    </div>
+  </div>
+  
+
+<script>
+  window.addEventListener('tabs:register', () => {
+    let { activeClass } = CONFIG.comments;
+    if (CONFIG.comments.storage) {
+      activeClass = localStorage.getItem('comments_active') || activeClass;
+    }
+    if (activeClass) {
+      let activeTab = document.querySelector(`a[href="#comment-${activeClass}"]`);
+      if (activeTab) {
+        activeTab.click();
+      }
+    }
+  });
+  if (CONFIG.comments.storage) {
+    window.addEventListener('tabs:click', event => {
+      if (!event.target.matches('.tabs-comment .tab-content .tab-pane')) return;
+      let commentClass = event.target.classList[1];
+      localStorage.setItem('comments_active', commentClass);
+    });
+  }
+</script>
+
+        </div>
+          
+  
+  <div class="toggle sidebar-toggle">
+    <span class="toggle-line toggle-line-first"></span>
+    <span class="toggle-line toggle-line-middle"></span>
+    <span class="toggle-line toggle-line-last"></span>
+  </div>
+
+  <aside class="sidebar">
+    <div class="sidebar-inner">
+
+      <ul class="sidebar-nav motion-element">
+        <li class="sidebar-nav-toc">
+          Table of Contents
+        </li>
+        <li class="sidebar-nav-overview">
+          Overview
+        </li>
+      </ul>
+
+      <!--noindex-->
+      <div class="post-toc-wrap sidebar-panel">
+          <div class="post-toc motion-element"><ol class="nav"><li class="nav-item nav-level-1"><a class="nav-link" href="#%E7%AE%80%E4%BB%8B"><span class="nav-number">1.</span> <span class="nav-text">简介</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#Trainer%E6%A6%82%E8%A7%88"><span class="nav-number">2.</span> <span class="nav-text">Trainer概览</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#%E8%AE%AD%E7%BB%83%E6%A8%A1%E5%9E%8B"><span class="nav-number">3.</span> <span class="nav-text">训练模型</span></a><ol class="nav-child"><li class="nav-item nav-level-2"><a class="nav-link" href="#%E4%BD%BF%E7%94%A8%E5%AD%A6%E4%B9%A0%E7%8E%87%E8%B0%83%E5%BA%A6%E5%99%A8"><span class="nav-number">3.1.</span> <span class="nav-text">使用学习率调度器</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#%E4%BD%BF%E7%94%A8TrainerPlaceHolderValues"><span class="nav-number">3.1.1.</span> <span class="nav-text">使用TrainerPlaceHolderValues</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E4%BD%BF%E7%94%A8PyTorch-accelerated%E5%86%85%E7%BD%AE%E7%9A%84%E8%B0%83%E5%BA%A6%E5%99%A8"><span class="nav-number">3.1.2.</span> <span class="nav-text">使用PyTorch-accelerated内置的调度器</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E4%BD%BF%E7%94%A8timm%E8%B0%83%E5%BA%A6%E5%99%A8"><span class="nav-number">3.1.3.</span> <span class="nav-text">使用timm调度器</span></a></li></ol></li></ol></li><li class="nav-item nav-level-1"><a class="nav-link" href="#%E8%AF%84%E4%BC%B0%E6%A8%A1%E5%9E%8B"><span class="nav-number">4.</span> <span class="nav-text">评估模型</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#%E6%95%88%E7%94%A8%E5%87%BD%E6%95%B0"><span class="nav-number">5.</span> <span class="nav-text">效用函数</span></a><ol class="nav-child"><li class="nav-item nav-level-2"><a class="nav-link" href="#%E4%BF%9D%E5%AD%98%E6%A3%80%E6%9F%A5%E7%82%B9"><span class="nav-number">5.1.</span> <span class="nav-text">保存检查点</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E5%8A%A0%E8%BD%BD%E6%A3%80%E6%9F%A5%E7%82%B9"><span class="nav-number">5.2.</span> <span class="nav-text">加载检查点</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E6%89%93%E5%8D%B0"><span class="nav-number">5.3.</span> <span class="nav-text">打印</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E8%81%9A%E5%90%88"><span class="nav-number">5.4.</span> <span class="nav-text">聚合</span></a></li></ol></li><li class="nav-item nav-level-1"><a class="nav-link" href="#%E8%87%AA%E5%AE%9A%E4%B9%89Trainer%E8%A1%8C%E4%B8%BA"><span class="nav-number">6.</span> <span class="nav-text">自定义Trainer行为</span></a><ol class="nav-child"><li class="nav-item nav-level-2"><a class="nav-link" href="#%E4%B8%8E%E6%9E%84%E5%BB%BA%E7%9B%B8%E5%85%B3%E7%9A%84%E6%96%B9%E6%B3%95"><span class="nav-number">6.1.</span> <span class="nav-text">与构建相关的方法</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E4%B8%8E%E8%AE%AD%E7%BB%83%E7%9B%B8%E5%85%B3%E7%9A%84%E6%96%B9%E6%B3%95"><span class="nav-number">6.2.</span> <span class="nav-text">与训练相关的方法</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#%E8%AE%AD%E7%BB%83%E6%AD%A5%E7%9B%B8%E5%85%B3%E6%96%B9%E6%B3%95"><span class="nav-number">6.2.1.</span> <span class="nav-text">训练步相关方法</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E9%AA%8C%E8%AF%81%E6%AD%A5%E7%9B%B8%E5%85%B3%E6%96%B9%E6%B3%95"><span class="nav-number">6.2.2.</span> <span class="nav-text">验证步相关方法</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E4%B8%8E%E8%AF%84%E4%BC%B0%E7%9B%B8%E5%85%B3%E7%9A%84%E6%96%B9%E6%B3%95"><span class="nav-number">6.3.</span> <span class="nav-text">与评估相关的方法</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E5%86%85%E9%83%A8%E6%96%B9%E6%B3%95"><span class="nav-number">6.4.</span> <span class="nav-text">内部方法</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#%E5%86%85%E9%83%A8%E6%9E%84%E5%BB%BA"><span class="nav-number">6.4.1.</span> <span class="nav-text">内部构建</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E4%B8%8E%E8%AE%AD%E7%BB%83%E7%9B%B8%E5%85%B3%E7%9A%84%E5%86%85%E9%83%A8%E6%96%B9%E6%B3%95"><span class="nav-number">6.4.2.</span> <span class="nav-text">与训练相关的内部方法</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E4%B8%8E%E8%AE%AD%E7%BB%83%E6%AD%A5%E7%9B%B8%E5%85%B3%E7%9A%84%E5%86%85%E9%83%A8%E6%96%B9%E6%B3%95"><span class="nav-number">6.4.3.</span> <span class="nav-text">与训练步相关的内部方法</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E4%B8%8E%E9%AA%8C%E8%AF%81-%E8%AF%84%E4%BC%B0%E7%9B%B8%E5%85%B3%E7%9A%84%E5%86%85%E9%83%A8%E6%96%B9%E6%B3%95"><span class="nav-number">6.4.4.</span> <span class="nav-text">与验证&#x2F;评估相关的内部方法</span></a></li></ol></li></ol></li><li class="nav-item nav-level-1"><a class="nav-link" href="#%E8%AE%B0%E5%BD%95%E6%8C%87%E6%A0%87"><span class="nav-number">7.</span> <span class="nav-text">记录指标</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#Trainer%E8%BF%90%E8%A1%8C%E8%BF%87%E7%A8%8B"><span class="nav-number">8.</span> <span class="nav-text">Trainer运行过程</span></a></li></ol></div>
+      </div>
+      <!--/noindex-->
+
+      <div class="site-overview-wrap sidebar-panel">
+        <div class="site-author motion-element" itemprop="author" itemscope itemtype="http://schema.org/Person">
+    <img class="site-author-image" itemprop="image" alt="Xin-Bo Qi(亓欣波)"
+      src="/images/avatar.jpg">
+  <p class="site-author-name" itemprop="name">Xin-Bo Qi(亓欣波)</p>
+  <div class="site-description" itemprop="description">Digitize everything to realize Digitalization!</div>
+</div>
+<div class="site-state-wrap motion-element">
+  <nav class="site-state">
+      <div class="site-state-item site-state-posts">
+          <a href="/archives/">
+        
+          <span class="site-state-item-count">159</span>
+          <span class="site-state-item-name">posts</span>
+        </a>
+      </div>
+      <div class="site-state-item site-state-categories">
+            <a href="/categories/">
+          
+        <span class="site-state-item-count">6</span>
+        <span class="site-state-item-name">categories</span></a>
+      </div>
+      <div class="site-state-item site-state-tags">
+            <a href="/tags/">
+          
+        <span class="site-state-item-count">54</span>
+        <span class="site-state-item-name">tags</span></a>
+      </div>
+  </nav>
+</div>
+  <div class="links-of-author motion-element">
+      <span class="links-of-author-item">
+        <a href="https://github.com/qixinbo" title="GitHub → https:&#x2F;&#x2F;github.com&#x2F;qixinbo" rel="noopener" target="_blank"><i class="github fa-fw"></i>GitHub</a>
+      </span>
+      <span class="links-of-author-item">
+        <a href="mailto:qixinbo@gmail.com" title="E-Mail → mailto:qixinbo@gmail.com" rel="noopener" target="_blank"><i class="envelope fa-fw"></i>E-Mail</a>
+      </span>
+      <span class="links-of-author-item">
+        <a href="https://twitter.com/qixinbo" title="Twitter → https:&#x2F;&#x2F;twitter.com&#x2F;qixinbo" rel="noopener" target="_blank"><i class="fab fa-twitter fa-fw"></i>Twitter</a>
+      </span>
+      <span class="links-of-author-item">
+        <a href="/atom.xml" title="RSS → &#x2F;atom.xml"><i class="fas fa-rss fa-fw"></i>RSS</a>
+      </span>
+  </div>
+
+
+  <div class="links-of-blogroll motion-element">
+    <div class="links-of-blogroll-title"><i class="fa fa-link fa-fw"></i>
+      Links
+    </div>
+    <ul class="links-of-blogroll-list">
+        <li class="links-of-blogroll-item">
+          <a href="https://www.tsinghua.edu.cn/" title="https:&#x2F;&#x2F;www.tsinghua.edu.cn" rel="noopener" target="_blank">THU</a>
+        </li>
+        <li class="links-of-blogroll-item">
+          <a href="http://www.imr.cas.cn/" title="http:&#x2F;&#x2F;www.imr.cas.cn" rel="noopener" target="_blank">IMR</a>
+        </li>
+        <li class="links-of-blogroll-item">
+          <a href="http://www.sdu.edu.cn/" title="http:&#x2F;&#x2F;www.sdu.edu.cn" rel="noopener" target="_blank">SDU</a>
+        </li>
+        <li class="links-of-blogroll-item">
+          <a href="http://liam0205.me/" title="http:&#x2F;&#x2F;liam0205.me&#x2F;" rel="noopener" target="_blank">黄晨成</a>
+        </li>
+    </ul>
+  </div>
+
+      </div>
+
+    </div>
+  </aside>
+  <div id="sidebar-dimmer"></div>
+
+
+      </div>
+    </main>
+
+    <footer class="footer">
+      <div class="footer-inner">
+        
+
+        
+
+<div class="copyright">
+  
+  &copy; 
+  <span itemprop="copyrightYear">2022</span>
+  <span class="with-love">
+    <i class="fa fa-heart"></i>
+  </span>
+  <span class="author" itemprop="copyrightHolder">Xin-Bo Qi(亓欣波)</span>
+</div>
+  <div class="powered-by">Powered by <a href="https://hexo.io/" class="theme-link" rel="noopener" target="_blank">Hexo</a> & <a href="https://theme-next.org/" class="theme-link" rel="noopener" target="_blank">NexT.Gemini</a>
+  </div>
+
+        
+
+
+
+
+
+
+
+
+      </div>
+    </footer>
+  </div>
+
+  
+  <script src="/lib/anime.min.js"></script>
+  <script src="/lib/velocity/velocity.min.js"></script>
+  <script src="/lib/velocity/velocity.ui.min.js"></script>
+
+<script src="/js/utils.js"></script>
+
+<script src="/js/motion.js"></script>
+
+
+<script src="/js/schemes/pisces.js"></script>
+
+
+<script src="/js/next-boot.js"></script>
+
+
+
+
+  
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+  
+
+  
+      
+
+<script>
+  if (typeof MathJax === 'undefined') {
+    window.MathJax = {
+      loader: {
+        source: {
+          '[tex]/amsCd': '[tex]/amscd',
+          '[tex]/AMScd': '[tex]/amscd'
+        }
+      },
+      tex: {
+        inlineMath: {'[+]': [['$', '$']]},
+        tags: 'ams'
+      },
+      options: {
+        renderActions: {
+          findScript: [10, doc => {
+            document.querySelectorAll('script[type^="math/tex"]').forEach(node => {
+              const display = !!node.type.match(/; *mode=display/);
+              const math = new doc.options.MathItem(node.textContent, doc.inputJax[0], display);
+              const text = document.createTextNode('');
+              node.parentNode.replaceChild(text, node);
+              math.start = {node: text, delim: '', n: 0};
+              math.end = {node: text, delim: '', n: 0};
+              doc.math.push(math);
+            });
+          }, '', false],
+          insertedScript: [200, () => {
+            document.querySelectorAll('mjx-container').forEach(node => {
+              let target = node.parentNode;
+              if (target.nodeName.toLowerCase() === 'li') {
+                target.parentNode.classList.add('has-jax');
+              }
+            });
+          }, '', false]
+        }
+      }
+    };
+    (function () {
+      var script = document.createElement('script');
+      script.src = '//cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js';
+      script.defer = true;
+      document.head.appendChild(script);
+    })();
+  } else {
+    MathJax.startup.document.state(0);
+    MathJax.texReset();
+    MathJax.typeset();
+  }
+</script>
+
+    
+
+  
+
+<script>
+  function loadCount() {
+    var d = document, s = d.createElement('script');
+    s.src = 'https://qixinbo.disqus.com/count.js';
+    s.id = 'dsq-count-scr';
+    (d.head || d.body).appendChild(s);
+  }
+  // defer loading until the whole page loading is completed
+  window.addEventListener('load', loadCount, false);
+</script>
+<script>
+  var disqus_config = function() {
+    this.page.url = "http://qixinbo.github.io/2022/05/29/pytorch-accelerated_1/";
+    this.page.identifier = "2022/05/29/pytorch-accelerated_1/";
+    this.page.title = "轻量级PyTorch通用训练模板pytorch-accelerated解析：1 -- API之Trainer";
+    };
+  NexT.utils.loadComments(document.querySelector('#disqus_thread'), () => {
+    if (window.DISQUS) {
+      DISQUS.reset({
+        reload: true,
+        config: disqus_config
+      });
+    } else {
+      var d = document, s = d.createElement('script');
+      s.src = 'https://qixinbo.disqus.com/embed.js';
+      s.setAttribute('data-timestamp', '' + +new Date());
+      (d.head || d.body).appendChild(s);
+    }
+  });
+</script>
+
+</body>
+</html>
