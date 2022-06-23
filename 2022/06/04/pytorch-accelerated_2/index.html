@@ -1,0 +1,639 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=2">
+<meta name="theme-color" content="#222">
+<meta name="generator" content="Hexo 5.4.0">
+  <link rel="apple-touch-icon" sizes="180x180" href="/images/apple-touch-icon-next.png">
+  <link rel="icon" type="image/png" sizes="32x32" href="/favicon.ico">
+  <link rel="icon" type="image/png" sizes="16x16" href="/favicon.ico">
+  <link rel="mask-icon" href="/images/logo.svg" color="#222">
+
+<link rel="stylesheet" href="/css/main.css">
+
+
+<link rel="stylesheet" href="/lib/font-awesome/css/all.min.css">
+
+<script id="hexo-configurations">
+    var NexT = window.NexT || {};
+    var CONFIG = {"hostname":"qixinbo.github.io","root":"/","scheme":"Gemini","version":"7.8.0","exturl":false,"sidebar":{"position":"left","display":"post","padding":18,"offset":12,"onmobile":false},"copycode":{"enable":false,"show_result":false,"style":null},"back2top":{"enable":true,"sidebar":false,"scrollpercent":false},"bookmark":{"enable":false,"color":"#222","save":"auto"},"fancybox":false,"mediumzoom":false,"lazyload":false,"pangu":false,"comments":{"style":"tabs","active":null,"storage":true,"lazyload":false,"nav":null},"algolia":{"hits":{"per_page":10},"labels":{"input_placeholder":"Search for Posts","hits_empty":"We didn't find any results for the search: ${query}","hits_stats":"${hits} results found in ${time} ms"}},"localsearch":{"enable":false,"trigger":"auto","top_n_per_article":1,"unescape":false,"preload":false},"motion":{"enable":true,"async":false,"transition":{"post_block":"fadeIn","post_header":"slideDownIn","post_body":"slideDownIn","coll_header":"slideLeftIn","sidebar":"slideUpIn"}}};
+  </script>
+
+  <meta name="description" content="简介 这一章将研究pytorch-accelerated的回调机制。  Callback概览 在Trainer中除了可重写的钩子（即自定义训练器的行为）之外，Trainer还包括一个回调系统。 建议将回调Callbacks用于对训练循环的操作不是很重要的代码中，比如日志，但这个决定由用户根据具体的使用情况进行判断。 注意：回调是按顺序执行的，所以如果一个回调被用来修改状态，比如更新一个指标，用户有">
+<meta property="og:type" content="article">
+<meta property="og:title" content="轻量级PyTorch通用训练模板pytorch-accelerated解析：2 -- API之Callbacks">
+<meta property="og:url" content="http://qixinbo.github.io/2022/06/04/pytorch-accelerated_2/index.html">
+<meta property="og:site_name" content="数字旗手">
+<meta property="og:description" content="简介 这一章将研究pytorch-accelerated的回调机制。  Callback概览 在Trainer中除了可重写的钩子（即自定义训练器的行为）之外，Trainer还包括一个回调系统。 建议将回调Callbacks用于对训练循环的操作不是很重要的代码中，比如日志，但这个决定由用户根据具体的使用情况进行判断。 注意：回调是按顺序执行的，所以如果一个回调被用来修改状态，比如更新一个指标，用户有">
+<meta property="og:locale" content="en_US">
+<meta property="article:published_time" content="2022-06-03T16:00:00.000Z">
+<meta property="article:modified_time" content="2022-06-23T02:49:30.738Z">
+<meta property="article:author" content="Xin-Bo Qi(亓欣波)">
+<meta property="article:tag" content="PyTorch">
+<meta name="twitter:card" content="summary">
+
+<link rel="canonical" href="http://qixinbo.github.io/2022/06/04/pytorch-accelerated_2/">
+
+
+<script id="page-configurations">
+  // https://hexo.io/docs/variables.html
+  CONFIG.page = {
+    sidebar: "",
+    isHome : false,
+    isPost : true,
+    lang   : 'en'
+  };
+</script>
+
+  <title>轻量级PyTorch通用训练模板pytorch-accelerated解析：2 -- API之Callbacks | 数字旗手</title>
+  
+
+
+
+
+
+
+  <noscript>
+  <style>
+  .use-motion .brand,
+  .use-motion .menu-item,
+  .sidebar-inner,
+  .use-motion .post-block,
+  .use-motion .pagination,
+  .use-motion .comments,
+  .use-motion .post-header,
+  .use-motion .post-body,
+  .use-motion .collection-header { opacity: initial; }
+
+  .use-motion .site-title,
+  .use-motion .site-subtitle {
+    opacity: initial;
+    top: initial;
+  }
+
+  .use-motion .logo-line-before i { left: initial; }
+  .use-motion .logo-line-after i { right: initial; }
+  </style>
+</noscript>
+
+<link rel="alternate" href="/atom.xml" title="数字旗手" type="application/atom+xml">
+</head>
+
+<body itemscope itemtype="http://schema.org/WebPage">
+  <div class="container use-motion">
+    <div class="headband"></div>
+
+    <header class="header" itemscope itemtype="http://schema.org/WPHeader">
+      <div class="header-inner"><div class="site-brand-container">
+  <div class="site-nav-toggle">
+    <div class="toggle" aria-label="Toggle navigation bar">
+      <span class="toggle-line toggle-line-first"></span>
+      <span class="toggle-line toggle-line-middle"></span>
+      <span class="toggle-line toggle-line-last"></span>
+    </div>
+  </div>
+
+  <div class="site-meta">
+
+    <a href="/" class="brand" rel="start">
+      <span class="logo-line-before"><i></i></span>
+      <h1 class="site-title">数字旗手</h1>
+      <span class="logo-line-after"><i></i></span>
+    </a>
+      <p class="site-subtitle" itemprop="description">电气化、自动化、数字化、智能化、智慧化</p>
+  </div>
+
+  <div class="site-nav-right">
+    <div class="toggle popup-trigger">
+    </div>
+  </div>
+</div>
+
+
+
+
+<nav class="site-nav">
+  <ul id="menu" class="main-menu menu">
+        <li class="menu-item menu-item-home">
+
+    <a href="/" rel="section"><i class="fa fa-home fa-fw"></i>Home</a>
+
+  </li>
+        <li class="menu-item menu-item-categories">
+
+    <a href="/categories/" rel="section"><i class="fa fa-th fa-fw"></i>Categories</a>
+
+  </li>
+        <li class="menu-item menu-item-archives">
+
+    <a href="/archives/" rel="section"><i class="fa fa-archive fa-fw"></i>Archives</a>
+
+  </li>
+        <li class="menu-item menu-item-tags">
+
+    <a href="/tags/" rel="section"><i class="fa fa-tags fa-fw"></i>Tags</a>
+
+  </li>
+        <li class="menu-item menu-item-scholar">
+
+    <a href="/scholar/" rel="section"><i class="fa fa-chart-bar fa-fw"></i>scholar</a>
+
+  </li>
+        <li class="menu-item menu-item-sources">
+
+    <a href="/sources/" rel="section"><i class="fa fa-rss fa-fw"></i>sources</a>
+
+  </li>
+        <li class="menu-item menu-item-gallery">
+
+    <a href="/gallery/" rel="section"><i class="fa fa-file-image fa-fw"></i>gallery</a>
+
+  </li>
+        <li class="menu-item menu-item-about">
+
+    <a href="/about/" rel="section"><i class="fa fa-user fa-fw"></i>About</a>
+
+  </li>
+        <li class="menu-item menu-item-commonweal">
+
+    <a href="/404.html" rel="section"><i class="fa fa-heartbeat fa-fw"></i>Commonweal 404</a>
+
+  </li>
+  </ul>
+</nav>
+
+
+
+
+</div>
+    </header>
+
+    
+  <div class="back-to-top">
+    <i class="fa fa-arrow-up"></i>
+    <span>0%</span>
+  </div>
+
+
+    <main class="main">
+      <div class="main-inner">
+        <div class="content-wrap">
+          
+
+          <div class="content post posts-expand">
+            
+
+    
+  
+  
+  <article itemscope itemtype="http://schema.org/Article" class="post-block" lang="en">
+    <link itemprop="mainEntityOfPage" href="http://qixinbo.github.io/2022/06/04/pytorch-accelerated_2/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="image" content="/images/avatar.jpg">
+      <meta itemprop="name" content="Xin-Bo Qi(亓欣波)">
+      <meta itemprop="description" content="Digitize everything to realize Digitalization!">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="数字旗手">
+    </span>
+      <header class="post-header">
+        <h1 class="post-title" itemprop="name headline">
+          轻量级PyTorch通用训练模板pytorch-accelerated解析：2 -- API之Callbacks
+        </h1>
+
+        <div class="post-meta">
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="far fa-calendar"></i>
+              </span>
+              <span class="post-meta-item-text">Posted on</span>
+
+              <time title="Created: 2022-06-04 00:00:00" itemprop="dateCreated datePublished" datetime="2022-06-04T00:00:00+08:00">2022-06-04</time>
+            </span>
+              <span class="post-meta-item">
+                <span class="post-meta-item-icon">
+                  <i class="far fa-calendar-check"></i>
+                </span>
+                <span class="post-meta-item-text">Edited on</span>
+                <time title="Modified: 2022-06-23 10:49:30" itemprop="dateModified" datetime="2022-06-23T10:49:30+08:00">2022-06-23</time>
+              </span>
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="far fa-folder"></i>
+              </span>
+              <span class="post-meta-item-text">In</span>
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+                  <a href="/categories/machine-learning/" itemprop="url" rel="index"><span itemprop="name">machine learning</span></a>
+                </span>
+            </span>
+
+          
+  
+  <span class="post-meta-item">
+    
+      <span class="post-meta-item-icon">
+        <i class="far fa-comment"></i>
+      </span>
+      <span class="post-meta-item-text">Disqus: </span>
+    
+    <a title="disqus" href="/2022/06/04/pytorch-accelerated_2/#disqus_thread" itemprop="discussionUrl">
+      <span class="post-comments-count disqus-comment-count" data-disqus-identifier="2022/06/04/pytorch-accelerated_2/" itemprop="commentCount"></span>
+    </a>
+  </span>
+  
+  
+
+        </div>
+      </header>
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+        <h1 id="简介"><a href="#简介" class="headerlink" title="简介"></a>简介</h1><p>这一章将研究<code>pytorch-accelerated</code>的回调机制。</p>
+<h1 id="Callback概览"><a href="#Callback概览" class="headerlink" title="Callback概览"></a>Callback概览</h1><p>在<code>Trainer</code>中除了可重写的钩子（即自定义训练器的行为）之外，<code>Trainer</code>还包括一个回调系统。<br>建议将回调<code>Callbacks</code>用于对训练循环的操作不是很重要的代码中，比如日志，但这个决定由用户根据具体的使用情况进行判断。<br>注意：回调是按顺序执行的，所以如果一个回调被用来修改状态，比如更新一个指标，用户有责任确保这个回调被放在任何将读取这个状态的回调之前（即为了记录的目的）。<br>回调是在其相应的钩子之后被调用，例如，<code>on_train_epoch_end</code>回调方法在<code>pytorch_accelerated.trainer.train_epoch_end()</code>方法之后被调用。这样做是为了支持在一个方法中更新训练器的状态，然后再在回调中读取这个状态。</p>
+<h1 id="内置回调"><a href="#内置回调" class="headerlink" title="内置回调"></a>内置回调</h1><p>（1）该回调用于在训练或验证过程中，如果检测到损失为<code>NaN</code>，则中止训练。<br><figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"><span class="class"><span class="keyword">class</span> <span class="title">pytorch_accelerated</span>.<span class="title">callbacks</span>.<span class="title">TerminateOnNaNCallback</span></span></span><br></pre></td></tr></table></figure><br>（2）该回调记录<code>Trainer</code>运行历史中更新的任何指标的最新值。<br><figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"><span class="class"><span class="keyword">class</span> <span class="title">pytorch_accelerated</span>.<span class="title">callbacks</span>.<span class="title">LogMetricsCallback</span></span></span><br></pre></td></tr></table></figure><br>默认情况下，它在每个机器上向命令行打印一次。<br>以<code>train</code>为前缀的指标在一个训练<code>epoch</code>结束时被记录，所有其他指标在验证评估后被记录。<br>通过重载<code>log_metrics()</code>方法，可以对其进行子类化以创建不同平台的记录器。<br>（3）该回调在训练的开始和结束时，以及在每个<code>epoch</code>开始时打印一个信息。<br><figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"><span class="class"><span class="keyword">class</span> <span class="title">pytorch_accelerated</span>.<span class="title">callbacks</span>.<span class="title">PrintProgressCallback</span></span></span><br></pre></td></tr></table></figure><br>（4）该回调使用一个进度条来显示每个训练和验证<code>epoch</code>的状态。<br><figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"><span class="class"><span class="keyword">class</span> <span class="title">pytorch_accelerated</span>.<span class="title">callbacks</span>.<span class="title">ProgressBarCallback</span></span></span><br></pre></td></tr></table></figure><br>（5）该回调根据一个给定的指标，在训练期间保存最佳模型。最佳模型的权重在训练结束时被加载。<br><figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"><span class="class"><span class="keyword">class</span> <span class="title">pytorch_accelerated</span>.<span class="title">callbacks</span>.<span class="title">SaveBestModelCallback</span>(<span class="params">save_path=<span class="string">&#x27;best_model.pt&#x27;</span>, watch_metric=<span class="string">&#x27;eval_loss_epoch&#x27;</span>, greater_is_better: <span class="built_in">bool</span> = <span class="literal">False</span>, reset_on_train: <span class="built_in">bool</span> = <span class="literal">True</span></span>)</span></span><br></pre></td></tr></table></figure><br>参数有：</p>
+<ul>
+<li><code>save_path</code>：保存检查点的路径，应该以<code>.pt</code>结尾</li>
+<li><code>watch_metric</code>：该指标用来对比模型性能，它可从<code>trainer</code>的运行历史中获得</li>
+<li><code>greater_is_better</code>：指定<code>watch_metric</code>怎样解释，是否是越大越好，默认是<code>False</code></li>
+<li><code>reset_on_train</code>：指定是否在后续训练中重置最佳指标。如果为<code>True</code>，将只比较当前训练运行期间观察到的指标。</li>
+</ul>
+<p>（6）该回调用于提前终止。<br><figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"><span class="class"><span class="keyword">class</span> <span class="title">pytorch_accelerated</span>.<span class="title">callbacks</span>.<span class="title">EarlyStoppingCallback</span>(<span class="params">early_stopping_patience: <span class="built_in">int</span> = <span class="number">1</span>, early_stopping_threshold: <span class="built_in">float</span> = <span class="number">0.01</span>, watch_metric=<span class="string">&#x27;eval_loss_epoch&#x27;</span>, greater_is_better: <span class="built_in">bool</span> = <span class="literal">False</span>, reset_on_train: <span class="built_in">bool</span> = <span class="literal">True</span></span>)</span></span><br></pre></td></tr></table></figure><br>参数有：</p>
+<ul>
+<li><code>early_stopping_patience</code>：设置指标没有改善的<code>epochs</code>数目，之后将停止训练</li>
+<li><code>early_stopping_threshold</code>：指定在<code>watch_metric</code>上的最小变化，将其定义为<code>指标改善</code>，也就是说，绝对变化小于这个阈值，将被视为没有改善。</li>
+<li><code>watch_metric</code>：用来评价模型性能的指标，可从<code>trainer</code>的运行历史中获得</li>
+<li><code>great_is_better</code>：指定<code>watch_metric</code>是否是越大越好</li>
+<li><code>reset_on_train</code>：指定是否在后续训练中重置最佳指标。如果为<code>True</code>，将只比较当前训练运行期间观察到的指标。</li>
+</ul>
+<p>（7）该回调在训练或评估开始时将任意<code>Trainer</code>属性转移到适当的设备上。<br><figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"><span class="class"><span class="keyword">class</span> <span class="title">pytorch_accelerated</span>.<span class="title">callbacks</span>.<span class="title">MoveModulesToDeviceCallback</span></span></span><br></pre></td></tr></table></figure><br>这里的属性是<code>torch.nn.Module</code>的实例。<br>注意，这里不包括模型，因为它将由<code>Trainer</code>内部的<code>accelerate.Accelerator</code>实例单独准备。</p>
+<h1 id="创建新的回调"><a href="#创建新的回调" class="headerlink" title="创建新的回调"></a>创建新的回调</h1><p>要创建一个包含自定义行为的新的回调，例如，将日志转移到一个外部平台，可以通过子类化<code>TrainerCallback</code>实现。为了避免与<code>Trainer</code>的方法相混淆，所有回调方法都以<code>on_</code>为前缀。<br>注意：为了获得最大的灵活性，<code>Trainer</code>的当前实例在每个回调方法中都是可用的。然而，在回调中改变<code>Trainer</code>的状态可能会产生意想不到的后果，因为这可能会影响训练运行的其他部分。如果使用回调来修改训练器的状态，用户有责任确保一切继续按计划进行。</p>
+<h2 id="回调基类"><a href="#回调基类" class="headerlink" title="回调基类"></a>回调基类</h2><p>当创建新的回调时，需要使用如下的抽象基类。<br><figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"><span class="class"><span class="keyword">class</span> <span class="title">pytorch_accelerated</span>.<span class="title">callbacks</span>.<span class="title">TrainerCallback</span></span></span><br></pre></td></tr></table></figure><br>它的方法（以下称为事件<code>event</code>，原因是这些方法被后面的回调句柄的<code>call_event</code>方法调用，称为事件<code>event</code>也更容易被用户理解和联想）包括：<br>（1）<code>trainer</code>初始化结束后触发的事件：<br><figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">on_init_end(trainer, **kwargs)</span><br></pre></td></tr></table></figure><br>（2）在训练开始时触发的事件：<br><figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">on_training_run_start(trainer, **kwargs)</span><br></pre></td></tr></table></figure><br>（3）在每一个训练<code>epoch</code>开始时触发的事件（即对每一个<code>epoch</code>进行循环）：<br><figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">on_train_epoch_start(trainer, **kwargs)</span><br></pre></td></tr></table></figure><br>（4）在每一个训练步<code>step</code>开始时触发的事件（即对每一个<code>batch</code>进行循环）：<br><figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">on_train_step_start(trainer, **kwargs)</span><br></pre></td></tr></table></figure><br>（5）在每一个训练步<code>step</code>结束后触发的事件：<br><figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">on_train_step_end(trainer, batch, batch_output, **kwargs)</span><br></pre></td></tr></table></figure><br>参数有：</p>
+<ul>
+<li><code>batch</code>：训练集的当前<code>batch</code></li>
+<li><code>batch_output</code>：由<code>pytorch_accelerated.trainer.Trainer.calculate_train_batch_loss()</code>所返回的输出</li>
+</ul>
+<p>（6）在每一个训练<code>epoch</code>结束后触发的事件：<br><figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">on_train_epoch_end(trainer, **kwargs)</span><br></pre></td></tr></table></figure><br>（7）在每一个验证<code>epoch</code>开始时触发的事件（即对每一个<code>epoch</code>进行循环）：<br><figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">on_eval_epoch_start(trainer, **kwargs)</span><br></pre></td></tr></table></figure><br>（8）在每一个验证步<code>step</code>开始时触发的事件（即对每一个<code>batch</code>进行循环）：<br><figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">on_eval_step_start(trainer, **kwargs)</span><br></pre></td></tr></table></figure><br>（9）在每一个验证步<code>step</code>结束后触发的事件：<br><figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">on_eval_step_end(trainer, batch, batch_output, **kwargs)</span><br></pre></td></tr></table></figure><br>参数有：</p>
+<ul>
+<li><code>batch</code>：验证集的当前<code>batch</code></li>
+<li><code>batch_output</code>：由<code>pytorch_accelerated.trainer.Trainer.calculate_eval_batch_loss()</code>所返回的输出</li>
+</ul>
+<p>（10）在每一个验证<code>epoch</code>结束后触发的事件：<br><figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">on_eval_epoch_end(trainer, **kwargs)</span><br></pre></td></tr></table></figure><br>（11）在训练结束后触发的事件：<br><figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">on_training_run_end(trainer, **kwargs)</span><br></pre></td></tr></table></figure><br>（12）当出现训练错误后触发的事件：<br><figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">on_stop_training_error(trainer, **kwargs)</span><br></pre></td></tr></table></figure><br>一个训练可能通过发出<code>StopTrainingError</code>异常来被提前停止。</p>
+<h2 id="案例1：使用回调来追踪指标"><a href="#案例1：使用回调来追踪指标" class="headerlink" title="案例1：使用回调来追踪指标"></a>案例1：使用回调来追踪指标</h2><p>默认情况下，<code>pytorch_accelerated.trainer.Trainer</code>记录的唯一指标是训练和评估期间观察到的损失。为了跟踪其他指标，我们可以使用回调来扩展这一行为。<br>下面是一个例子，说明如何定义一个回调并使用<code>RunHistory</code>来跟踪用<code>TorchMetrics</code>计算的指标。<br><figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">from</span> torchmetrics <span class="keyword">import</span> MetricCollection, Accuracy, Precision, Recall</span><br><span class="line"></span><br><span class="line"><span class="class"><span class="keyword">class</span> <span class="title">ClassificationMetricsCallback</span>(<span class="params">TrainerCallback</span>):</span></span><br><span class="line">    <span class="function"><span class="keyword">def</span> <span class="title">__init__</span>(<span class="params">self, num_classes</span>):</span></span><br><span class="line">        self.metrics = MetricCollection(</span><br><span class="line">            &#123;</span><br><span class="line">                <span class="string">&quot;accuracy&quot;</span>: Accuracy(num_classes=num_classes),</span><br><span class="line">                <span class="string">&quot;precision&quot;</span>: Precision(num_classes=num_classes),</span><br><span class="line">                <span class="string">&quot;recall&quot;</span>: Recall(num_classes=num_classes),</span><br><span class="line">            &#125;</span><br><span class="line">        )</span><br><span class="line"></span><br><span class="line">    <span class="function"><span class="keyword">def</span> <span class="title">_move_to_device</span>(<span class="params">self, trainer</span>):</span></span><br><span class="line">        self.metrics.to(trainer.device)</span><br><span class="line"></span><br><span class="line">    <span class="function"><span class="keyword">def</span> <span class="title">on_training_run_start</span>(<span class="params">self, trainer, **kwargs</span>):</span></span><br><span class="line">        self._move_to_device(trainer)</span><br><span class="line"></span><br><span class="line">    <span class="function"><span class="keyword">def</span> <span class="title">on_evaluation_run_start</span>(<span class="params">self, trainer, **kwargs</span>):</span></span><br><span class="line">        self._move_to_device(trainer)</span><br><span class="line"></span><br><span class="line">    <span class="function"><span class="keyword">def</span> <span class="title">on_eval_step_end</span>(<span class="params">self, trainer, batch, batch_output, **kwargs</span>):</span></span><br><span class="line">        preds = batch_output[<span class="string">&quot;model_outputs&quot;</span>].argmax(dim=-<span class="number">1</span>)</span><br><span class="line">        self.metrics.update(preds, batch[<span class="number">1</span>])</span><br><span class="line"></span><br><span class="line">    <span class="function"><span class="keyword">def</span> <span class="title">on_eval_epoch_end</span>(<span class="params">self, trainer, **kwargs</span>):</span></span><br><span class="line">        metrics = self.metrics.compute()</span><br><span class="line">        trainer.run_history.update_metric(<span class="string">&quot;accuracy&quot;</span>, metrics[<span class="string">&quot;accuracy&quot;</span>].cpu())</span><br><span class="line">        trainer.run_history.update_metric(<span class="string">&quot;precision&quot;</span>, metrics[<span class="string">&quot;precision&quot;</span>].cpu())</span><br><span class="line">        trainer.run_history.update_metric(<span class="string">&quot;recall&quot;</span>, metrics[<span class="string">&quot;recall&quot;</span>].cpu())</span><br><span class="line"></span><br><span class="line">        self.metrics.reset()</span><br></pre></td></tr></table></figure></p>
+<h2 id="案例2：创建自定义日志的回调"><a href="#案例2：创建自定义日志的回调" class="headerlink" title="案例2：创建自定义日志的回调"></a>案例2：创建自定义日志的回调</h2><p>建议使用回调来处理日志，以使训练循环集中在机器学习相关的代码上。通过对<code>LogMetricsCallback</code>回调的子类化，很容易为其他平台创建日志记录器。<br>例如，可以为<code>AzureML</code>（使用<code>MLFlow API</code>）创建一个记录器，如下所示：<br><figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">import</span> mlflow</span><br><span class="line"></span><br><span class="line"><span class="class"><span class="keyword">class</span> <span class="title">AzureMLLoggerCallback</span>(<span class="params">LogMetricsCallback</span>):</span></span><br><span class="line">    <span class="function"><span class="keyword">def</span> <span class="title">__init__</span>(<span class="params">self</span>):</span></span><br><span class="line">        mlflow.set_tracking_uri(os.environ[<span class="string">&#x27;MLFLOW_TRACKING_URI&#x27;</span>])</span><br><span class="line"></span><br><span class="line">    <span class="function"><span class="keyword">def</span> <span class="title">on_training_run_start</span>(<span class="params">self, trainer, **kwargs</span>):</span></span><br><span class="line">        mlflow.set_tags(trainer.run_config.to_dict())</span><br><span class="line"></span><br><span class="line">    <span class="function"><span class="keyword">def</span> <span class="title">log_metrics</span>(<span class="params">self, trainer, metrics</span>):</span></span><br><span class="line">        <span class="keyword">if</span> trainer.run_config.is_world_process_zero:</span><br><span class="line">            mlflow.log_metrics(metrics)</span><br></pre></td></tr></table></figure></p>
+<h2 id="案例3：自定义回调以在评估后保存结果"><a href="#案例3：自定义回调以在评估后保存结果" class="headerlink" title="案例3：自定义回调以在评估后保存结果"></a>案例3：自定义回调以在评估后保存结果</h2><p>下面是一个自定义回调的例子，在评估期间记录预测结果，然后在评估周期结束时将其保存为<code>csv</code>。<br><figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">from</span> collections <span class="keyword">import</span> defaultdict</span><br><span class="line"><span class="keyword">import</span> pandas <span class="keyword">as</span> pd</span><br><span class="line"></span><br><span class="line"><span class="class"><span class="keyword">class</span> <span class="title">SavePredictionsCallback</span>(<span class="params">TrainerCallback</span>):</span></span><br><span class="line"></span><br><span class="line">    <span class="function"><span class="keyword">def</span> <span class="title">__init__</span>(<span class="params">self, out_filename=<span class="string">&#x27;./outputs/valid_predictions.csv&#x27;</span></span>) -&gt; <span class="literal">None</span>:</span></span><br><span class="line">        <span class="built_in">super</span>().__init__()</span><br><span class="line">        self.predictions = defaultdict(<span class="built_in">list</span>)</span><br><span class="line">        self.out_filename = out_filename</span><br><span class="line"></span><br><span class="line">    <span class="function"><span class="keyword">def</span> <span class="title">on_eval_step_end</span>(<span class="params">self, trainer, batch, batch_output, **kwargs</span>):</span></span><br><span class="line">        input_features, targets = batch</span><br><span class="line">        class_preds = trainer.gather(batch_output[<span class="string">&#x27;model_outputs&#x27;</span>]).argmax(dim=-<span class="number">1</span>)</span><br><span class="line">        self.predictions[<span class="string">&#x27;prediction&#x27;</span>].extend(class_preds.cpu().tolist())</span><br><span class="line">        self.predictions[<span class="string">&#x27;targets&#x27;</span>].extend(targets.cpu().tolist())</span><br><span class="line"></span><br><span class="line">    <span class="function"><span class="keyword">def</span> <span class="title">on_eval_epoch_end</span>(<span class="params">self, trainer, **kwargs</span>):</span></span><br><span class="line">        trainer._accelerator.wait_for_everyone()</span><br><span class="line">        <span class="keyword">if</span> trainer.run_config.is_local_process_zero:</span><br><span class="line">            df = pd.DataFrame.from_dict(self.predictions)</span><br><span class="line">            df.to_csv(<span class="string">f&#x27;<span class="subst">&#123;self.out_filename&#125;</span>&#x27;</span>, index=<span class="literal">False</span>)</span><br></pre></td></tr></table></figure></p>
+<h1 id="回调句柄"><a href="#回调句柄" class="headerlink" title="回调句柄"></a>回调句柄</h1><p>传递给<code>Trainer</code>的任何回调函数都是由一个内部回调句柄类<code>CallbackHandler</code>的实例来处理的。<br><figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"><span class="class"><span class="keyword">class</span> <span class="title">pytorch_accelerated</span>.<span class="title">callbacks</span>.<span class="title">CallbackHandler</span>(<span class="params">callbacks</span>)</span></span><br></pre></td></tr></table></figure><br>可以看出，回调句柄<code>CallbackHandler</code>的输入参数就是一系列的回调函数，然后该句柄顺序执行它们（执行顺序是按它们传入该句柄的顺序）。<br>主要方法有：<br>（1）添加单个回调函数：<br><figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">add_callback(callback)</span><br></pre></td></tr></table></figure><br>参数为<code>callback</code>，类型是<code>TrainerCallback</code>的子类的实例。<br>（2）添加多个回调函数：<br><figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">add_callbacks(callbacks)</span><br></pre></td></tr></table></figure><br>参数为<code>callbacks</code>，是一个回调函数列表。<br>（3）对于已添加注册的所有回调，根据特定事件<code>event</code>来顺序调用：<br><figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">call_event(event, *args, **kwargs)</span><br></pre></td></tr></table></figure><br>参数有：</p>
+<ul>
+<li><code>event</code>：要触发的事件，实际</li>
+<li><code>args</code>：传给回调的参数列表</li>
+<li><code>kwargs</code>：传给回调的关键字列表</li>
+</ul>
+<h2 id="创建新的回调事件"><a href="#创建新的回调事件" class="headerlink" title="创建新的回调事件"></a>创建新的回调事件</h2><p>前面已经介绍了很多内置的回调事件，比如<code>on_init_end</code>、<code>on_training_run_start</code>等，这些事件触发的位置都在<code>Trainer</code>中已经定义好了。<br>也可以创建新的回调事件，比如：<br><figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><span class="line"><span class="class"><span class="keyword">class</span> <span class="title">VerifyBatchCallback</span>(<span class="params">TrainerCallback</span>):</span></span><br><span class="line">    <span class="function"><span class="keyword">def</span> <span class="title">verify_train_batch</span>(<span class="params">self, trainer, xb, yb</span>):</span></span><br><span class="line">        <span class="keyword">assert</span> xb.shape[<span class="number">0</span>] == trainer.run_config[<span class="string">&quot;train_per_device_batch_size&quot;</span>]</span><br><span class="line">        <span class="keyword">assert</span> xb.shape[<span class="number">1</span>] == <span class="number">1</span></span><br><span class="line">        <span class="keyword">assert</span> xb.shape[<span class="number">2</span>] == <span class="number">28</span></span><br><span class="line">        <span class="keyword">assert</span> xb.shape[<span class="number">3</span>] == <span class="number">28</span></span><br><span class="line">        <span class="keyword">assert</span> yb.shape[<span class="number">0</span>] == trainer.run_config[<span class="string">&quot;train_per_device_batch_size&quot;</span>]</span><br></pre></td></tr></table></figure><br>然后在训练过程中进行触发（最好就是子类化原来的<code>Trainer</code>）：<br><figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><span class="line"><span class="class"><span class="keyword">class</span> <span class="title">TrainerWithCustomCallbackEvent</span>(<span class="params">Trainer</span>):</span></span><br><span class="line">    <span class="function"><span class="keyword">def</span> <span class="title">calculate_train_batch_loss</span>(<span class="params">self, batch</span>) -&gt; <span class="built_in">dict</span>:</span></span><br><span class="line">        xb, yb = batch</span><br><span class="line">        self.callback_handler.call_event(</span><br><span class="line">            <span class="string">&quot;verify_train_batch&quot;</span>, trainer=self, xb=xb, yb=yb</span><br><span class="line">        )</span><br><span class="line">        <span class="keyword">return</span> <span class="built_in">super</span>().calculate_train_batch_loss(batch)</span><br></pre></td></tr></table></figure><br>这样就实现了很大的灵活性。</p>
+
+    </div>
+
+    
+    
+    
+        <div class="reward-container">
+  <div></div>
+  <button onclick="var qr = document.getElementById('qr'); qr.style.display = (qr.style.display === 'none') ? 'block' : 'none';">
+    Donate
+  </button>
+  <div id="qr" style="display: none;">
+      
+      <div style="display: inline-block;">
+        <img src="/images/wechat_reward.png" alt="Xin-Bo Qi(亓欣波) WeChat Pay">
+        <p>WeChat Pay</p>
+      </div>
+
+  </div>
+</div>
+
+
+      <footer class="post-footer">
+          <div class="post-tags">
+              <a href="/tags/PyTorch/" rel="tag"># PyTorch</a>
+          </div>
+
+        
+
+
+        
+    <div class="post-nav">
+      <div class="post-nav-item">
+    <a href="/2022/05/29/pytorch-accelerated_1/" rel="prev" title="轻量级PyTorch通用训练模板pytorch-accelerated解析：1 -- API之Trainer">
+      <i class="fa fa-chevron-left"></i> 轻量级PyTorch通用训练模板pytorch-accelerated解析：1 -- API之Trainer
+    </a></div>
+      <div class="post-nav-item">
+    <a href="/2022/06/05/pytorch-accelerated_3/" rel="next" title="轻量级PyTorch通用训练模板pytorch-accelerated解析：3 -- API之Schedulers">
+      轻量级PyTorch通用训练模板pytorch-accelerated解析：3 -- API之Schedulers <i class="fa fa-chevron-right"></i>
+    </a></div>
+    </div>
+      </footer>
+    
+  </article>
+  
+  
+  
+
+
+
+          </div>
+          
+    
+  <div class="comments">
+    <div id="disqus_thread">
+      <noscript>Please enable JavaScript to view the comments powered by Disqus.</noscript>
+    </div>
+  </div>
+  
+
+<script>
+  window.addEventListener('tabs:register', () => {
+    let { activeClass } = CONFIG.comments;
+    if (CONFIG.comments.storage) {
+      activeClass = localStorage.getItem('comments_active') || activeClass;
+    }
+    if (activeClass) {
+      let activeTab = document.querySelector(`a[href="#comment-${activeClass}"]`);
+      if (activeTab) {
+        activeTab.click();
+      }
+    }
+  });
+  if (CONFIG.comments.storage) {
+    window.addEventListener('tabs:click', event => {
+      if (!event.target.matches('.tabs-comment .tab-content .tab-pane')) return;
+      let commentClass = event.target.classList[1];
+      localStorage.setItem('comments_active', commentClass);
+    });
+  }
+</script>
+
+        </div>
+          
+  
+  <div class="toggle sidebar-toggle">
+    <span class="toggle-line toggle-line-first"></span>
+    <span class="toggle-line toggle-line-middle"></span>
+    <span class="toggle-line toggle-line-last"></span>
+  </div>
+
+  <aside class="sidebar">
+    <div class="sidebar-inner">
+
+      <ul class="sidebar-nav motion-element">
+        <li class="sidebar-nav-toc">
+          Table of Contents
+        </li>
+        <li class="sidebar-nav-overview">
+          Overview
+        </li>
+      </ul>
+
+      <!--noindex-->
+      <div class="post-toc-wrap sidebar-panel">
+          <div class="post-toc motion-element"><ol class="nav"><li class="nav-item nav-level-1"><a class="nav-link" href="#%E7%AE%80%E4%BB%8B"><span class="nav-number">1.</span> <span class="nav-text">简介</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#Callback%E6%A6%82%E8%A7%88"><span class="nav-number">2.</span> <span class="nav-text">Callback概览</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#%E5%86%85%E7%BD%AE%E5%9B%9E%E8%B0%83"><span class="nav-number">3.</span> <span class="nav-text">内置回调</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#%E5%88%9B%E5%BB%BA%E6%96%B0%E7%9A%84%E5%9B%9E%E8%B0%83"><span class="nav-number">4.</span> <span class="nav-text">创建新的回调</span></a><ol class="nav-child"><li class="nav-item nav-level-2"><a class="nav-link" href="#%E5%9B%9E%E8%B0%83%E5%9F%BA%E7%B1%BB"><span class="nav-number">4.1.</span> <span class="nav-text">回调基类</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E6%A1%88%E4%BE%8B1%EF%BC%9A%E4%BD%BF%E7%94%A8%E5%9B%9E%E8%B0%83%E6%9D%A5%E8%BF%BD%E8%B8%AA%E6%8C%87%E6%A0%87"><span class="nav-number">4.2.</span> <span class="nav-text">案例1：使用回调来追踪指标</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E6%A1%88%E4%BE%8B2%EF%BC%9A%E5%88%9B%E5%BB%BA%E8%87%AA%E5%AE%9A%E4%B9%89%E6%97%A5%E5%BF%97%E7%9A%84%E5%9B%9E%E8%B0%83"><span class="nav-number">4.3.</span> <span class="nav-text">案例2：创建自定义日志的回调</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E6%A1%88%E4%BE%8B3%EF%BC%9A%E8%87%AA%E5%AE%9A%E4%B9%89%E5%9B%9E%E8%B0%83%E4%BB%A5%E5%9C%A8%E8%AF%84%E4%BC%B0%E5%90%8E%E4%BF%9D%E5%AD%98%E7%BB%93%E6%9E%9C"><span class="nav-number">4.4.</span> <span class="nav-text">案例3：自定义回调以在评估后保存结果</span></a></li></ol></li><li class="nav-item nav-level-1"><a class="nav-link" href="#%E5%9B%9E%E8%B0%83%E5%8F%A5%E6%9F%84"><span class="nav-number">5.</span> <span class="nav-text">回调句柄</span></a><ol class="nav-child"><li class="nav-item nav-level-2"><a class="nav-link" href="#%E5%88%9B%E5%BB%BA%E6%96%B0%E7%9A%84%E5%9B%9E%E8%B0%83%E4%BA%8B%E4%BB%B6"><span class="nav-number">5.1.</span> <span class="nav-text">创建新的回调事件</span></a></li></ol></li></ol></div>
+      </div>
+      <!--/noindex-->
+
+      <div class="site-overview-wrap sidebar-panel">
+        <div class="site-author motion-element" itemprop="author" itemscope itemtype="http://schema.org/Person">
+    <img class="site-author-image" itemprop="image" alt="Xin-Bo Qi(亓欣波)"
+      src="/images/avatar.jpg">
+  <p class="site-author-name" itemprop="name">Xin-Bo Qi(亓欣波)</p>
+  <div class="site-description" itemprop="description">Digitize everything to realize Digitalization!</div>
+</div>
+<div class="site-state-wrap motion-element">
+  <nav class="site-state">
+      <div class="site-state-item site-state-posts">
+          <a href="/archives/">
+        
+          <span class="site-state-item-count">162</span>
+          <span class="site-state-item-name">posts</span>
+        </a>
+      </div>
+      <div class="site-state-item site-state-categories">
+            <a href="/categories/">
+          
+        <span class="site-state-item-count">6</span>
+        <span class="site-state-item-name">categories</span></a>
+      </div>
+      <div class="site-state-item site-state-tags">
+            <a href="/tags/">
+          
+        <span class="site-state-item-count">54</span>
+        <span class="site-state-item-name">tags</span></a>
+      </div>
+  </nav>
+</div>
+  <div class="links-of-author motion-element">
+      <span class="links-of-author-item">
+        <a href="https://github.com/qixinbo" title="GitHub → https:&#x2F;&#x2F;github.com&#x2F;qixinbo" rel="noopener" target="_blank"><i class="github fa-fw"></i>GitHub</a>
+      </span>
+      <span class="links-of-author-item">
+        <a href="mailto:qixinbo@gmail.com" title="E-Mail → mailto:qixinbo@gmail.com" rel="noopener" target="_blank"><i class="envelope fa-fw"></i>E-Mail</a>
+      </span>
+      <span class="links-of-author-item">
+        <a href="https://twitter.com/qixinbo" title="Twitter → https:&#x2F;&#x2F;twitter.com&#x2F;qixinbo" rel="noopener" target="_blank"><i class="fab fa-twitter fa-fw"></i>Twitter</a>
+      </span>
+      <span class="links-of-author-item">
+        <a href="/atom.xml" title="RSS → &#x2F;atom.xml"><i class="fas fa-rss fa-fw"></i>RSS</a>
+      </span>
+  </div>
+
+
+  <div class="links-of-blogroll motion-element">
+    <div class="links-of-blogroll-title"><i class="fa fa-link fa-fw"></i>
+      Links
+    </div>
+    <ul class="links-of-blogroll-list">
+        <li class="links-of-blogroll-item">
+          <a href="https://www.tsinghua.edu.cn/" title="https:&#x2F;&#x2F;www.tsinghua.edu.cn" rel="noopener" target="_blank">THU</a>
+        </li>
+        <li class="links-of-blogroll-item">
+          <a href="http://www.imr.cas.cn/" title="http:&#x2F;&#x2F;www.imr.cas.cn" rel="noopener" target="_blank">IMR</a>
+        </li>
+        <li class="links-of-blogroll-item">
+          <a href="http://www.sdu.edu.cn/" title="http:&#x2F;&#x2F;www.sdu.edu.cn" rel="noopener" target="_blank">SDU</a>
+        </li>
+        <li class="links-of-blogroll-item">
+          <a href="http://liam0205.me/" title="http:&#x2F;&#x2F;liam0205.me&#x2F;" rel="noopener" target="_blank">黄晨成</a>
+        </li>
+    </ul>
+  </div>
+
+      </div>
+
+    </div>
+  </aside>
+  <div id="sidebar-dimmer"></div>
+
+
+      </div>
+    </main>
+
+    <footer class="footer">
+      <div class="footer-inner">
+        
+
+        
+
+<div class="copyright">
+  
+  &copy; 
+  <span itemprop="copyrightYear">2022</span>
+  <span class="with-love">
+    <i class="fa fa-heart"></i>
+  </span>
+  <span class="author" itemprop="copyrightHolder">Xin-Bo Qi(亓欣波)</span>
+</div>
+  <div class="powered-by">Powered by <a href="https://hexo.io/" class="theme-link" rel="noopener" target="_blank">Hexo</a> & <a href="https://theme-next.org/" class="theme-link" rel="noopener" target="_blank">NexT.Gemini</a>
+  </div>
+
+        
+
+
+
+
+
+
+
+
+      </div>
+    </footer>
+  </div>
+
+  
+  <script src="/lib/anime.min.js"></script>
+  <script src="/lib/velocity/velocity.min.js"></script>
+  <script src="/lib/velocity/velocity.ui.min.js"></script>
+
+<script src="/js/utils.js"></script>
+
+<script src="/js/motion.js"></script>
+
+
+<script src="/js/schemes/pisces.js"></script>
+
+
+<script src="/js/next-boot.js"></script>
+
+
+
+
+  
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+  
+
+  
+      
+
+<script>
+  if (typeof MathJax === 'undefined') {
+    window.MathJax = {
+      loader: {
+        source: {
+          '[tex]/amsCd': '[tex]/amscd',
+          '[tex]/AMScd': '[tex]/amscd'
+        }
+      },
+      tex: {
+        inlineMath: {'[+]': [['$', '$']]},
+        tags: 'ams'
+      },
+      options: {
+        renderActions: {
+          findScript: [10, doc => {
+            document.querySelectorAll('script[type^="math/tex"]').forEach(node => {
+              const display = !!node.type.match(/; *mode=display/);
+              const math = new doc.options.MathItem(node.textContent, doc.inputJax[0], display);
+              const text = document.createTextNode('');
+              node.parentNode.replaceChild(text, node);
+              math.start = {node: text, delim: '', n: 0};
+              math.end = {node: text, delim: '', n: 0};
+              doc.math.push(math);
+            });
+          }, '', false],
+          insertedScript: [200, () => {
+            document.querySelectorAll('mjx-container').forEach(node => {
+              let target = node.parentNode;
+              if (target.nodeName.toLowerCase() === 'li') {
+                target.parentNode.classList.add('has-jax');
+              }
+            });
+          }, '', false]
+        }
+      }
+    };
+    (function () {
+      var script = document.createElement('script');
+      script.src = '//cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js';
+      script.defer = true;
+      document.head.appendChild(script);
+    })();
+  } else {
+    MathJax.startup.document.state(0);
+    MathJax.texReset();
+    MathJax.typeset();
+  }
+</script>
+
+    
+
+  
+
+<script>
+  function loadCount() {
+    var d = document, s = d.createElement('script');
+    s.src = 'https://qixinbo.disqus.com/count.js';
+    s.id = 'dsq-count-scr';
+    (d.head || d.body).appendChild(s);
+  }
+  // defer loading until the whole page loading is completed
+  window.addEventListener('load', loadCount, false);
+</script>
+<script>
+  var disqus_config = function() {
+    this.page.url = "http://qixinbo.github.io/2022/06/04/pytorch-accelerated_2/";
+    this.page.identifier = "2022/06/04/pytorch-accelerated_2/";
+    this.page.title = "轻量级PyTorch通用训练模板pytorch-accelerated解析：2 -- API之Callbacks";
+    };
+  NexT.utils.loadComments(document.querySelector('#disqus_thread'), () => {
+    if (window.DISQUS) {
+      DISQUS.reset({
+        reload: true,
+        config: disqus_config
+      });
+    } else {
+      var d = document, s = d.createElement('script');
+      s.src = 'https://qixinbo.disqus.com/embed.js';
+      s.setAttribute('data-timestamp', '' + +new Date());
+      (d.head || d.body).appendChild(s);
+    }
+  });
+</script>
+
+</body>
+</html>

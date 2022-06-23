@@ -1,0 +1,639 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=2">
+<meta name="theme-color" content="#222">
+<meta name="generator" content="Hexo 5.4.0">
+  <link rel="apple-touch-icon" sizes="180x180" href="/images/apple-touch-icon-next.png">
+  <link rel="icon" type="image/png" sizes="32x32" href="/favicon.ico">
+  <link rel="icon" type="image/png" sizes="16x16" href="/favicon.ico">
+  <link rel="mask-icon" href="/images/logo.svg" color="#222">
+
+<link rel="stylesheet" href="/css/main.css">
+
+
+<link rel="stylesheet" href="/lib/font-awesome/css/all.min.css">
+
+<script id="hexo-configurations">
+    var NexT = window.NexT || {};
+    var CONFIG = {"hostname":"qixinbo.github.io","root":"/","scheme":"Gemini","version":"7.8.0","exturl":false,"sidebar":{"position":"left","display":"post","padding":18,"offset":12,"onmobile":false},"copycode":{"enable":false,"show_result":false,"style":null},"back2top":{"enable":true,"sidebar":false,"scrollpercent":false},"bookmark":{"enable":false,"color":"#222","save":"auto"},"fancybox":false,"mediumzoom":false,"lazyload":false,"pangu":false,"comments":{"style":"tabs","active":null,"storage":true,"lazyload":false,"nav":null},"algolia":{"hits":{"per_page":10},"labels":{"input_placeholder":"Search for Posts","hits_empty":"We didn't find any results for the search: ${query}","hits_stats":"${hits} results found in ${time} ms"}},"localsearch":{"enable":false,"trigger":"auto","top_n_per_article":1,"unescape":false,"preload":false},"motion":{"enable":true,"async":false,"transition":{"post_block":"fadeIn","post_header":"slideDownIn","post_body":"slideDownIn","coll_header":"slideLeftIn","sidebar":"slideUpIn"}}};
+  </script>
+
+  <meta name="description" content="简介 这一章将研究pytorch-accelerated的其他API，包括追踪Tracking、运行配置Run Config、微调Fine tuning。  Tracking RunHistory抽象基类 RunHistory抽象基类定义了Trainer运行历史的API： 1   class pytorch_accelerated.tracking.RunHistory    （1）获得当前epo">
+<meta property="og:type" content="article">
+<meta property="og:title" content="轻量级PyTorch通用训练模板pytorch-accelerated解析：4 -- 其他API">
+<meta property="og:url" content="http://qixinbo.github.io/2022/06/12/pytorch-accelerated_4/index.html">
+<meta property="og:site_name" content="数字旗手">
+<meta property="og:description" content="简介 这一章将研究pytorch-accelerated的其他API，包括追踪Tracking、运行配置Run Config、微调Fine tuning。  Tracking RunHistory抽象基类 RunHistory抽象基类定义了Trainer运行历史的API： 1   class pytorch_accelerated.tracking.RunHistory    （1）获得当前epo">
+<meta property="og:locale" content="en_US">
+<meta property="article:published_time" content="2022-06-11T16:00:00.000Z">
+<meta property="article:modified_time" content="2022-06-23T06:01:45.663Z">
+<meta property="article:author" content="Xin-Bo Qi(亓欣波)">
+<meta property="article:tag" content="PyTorch">
+<meta name="twitter:card" content="summary">
+
+<link rel="canonical" href="http://qixinbo.github.io/2022/06/12/pytorch-accelerated_4/">
+
+
+<script id="page-configurations">
+  // https://hexo.io/docs/variables.html
+  CONFIG.page = {
+    sidebar: "",
+    isHome : false,
+    isPost : true,
+    lang   : 'en'
+  };
+</script>
+
+  <title>轻量级PyTorch通用训练模板pytorch-accelerated解析：4 -- 其他API | 数字旗手</title>
+  
+
+
+
+
+
+
+  <noscript>
+  <style>
+  .use-motion .brand,
+  .use-motion .menu-item,
+  .sidebar-inner,
+  .use-motion .post-block,
+  .use-motion .pagination,
+  .use-motion .comments,
+  .use-motion .post-header,
+  .use-motion .post-body,
+  .use-motion .collection-header { opacity: initial; }
+
+  .use-motion .site-title,
+  .use-motion .site-subtitle {
+    opacity: initial;
+    top: initial;
+  }
+
+  .use-motion .logo-line-before i { left: initial; }
+  .use-motion .logo-line-after i { right: initial; }
+  </style>
+</noscript>
+
+<link rel="alternate" href="/atom.xml" title="数字旗手" type="application/atom+xml">
+</head>
+
+<body itemscope itemtype="http://schema.org/WebPage">
+  <div class="container use-motion">
+    <div class="headband"></div>
+
+    <header class="header" itemscope itemtype="http://schema.org/WPHeader">
+      <div class="header-inner"><div class="site-brand-container">
+  <div class="site-nav-toggle">
+    <div class="toggle" aria-label="Toggle navigation bar">
+      <span class="toggle-line toggle-line-first"></span>
+      <span class="toggle-line toggle-line-middle"></span>
+      <span class="toggle-line toggle-line-last"></span>
+    </div>
+  </div>
+
+  <div class="site-meta">
+
+    <a href="/" class="brand" rel="start">
+      <span class="logo-line-before"><i></i></span>
+      <h1 class="site-title">数字旗手</h1>
+      <span class="logo-line-after"><i></i></span>
+    </a>
+      <p class="site-subtitle" itemprop="description">电气化、自动化、数字化、智能化、智慧化</p>
+  </div>
+
+  <div class="site-nav-right">
+    <div class="toggle popup-trigger">
+    </div>
+  </div>
+</div>
+
+
+
+
+<nav class="site-nav">
+  <ul id="menu" class="main-menu menu">
+        <li class="menu-item menu-item-home">
+
+    <a href="/" rel="section"><i class="fa fa-home fa-fw"></i>Home</a>
+
+  </li>
+        <li class="menu-item menu-item-categories">
+
+    <a href="/categories/" rel="section"><i class="fa fa-th fa-fw"></i>Categories</a>
+
+  </li>
+        <li class="menu-item menu-item-archives">
+
+    <a href="/archives/" rel="section"><i class="fa fa-archive fa-fw"></i>Archives</a>
+
+  </li>
+        <li class="menu-item menu-item-tags">
+
+    <a href="/tags/" rel="section"><i class="fa fa-tags fa-fw"></i>Tags</a>
+
+  </li>
+        <li class="menu-item menu-item-scholar">
+
+    <a href="/scholar/" rel="section"><i class="fa fa-chart-bar fa-fw"></i>scholar</a>
+
+  </li>
+        <li class="menu-item menu-item-sources">
+
+    <a href="/sources/" rel="section"><i class="fa fa-rss fa-fw"></i>sources</a>
+
+  </li>
+        <li class="menu-item menu-item-gallery">
+
+    <a href="/gallery/" rel="section"><i class="fa fa-file-image fa-fw"></i>gallery</a>
+
+  </li>
+        <li class="menu-item menu-item-about">
+
+    <a href="/about/" rel="section"><i class="fa fa-user fa-fw"></i>About</a>
+
+  </li>
+        <li class="menu-item menu-item-commonweal">
+
+    <a href="/404.html" rel="section"><i class="fa fa-heartbeat fa-fw"></i>Commonweal 404</a>
+
+  </li>
+  </ul>
+</nav>
+
+
+
+
+</div>
+    </header>
+
+    
+  <div class="back-to-top">
+    <i class="fa fa-arrow-up"></i>
+    <span>0%</span>
+  </div>
+
+
+    <main class="main">
+      <div class="main-inner">
+        <div class="content-wrap">
+          
+
+          <div class="content post posts-expand">
+            
+
+    
+  
+  
+  <article itemscope itemtype="http://schema.org/Article" class="post-block" lang="en">
+    <link itemprop="mainEntityOfPage" href="http://qixinbo.github.io/2022/06/12/pytorch-accelerated_4/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="image" content="/images/avatar.jpg">
+      <meta itemprop="name" content="Xin-Bo Qi(亓欣波)">
+      <meta itemprop="description" content="Digitize everything to realize Digitalization!">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="数字旗手">
+    </span>
+      <header class="post-header">
+        <h1 class="post-title" itemprop="name headline">
+          轻量级PyTorch通用训练模板pytorch-accelerated解析：4 -- 其他API
+        </h1>
+
+        <div class="post-meta">
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="far fa-calendar"></i>
+              </span>
+              <span class="post-meta-item-text">Posted on</span>
+
+              <time title="Created: 2022-06-12 00:00:00" itemprop="dateCreated datePublished" datetime="2022-06-12T00:00:00+08:00">2022-06-12</time>
+            </span>
+              <span class="post-meta-item">
+                <span class="post-meta-item-icon">
+                  <i class="far fa-calendar-check"></i>
+                </span>
+                <span class="post-meta-item-text">Edited on</span>
+                <time title="Modified: 2022-06-23 14:01:45" itemprop="dateModified" datetime="2022-06-23T14:01:45+08:00">2022-06-23</time>
+              </span>
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="far fa-folder"></i>
+              </span>
+              <span class="post-meta-item-text">In</span>
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+                  <a href="/categories/machine-learning/" itemprop="url" rel="index"><span itemprop="name">machine learning</span></a>
+                </span>
+            </span>
+
+          
+  
+  <span class="post-meta-item">
+    
+      <span class="post-meta-item-icon">
+        <i class="far fa-comment"></i>
+      </span>
+      <span class="post-meta-item-text">Disqus: </span>
+    
+    <a title="disqus" href="/2022/06/12/pytorch-accelerated_4/#disqus_thread" itemprop="discussionUrl">
+      <span class="post-comments-count disqus-comment-count" data-disqus-identifier="2022/06/12/pytorch-accelerated_4/" itemprop="commentCount"></span>
+    </a>
+  </span>
+  
+  
+
+        </div>
+      </header>
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+        <h1 id="简介"><a href="#简介" class="headerlink" title="简介"></a>简介</h1><p>这一章将研究<code>pytorch-accelerated</code>的其他<code>API</code>，包括追踪<code>Tracking</code>、运行配置<code>Run Config</code>、微调<code>Fine tuning</code>。</p>
+<h1 id="Tracking"><a href="#Tracking" class="headerlink" title="Tracking"></a>Tracking</h1><h2 id="RunHistory抽象基类"><a href="#RunHistory抽象基类" class="headerlink" title="RunHistory抽象基类"></a>RunHistory抽象基类</h2><p><code>RunHistory</code>抽象基类定义了<code>Trainer</code>运行历史的<code>API</code>：<br><figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"><span class="class"><span class="keyword">class</span> <span class="title">pytorch_accelerated</span>.<span class="title">tracking</span>.<span class="title">RunHistory</span></span></span><br></pre></td></tr></table></figure><br>（1）获得当前<code>epoch</code>的数值：<br><figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="keyword">def</span> <span class="title">current_epoch</span>(<span class="params">self</span>) -&gt; <span class="built_in">int</span></span></span><br></pre></td></tr></table></figure><br>（2）获得指定指标最近的记录值：<br><figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="keyword">def</span> <span class="title">get_latest_metric</span>(<span class="params">self, metric_name</span>)</span></span><br></pre></td></tr></table></figure><br>（3）获得在追踪的所有指标的名字：<br><figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="keyword">def</span> <span class="title">get_metric_names</span>(<span class="params">self</span>) -&gt; Iterable</span></span><br></pre></td></tr></table></figure><br>返回的是一个集合，所以名称都是独一无二的。<br>（4）获得指定指标的所有值：<br><figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="keyword">def</span> <span class="title">get_metric_values</span>(<span class="params">self, metric_name</span>) -&gt; Iterable</span></span><br></pre></td></tr></table></figure><br>（5）重置：<br><figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="keyword">def</span> <span class="title">reset</span>(<span class="params">self</span>)</span></span><br></pre></td></tr></table></figure><br>重置<code>RunHistory</code>的状态。<br>（6）记录指定指标的值：<br><figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="keyword">def</span> <span class="title">update_metric</span>(<span class="params">self, metric_name, metric_value</span>)</span></span><br></pre></td></tr></table></figure></p>
+<h2 id="具体实现"><a href="#具体实现" class="headerlink" title="具体实现"></a>具体实现</h2><p>上面的<code>RunHistory</code>是抽象基类，其定义的方法都没有具体的实现。<br><code>InMemoryRunHistory</code>是对<code>RunHistory</code>的一个具体实现。<br><figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br></pre></td><td class="code"><pre><span class="line"><span class="class"><span class="keyword">class</span> <span class="title">InMemoryRunHistory</span>(<span class="params">RunHistory</span>):</span></span><br><span class="line">    <span class="string">&quot;&quot;&quot;</span></span><br><span class="line"><span class="string">    An implementation of :class:`RunHistory` which stores all recorded values in memory.</span></span><br><span class="line"><span class="string">    &quot;&quot;&quot;</span></span><br><span class="line"></span><br><span class="line">    <span class="function"><span class="keyword">def</span> <span class="title">__init__</span>(<span class="params">self</span>):</span></span><br><span class="line">        self._current_epoch = <span class="number">1</span></span><br><span class="line">        self._metrics = defaultdict(<span class="built_in">list</span>)</span><br><span class="line"></span><br><span class="line">    <span class="function"><span class="keyword">def</span> <span class="title">get_metric_names</span>(<span class="params">self</span>):</span></span><br><span class="line">        <span class="keyword">return</span> <span class="built_in">set</span>(self._metrics.keys())</span><br><span class="line"></span><br><span class="line">    <span class="function"><span class="keyword">def</span> <span class="title">get_metric_values</span>(<span class="params">self, metric_name</span>):</span></span><br><span class="line">        <span class="keyword">return</span> self._metrics[metric_name]</span><br><span class="line"></span><br><span class="line">    <span class="function"><span class="keyword">def</span> <span class="title">get_latest_metric</span>(<span class="params">self, metric_name</span>):</span></span><br><span class="line">        <span class="keyword">if</span> <span class="built_in">len</span>(self._metrics[metric_name]) &gt; <span class="number">0</span>:</span><br><span class="line">            <span class="keyword">return</span> self._metrics[metric_name][-<span class="number">1</span>]</span><br><span class="line">        <span class="keyword">else</span>:</span><br><span class="line">            <span class="keyword">raise</span> ValueError(</span><br><span class="line">                <span class="string">f&quot;No values have been recorded for the metric <span class="subst">&#123;metric_name&#125;</span>&quot;</span></span><br><span class="line">            )</span><br><span class="line"></span><br><span class="line">    <span class="function"><span class="keyword">def</span> <span class="title">update_metric</span>(<span class="params">self, metric_name, metric_value</span>):</span></span><br><span class="line">        self._metrics[metric_name].append(metric_value)</span><br><span class="line"></span><br><span class="line"><span class="meta">    @property</span></span><br><span class="line">    <span class="function"><span class="keyword">def</span> <span class="title">current_epoch</span>(<span class="params">self</span>):</span></span><br><span class="line">        <span class="keyword">return</span> self._current_epoch</span><br><span class="line"></span><br><span class="line">    <span class="function"><span class="keyword">def</span> <span class="title">_increment_epoch</span>(<span class="params">self</span>):</span></span><br><span class="line">        self._current_epoch += <span class="number">1</span></span><br><span class="line"></span><br><span class="line">    <span class="function"><span class="keyword">def</span> <span class="title">reset</span>(<span class="params">self</span>):</span></span><br><span class="line">        self._current_epoch = <span class="number">1</span></span><br><span class="line">        self._metrics = defaultdict(<span class="built_in">list</span>)</span><br></pre></td></tr></table></figure></p>
+<h1 id="Run-Config"><a href="#Run-Config" class="headerlink" title="Run Config"></a>Run Config</h1><p><code>TrainerRunConfig</code>是一个不可变的数据类，包含训练器<code>Trainer</code>当前状态的数值。<br><figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">@dataclass(<span class="params">frozen=<span class="literal">True</span></span>)</span></span><br><span class="line"><span class="class"><span class="keyword">class</span> <span class="title">TrainerRunConfig</span>:</span></span><br></pre></td></tr></table></figure><br>其属性有：</p>
+<ul>
+<li><code>num_epochs</code>：当前训练的迭代次数</li>
+<li><code>train_per_device_batch_size</code>：训练时每个设备上的批大小</li>
+<li><code>train_dl_kwargs</code>：创建训练集数据加载器的所需参数</li>
+<li><code>eval_per_device_batch_size</code>：评估时每个设备上的批大小</li>
+<li><code>eval_dl_kwargs</code>：创建验证集数据加载器的所需参数</li>
+<li><code>gradient_accumulation_steps</code>：训练时梯度累加的步数</li>
+<li><code>gradient_clip_value</code>：模型参数的梯度修剪的阈值</li>
+<li><code>train_total_batch_size</code>：训练时总批大小</li>
+<li><code>eval_total_batch_size</code>：评估时总批大小</li>
+<li><code>num_update_steps_per_epoch</code>：训练时当模型参数更新时的步数</li>
+<li><code>max_num_train_steps</code>：训练的总步数，如果指定的话，会覆盖掉<code>num_epochs</code>参数</li>
+<li><code>is_local_process_zero</code>：如果当前进程是当前节点上的主进程，则为<code>True</code>；否则为<code>False</code></li>
+<li><code>is_world_process_zero</code>：如果当前进程是横跨所有节点的主进程，则为<code>True</code>，否则为<code>False</code></li>
+<li><code>is_distributed</code>：如果<code>trainer</code>是分布式训练，则为<code>True</code>，否则为<code>False</code></li>
+<li><code>mixed_precision</code>：包含所用的混合精度类型的字符串，否则为<code>no</code></li>
+</ul>
+<h1 id="Fine-tuning"><a href="#Fine-tuning" class="headerlink" title="Fine tuning"></a>Fine tuning</h1><p><code>ModelFreezer</code>是一个用来冻结和解冻一个模型的不同部分的类，其用来简化迁移学习中微调的操作。<br><figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"><span class="class"><span class="keyword">class</span> <span class="title">pytorch_accelerated</span>.<span class="title">finetuning</span>.<span class="title">ModelFreezer</span>(<span class="params">model, freeze_batch_norms=<span class="literal">False</span></span>)</span></span><br></pre></td></tr></table></figure><br>该类使用以下的抽象定义：</p>
+<ul>
+<li><code>Layer</code>：是一个深度为1的<code>torch.nn.Module</code>的子类，即这个特定的<code>module</code>不是嵌套的</li>
+<li><code>LayerGroup</code>：是模型类的属性，可以是网络层<code>layers</code>或嵌套的<code>modules</code></li>
+</ul>
+<p>举个例子，如下的模型：<br><figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">from</span> torch <span class="keyword">import</span> nn</span><br><span class="line"></span><br><span class="line"><span class="class"><span class="keyword">class</span> <span class="title">MyModel</span>(<span class="params">nn.Module</span>):</span></span><br><span class="line">    <span class="function"><span class="keyword">def</span> <span class="title">__init__</span>(<span class="params">self</span>):</span></span><br><span class="line">        <span class="built_in">super</span>().__init__()</span><br><span class="line">        self.<span class="built_in">input</span> = nn.Linear(<span class="number">100</span>, <span class="number">100</span>)</span><br><span class="line">        self.block_1 = nn.Sequential(</span><br><span class="line">            nn.Linear(<span class="number">100</span>, <span class="number">100</span>),</span><br><span class="line">            nn.BatchNorm1d(<span class="number">100</span>),</span><br><span class="line">            nn.Sequential(</span><br><span class="line">                nn.Linear(<span class="number">100</span>, <span class="number">100</span>),</span><br><span class="line">                nn.BatchNorm1d(<span class="number">100</span>),</span><br><span class="line">                nn.ReLU(),</span><br><span class="line">            ),</span><br><span class="line">        )</span><br><span class="line">        self.output = nn.Linear(<span class="number">100</span>, <span class="number">10</span>)</span><br><span class="line"></span><br><span class="line">    <span class="function"><span class="keyword">def</span> <span class="title">forward</span>(<span class="params">self, x</span>):</span></span><br><span class="line">        x = self.<span class="built_in">input</span>(x)</span><br><span class="line">        x = self.block_1(x)</span><br><span class="line">        out = self.output(x)</span><br><span class="line">        <span class="keyword">return</span> out</span><br></pre></td></tr></table></figure><br>该模型的<code>LayerGroup</code>就是<code>[input, block_1, output]</code>，而<code>Layers</code>则是一个有序的、压平的<code>Linear</code>、<code>BatchNorm</code>、<code>ReLU</code>模块列表。</p>
+<p>主要方法有：<br>（1）冻结指定索引的<code>LayerGroup</code>：<br><figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">freeze(from_index=<span class="number">0</span>, to_index=-<span class="number">2</span>, set_modules_as_eval=<span class="literal">False</span>)</span><br></pre></td></tr></table></figure><br>默认情况下，这将冻结所有层组，除了最后一个层组。<br>参数有：</p>
+<ul>
+<li><code>from_index</code>：第一个被冻结的<code>LayerGroup</code>的索引</li>
+<li><code>to_index</code>：最后一个被冻结的<code>LayerGroup</code>的索引</li>
+<li><code>set_modules_as_eval</code>：若为<code>True</code>，这些冻结的模块也会被置为<code>eval</code>模式。默认是<code>False</code></li>
+</ul>
+<p>（2）返回模型的所有<code>LayerGroups</code>：<br><figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">get_layer_groups() → <span class="type">List</span>[LayerGroup]</span><br></pre></td></tr></table></figure><br>（3）返回模型的所有<code>Layer</code>：<br><figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">get_layers() → <span class="type">List</span>[Layer]</span><br></pre></td></tr></table></figure><br>（4）返回所有未被冻结的模型参数：<br><figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">get_trainable_parameters()</span><br></pre></td></tr></table></figure><br>这些参数将在训练中被更新。<br>（5）解冻指定索引的<code>LayerGroup</code>：<br><figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">unfreeze(from_index=-<span class="number">1</span>, to_index=<span class="number">0</span>, set_modules_as_training=<span class="literal">True</span>)</span><br></pre></td></tr></table></figure><br>默认情况下，这将解冻所有<code>LayerGroups</code>。对于一个<code>LayerGroup</code>，任何已经解冻的参数都会被返回，这样如果需要的话，它们可以被添加到一个优化器中。<br>参数有：</p>
+<ul>
+<li><code>from_index</code>：第一个被解冻的<code>LayerGroup</code>的索引</li>
+<li><code>to_index</code>：最后一个被解冻的<code>LayerGroup</code>的索引</li>
+<li><code>set_modules_as_training</code>：若为<code>True</code>，这些解冻的模块也会被置为<code>train</code>模式。默认是<code>True</code>。</li>
+</ul>
+<p>返回值是：包含每一个解冻的<code>layer Group</code>的参数的字典。</p>
+
+    </div>
+
+    
+    
+    
+        <div class="reward-container">
+  <div></div>
+  <button onclick="var qr = document.getElementById('qr'); qr.style.display = (qr.style.display === 'none') ? 'block' : 'none';">
+    Donate
+  </button>
+  <div id="qr" style="display: none;">
+      
+      <div style="display: inline-block;">
+        <img src="/images/wechat_reward.png" alt="Xin-Bo Qi(亓欣波) WeChat Pay">
+        <p>WeChat Pay</p>
+      </div>
+
+  </div>
+</div>
+
+
+      <footer class="post-footer">
+          <div class="post-tags">
+              <a href="/tags/PyTorch/" rel="tag"># PyTorch</a>
+          </div>
+
+        
+
+
+        
+    <div class="post-nav">
+      <div class="post-nav-item">
+    <a href="/2022/06/05/pytorch-accelerated_3/" rel="prev" title="轻量级PyTorch通用训练模板pytorch-accelerated解析：3 -- API之Schedulers">
+      <i class="fa fa-chevron-left"></i> 轻量级PyTorch通用训练模板pytorch-accelerated解析：3 -- API之Schedulers
+    </a></div>
+      <div class="post-nav-item">
+    <a href="/2022/06/12/heroku/" rel="next" title="使用Heroku云平台免费托管web应用">
+      使用Heroku云平台免费托管web应用 <i class="fa fa-chevron-right"></i>
+    </a></div>
+    </div>
+      </footer>
+    
+  </article>
+  
+  
+  
+
+
+
+          </div>
+          
+    
+  <div class="comments">
+    <div id="disqus_thread">
+      <noscript>Please enable JavaScript to view the comments powered by Disqus.</noscript>
+    </div>
+  </div>
+  
+
+<script>
+  window.addEventListener('tabs:register', () => {
+    let { activeClass } = CONFIG.comments;
+    if (CONFIG.comments.storage) {
+      activeClass = localStorage.getItem('comments_active') || activeClass;
+    }
+    if (activeClass) {
+      let activeTab = document.querySelector(`a[href="#comment-${activeClass}"]`);
+      if (activeTab) {
+        activeTab.click();
+      }
+    }
+  });
+  if (CONFIG.comments.storage) {
+    window.addEventListener('tabs:click', event => {
+      if (!event.target.matches('.tabs-comment .tab-content .tab-pane')) return;
+      let commentClass = event.target.classList[1];
+      localStorage.setItem('comments_active', commentClass);
+    });
+  }
+</script>
+
+        </div>
+          
+  
+  <div class="toggle sidebar-toggle">
+    <span class="toggle-line toggle-line-first"></span>
+    <span class="toggle-line toggle-line-middle"></span>
+    <span class="toggle-line toggle-line-last"></span>
+  </div>
+
+  <aside class="sidebar">
+    <div class="sidebar-inner">
+
+      <ul class="sidebar-nav motion-element">
+        <li class="sidebar-nav-toc">
+          Table of Contents
+        </li>
+        <li class="sidebar-nav-overview">
+          Overview
+        </li>
+      </ul>
+
+      <!--noindex-->
+      <div class="post-toc-wrap sidebar-panel">
+          <div class="post-toc motion-element"><ol class="nav"><li class="nav-item nav-level-1"><a class="nav-link" href="#%E7%AE%80%E4%BB%8B"><span class="nav-number">1.</span> <span class="nav-text">简介</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#Tracking"><span class="nav-number">2.</span> <span class="nav-text">Tracking</span></a><ol class="nav-child"><li class="nav-item nav-level-2"><a class="nav-link" href="#RunHistory%E6%8A%BD%E8%B1%A1%E5%9F%BA%E7%B1%BB"><span class="nav-number">2.1.</span> <span class="nav-text">RunHistory抽象基类</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E5%85%B7%E4%BD%93%E5%AE%9E%E7%8E%B0"><span class="nav-number">2.2.</span> <span class="nav-text">具体实现</span></a></li></ol></li><li class="nav-item nav-level-1"><a class="nav-link" href="#Run-Config"><span class="nav-number">3.</span> <span class="nav-text">Run Config</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#Fine-tuning"><span class="nav-number">4.</span> <span class="nav-text">Fine tuning</span></a></li></ol></div>
+      </div>
+      <!--/noindex-->
+
+      <div class="site-overview-wrap sidebar-panel">
+        <div class="site-author motion-element" itemprop="author" itemscope itemtype="http://schema.org/Person">
+    <img class="site-author-image" itemprop="image" alt="Xin-Bo Qi(亓欣波)"
+      src="/images/avatar.jpg">
+  <p class="site-author-name" itemprop="name">Xin-Bo Qi(亓欣波)</p>
+  <div class="site-description" itemprop="description">Digitize everything to realize Digitalization!</div>
+</div>
+<div class="site-state-wrap motion-element">
+  <nav class="site-state">
+      <div class="site-state-item site-state-posts">
+          <a href="/archives/">
+        
+          <span class="site-state-item-count">162</span>
+          <span class="site-state-item-name">posts</span>
+        </a>
+      </div>
+      <div class="site-state-item site-state-categories">
+            <a href="/categories/">
+          
+        <span class="site-state-item-count">6</span>
+        <span class="site-state-item-name">categories</span></a>
+      </div>
+      <div class="site-state-item site-state-tags">
+            <a href="/tags/">
+          
+        <span class="site-state-item-count">54</span>
+        <span class="site-state-item-name">tags</span></a>
+      </div>
+  </nav>
+</div>
+  <div class="links-of-author motion-element">
+      <span class="links-of-author-item">
+        <a href="https://github.com/qixinbo" title="GitHub → https:&#x2F;&#x2F;github.com&#x2F;qixinbo" rel="noopener" target="_blank"><i class="github fa-fw"></i>GitHub</a>
+      </span>
+      <span class="links-of-author-item">
+        <a href="mailto:qixinbo@gmail.com" title="E-Mail → mailto:qixinbo@gmail.com" rel="noopener" target="_blank"><i class="envelope fa-fw"></i>E-Mail</a>
+      </span>
+      <span class="links-of-author-item">
+        <a href="https://twitter.com/qixinbo" title="Twitter → https:&#x2F;&#x2F;twitter.com&#x2F;qixinbo" rel="noopener" target="_blank"><i class="fab fa-twitter fa-fw"></i>Twitter</a>
+      </span>
+      <span class="links-of-author-item">
+        <a href="/atom.xml" title="RSS → &#x2F;atom.xml"><i class="fas fa-rss fa-fw"></i>RSS</a>
+      </span>
+  </div>
+
+
+  <div class="links-of-blogroll motion-element">
+    <div class="links-of-blogroll-title"><i class="fa fa-link fa-fw"></i>
+      Links
+    </div>
+    <ul class="links-of-blogroll-list">
+        <li class="links-of-blogroll-item">
+          <a href="https://www.tsinghua.edu.cn/" title="https:&#x2F;&#x2F;www.tsinghua.edu.cn" rel="noopener" target="_blank">THU</a>
+        </li>
+        <li class="links-of-blogroll-item">
+          <a href="http://www.imr.cas.cn/" title="http:&#x2F;&#x2F;www.imr.cas.cn" rel="noopener" target="_blank">IMR</a>
+        </li>
+        <li class="links-of-blogroll-item">
+          <a href="http://www.sdu.edu.cn/" title="http:&#x2F;&#x2F;www.sdu.edu.cn" rel="noopener" target="_blank">SDU</a>
+        </li>
+        <li class="links-of-blogroll-item">
+          <a href="http://liam0205.me/" title="http:&#x2F;&#x2F;liam0205.me&#x2F;" rel="noopener" target="_blank">黄晨成</a>
+        </li>
+    </ul>
+  </div>
+
+      </div>
+
+    </div>
+  </aside>
+  <div id="sidebar-dimmer"></div>
+
+
+      </div>
+    </main>
+
+    <footer class="footer">
+      <div class="footer-inner">
+        
+
+        
+
+<div class="copyright">
+  
+  &copy; 
+  <span itemprop="copyrightYear">2022</span>
+  <span class="with-love">
+    <i class="fa fa-heart"></i>
+  </span>
+  <span class="author" itemprop="copyrightHolder">Xin-Bo Qi(亓欣波)</span>
+</div>
+  <div class="powered-by">Powered by <a href="https://hexo.io/" class="theme-link" rel="noopener" target="_blank">Hexo</a> & <a href="https://theme-next.org/" class="theme-link" rel="noopener" target="_blank">NexT.Gemini</a>
+  </div>
+
+        
+
+
+
+
+
+
+
+
+      </div>
+    </footer>
+  </div>
+
+  
+  <script src="/lib/anime.min.js"></script>
+  <script src="/lib/velocity/velocity.min.js"></script>
+  <script src="/lib/velocity/velocity.ui.min.js"></script>
+
+<script src="/js/utils.js"></script>
+
+<script src="/js/motion.js"></script>
+
+
+<script src="/js/schemes/pisces.js"></script>
+
+
+<script src="/js/next-boot.js"></script>
+
+
+
+
+  
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+  
+
+  
+      
+
+<script>
+  if (typeof MathJax === 'undefined') {
+    window.MathJax = {
+      loader: {
+        source: {
+          '[tex]/amsCd': '[tex]/amscd',
+          '[tex]/AMScd': '[tex]/amscd'
+        }
+      },
+      tex: {
+        inlineMath: {'[+]': [['$', '$']]},
+        tags: 'ams'
+      },
+      options: {
+        renderActions: {
+          findScript: [10, doc => {
+            document.querySelectorAll('script[type^="math/tex"]').forEach(node => {
+              const display = !!node.type.match(/; *mode=display/);
+              const math = new doc.options.MathItem(node.textContent, doc.inputJax[0], display);
+              const text = document.createTextNode('');
+              node.parentNode.replaceChild(text, node);
+              math.start = {node: text, delim: '', n: 0};
+              math.end = {node: text, delim: '', n: 0};
+              doc.math.push(math);
+            });
+          }, '', false],
+          insertedScript: [200, () => {
+            document.querySelectorAll('mjx-container').forEach(node => {
+              let target = node.parentNode;
+              if (target.nodeName.toLowerCase() === 'li') {
+                target.parentNode.classList.add('has-jax');
+              }
+            });
+          }, '', false]
+        }
+      }
+    };
+    (function () {
+      var script = document.createElement('script');
+      script.src = '//cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js';
+      script.defer = true;
+      document.head.appendChild(script);
+    })();
+  } else {
+    MathJax.startup.document.state(0);
+    MathJax.texReset();
+    MathJax.typeset();
+  }
+</script>
+
+    
+
+  
+
+<script>
+  function loadCount() {
+    var d = document, s = d.createElement('script');
+    s.src = 'https://qixinbo.disqus.com/count.js';
+    s.id = 'dsq-count-scr';
+    (d.head || d.body).appendChild(s);
+  }
+  // defer loading until the whole page loading is completed
+  window.addEventListener('load', loadCount, false);
+</script>
+<script>
+  var disqus_config = function() {
+    this.page.url = "http://qixinbo.github.io/2022/06/12/pytorch-accelerated_4/";
+    this.page.identifier = "2022/06/12/pytorch-accelerated_4/";
+    this.page.title = "轻量级PyTorch通用训练模板pytorch-accelerated解析：4 -- 其他API";
+    };
+  NexT.utils.loadComments(document.querySelector('#disqus_thread'), () => {
+    if (window.DISQUS) {
+      DISQUS.reset({
+        reload: true,
+        config: disqus_config
+      });
+    } else {
+      var d = document, s = d.createElement('script');
+      s.src = 'https://qixinbo.disqus.com/embed.js';
+      s.setAttribute('data-timestamp', '' + +new Date());
+      (d.head || d.body).appendChild(s);
+    }
+  });
+</script>
+
+</body>
+</html>

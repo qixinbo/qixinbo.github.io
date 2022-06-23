@@ -1,0 +1,607 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=2">
+<meta name="theme-color" content="#222">
+<meta name="generator" content="Hexo 5.4.0">
+  <link rel="apple-touch-icon" sizes="180x180" href="/images/apple-touch-icon-next.png">
+  <link rel="icon" type="image/png" sizes="32x32" href="/favicon.ico">
+  <link rel="icon" type="image/png" sizes="16x16" href="/favicon.ico">
+  <link rel="mask-icon" href="/images/logo.svg" color="#222">
+
+<link rel="stylesheet" href="/css/main.css">
+
+
+<link rel="stylesheet" href="/lib/font-awesome/css/all.min.css">
+
+<script id="hexo-configurations">
+    var NexT = window.NexT || {};
+    var CONFIG = {"hostname":"qixinbo.github.io","root":"/","scheme":"Gemini","version":"7.8.0","exturl":false,"sidebar":{"position":"left","display":"post","padding":18,"offset":12,"onmobile":false},"copycode":{"enable":false,"show_result":false,"style":null},"back2top":{"enable":true,"sidebar":false,"scrollpercent":false},"bookmark":{"enable":false,"color":"#222","save":"auto"},"fancybox":false,"mediumzoom":false,"lazyload":false,"pangu":false,"comments":{"style":"tabs","active":null,"storage":true,"lazyload":false,"nav":null},"algolia":{"hits":{"per_page":10},"labels":{"input_placeholder":"Search for Posts","hits_empty":"We didn't find any results for the search: ${query}","hits_stats":"${hits} results found in ${time} ms"}},"localsearch":{"enable":false,"trigger":"auto","top_n_per_article":1,"unescape":false,"preload":false},"motion":{"enable":true,"async":false,"transition":{"post_block":"fadeIn","post_header":"slideDownIn","post_body":"slideDownIn","coll_header":"slideLeftIn","sidebar":"slideUpIn"}}};
+  </script>
+
+  <meta name="description" content="简介 这一章将研究pytorch-accelerated的调度器API。 PyTorch-accelerated提供了一些调度器的实现，可以在任何PyTorch训练循环中使用。然而，与PyTorch的原生调度器不同——这些原生调度器可以在训练循环的不同点上被调用——所有Pytorch-accelerated调度器都期望在每次优化器更新后被调用。  内置调度器 PyTorch-accelerated">
+<meta property="og:type" content="article">
+<meta property="og:title" content="轻量级PyTorch通用训练模板pytorch-accelerated解析：3 -- API之Schedulers">
+<meta property="og:url" content="http://qixinbo.github.io/2022/06/05/pytorch-accelerated_3/index.html">
+<meta property="og:site_name" content="数字旗手">
+<meta property="og:description" content="简介 这一章将研究pytorch-accelerated的调度器API。 PyTorch-accelerated提供了一些调度器的实现，可以在任何PyTorch训练循环中使用。然而，与PyTorch的原生调度器不同——这些原生调度器可以在训练循环的不同点上被调用——所有Pytorch-accelerated调度器都期望在每次优化器更新后被调用。  内置调度器 PyTorch-accelerated">
+<meta property="og:locale" content="en_US">
+<meta property="article:published_time" content="2022-06-04T16:00:00.000Z">
+<meta property="article:modified_time" content="2022-06-23T06:28:43.918Z">
+<meta property="article:author" content="Xin-Bo Qi(亓欣波)">
+<meta property="article:tag" content="PyTorch">
+<meta name="twitter:card" content="summary">
+
+<link rel="canonical" href="http://qixinbo.github.io/2022/06/05/pytorch-accelerated_3/">
+
+
+<script id="page-configurations">
+  // https://hexo.io/docs/variables.html
+  CONFIG.page = {
+    sidebar: "",
+    isHome : false,
+    isPost : true,
+    lang   : 'en'
+  };
+</script>
+
+  <title>轻量级PyTorch通用训练模板pytorch-accelerated解析：3 -- API之Schedulers | 数字旗手</title>
+  
+
+
+
+
+
+
+  <noscript>
+  <style>
+  .use-motion .brand,
+  .use-motion .menu-item,
+  .sidebar-inner,
+  .use-motion .post-block,
+  .use-motion .pagination,
+  .use-motion .comments,
+  .use-motion .post-header,
+  .use-motion .post-body,
+  .use-motion .collection-header { opacity: initial; }
+
+  .use-motion .site-title,
+  .use-motion .site-subtitle {
+    opacity: initial;
+    top: initial;
+  }
+
+  .use-motion .logo-line-before i { left: initial; }
+  .use-motion .logo-line-after i { right: initial; }
+  </style>
+</noscript>
+
+<link rel="alternate" href="/atom.xml" title="数字旗手" type="application/atom+xml">
+</head>
+
+<body itemscope itemtype="http://schema.org/WebPage">
+  <div class="container use-motion">
+    <div class="headband"></div>
+
+    <header class="header" itemscope itemtype="http://schema.org/WPHeader">
+      <div class="header-inner"><div class="site-brand-container">
+  <div class="site-nav-toggle">
+    <div class="toggle" aria-label="Toggle navigation bar">
+      <span class="toggle-line toggle-line-first"></span>
+      <span class="toggle-line toggle-line-middle"></span>
+      <span class="toggle-line toggle-line-last"></span>
+    </div>
+  </div>
+
+  <div class="site-meta">
+
+    <a href="/" class="brand" rel="start">
+      <span class="logo-line-before"><i></i></span>
+      <h1 class="site-title">数字旗手</h1>
+      <span class="logo-line-after"><i></i></span>
+    </a>
+      <p class="site-subtitle" itemprop="description">电气化、自动化、数字化、智能化、智慧化</p>
+  </div>
+
+  <div class="site-nav-right">
+    <div class="toggle popup-trigger">
+    </div>
+  </div>
+</div>
+
+
+
+
+<nav class="site-nav">
+  <ul id="menu" class="main-menu menu">
+        <li class="menu-item menu-item-home">
+
+    <a href="/" rel="section"><i class="fa fa-home fa-fw"></i>Home</a>
+
+  </li>
+        <li class="menu-item menu-item-categories">
+
+    <a href="/categories/" rel="section"><i class="fa fa-th fa-fw"></i>Categories</a>
+
+  </li>
+        <li class="menu-item menu-item-archives">
+
+    <a href="/archives/" rel="section"><i class="fa fa-archive fa-fw"></i>Archives</a>
+
+  </li>
+        <li class="menu-item menu-item-tags">
+
+    <a href="/tags/" rel="section"><i class="fa fa-tags fa-fw"></i>Tags</a>
+
+  </li>
+        <li class="menu-item menu-item-scholar">
+
+    <a href="/scholar/" rel="section"><i class="fa fa-chart-bar fa-fw"></i>scholar</a>
+
+  </li>
+        <li class="menu-item menu-item-sources">
+
+    <a href="/sources/" rel="section"><i class="fa fa-rss fa-fw"></i>sources</a>
+
+  </li>
+        <li class="menu-item menu-item-gallery">
+
+    <a href="/gallery/" rel="section"><i class="fa fa-file-image fa-fw"></i>gallery</a>
+
+  </li>
+        <li class="menu-item menu-item-about">
+
+    <a href="/about/" rel="section"><i class="fa fa-user fa-fw"></i>About</a>
+
+  </li>
+        <li class="menu-item menu-item-commonweal">
+
+    <a href="/404.html" rel="section"><i class="fa fa-heartbeat fa-fw"></i>Commonweal 404</a>
+
+  </li>
+  </ul>
+</nav>
+
+
+
+
+</div>
+    </header>
+
+    
+  <div class="back-to-top">
+    <i class="fa fa-arrow-up"></i>
+    <span>0%</span>
+  </div>
+
+
+    <main class="main">
+      <div class="main-inner">
+        <div class="content-wrap">
+          
+
+          <div class="content post posts-expand">
+            
+
+    
+  
+  
+  <article itemscope itemtype="http://schema.org/Article" class="post-block" lang="en">
+    <link itemprop="mainEntityOfPage" href="http://qixinbo.github.io/2022/06/05/pytorch-accelerated_3/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="image" content="/images/avatar.jpg">
+      <meta itemprop="name" content="Xin-Bo Qi(亓欣波)">
+      <meta itemprop="description" content="Digitize everything to realize Digitalization!">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="数字旗手">
+    </span>
+      <header class="post-header">
+        <h1 class="post-title" itemprop="name headline">
+          轻量级PyTorch通用训练模板pytorch-accelerated解析：3 -- API之Schedulers
+        </h1>
+
+        <div class="post-meta">
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="far fa-calendar"></i>
+              </span>
+              <span class="post-meta-item-text">Posted on</span>
+
+              <time title="Created: 2022-06-05 00:00:00" itemprop="dateCreated datePublished" datetime="2022-06-05T00:00:00+08:00">2022-06-05</time>
+            </span>
+              <span class="post-meta-item">
+                <span class="post-meta-item-icon">
+                  <i class="far fa-calendar-check"></i>
+                </span>
+                <span class="post-meta-item-text">Edited on</span>
+                <time title="Modified: 2022-06-23 14:28:43" itemprop="dateModified" datetime="2022-06-23T14:28:43+08:00">2022-06-23</time>
+              </span>
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="far fa-folder"></i>
+              </span>
+              <span class="post-meta-item-text">In</span>
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+                  <a href="/categories/machine-learning/" itemprop="url" rel="index"><span itemprop="name">machine learning</span></a>
+                </span>
+            </span>
+
+          
+  
+  <span class="post-meta-item">
+    
+      <span class="post-meta-item-icon">
+        <i class="far fa-comment"></i>
+      </span>
+      <span class="post-meta-item-text">Disqus: </span>
+    
+    <a title="disqus" href="/2022/06/05/pytorch-accelerated_3/#disqus_thread" itemprop="discussionUrl">
+      <span class="post-comments-count disqus-comment-count" data-disqus-identifier="2022/06/05/pytorch-accelerated_3/" itemprop="commentCount"></span>
+    </a>
+  </span>
+  
+  
+
+        </div>
+      </header>
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+        <h1 id="简介"><a href="#简介" class="headerlink" title="简介"></a>简介</h1><p>这一章将研究<code>pytorch-accelerated</code>的调度器<code>API</code>。<br><code>PyTorch-accelerated</code>提供了一些调度器的实现，可以在任何<code>PyTorch</code>训练循环中使用。然而，与<code>PyTorch</code>的原生调度器不同——这些原生调度器可以在训练循环的不同点上被调用——所有<code>Pytorch-accelerated</code>调度器都期望在每次优化器更新后被调用。</p>
+<h1 id="内置调度器"><a href="#内置调度器" class="headerlink" title="内置调度器"></a>内置调度器</h1><p><code>PyTorch-accelerated</code>内置了一个有状态的余弦退火学习率调度器，基于<a target="_blank" rel="noopener" href="https://arxiv.org/abs/1608.03983">这篇论文</a>，但没有论文中的<code>restart</code>。<br>这个调度器与<code>PyTorch</code>的<code>CosineAnnealingLR</code>不同，它提供了增加<code>warmup</code>和<code>cooldown</code>的<code>epoch</code>的选项。此外，可以通过调整<code>k-decay</code>参数来修改退火率，可详见<a target="_blank" rel="noopener" href="https://arxiv.org/abs/2004.05909">这篇论文</a>。<br>关于该调度器的具体细节，暂不深究，具体可以查看<a target="_blank" rel="noopener" href="https://pytorch-accelerated.readthedocs.io/en/latest/schedulers.html#pytorch_accelerated.schedulers.cosine_scheduler.CosineLrScheduler">这个文档</a>。</p>
+<h1 id="调度器基类"><a href="#调度器基类" class="headerlink" title="调度器基类"></a>调度器基类</h1><p><code>PyTorch-accelerated</code>提供了两种类型的调度器的基类。</p>
+<h2 id="有状态的调度器"><a href="#有状态的调度器" class="headerlink" title="有状态的调度器"></a>有状态的调度器</h2><p>有状态的调度器维护一个内部计数，其对应于调度器的<code>step()</code>方法被调用了多少次。由于这些调度器与原生的<code>PyTorch</code>调度器具有相同的接口，因此<code>Trainer</code>默认支持这些调度器。<br>基类为：<br><figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"><span class="class"><span class="keyword">class</span> <span class="title">pytorch_accelerated</span>.<span class="title">schedulers</span>.<span class="title">scheduler_base</span>.<span class="title">StatefulSchedulerBase</span>(<span class="params">optimizer, param_group_field: <span class="built_in">str</span> = <span class="string">&#x27;lr&#x27;</span></span>)</span></span><br></pre></td></tr></table></figure><br>一个有状态的参数调度器基类，可用于更新优化器的参数组中的任意字段。这方面最常见的用例是学习率调度。<br>与<code>PyTorch</code>的调度器（它可以在训练循环的不同点被调用）不同的是，该类的目的是在每次优化器更新结束时被一致调用。<br>这个类负责维护更新的数量，在每次计算调度器的步骤时增加一个内部计数。<br>该类的一个用法如下：<br><figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">for</span> current_epoch, epoch <span class="keyword">in</span> <span class="built_in">enumerate</span>(num_epochs):</span><br><span class="line">    <span class="keyword">for</span> batch <span class="keyword">in</span> train_dataloader:</span><br><span class="line">        xb, yb = batch</span><br><span class="line">        predictions = model(xb)</span><br><span class="line">        loss = loss_func(predictions, yb)</span><br><span class="line"></span><br><span class="line">        loss.backward()</span><br><span class="line">        optimizer.step()</span><br><span class="line"></span><br><span class="line">        scheduler.step()</span><br></pre></td></tr></table></figure></p>
+<h2 id="无状态的调度器"><a href="#无状态的调度器" class="headerlink" title="无状态的调度器"></a>无状态的调度器</h2><p>无状态的调度器没有维护关于当前训练运行的内部状态，因此需要在调用时明确提供当前的更新数量。如果要在训练器中使用无状态调度器，这就需要对<code>Trainer</code>进行子类化，并重写<code>scheduler_step()</code>方法。<br>基类是：<br><figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"><span class="class"><span class="keyword">class</span> <span class="title">pytorch_accelerated</span>.<span class="title">schedulers</span>.<span class="title">scheduler_base</span>.<span class="title">SchedulerBase</span>(<span class="params">optimizer: Optimizer, param_group_field: <span class="built_in">str</span> = <span class="string">&#x27;lr&#x27;</span></span>)</span></span><br></pre></td></tr></table></figure><br>该类也可用于更新优化器参数组中的任何字段。这方面最常见的用例是学习率调度。<br>与`PyTorch   的调度器（它可以根据实现方式在训练循环的不同点被调用）不同的是，这个类的目的是在每次优化器更新结束时被一致调用。<br>由于这个类在默认情况下是无状态的，它希望更新的数量是明确提供的，如下所示：<br><figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">for</span> current_epoch, epoch <span class="keyword">in</span> <span class="built_in">enumerate</span>(num_epochs):</span><br><span class="line">    num_updates = current_epoch * num_update_steps_per_epoch</span><br><span class="line">    <span class="keyword">for</span> batch <span class="keyword">in</span> train_dataloader:</span><br><span class="line">        xb, yb = batch</span><br><span class="line">        predictions = model(xb)</span><br><span class="line">        loss = loss_func(predictions, yb)</span><br><span class="line"></span><br><span class="line">        loss.backward()</span><br><span class="line">        optimizer.step()</span><br><span class="line"></span><br><span class="line">        num_updates +=<span class="number">1</span></span><br><span class="line">        scheduler.step_update(num_updates)</span><br></pre></td></tr></table></figure></p>
+<h1 id="创建新的调度器"><a href="#创建新的调度器" class="headerlink" title="创建新的调度器"></a>创建新的调度器</h1><p>虽然调度器通常用于调度学习率，但<code>PyTorch-accelerated</code>中的调度器基类可用于调度优化器参数组中的任意参数。<br>要创建一个新的调度器，在大多数情况下，只需要对其中一个基类进行子类化，并重写<code>get_updated_values()</code>方法。</p>
+<h2 id="案例1：创建一个简单的目标学习率调度器"><a href="#案例1：创建一个简单的目标学习率调度器" class="headerlink" title="案例1：创建一个简单的目标学习率调度器"></a>案例1：创建一个简单的目标学习率调度器</h2><p>下面是一个例子，说明如何实现一个调度器，在每次达到一个<code>milestone</code>目标时，以一个系数<code>gamma</code>调整每个参数组的学习率：<br><figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">from</span> pytorch_accelerated.schedulers <span class="keyword">import</span> StatefulSchedulerBase</span><br><span class="line"></span><br><span class="line"><span class="class"><span class="keyword">class</span> <span class="title">MilestoneLrScheduler</span>(<span class="params">StatefulSchedulerBase</span>):</span></span><br><span class="line">    <span class="function"><span class="keyword">def</span> <span class="title">__init__</span>(<span class="params"></span></span></span><br><span class="line"><span class="function"><span class="params">        self, optimizer, gamma=<span class="number">0.5</span>, epoch_milestones=(<span class="params"><span class="number">2</span>, <span class="number">4</span>, <span class="number">5</span></span>), num_steps_per_epoch=<span class="number">100</span></span></span></span><br><span class="line"><span class="function"><span class="params">    </span>):</span></span><br><span class="line">        <span class="built_in">super</span>().__init__(optimizer, param_group_field=<span class="string">&quot;lr&quot;</span>)</span><br><span class="line">        self.milestones = <span class="built_in">set</span>(</span><br><span class="line">            (num_steps_per_epoch * milestone <span class="keyword">for</span> milestone <span class="keyword">in</span> epoch_milestones)</span><br><span class="line">        )</span><br><span class="line">        self.gamma = gamma</span><br><span class="line"></span><br><span class="line">    <span class="function"><span class="keyword">def</span> <span class="title">get_updated_values</span>(<span class="params">self, num_updates: <span class="built_in">int</span></span>):</span></span><br><span class="line">        <span class="keyword">if</span> num_updates <span class="keyword">in</span> self.milestones:</span><br><span class="line">            lr_values = [</span><br><span class="line">                group[self.param_group_field] <span class="keyword">for</span> group <span class="keyword">in</span> self.optimizer.param_groups</span><br><span class="line">            ]</span><br><span class="line">            updated_lrs = [lr * self.gamma <span class="keyword">for</span> lr <span class="keyword">in</span> lr_values]</span><br><span class="line">            <span class="keyword">return</span> updated_lrs</span><br></pre></td></tr></table></figure></p>
+<h2 id="案例2：对权重衰减进行调度"><a href="#案例2：对权重衰减进行调度" class="headerlink" title="案例2：对权重衰减进行调度"></a>案例2：对权重衰减进行调度</h2><p>下面是一个例子，说明可以定义一个调度器，每隔<code>n</code>步就递增一个系数<code>gamma</code>来增加权重衰减量：<br><figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">from</span> pytorch_accelerated.schedulers <span class="keyword">import</span> StatefulSchedulerBase</span><br><span class="line"></span><br><span class="line"><span class="class"><span class="keyword">class</span> <span class="title">StepWdScheduler</span>(<span class="params">StatefulSchedulerBase</span>):</span></span><br><span class="line">    <span class="function"><span class="keyword">def</span> <span class="title">__init__</span>(<span class="params">self, optimizer, n=<span class="number">1000</span>, gamma=<span class="number">1.1</span></span>):</span></span><br><span class="line">        <span class="built_in">super</span>().__init__(optimizer, param_group_field=<span class="string">&quot;weight_decay&quot;</span>)</span><br><span class="line">        self.n = n</span><br><span class="line">        self.gamma = gamma</span><br><span class="line"></span><br><span class="line">    <span class="function"><span class="keyword">def</span> <span class="title">get_updated_values</span>(<span class="params">self, num_updates: <span class="built_in">int</span></span>):</span></span><br><span class="line">        <span class="keyword">if</span> num_updates % self.n == <span class="number">0</span> <span class="keyword">and</span> num_updates &gt; <span class="number">0</span>:</span><br><span class="line">            wd_values = [</span><br><span class="line">                group[self.param_group_field] <span class="keyword">for</span> group <span class="keyword">in</span> self.optimizer.param_groups</span><br><span class="line">            ]</span><br><span class="line">            updated_wd_values = [wd * self.gamma <span class="keyword">for</span> wd <span class="keyword">in</span> wd_values]</span><br><span class="line">            <span class="keyword">return</span> updated_wd_values</span><br></pre></td></tr></table></figure></p>
+
+    </div>
+
+    
+    
+    
+        <div class="reward-container">
+  <div></div>
+  <button onclick="var qr = document.getElementById('qr'); qr.style.display = (qr.style.display === 'none') ? 'block' : 'none';">
+    Donate
+  </button>
+  <div id="qr" style="display: none;">
+      
+      <div style="display: inline-block;">
+        <img src="/images/wechat_reward.png" alt="Xin-Bo Qi(亓欣波) WeChat Pay">
+        <p>WeChat Pay</p>
+      </div>
+
+  </div>
+</div>
+
+
+      <footer class="post-footer">
+          <div class="post-tags">
+              <a href="/tags/PyTorch/" rel="tag"># PyTorch</a>
+          </div>
+
+        
+
+
+        
+    <div class="post-nav">
+      <div class="post-nav-item">
+    <a href="/2022/06/04/pytorch-accelerated_2/" rel="prev" title="轻量级PyTorch通用训练模板pytorch-accelerated解析：2 -- API之Callbacks">
+      <i class="fa fa-chevron-left"></i> 轻量级PyTorch通用训练模板pytorch-accelerated解析：2 -- API之Callbacks
+    </a></div>
+      <div class="post-nav-item">
+    <a href="/2022/06/12/pytorch-accelerated_4/" rel="next" title="轻量级PyTorch通用训练模板pytorch-accelerated解析：4 -- 其他API">
+      轻量级PyTorch通用训练模板pytorch-accelerated解析：4 -- 其他API <i class="fa fa-chevron-right"></i>
+    </a></div>
+    </div>
+      </footer>
+    
+  </article>
+  
+  
+  
+
+
+
+          </div>
+          
+    
+  <div class="comments">
+    <div id="disqus_thread">
+      <noscript>Please enable JavaScript to view the comments powered by Disqus.</noscript>
+    </div>
+  </div>
+  
+
+<script>
+  window.addEventListener('tabs:register', () => {
+    let { activeClass } = CONFIG.comments;
+    if (CONFIG.comments.storage) {
+      activeClass = localStorage.getItem('comments_active') || activeClass;
+    }
+    if (activeClass) {
+      let activeTab = document.querySelector(`a[href="#comment-${activeClass}"]`);
+      if (activeTab) {
+        activeTab.click();
+      }
+    }
+  });
+  if (CONFIG.comments.storage) {
+    window.addEventListener('tabs:click', event => {
+      if (!event.target.matches('.tabs-comment .tab-content .tab-pane')) return;
+      let commentClass = event.target.classList[1];
+      localStorage.setItem('comments_active', commentClass);
+    });
+  }
+</script>
+
+        </div>
+          
+  
+  <div class="toggle sidebar-toggle">
+    <span class="toggle-line toggle-line-first"></span>
+    <span class="toggle-line toggle-line-middle"></span>
+    <span class="toggle-line toggle-line-last"></span>
+  </div>
+
+  <aside class="sidebar">
+    <div class="sidebar-inner">
+
+      <ul class="sidebar-nav motion-element">
+        <li class="sidebar-nav-toc">
+          Table of Contents
+        </li>
+        <li class="sidebar-nav-overview">
+          Overview
+        </li>
+      </ul>
+
+      <!--noindex-->
+      <div class="post-toc-wrap sidebar-panel">
+          <div class="post-toc motion-element"><ol class="nav"><li class="nav-item nav-level-1"><a class="nav-link" href="#%E7%AE%80%E4%BB%8B"><span class="nav-number">1.</span> <span class="nav-text">简介</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#%E5%86%85%E7%BD%AE%E8%B0%83%E5%BA%A6%E5%99%A8"><span class="nav-number">2.</span> <span class="nav-text">内置调度器</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#%E8%B0%83%E5%BA%A6%E5%99%A8%E5%9F%BA%E7%B1%BB"><span class="nav-number">3.</span> <span class="nav-text">调度器基类</span></a><ol class="nav-child"><li class="nav-item nav-level-2"><a class="nav-link" href="#%E6%9C%89%E7%8A%B6%E6%80%81%E7%9A%84%E8%B0%83%E5%BA%A6%E5%99%A8"><span class="nav-number">3.1.</span> <span class="nav-text">有状态的调度器</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E6%97%A0%E7%8A%B6%E6%80%81%E7%9A%84%E8%B0%83%E5%BA%A6%E5%99%A8"><span class="nav-number">3.2.</span> <span class="nav-text">无状态的调度器</span></a></li></ol></li><li class="nav-item nav-level-1"><a class="nav-link" href="#%E5%88%9B%E5%BB%BA%E6%96%B0%E7%9A%84%E8%B0%83%E5%BA%A6%E5%99%A8"><span class="nav-number">4.</span> <span class="nav-text">创建新的调度器</span></a><ol class="nav-child"><li class="nav-item nav-level-2"><a class="nav-link" href="#%E6%A1%88%E4%BE%8B1%EF%BC%9A%E5%88%9B%E5%BB%BA%E4%B8%80%E4%B8%AA%E7%AE%80%E5%8D%95%E7%9A%84%E7%9B%AE%E6%A0%87%E5%AD%A6%E4%B9%A0%E7%8E%87%E8%B0%83%E5%BA%A6%E5%99%A8"><span class="nav-number">4.1.</span> <span class="nav-text">案例1：创建一个简单的目标学习率调度器</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E6%A1%88%E4%BE%8B2%EF%BC%9A%E5%AF%B9%E6%9D%83%E9%87%8D%E8%A1%B0%E5%87%8F%E8%BF%9B%E8%A1%8C%E8%B0%83%E5%BA%A6"><span class="nav-number">4.2.</span> <span class="nav-text">案例2：对权重衰减进行调度</span></a></li></ol></li></ol></div>
+      </div>
+      <!--/noindex-->
+
+      <div class="site-overview-wrap sidebar-panel">
+        <div class="site-author motion-element" itemprop="author" itemscope itemtype="http://schema.org/Person">
+    <img class="site-author-image" itemprop="image" alt="Xin-Bo Qi(亓欣波)"
+      src="/images/avatar.jpg">
+  <p class="site-author-name" itemprop="name">Xin-Bo Qi(亓欣波)</p>
+  <div class="site-description" itemprop="description">Digitize everything to realize Digitalization!</div>
+</div>
+<div class="site-state-wrap motion-element">
+  <nav class="site-state">
+      <div class="site-state-item site-state-posts">
+          <a href="/archives/">
+        
+          <span class="site-state-item-count">162</span>
+          <span class="site-state-item-name">posts</span>
+        </a>
+      </div>
+      <div class="site-state-item site-state-categories">
+            <a href="/categories/">
+          
+        <span class="site-state-item-count">6</span>
+        <span class="site-state-item-name">categories</span></a>
+      </div>
+      <div class="site-state-item site-state-tags">
+            <a href="/tags/">
+          
+        <span class="site-state-item-count">54</span>
+        <span class="site-state-item-name">tags</span></a>
+      </div>
+  </nav>
+</div>
+  <div class="links-of-author motion-element">
+      <span class="links-of-author-item">
+        <a href="https://github.com/qixinbo" title="GitHub → https:&#x2F;&#x2F;github.com&#x2F;qixinbo" rel="noopener" target="_blank"><i class="github fa-fw"></i>GitHub</a>
+      </span>
+      <span class="links-of-author-item">
+        <a href="mailto:qixinbo@gmail.com" title="E-Mail → mailto:qixinbo@gmail.com" rel="noopener" target="_blank"><i class="envelope fa-fw"></i>E-Mail</a>
+      </span>
+      <span class="links-of-author-item">
+        <a href="https://twitter.com/qixinbo" title="Twitter → https:&#x2F;&#x2F;twitter.com&#x2F;qixinbo" rel="noopener" target="_blank"><i class="fab fa-twitter fa-fw"></i>Twitter</a>
+      </span>
+      <span class="links-of-author-item">
+        <a href="/atom.xml" title="RSS → &#x2F;atom.xml"><i class="fas fa-rss fa-fw"></i>RSS</a>
+      </span>
+  </div>
+
+
+  <div class="links-of-blogroll motion-element">
+    <div class="links-of-blogroll-title"><i class="fa fa-link fa-fw"></i>
+      Links
+    </div>
+    <ul class="links-of-blogroll-list">
+        <li class="links-of-blogroll-item">
+          <a href="https://www.tsinghua.edu.cn/" title="https:&#x2F;&#x2F;www.tsinghua.edu.cn" rel="noopener" target="_blank">THU</a>
+        </li>
+        <li class="links-of-blogroll-item">
+          <a href="http://www.imr.cas.cn/" title="http:&#x2F;&#x2F;www.imr.cas.cn" rel="noopener" target="_blank">IMR</a>
+        </li>
+        <li class="links-of-blogroll-item">
+          <a href="http://www.sdu.edu.cn/" title="http:&#x2F;&#x2F;www.sdu.edu.cn" rel="noopener" target="_blank">SDU</a>
+        </li>
+        <li class="links-of-blogroll-item">
+          <a href="http://liam0205.me/" title="http:&#x2F;&#x2F;liam0205.me&#x2F;" rel="noopener" target="_blank">黄晨成</a>
+        </li>
+    </ul>
+  </div>
+
+      </div>
+
+    </div>
+  </aside>
+  <div id="sidebar-dimmer"></div>
+
+
+      </div>
+    </main>
+
+    <footer class="footer">
+      <div class="footer-inner">
+        
+
+        
+
+<div class="copyright">
+  
+  &copy; 
+  <span itemprop="copyrightYear">2022</span>
+  <span class="with-love">
+    <i class="fa fa-heart"></i>
+  </span>
+  <span class="author" itemprop="copyrightHolder">Xin-Bo Qi(亓欣波)</span>
+</div>
+  <div class="powered-by">Powered by <a href="https://hexo.io/" class="theme-link" rel="noopener" target="_blank">Hexo</a> & <a href="https://theme-next.org/" class="theme-link" rel="noopener" target="_blank">NexT.Gemini</a>
+  </div>
+
+        
+
+
+
+
+
+
+
+
+      </div>
+    </footer>
+  </div>
+
+  
+  <script src="/lib/anime.min.js"></script>
+  <script src="/lib/velocity/velocity.min.js"></script>
+  <script src="/lib/velocity/velocity.ui.min.js"></script>
+
+<script src="/js/utils.js"></script>
+
+<script src="/js/motion.js"></script>
+
+
+<script src="/js/schemes/pisces.js"></script>
+
+
+<script src="/js/next-boot.js"></script>
+
+
+
+
+  
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+  
+
+  
+      
+
+<script>
+  if (typeof MathJax === 'undefined') {
+    window.MathJax = {
+      loader: {
+        source: {
+          '[tex]/amsCd': '[tex]/amscd',
+          '[tex]/AMScd': '[tex]/amscd'
+        }
+      },
+      tex: {
+        inlineMath: {'[+]': [['$', '$']]},
+        tags: 'ams'
+      },
+      options: {
+        renderActions: {
+          findScript: [10, doc => {
+            document.querySelectorAll('script[type^="math/tex"]').forEach(node => {
+              const display = !!node.type.match(/; *mode=display/);
+              const math = new doc.options.MathItem(node.textContent, doc.inputJax[0], display);
+              const text = document.createTextNode('');
+              node.parentNode.replaceChild(text, node);
+              math.start = {node: text, delim: '', n: 0};
+              math.end = {node: text, delim: '', n: 0};
+              doc.math.push(math);
+            });
+          }, '', false],
+          insertedScript: [200, () => {
+            document.querySelectorAll('mjx-container').forEach(node => {
+              let target = node.parentNode;
+              if (target.nodeName.toLowerCase() === 'li') {
+                target.parentNode.classList.add('has-jax');
+              }
+            });
+          }, '', false]
+        }
+      }
+    };
+    (function () {
+      var script = document.createElement('script');
+      script.src = '//cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js';
+      script.defer = true;
+      document.head.appendChild(script);
+    })();
+  } else {
+    MathJax.startup.document.state(0);
+    MathJax.texReset();
+    MathJax.typeset();
+  }
+</script>
+
+    
+
+  
+
+<script>
+  function loadCount() {
+    var d = document, s = d.createElement('script');
+    s.src = 'https://qixinbo.disqus.com/count.js';
+    s.id = 'dsq-count-scr';
+    (d.head || d.body).appendChild(s);
+  }
+  // defer loading until the whole page loading is completed
+  window.addEventListener('load', loadCount, false);
+</script>
+<script>
+  var disqus_config = function() {
+    this.page.url = "http://qixinbo.github.io/2022/06/05/pytorch-accelerated_3/";
+    this.page.identifier = "2022/06/05/pytorch-accelerated_3/";
+    this.page.title = "轻量级PyTorch通用训练模板pytorch-accelerated解析：3 -- API之Schedulers";
+    };
+  NexT.utils.loadComments(document.querySelector('#disqus_thread'), () => {
+    if (window.DISQUS) {
+      DISQUS.reset({
+        reload: true,
+        config: disqus_config
+      });
+    } else {
+      var d = document, s = d.createElement('script');
+      s.src = 'https://qixinbo.disqus.com/embed.js';
+      s.setAttribute('data-timestamp', '' + +new Date());
+      (d.head || d.body).appendChild(s);
+    }
+  });
+</script>
+
+</body>
+</html>
