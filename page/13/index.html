@@ -184,6 +184,130 @@
   
   
   <article itemscope itemtype="http://schema.org/Article" class="post-block" lang="en">
+    <link itemprop="mainEntityOfPage" href="http://qixinbo.github.io/2016/12/20/prisms-pf-adaptivity/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="image" content="/images/avatar.jpg">
+      <meta itemprop="name" content="Xin-Bo Qi(亓欣波)">
+      <meta itemprop="description" content="Digitize everything to realize Digitalization!">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="数字旗手">
+    </span>
+      <header class="post-header">
+        <h2 class="post-title" itemprop="name headline">
+          
+            <a href="/2016/12/20/prisms-pf-adaptivity/" class="post-title-link" itemprop="url">PRISMS-PF v1.0 学习手册——自适应网格</a>
+        </h2>
+
+        <div class="post-meta">
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="far fa-calendar"></i>
+              </span>
+              <span class="post-meta-item-text">Posted on</span>
+
+              <time title="Created: 2016-12-20 00:00:00" itemprop="dateCreated datePublished" datetime="2016-12-20T00:00:00+08:00">2016-12-20</time>
+            </span>
+              <span class="post-meta-item">
+                <span class="post-meta-item-icon">
+                  <i class="far fa-calendar-check"></i>
+                </span>
+                <span class="post-meta-item-text">Edited on</span>
+                <time title="Modified: 2021-03-26 15:50:19" itemprop="dateModified" datetime="2021-03-26T15:50:19+08:00">2021-03-26</time>
+              </span>
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="far fa-folder"></i>
+              </span>
+              <span class="post-meta-item-text">In</span>
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+                  <a href="/categories/simulation/" itemprop="url" rel="index"><span itemprop="name">simulation</span></a>
+                </span>
+            </span>
+
+          
+  
+  <span class="post-meta-item">
+    
+      <span class="post-meta-item-icon">
+        <i class="far fa-comment"></i>
+      </span>
+      <span class="post-meta-item-text">Disqus: </span>
+    
+    <a title="disqus" href="/2016/12/20/prisms-pf-adaptivity/#disqus_thread" itemprop="discussionUrl">
+      <span class="post-comments-count disqus-comment-count" data-disqus-identifier="2016/12/20/prisms-pf-adaptivity/" itemprop="commentCount"></span>
+    </a>
+  </span>
+  
+  
+
+        </div>
+      </header>
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+          引子
+自适应网格是一项很重要的减小计算量、提高计算效率的方法。
+
+流程
+求解步
+在求解步时，传入时间步数来判断是否自适应：
+1
+
+
+adaptiveRefine(currentIncrement);
+
+
+
+如果时间步数满足要自适应的间隔，那么就开始自适应：
+1
+2
+3
+
+
+if ((currentIncrement>0) && (currentIncrement%skipRemeshingSteps==0)){
+this->refineMesh(currentIncrement);
+}
+
+
+
+这个refineMesh函数会调用init函数参数是非0的情形：
+1
+
+
+init(_currentI
+          <!--noindex-->
+            <div class="post-button">
+              <a class="btn" href="/2016/12/20/prisms-pf-adaptivity/#more" rel="contents">
+                Read more &raquo;
+              </a>
+            </div>
+          <!--/noindex-->
+        
+      
+    </div>
+
+    
+    
+    
+      <footer class="post-footer">
+        <div class="post-eof"></div>
+      </footer>
+  </article>
+  
+  
+  
+
+      
+  
+  
+  <article itemscope itemtype="http://schema.org/Article" class="post-block" lang="en">
     <link itemprop="mainEntityOfPage" href="http://qixinbo.github.io/2016/12/16/prisms-pf-v1-CHAC/">
 
     <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
@@ -1149,110 +1273,6 @@ PETSc，全称Portable-Extensible-Toolkit-for-Scientific-Computatio
   
   
 
-      
-  
-  
-  <article itemscope itemtype="http://schema.org/Article" class="post-block" lang="en">
-    <link itemprop="mainEntityOfPage" href="http://qixinbo.github.io/2016/09/16/dealii-learn-step11/">
-
-    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
-      <meta itemprop="image" content="/images/avatar.jpg">
-      <meta itemprop="name" content="Xin-Bo Qi(亓欣波)">
-      <meta itemprop="description" content="Digitize everything to realize Digitalization!">
-    </span>
-
-    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
-      <meta itemprop="name" content="数字旗手">
-    </span>
-      <header class="post-header">
-        <h2 class="post-title" itemprop="name headline">
-          
-            <a href="/2016/09/16/dealii-learn-step11/" class="post-title-link" itemprop="url">求解偏微分方程开源有限元软件deal.II学习--Step 11</a>
-        </h2>
-
-        <div class="post-meta">
-            <span class="post-meta-item">
-              <span class="post-meta-item-icon">
-                <i class="far fa-calendar"></i>
-              </span>
-              <span class="post-meta-item-text">Posted on</span>
-
-              <time title="Created: 2016-09-16 00:00:00" itemprop="dateCreated datePublished" datetime="2016-09-16T00:00:00+08:00">2016-09-16</time>
-            </span>
-              <span class="post-meta-item">
-                <span class="post-meta-item-icon">
-                  <i class="far fa-calendar-check"></i>
-                </span>
-                <span class="post-meta-item-text">Edited on</span>
-                <time title="Modified: 2021-03-26 14:50:33" itemprop="dateModified" datetime="2021-03-26T14:50:33+08:00">2021-03-26</time>
-              </span>
-            <span class="post-meta-item">
-              <span class="post-meta-item-icon">
-                <i class="far fa-folder"></i>
-              </span>
-              <span class="post-meta-item-text">In</span>
-                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
-                  <a href="/categories/simulation/" itemprop="url" rel="index"><span itemprop="name">simulation</span></a>
-                </span>
-            </span>
-
-          
-  
-  <span class="post-meta-item">
-    
-      <span class="post-meta-item-icon">
-        <i class="far fa-comment"></i>
-      </span>
-      <span class="post-meta-item-text">Disqus: </span>
-    
-    <a title="disqus" href="/2016/09/16/dealii-learn-step11/#disqus_thread" itemprop="discussionUrl">
-      <span class="post-comments-count disqus-comment-count" data-disqus-identifier="2016/09/16/dealii-learn-step11/" itemprop="commentCount"></span>
-    </a>
-  </span>
-  
-  
-
-        </div>
-      </header>
-
-    
-    
-    
-    <div class="post-body" itemprop="articleBody">
-
-      
-          引子
-这个例子的亮点：介绍了最简单的Laplace方程的组装矩阵和右端项的一键生成函数。
-这个例子来求解仅考虑Neumann边界条件的Laplace问题：
-
-如果有解的话，解必须满足协调条件：
-
-这里考虑计算域是以原点为圆心，半径为1的圆，$f=-2,g=1$是满足协调条件的。
-虽然协调条件允许有解，但解仍然是不定的：在方程中仅仅解的导数固定，解可以是任意常数。所以需要施加另外一个条件来固定这个常数。可以有以下可能的方法：
-
- * 固定离散后的某个节点值为0或其他固定值。这意味着一个额外的条件$u_h(x_0)=0$。尽管这是通常的做法，但不是一个好方法，因为我们知道Laplace方程的解是在
-          <!--noindex-->
-            <div class="post-button">
-              <a class="btn" href="/2016/09/16/dealii-learn-step11/#more" rel="contents">
-                Read more &raquo;
-              </a>
-            </div>
-          <!--/noindex-->
-        
-      
-    </div>
-
-    
-    
-    
-      <footer class="post-footer">
-        <div class="post-eof"></div>
-      </footer>
-  </article>
-  
-  
-  
-
 
   
   <nav class="pagination">
@@ -1324,7 +1344,7 @@ PETSc，全称Portable-Extensible-Toolkit-for-Scientific-Computatio
       <div class="site-state-item site-state-posts">
           <a href="/archives/">
         
-          <span class="site-state-item-count">163</span>
+          <span class="site-state-item-count">164</span>
           <span class="site-state-item-name">posts</span>
         </a>
       </div>
