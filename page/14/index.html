@@ -184,6 +184,103 @@
   
   
   <article itemscope itemtype="http://schema.org/Article" class="post-block" lang="en">
+    <link itemprop="mainEntityOfPage" href="http://qixinbo.github.io/2016/09/16/dealii-learn-step10/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="image" content="/images/avatar.jpg">
+      <meta itemprop="name" content="Xin-Bo Qi(亓欣波)">
+      <meta itemprop="description" content="Digitize everything to realize Digitalization!">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="数字旗手">
+    </span>
+      <header class="post-header">
+        <h2 class="post-title" itemprop="name headline">
+          
+            <a href="/2016/09/16/dealii-learn-step10/" class="post-title-link" itemprop="url">求解偏微分方程开源有限元软件deal.II学习--Step 10</a>
+        </h2>
+
+        <div class="post-meta">
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="far fa-calendar"></i>
+              </span>
+              <span class="post-meta-item-text">Posted on</span>
+
+              <time title="Created: 2016-09-16 00:00:00" itemprop="dateCreated datePublished" datetime="2016-09-16T00:00:00+08:00">2016-09-16</time>
+            </span>
+              <span class="post-meta-item">
+                <span class="post-meta-item-icon">
+                  <i class="far fa-calendar-check"></i>
+                </span>
+                <span class="post-meta-item-text">Edited on</span>
+                <time title="Modified: 2021-03-26 14:50:28" itemprop="dateModified" datetime="2021-03-26T14:50:28+08:00">2021-03-26</time>
+              </span>
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="far fa-folder"></i>
+              </span>
+              <span class="post-meta-item-text">In</span>
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+                  <a href="/categories/simulation/" itemprop="url" rel="index"><span itemprop="name">simulation</span></a>
+                </span>
+            </span>
+
+          
+  
+  <span class="post-meta-item">
+    
+      <span class="post-meta-item-icon">
+        <i class="far fa-comment"></i>
+      </span>
+      <span class="post-meta-item-text">Disqus: </span>
+    
+    <a title="disqus" href="/2016/09/16/dealii-learn-step10/#disqus_thread" itemprop="discussionUrl">
+      <span class="post-comments-count disqus-comment-count" data-disqus-identifier="2016/09/16/dealii-learn-step10/" itemprop="commentCount"></span>
+    </a>
+  </span>
+  
+  
+
+        </div>
+      </header>
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+          引子
+这个小例子主要演示更高阶的映射。映射的意思是参考单元和真实单元之间的变换，之前的例子中默认使用线性或双线性映射。这里的线性映射不是形函数用线性近似，同时也不是Cn单元的概念，Cn单元代表解的最高阶导数的概念。如果边界是弯曲的话，用线性近似就可能不充分。如果使用分段二次抛物线来近似的话，就说这是二次或Q2近似。如果使用分段三次多项式近似的话，就称为Q3近似。依次类推。
+这里是用逼近圆周率来说明映射问题。用两种方法：一种是对半径为1的圆进行三角剖分，然后积分，如果完全是圆，那么它的面积精确为圆周率，但因为是多项式近似，所以肯定不精确，这里展示不同映射下随着网格细化的收敛性。第二种不是计算面积
+          <!--noindex-->
+            <div class="post-button">
+              <a class="btn" href="/2016/09/16/dealii-learn-step10/#more" rel="contents">
+                Read more &raquo;
+              </a>
+            </div>
+          <!--/noindex-->
+        
+      
+    </div>
+
+    
+    
+    
+      <footer class="post-footer">
+        <div class="post-eof"></div>
+      </footer>
+  </article>
+  
+  
+  
+
+      
+  
+  
+  <article itemscope itemtype="http://schema.org/Article" class="post-block" lang="en">
     <link itemprop="mainEntityOfPage" href="http://qixinbo.github.io/2016/09/16/dealii-learn-step11/">
 
     <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
@@ -1190,127 +1287,6 @@ deal.II有一个特性，叫作”维度无关的编程“。前面的例子中�
   
   
 
-      
-  
-  
-  <article itemscope itemtype="http://schema.org/Article" class="post-block" lang="en">
-    <link itemprop="mainEntityOfPage" href="http://qixinbo.github.io/2016/08/18/mathematica-fem-ch3/">
-
-    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
-      <meta itemprop="image" content="/images/avatar.jpg">
-      <meta itemprop="name" content="Xin-Bo Qi(亓欣波)">
-      <meta itemprop="description" content="Digitize everything to realize Digitalization!">
-    </span>
-
-    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
-      <meta itemprop="name" content="数字旗手">
-    </span>
-      <header class="post-header">
-        <h2 class="post-title" itemprop="name headline">
-          
-            <a href="/2016/08/18/mathematica-fem-ch3/" class="post-title-link" itemprop="url">利用Mathematica进行有限元编程(二)：桁架元分析</a>
-        </h2>
-
-        <div class="post-meta">
-            <span class="post-meta-item">
-              <span class="post-meta-item-icon">
-                <i class="far fa-calendar"></i>
-              </span>
-              <span class="post-meta-item-text">Posted on</span>
-
-              <time title="Created: 2016-08-18 00:00:00" itemprop="dateCreated datePublished" datetime="2016-08-18T00:00:00+08:00">2016-08-18</time>
-            </span>
-              <span class="post-meta-item">
-                <span class="post-meta-item-icon">
-                  <i class="far fa-calendar-check"></i>
-                </span>
-                <span class="post-meta-item-text">Edited on</span>
-                <time title="Modified: 2021-03-26 15:47:49" itemprop="dateModified" datetime="2021-03-26T15:47:49+08:00">2021-03-26</time>
-              </span>
-            <span class="post-meta-item">
-              <span class="post-meta-item-icon">
-                <i class="far fa-folder"></i>
-              </span>
-              <span class="post-meta-item-text">In</span>
-                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
-                  <a href="/categories/simulation/" itemprop="url" rel="index"><span itemprop="name">simulation</span></a>
-                </span>
-            </span>
-
-          
-  
-  <span class="post-meta-item">
-    
-      <span class="post-meta-item-icon">
-        <i class="far fa-comment"></i>
-      </span>
-      <span class="post-meta-item-text">Disqus: </span>
-    
-    <a title="disqus" href="/2016/08/18/mathematica-fem-ch3/#disqus_thread" itemprop="discussionUrl">
-      <span class="post-comments-count disqus-comment-count" data-disqus-identifier="2016/08/18/mathematica-fem-ch3/" itemprop="commentCount"></span>
-    </a>
-  </span>
-  
-  
-
-        </div>
-      </header>
-
-    
-    
-    
-    <div class="post-body" itemprop="articleBody">
-
-      
-          本文是对Mathematica有限元分析与工程应用一书的学习笔记。
-
-桁架元的特点
-平面桁架元是既有局部坐标又有整体坐标的二维有限元，因此比起之前的杆单元，需要多一步坐标变换。
-桁架元示意图如下：
-
-指定整体坐标系为X-Y，局部坐标系为x-y。则两者之间的转换关系为：
-
-即：
-
-其中：
-
-局部坐标系下的有限元方程为：
-
-为了把有限元方程从局部坐标系变换到整体坐标系，可通过转换矩阵：
-
-所以：
-
-又因为转换矩阵T满足如下关系(可实际计算验证一下)：
-
-所以：
-
-所以整体坐标系的刚度矩阵与局部坐标系的刚度矩阵关系为：
-
-由于局部坐标系下的单元刚度矩阵为：
-
-其中$k=\frac{EA}{L}$。那
-          <!--noindex-->
-            <div class="post-button">
-              <a class="btn" href="/2016/08/18/mathematica-fem-ch3/#more" rel="contents">
-                Read more &raquo;
-              </a>
-            </div>
-          <!--/noindex-->
-        
-      
-    </div>
-
-    
-    
-    
-      <footer class="post-footer">
-        <div class="post-eof"></div>
-      </footer>
-  </article>
-  
-  
-  
-
 
   
   <nav class="pagination">
@@ -1382,7 +1358,7 @@ deal.II有一个特性，叫作”维度无关的编程“。前面的例子中�
       <div class="site-state-item site-state-posts">
           <a href="/archives/">
         
-          <span class="site-state-item-count">164</span>
+          <span class="site-state-item-count">165</span>
           <span class="site-state-item-name">posts</span>
         </a>
       </div>
