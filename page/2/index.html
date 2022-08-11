@@ -184,6 +184,121 @@
   
   
   <article itemscope itemtype="http://schema.org/Article" class="post-block" lang="en">
+    <link itemprop="mainEntityOfPage" href="http://qixinbo.github.io/2022/05/29/pytorch-accelerated_1/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="image" content="/images/avatar.jpg">
+      <meta itemprop="name" content="Xin-Bo Qi(亓欣波)">
+      <meta itemprop="description" content="Digitize everything to realize Digitalization!">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="数字旗手">
+    </span>
+      <header class="post-header">
+        <h2 class="post-title" itemprop="name headline">
+          
+            <a href="/2022/05/29/pytorch-accelerated_1/" class="post-title-link" itemprop="url">轻量级PyTorch通用训练模板pytorch-accelerated解析：1 -- API之Trainer</a>
+        </h2>
+
+        <div class="post-meta">
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="far fa-calendar"></i>
+              </span>
+              <span class="post-meta-item-text">Posted on</span>
+
+              <time title="Created: 2022-05-29 00:00:00" itemprop="dateCreated datePublished" datetime="2022-05-29T00:00:00+08:00">2022-05-29</time>
+            </span>
+              <span class="post-meta-item">
+                <span class="post-meta-item-icon">
+                  <i class="far fa-calendar-check"></i>
+                </span>
+                <span class="post-meta-item-text">Edited on</span>
+                <time title="Modified: 2022-06-22 23:32:38" itemprop="dateModified" datetime="2022-06-22T23:32:38+08:00">2022-06-22</time>
+              </span>
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="far fa-folder"></i>
+              </span>
+              <span class="post-meta-item-text">In</span>
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+                  <a href="/categories/machine-learning/" itemprop="url" rel="index"><span itemprop="name">machine learning</span></a>
+                </span>
+            </span>
+
+          
+  
+  <span class="post-meta-item">
+    
+      <span class="post-meta-item-icon">
+        <i class="far fa-comment"></i>
+      </span>
+      <span class="post-meta-item-text">Disqus: </span>
+    
+    <a title="disqus" href="/2022/05/29/pytorch-accelerated_1/#disqus_thread" itemprop="discussionUrl">
+      <span class="post-comments-count disqus-comment-count" data-disqus-identifier="2022/05/29/pytorch-accelerated_1/" itemprop="commentCount"></span>
+    </a>
+  </span>
+  
+  
+
+        </div>
+      </header>
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+          简介
+从这一节开始，详细看一下pytorch-accelerated的API。
+本文是对Trainer的API的解析。
+
+Trainer概览
+训练器Trainer用来封装特定任务的整个训练循环，将模型、损失函数和优化器结合在一起，并为训练过程的每一步提供执行行为规范。
+Trainer的实现是这样的：它提供了训练部分的（可重复的）实现，这些部分在被定义后很少发生变化——比如创建数据加载器，或如何将一批数据送入模型——同时与可能发生变化的部分保持解耦，比如模型、数据集、损失函数和优化器。
+1
+2
+3
+4
+5
+6
+7
+8
+9
+
+
+class Trainer:
+    def __init__(
+  
+          <!--noindex-->
+            <div class="post-button">
+              <a class="btn" href="/2022/05/29/pytorch-accelerated_1/#more" rel="contents">
+                Read more &raquo;
+              </a>
+            </div>
+          <!--/noindex-->
+        
+      
+    </div>
+
+    
+    
+    
+      <footer class="post-footer">
+        <div class="post-eof"></div>
+      </footer>
+  </article>
+  
+  
+  
+
+      
+  
+  
+  <article itemscope itemtype="http://schema.org/Article" class="post-block" lang="en">
     <link itemprop="mainEntityOfPage" href="http://qixinbo.github.io/2022/05/28/pytorch-accelerated_0/">
 
     <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
@@ -1167,111 +1282,6 @@ template代码
   
   
 
-      
-  
-  
-  <article itemscope itemtype="http://schema.org/Article" class="post-block" lang="en">
-    <link itemprop="mainEntityOfPage" href="http://qixinbo.github.io/2022/02/27/ImJoy_10/">
-
-    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
-      <meta itemprop="image" content="/images/avatar.jpg">
-      <meta itemprop="name" content="Xin-Bo Qi(亓欣波)">
-      <meta itemprop="description" content="Digitize everything to realize Digitalization!">
-    </span>
-
-    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
-      <meta itemprop="name" content="数字旗手">
-    </span>
-      <header class="post-header">
-        <h2 class="post-title" itemprop="name headline">
-          
-            <a href="/2022/02/27/ImJoy_10/" class="post-title-link" itemprop="url">开源深度学习计算平台ImJoy解析：10 -- ImJoy主站之入口文件</a>
-        </h2>
-
-        <div class="post-meta">
-            <span class="post-meta-item">
-              <span class="post-meta-item-icon">
-                <i class="far fa-calendar"></i>
-              </span>
-              <span class="post-meta-item-text">Posted on</span>
-
-              <time title="Created: 2022-02-27 00:00:00" itemprop="dateCreated datePublished" datetime="2022-02-27T00:00:00+08:00">2022-02-27</time>
-            </span>
-              <span class="post-meta-item">
-                <span class="post-meta-item-icon">
-                  <i class="far fa-calendar-check"></i>
-                </span>
-                <span class="post-meta-item-text">Edited on</span>
-                <time title="Modified: 2022-03-02 10:46:40" itemprop="dateModified" datetime="2022-03-02T10:46:40+08:00">2022-03-02</time>
-              </span>
-            <span class="post-meta-item">
-              <span class="post-meta-item-icon">
-                <i class="far fa-folder"></i>
-              </span>
-              <span class="post-meta-item-text">In</span>
-                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
-                  <a href="/categories/computer-vision/" itemprop="url" rel="index"><span itemprop="name">computer vision</span></a>
-                </span>
-            </span>
-
-          
-  
-  <span class="post-meta-item">
-    
-      <span class="post-meta-item-icon">
-        <i class="far fa-comment"></i>
-      </span>
-      <span class="post-meta-item-text">Disqus: </span>
-    
-    <a title="disqus" href="/2022/02/27/ImJoy_10/#disqus_thread" itemprop="discussionUrl">
-      <span class="post-comments-count disqus-comment-count" data-disqus-identifier="2022/02/27/ImJoy_10/" itemprop="commentCount"></span>
-    </a>
-  </span>
-  
-  
-
-        </div>
-      </header>
-
-    
-    
-    
-    <div class="post-body" itemprop="articleBody">
-
-      
-          简介
-前面讲了ImJoy的core库和rpc库作为函数库如何被集成调用，而基于这两个核心库有一个能开箱即用的完整网站，即ImJoy主站，使用它就可以无需了解上面的技术细节，直接加载各种函数插件即可（但也因为这样，你无法更改网站样貌，如果没有定制开发的需求，则直接使用该网站即可）。
-
-从该文章开始，将尝试对ImJoy主站进行详细分析，看官方是怎样应用ImJoy的core和rpc库的。
-
-代码结构
-ImJoy主站是用vue.js前端框架写的，整个目录结构由vue脚手架vue-cli 4生成，所以首先要分析清楚vue脚手架生成的代码结构是怎样的，可以参考这篇教程
-截取其中的代码分析图：
-
-
-理清楚代
-          <!--noindex-->
-            <div class="post-button">
-              <a class="btn" href="/2022/02/27/ImJoy_10/#more" rel="contents">
-                Read more &raquo;
-              </a>
-            </div>
-          <!--/noindex-->
-        
-      
-    </div>
-
-    
-    
-    
-      <footer class="post-footer">
-        <div class="post-eof"></div>
-      </footer>
-  </article>
-  
-  
-  
-
 
   
   <nav class="pagination">
@@ -1343,7 +1353,7 @@ ImJoy主站是用vue.js前端框架写的，整个目录结构由vue脚手架vue
       <div class="site-state-item site-state-posts">
           <a href="/archives/">
         
-          <span class="site-state-item-count">166</span>
+          <span class="site-state-item-count">167</span>
           <span class="site-state-item-name">posts</span>
         </a>
       </div>
@@ -1356,7 +1366,7 @@ ImJoy主站是用vue.js前端框架写的，整个目录结构由vue脚手架vue
       <div class="site-state-item site-state-tags">
             <a href="/tags/">
           
-        <span class="site-state-item-count">54</span>
+        <span class="site-state-item-count">56</span>
         <span class="site-state-item-name">tags</span></a>
       </div>
   </nav>
