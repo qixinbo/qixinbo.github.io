@@ -28,7 +28,7 @@
 <meta property="og:description" content="简介 vim是一个非常强大的文本编辑器，而Neovim是对原vim的一个分叉，不过最简单的Neovim显得太过朴素，不过它提供了强大的插件系统，可以通过各种插件将其由一个简约的文本编辑器转化为强大的代码开发IDE。 NvChad就是一个Neovim的预配置库，可以使得Neovim开箱即获得各种强大的功能：   * NvChad是一个用lua编写的neovim配置，旨在提供一个具有非常漂亮的用户界面">
 <meta property="og:locale" content="en_US">
 <meta property="article:published_time" content="2022-08-10T16:00:00.000Z">
-<meta property="article:modified_time" content="2022-08-25T01:48:52.933Z">
+<meta property="article:modified_time" content="2022-08-25T07:34:28.376Z">
 <meta property="article:author" content="Xin-Bo Qi(亓欣波)">
 <meta property="article:tag" content="vim">
 <meta property="article:tag" content="IDE">
@@ -219,7 +219,7 @@
                   <i class="far fa-calendar-check"></i>
                 </span>
                 <span class="post-meta-item-text">Edited on</span>
-                <time title="Modified: 2022-08-25 09:48:52" itemprop="dateModified" datetime="2022-08-25T09:48:52+08:00">2022-08-25</time>
+                <time title="Modified: 2022-08-25 15:34:28" itemprop="dateModified" datetime="2022-08-25T15:34:28+08:00">2022-08-25</time>
               </span>
             <span class="post-meta-item">
               <span class="post-meta-item-icon">
@@ -264,6 +264,7 @@
 </ul>
 <h1 id="安装"><a href="#安装" class="headerlink" title="安装"></a>安装</h1><h2 id="前提条件"><a href="#前提条件" class="headerlink" title="前提条件"></a>前提条件</h2><p>在使用<code>NvChad</code>之前，要有一些前提依赖：</p>
 <ul>
+<li>终端<br>即<code>Neovim</code>运行的环境，<code>Linux</code>系统推荐<a target="_blank" rel="noopener" href="https://github.com/gnome-terminator/terminator"><code>Terminator</code></a>，<code>Windows</code>推荐<a target="_blank" rel="noopener" href="https://github.com/microsoft/terminal"><code>Windows Terminal</code></a>。</li>
 <li><code>Neovim 0.7.2</code>及以上<br>安装教程在<a target="_blank" rel="noopener" href="https://github.com/neovim/neovim/wiki/Installing-Neovim">这里</a>。</li>
 <li>字体及图标：<br>一个推荐的编程字体是<code>Fira Code</code>字体，这里不光安装它，还安装它的一个扩展，即<code>Nerd fonts</code>（<code>Nerd fonts</code> 本身并不是一种新的字体，而是把常用图标以打补丁的方式打到了常用字体上。）<br>具体到<a target="_blank" rel="noopener" href="https://www.nerdfonts.com/font-downloads">官网这里</a>进行下载。<br>对于<code>Linux</code>字体的安装，步骤为：<figure class="highlight sh"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br></pre></td><td class="code"><pre><span class="line">sudo unzip FiraCode.zip -d /usr/share/fonts</span><br><span class="line">sudo fc-cache -fv</span><br><span class="line">````</span><br><span class="line">对于`Windows`版本，注意在下载的文件中选择`XXXX Windows Compatible.ttf`。然后在`Windows Terminal`的字体中选择`FiraCode NF`字体即可。）</span><br><span class="line">为了测试是否成功，可以到[这个网址](www.nerdfonts.com/cheat-sheet)，点击 `Show All Icons` 按钮，选择一个图标，点击右上角的 `Copy Icon`，然后粘贴到命令行里即可。</span><br><span class="line">- 保证所需的目录干净</span><br><span class="line">对于Linux和MacOS系统，删除`~/.<span class="built_in">local</span>/share/nvim`这个文件夹；对于Windows系统，删除`~\AppData\Local\nvim`和`~\AppData\Local\nvim-data`。</span><br><span class="line">- 如果要用到`Telescope`的模糊搜索，还要提前安装`ripgrep`。具体安装方法可以参考官方文档[BurntSushi/ripgrep](https://github.com/BurntSushi/ripgrep)。</span><br><span class="line"></span><br><span class="line"><span class="comment">## 安装</span></span><br><span class="line">对于Linux/MacOS系统：</span><br><span class="line">```sh</span><br><span class="line">git <span class="built_in">clone</span> https://github.com/NvChad/NvChad ~/.config/nvim --depth 1 &amp;&amp; nvim</span><br></pre></td></tr></table></figure>
 对于Windows系统：<br>（注意：还需提前安装<a target="_blank" rel="noopener" href="https://www.mingw-w64.org/"><code>mingw</code></a>，以及在环境变量中配置其路径）<figure class="highlight sh"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">git <span class="built_in">clone</span> https://github.com/NvChad/NvChad <span class="variable">$HOME</span>\AppData\Local\nvim --depth 1 &amp;&amp; nvim</span><br></pre></td></tr></table></figure>
